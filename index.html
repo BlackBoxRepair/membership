@@ -2,183 +2,74 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>黑盒子會員積分系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑盒子會員系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* 防止手機版下拉重新整理影響體驗 */
-        body { overscroll-behavior-y: contain; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-    </style>
 </head>
-<body class="bg-gray-50 pb-24 font-sans">
-
-    <div id="app" class="max-w-md mx-auto min-h-screen bg-white relative shadow-lg">
+<body class="bg-white pb-24 font-sans">
+    <div id="app" class="max-w-md mx-auto min-h-screen relative shadow-lg">
         
-        <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col justify-center items-center">
-            <div class="w-10 h-10 border-4 border-gray-200 border-t-black rounded-full animate-spin mb-4"></div>
-            <p class="text-gray-400 text-sm">連線中...</p>
+        <div id="login-page" class="p-8 pt-20 flex flex-col items-center">
+            <h2 class="text-2xl font-bold mb-2">歡迎回來</h2>
+            <p class="text-gray-400 mb-10 text-sm">輸入電話號碼以進入黑盒子會員中心</p>
+            <input id="phone-input" type="tel" placeholder="0912345678" class="w-full border-b-2 border-gray-100 py-3 text-xl tracking-widest focus:border-black outline-none mb-6">
+            <button onclick="handlePhoneLogin()" class="w-full bg-black text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">
+                進入系統
+            </button>
         </div>
 
-        <header class="p-4 flex items-center justify-between border-b sticky top-0 bg-white/80 backdrop-blur-md z-10">
-            <div class="w-8 text-2xl">≡</div>
-            <h1 id="page-title" class="text-lg font-bold">主頁</h1>
-            <div id="logout-btn" class="w-8 text-right hidden">
-                <button onclick="handleLogout()" class="text-xs text-gray-400">登出</button>
-            </div>
-            <div id="placeholder" class="w-8"></div>
-        </header>
-
-        <div id="tab-home" class="tab-content active p-5 space-y-6">
-            <div class="aspect-[16/9] bg-gray-100 rounded-[2rem] flex items-center justify-center text-gray-300 shadow-inner">
-                <span class="text-sm">最新維修優惠活動</span>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="window.open('https://www.blackbox-repair.com.tw/', '_blank')" class="flex flex-col items-center justify-center gap-2 border border-gray-100 py-6 rounded-3xl shadow-sm hover:bg-gray-50 active:scale-95 transition">
-                    <span class="text-2xl">🔍</span>
-                    <span class="text-sm font-bold text-gray-700">維修價格</span>
-                </button>
-                <button onclick="window.open('https://www.blackbox-repair.com.tw/locations/', '_blank')" class="flex flex-col items-center justify-center gap-2 border border-gray-100 py-6 rounded-3xl shadow-sm hover:bg-gray-50 active:scale-95 transition">
-                    <span class="text-2xl">ⓘ</span>
-                    <span class="text-sm font-bold text-gray-700">服務據點</span>
-                </button>
-            </div>
-        </div>
-
-        <div id="tab-member" class="tab-content p-5">
-            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-7 rounded-[2.5rem] shadow-2xl mb-8 relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div>
-                        <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-1">Membership</p>
-                        <h2 id="m-level" class="text-xl font-bold italic">---</h2>
+        <main id="member-content" class="hidden">
+            <header class="p-4 flex items-center justify-between border-b">
+                <button class="text-2xl">≡</button>
+                <h1 class="text-lg font-bold">我的會員卡</h1>
+                <button onclick="location.reload()" class="text-xs text-gray-400">登出</button>
+            </header>
+            
+            <div class="p-5">
+                <div class="bg-gradient-to-br from-gray-900 to-black text-white p-6 rounded-[2rem] shadow-xl mb-8">
+                    <div class="flex justify-between items-start mb-10">
+                        <div>
+                            <p class="text-[10px] opacity-50 uppercase tracking-widest">Member Level</p>
+                            <h2 class="text-xl font-bold italic">尊榮會員</h2>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] opacity-50 uppercase tracking-widest">Points</p>
+                            <p class="text-3xl font-mono font-bold text-yellow-400">1,250</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-1">Points</p>
-                        <p id="m-points" class="text-4xl font-mono font-bold text-yellow-400">0</p>
+                    <p id="display-phone" class="text-lg font-medium tracking-widest"></p>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm text-center">
+                    <div class="flex justify-center mb-4">
+                        <canvas id="qr-code"></canvas>
                     </div>
-                </div>
-                <div class="mt-12 relative z-10">
-                    <p id="m-name" class="text-xl font-bold mb-1">載入中...</p>
-                    <p id="m-phone" class="text-xs opacity-50 font-mono tracking-widest">---</p>
+                    <p class="text-gray-400 text-[10px]">結帳時請出示此碼累積點數</p>
                 </div>
             </div>
-
-            <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm text-center mb-10">
-                <div class="flex justify-center mb-4">
-                    <canvas id="qr-code"></canvas>
-                </div>
-                <p class="text-gray-400 text-[11px]">結帳時出示條碼即可累積點數</p>
-            </div>
-
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-gray-800">🎟️ 我的優惠券</h3>
-                <span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-1 rounded-full">Coming Soon</span>
-            </div>
-            <div id="coupon-list" class="py-10 text-center border-2 border-dashed border-gray-50 rounded-3xl text-gray-300 text-xs">
-                目前尚無可用優惠券
-            </div>
-        </div>
-
-        <nav class="fixed bottom-6 left-0 right-0 max-w-[340px] mx-auto flex justify-around py-4 bg-white/90 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] shadow-2xl z-50">
-            <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 group">
-                <span id="icon-home" class="text-xl grayscale-0">🏠</span>
-                <span class="text-[10px] font-bold text-gray-800">主頁</span>
-            </button>
-            <button onclick="window.open('https://blackbox3c.simplybook.asia/v2/', '_blank')" class="flex flex-col items-center gap-1 opacity-40">
-                <span class="text-xl">📝</span>
-                <span class="text-[10px]">線上預約</span>
-            </button>
-            <button onclick="switchTab('member')" class="flex flex-col items-center gap-1 group">
-                <span id="icon-member" class="text-xl grayscale opacity-40">👤</span>
-                <span class="text-[10px] font-medium text-gray-400">我的會員</span>
-            </button>
-        </nav>
+        </main>
     </div>
 
     <script>
-        // 核心配置
-        const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_bIqoSDyBrvU7NJOc0Dr47A_LcO0xk3M';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        async function init() {
-            try {
-                const { data: { session } } = await _supabase.auth.getSession();
-                
-                if (!session) {
-                    document.getElementById('loading-overlay').innerHTML = `
-                        <button onclick="handleLogin()" class="bg-black text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">
-                            透過 LINE 登入會員
-                        </button>
-                    `;
-                    return;
-                }
-
-                // 成功抓取 Session 後隱藏載入遮罩
-                document.getElementById('loading-overlay').classList.add('hidden');
-                updateProfile(session.user);
-
-            } catch (err) {
-                console.error('Init error:', err);
+        function handlePhoneLogin() {
+            const phone = document.getElementById('phone-input').value;
+            if (phone.length < 10) {
+                alert('請輸入正確的手機號碼');
+                return;
             }
-        }
-
-        async function updateProfile(user) {
-            const { data: profile } = await _supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (profile) {
-                document.getElementById('m-name').innerText = profile.full_name || '黑盒子會員';
-                document.getElementById('m-points').innerText = profile.total_points || 0;
-                document.getElementById('m-level').innerText = profile.member_level || '一般會員';
-                document.getElementById('m-phone').innerText = profile.phone || '尚未綁定電話';
-                
-                new QRious({
-                    element: document.getElementById('qr-code'),
-                    value: user.id,
-                    size: 180,
-                    level: 'H'
-                });
-            }
-        }
-
-        function switchTab(tab) {
-            // 頁面顯示切換
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
+            // 模擬登入成功邏輯
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('member-content').classList.remove('hidden');
+            document.getElementById('display-phone').innerText = phone;
             
-            // 標題與按鈕狀態
-            document.getElementById('page-title').innerText = tab === 'home' ? '主頁' : '我的會員';
-            document.getElementById('logout-btn').classList.toggle('hidden', tab !== 'member');
-            document.getElementById('placeholder').classList.toggle('hidden', tab === 'member');
-
-            // 圖標樣式
-            document.getElementById('icon-home').classList.toggle('grayscale', tab !== 'home');
-            document.getElementById('icon-member').classList.toggle('grayscale', tab !== 'member');
-            document.getElementById('icon-member').classList.toggle('opacity-40', tab !== 'member');
-        }
-
-        async function handleLogin() {
-            await _supabase.auth.signInWithOAuth({ 
-                provider: 'line',
-                options: { redirectTo: window.location.href }
+            new QRious({
+                element: document.getElementById('qr-code'),
+                value: 'MEMBER-' + phone,
+                size: 180
             });
         }
-
-        async function handleLogout() {
-            await _supabase.auth.signOut();
-            window.location.reload();
-        }
-
-        // 啟動
-        window.onload = init;
     </script>
 </body>
 </html>
