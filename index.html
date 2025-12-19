@@ -2,106 +2,132 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>黑盒子會員積分系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* 防止手機版下拉重新整理影響體驗 */
+        body { overscroll-behavior-y: contain; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
-<body class="bg-gray-50 pb-24">
-    <div id="app" class="max-w-md mx-auto min-h-screen bg-white shadow-lg relative">
+<body class="bg-gray-50 pb-24 font-sans">
+
+    <div id="app" class="max-w-md mx-auto min-h-screen bg-white relative shadow-lg">
         
-        <div id="loading" class="flex justify-center items-center h-screen">
-            <p class="text-gray-400 animate-pulse">正在連線至黑盒子系統...</p>
+        <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col justify-center items-center">
+            <div class="w-10 h-10 border-4 border-gray-200 border-t-black rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-400 text-sm">連線中...</p>
         </div>
 
-        <main id="tab-home" class="hidden p-4 space-y-6">
-            <header class="flex justify-center py-4">
-                <h1 class="text-lg font-bold text-gray-800">主頁</h1>
-            </header>
-            <div class="aspect-video bg-gray-100 rounded-3xl flex items-center justify-center text-gray-300">
-                Banner 廣告區域
+        <header class="p-4 flex items-center justify-between border-b sticky top-0 bg-white/80 backdrop-blur-md z-10">
+            <div class="w-8 text-2xl">≡</div>
+            <h1 id="page-title" class="text-lg font-bold">主頁</h1>
+            <div id="logout-btn" class="w-8 text-right hidden">
+                <button onclick="handleLogout()" class="text-xs text-gray-400">登出</button>
+            </div>
+            <div id="placeholder" class="w-8"></div>
+        </header>
+
+        <div id="tab-home" class="tab-content active p-5 space-y-6">
+            <div class="aspect-[16/9] bg-gray-100 rounded-[2rem] flex items-center justify-center text-gray-300 shadow-inner">
+                <span class="text-sm">最新維修優惠活動</span>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="window.location.href='https://www.blackbox-repair.com.tw/'" class="flex items-center justify-center gap-2 border py-4 rounded-2xl shadow-sm text-sm">
-                    🔍 維修價格
+                <button onclick="window.open('https://www.blackbox-repair.com.tw/', '_blank')" class="flex flex-col items-center justify-center gap-2 border border-gray-100 py-6 rounded-3xl shadow-sm hover:bg-gray-50 active:scale-95 transition">
+                    <span class="text-2xl">🔍</span>
+                    <span class="text-sm font-bold text-gray-700">維修價格</span>
                 </button>
-                <button onclick="window.location.href='https://www.blackbox-repair.com.tw/locations/'" class="flex items-center justify-center gap-2 border py-4 rounded-2xl shadow-sm text-sm">
-                    ⓘ 服務據點
+                <button onclick="window.open('https://www.blackbox-repair.com.tw/locations/', '_blank')" class="flex flex-col items-center justify-center gap-2 border border-gray-100 py-6 rounded-3xl shadow-sm hover:bg-gray-50 active:scale-95 transition">
+                    <span class="text-2xl">ⓘ</span>
+                    <span class="text-sm font-bold text-gray-700">服務據點</span>
                 </button>
             </div>
-        </main>
+        </div>
 
-        <main id="tab-member" class="hidden p-4">
-            <header class="flex justify-between items-center mb-6">
-                <h1 class="text-xl font-bold">我的會員</h1>
-                <button onclick="handleLogout()" class="text-xs text-gray-400 border px-2 py-1 rounded">登出</button>
-            </header>
-
-            <div class="bg-gradient-to-br from-gray-800 to-black text-white p-6 rounded-[2rem] shadow-xl mb-6">
-                <div class="flex justify-between items-start">
+        <div id="tab-member" class="tab-content p-5">
+            <div class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white p-7 rounded-[2.5rem] shadow-2xl mb-8 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
+                <div class="flex justify-between items-start relative z-10">
                     <div>
-                        <p class="text-[10px] opacity-70 uppercase tracking-widest">Member Level</p>
-                        <h2 id="m-level" class="text-xl font-bold">---</h2>
+                        <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-1">Membership</p>
+                        <h2 id="m-level" class="text-xl font-bold italic">---</h2>
                     </div>
                     <div class="text-right">
-                        <p class="text-[10px] opacity-70 uppercase tracking-widest">積分點數</p>
-                        <p id="m-points" class="text-3xl font-mono font-bold text-yellow-400">0</p>
+                        <p class="text-[10px] opacity-50 uppercase tracking-[0.2em] mb-1">Points</p>
+                        <p id="m-points" class="text-4xl font-mono font-bold text-yellow-400">0</p>
                     </div>
                 </div>
-                <div class="mt-8">
-                    <p id="m-name" class="text-lg font-medium">載入中...</p>
-                    <p id="m-phone" class="text-sm opacity-60">---</p>
+                <div class="mt-12 relative z-10">
+                    <p id="m-name" class="text-xl font-bold mb-1">載入中...</p>
+                    <p id="m-phone" class="text-xs opacity-50 font-mono tracking-widest">---</p>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl border border-gray-100 text-center mb-8">
-                <p class="text-gray-400 mb-4 text-[10px]">結帳時請出示此碼給店員掃描</p>
-                <div class="flex justify-center">
+            <div class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm text-center mb-10">
+                <div class="flex justify-center mb-4">
                     <canvas id="qr-code"></canvas>
                 </div>
+                <p class="text-gray-400 text-[11px]">結帳時出示條碼即可累積點數</p>
             </div>
 
-            <h3 class="font-bold mb-3 flex items-center gap-2">🎟️ 我的優惠券 <span id="coupon-count" class="text-xs bg-gray-100 px-2 rounded-full text-gray-500">0</span></h3>
-            <div id="coupon-list" class="space-y-3 text-sm text-gray-400 text-center py-10">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-gray-800">🎟️ 我的優惠券</h3>
+                <span class="text-[10px] bg-gray-100 text-gray-400 px-2 py-1 rounded-full">Coming Soon</span>
+            </div>
+            <div id="coupon-list" class="py-10 text-center border-2 border-dashed border-gray-50 rounded-3xl text-gray-300 text-xs">
                 目前尚無可用優惠券
             </div>
-        </main>
+        </div>
 
-        <nav class="fixed bottom-6 left-0 right-0 max-w-[320px] mx-auto flex justify-around py-3 bg-white/90 backdrop-blur-md border border-gray-100 rounded-full shadow-lg z-50">
-            <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center gap-1">
-                <span class="text-xl">🏠</span><span class="text-[10px] text-gray-500">主頁</span>
+        <nav class="fixed bottom-6 left-0 right-0 max-w-[340px] mx-auto flex justify-around py-4 bg-white/90 backdrop-blur-xl border border-gray-100 rounded-[2.5rem] shadow-2xl z-50">
+            <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 group">
+                <span id="icon-home" class="text-xl grayscale-0">🏠</span>
+                <span class="text-[10px] font-bold text-gray-800">主頁</span>
             </button>
-            <button onclick="window.location.href='https://blackbox3c.simplybook.asia/v2/'" class="flex flex-col items-center gap-1">
-                <span class="text-xl">📝</span><span class="text-[10px] text-gray-500">線上預約</span>
+            <button onclick="window.open('https://blackbox3c.simplybook.asia/v2/', '_blank')" class="flex flex-col items-center gap-1 opacity-40">
+                <span class="text-xl">📝</span>
+                <span class="text-[10px]">線上預約</span>
             </button>
-            <button onclick="switchTab('member')" id="btn-member" class="flex flex-col items-center gap-1">
-                <span class="text-xl">👤</span><span class="text-[10px] text-gray-500">我的會員</span>
+            <button onclick="switchTab('member')" class="flex flex-col items-center gap-1 group">
+                <span id="icon-member" class="text-xl grayscale opacity-40">👤</span>
+                <span class="text-[10px] font-medium text-gray-400">我的會員</span>
             </button>
         </nav>
     </div>
 
     <script>
+        // 核心配置
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_bIqoSDyBrvU7NJOc0Dr47A_LcO0xk3M';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function init() {
-            const { data: { session } } = await _supabase.auth.getSession();
-            
-            if (!session) {
-                // 如果沒登入，嘗試導向 LINE 登入
-                // 注意：在 GitHub Pages 使用，redirectTo 必須填寫您的首頁網址
-                await _supabase.auth.signInWithOAuth({ 
-                    provider: 'line',
-                    options: { redirectTo: window.location.origin + window.location.pathname }
-                });
-                return;
+            try {
+                const { data: { session } } = await _supabase.auth.getSession();
+                
+                if (!session) {
+                    document.getElementById('loading-overlay').innerHTML = `
+                        <button onclick="handleLogin()" class="bg-black text-white px-8 py-3 rounded-full font-bold shadow-lg active:scale-95 transition">
+                            透過 LINE 登入會員
+                        </button>
+                    `;
+                    return;
+                }
+
+                // 成功抓取 Session 後隱藏載入遮罩
+                document.getElementById('loading-overlay').classList.add('hidden');
+                updateProfile(session.user);
+
+            } catch (err) {
+                console.error('Init error:', err);
             }
+        }
 
-            const user = session.user;
-
-            // 抓取會員資料
+        async function updateProfile(user) {
             const { data: profile } = await _supabase
                 .from('profiles')
                 .select('*')
@@ -109,7 +135,7 @@
                 .single();
 
             if (profile) {
-                document.getElementById('m-name').innerText = profile.full_name || user.user_metadata.full_name || '黑盒子會員';
+                document.getElementById('m-name').innerText = profile.full_name || '黑盒子會員';
                 document.getElementById('m-points').innerText = profile.total_points || 0;
                 document.getElementById('m-level').innerText = profile.member_level || '一般會員';
                 document.getElementById('m-phone').innerText = profile.phone || '尚未綁定電話';
@@ -117,21 +143,33 @@
                 new QRious({
                     element: document.getElementById('qr-code'),
                     value: user.id,
-                    size: 160
+                    size: 180,
+                    level: 'H'
                 });
             }
-
-            document.getElementById('loading').classList.add('hidden');
-            switchTab('home'); // 登入後預設進主頁
         }
 
         function switchTab(tab) {
-            document.getElementById('tab-home').classList.toggle('hidden', tab !== 'home');
-            document.getElementById('tab-member').classList.toggle('hidden', tab !== 'member');
+            // 頁面顯示切換
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
             
-            // 處理圖標亮度
-            document.getElementById('btn-home').style.opacity = tab === 'home' ? '1' : '0.4';
-            document.getElementById('btn-member').style.opacity = tab === 'member' ? '1' : '0.4';
+            // 標題與按鈕狀態
+            document.getElementById('page-title').innerText = tab === 'home' ? '主頁' : '我的會員';
+            document.getElementById('logout-btn').classList.toggle('hidden', tab !== 'member');
+            document.getElementById('placeholder').classList.toggle('hidden', tab === 'member');
+
+            // 圖標樣式
+            document.getElementById('icon-home').classList.toggle('grayscale', tab !== 'home');
+            document.getElementById('icon-member').classList.toggle('grayscale', tab !== 'member');
+            document.getElementById('icon-member').classList.toggle('opacity-40', tab !== 'member');
+        }
+
+        async function handleLogin() {
+            await _supabase.auth.signInWithOAuth({ 
+                provider: 'line',
+                options: { redirectTo: window.location.href }
+            });
         }
 
         async function handleLogout() {
@@ -139,7 +177,8 @@
             window.location.reload();
         }
 
-        init();
+        // 啟動
+        window.onload = init;
     </script>
 </body>
 </html>
