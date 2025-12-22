@@ -51,7 +51,6 @@
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        /* 滿版平底導覽列：移除圓弧框 */
         .nav-full-width {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
@@ -62,7 +61,6 @@
             align-items: center;
             z-index: 100;
             shrink-0;
-            /* 針對 iPhone 底部安全區域填充顏色 */
             padding-bottom: env(safe-area-inset-bottom);
         }
 
@@ -86,10 +84,10 @@
         
         <header class="p-6 pb-2 flex justify-between items-center bg-transparent shrink-0">
             <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">Digital Box Service</span>
+                <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">BLACK BOX REPAIR</span>
                 <h1 id="page-title" class="text-2xl font-black text-gray-900 tracking-tight">會員中心</h1>
             </div>
-            <div class="text-[9px] text-gray-300 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-widest font-bold">Preview</div>
+            <div class="text-[9px] text-gray-300 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-widest font-bold">Preview Mode</div>
         </header>
 
         <div class="content-scroll">
@@ -140,7 +138,7 @@
 
             <main id="tab-coupon" class="tab-content p-6">
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 opacity-60 text-center">
-                    <p class="text-sm font-bold text-gray-400 italic">目前尚無可用優惠券</p>
+                    <p class="text-sm font-bold text-gray-400 italic font-bold">目前尚無可用優惠券</p>
                 </div>
             </main>
         </div>
@@ -191,7 +189,7 @@
         window.onload = function() {
             new QRious({
                 element: document.getElementById('qr-code'),
-                value: 'FULL-WIDTH-NAV-PREVIEW',
+                value: 'REPAIR-CENTER-PREVIEW',
                 size: 160,
                 level: 'H'
             });
