@@ -45,10 +45,16 @@
             min-height: 180px;
         }
 
+        /* 修正：置中對齊的等級標籤 */
         .rank-badge {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px; /* 確保框框有足夠寬度 */
+            height: 28px;    /* 固定高度以便精確置中 */
         }
 
         .nav-full-width {
@@ -122,8 +128,8 @@
                             <span class="text-[8px] text-white/30 uppercase tracking-widest mb-1 font-bold">Phone Number</span>
                             <p class="text-xs text-white/70 font-mono tracking-widest font-bold">0912-345-678</p>
                         </div>
-                        <div class="rank-badge px-4 py-1.5 rounded-xl">
-                            <span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase">MEMBER</span>
+                        <div class="rank-badge px-3 rounded-xl">
+                            <span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span>
                         </div>
                     </div>
                 </div>
