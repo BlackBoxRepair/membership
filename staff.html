@@ -23,6 +23,12 @@
         .scan-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid rgba(234, 179, 8, 0.3); box-shadow: 0 0 50px rgba(234, 179, 8, 0.1); pointer-events: none; }
         .scan-line { position: absolute; width: 100%; height: 2px; background: #eab308; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px #eab308; }
         @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
+
+        /* 新增：確認視窗樣式 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .confirm-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 14px; }
+        .confirm-label { color: #9ca3af; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; }
+        .confirm-value { color: #111; font-weight: 700; text-align: right; }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden">
@@ -37,6 +43,41 @@
         </div>
         <button onclick="checkPassword()" class="w-full max-w-xs bg-yellow-600 text-black py-4 rounded-2xl font-black tracking-widest hover:bg-yellow-500 transition">UNLOCK SYSTEM</button>
         <p id="login-error" class="text-red-500 text-xs font-bold mt-6 tracking-widest hidden animate-pulse">WRONG PASSCODE</p>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl relative">
+            <h3 class="text-2xl font-black text-black mb-1 tracking-tight">送出確認</h3>
+            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">CONFIRM TRANSACTION</p>
+            
+            <div class="space-y-1 mb-6">
+                <div class="confirm-row"><span class="confirm-label">會員姓名</span><span id="cfm-name" class="confirm-value">---</span></div>
+                <div class="confirm-row"><span class="confirm-label">會員電話</span><span id="cfm-phone" class="confirm-value">---</span></div>
+                <div class="confirm-row"><span class="confirm-label">維修單號</span><span id="cfm-order" class="confirm-value">---</span></div>
+                <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
+                
+                <hr class="border-gray-100 my-4">
+                
+                <div class="confirm-row">
+                    <span class="confirm-label">獲取積分</span>
+                    <span id="cfm-points" class="confirm-value text-green-600 text-lg">+0</span>
+                </div>
+                <div class="confirm-row">
+                    <span class="confirm-label">獲取優惠券</span>
+                    <span id="cfm-coupon" class="confirm-value text-yellow-600">無</span>
+                </div>
+            </div>
+
+            <div class="text-right mb-8">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Handled By</p>
+                <p id="cfm-staff" class="text-lg font-black text-gray-800 italic font-serif border-b-2 border-gray-200 inline-block px-2 pb-1">---</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 bg-gray-100 text-gray-500 py-3 rounded-xl font-bold active:scale-95 transition">返回修改</button>
+                <button id="btn-submit-real" onclick="executeTransaction()" class="flex-[2] bg-black text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">確認送出</button>
+            </div>
+        </div>
     </div>
 
     <div id="app-container" class="hidden flex-col h-full w-full">
@@ -128,6 +169,7 @@
         const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
 
+        // 登入相關函式
         function checkPassword() {
             const input = document.getElementById('password-input');
             if (VALID_PASSWORDS.includes(input.value)) {
@@ -137,7 +179,6 @@
                 input.value = '';
             }
         }
-
         function unlockSystem() {
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
@@ -146,31 +187,24 @@
             resetIdleTimer();
             loadCoupons();
         }
-
         function lockSystem() {
             document.getElementById('lock-screen').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
             cleanupScanner();
         }
-
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             idleTimer = setTimeout(lockSystem, AUTO_LOCK_TIME);
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
+        // 讀取優惠券
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const { data, error } = await _supabase.from('coupons').select('*').eq('is_active', true).order('created_at', { ascending: false });
 
-            if (error) {
-                container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>';
-                return;
-            }
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p class="col-span-2 text-center text-gray-600 text-xs py-2">目前無可用優惠券</p>';
-                return;
-            }
+            if (error) { container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>'; return; }
+            if (!data || data.length === 0) { container.innerHTML = '<p class="col-span-2 text-center text-gray-600 text-xs py-2">目前無可用優惠券</p>'; return; }
 
             container.innerHTML = data.map(coupon => `
                 <div class="coupon-card" onclick="toggleCoupon(this, '${coupon.name}')">
@@ -180,36 +214,25 @@
             `).join('');
         }
 
-        // --- 相機與邏輯核心 (修正版) ---
+        // --- 核心邏輯變數 ---
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
         let currentScanMode = 'member'; 
         let selectedCoupon = null;
         let calculatedPoints = 0;
+        let currentStaffName = ''; // 暫存驗證過的員工姓名
 
-        // 強制清理相機資源的函式
+        // 相機管理
         async function cleanupScanner() {
             if (html5QrcodeScanner) {
-                try {
-                    // 如果正在掃描，先停止
-                    if (html5QrcodeScanner.isScanning) {
-                        await html5QrcodeScanner.stop();
-                    }
-                } catch (e) { console.log('Stop failed', e); }
-                
-                try {
-                    // 清除畫面
-                    html5QrcodeScanner.clear();
-                } catch (e) { console.log('Clear failed', e); }
-                
+                try { if (html5QrcodeScanner.isScanning) await html5QrcodeScanner.stop(); } catch (e) {}
+                try { html5QrcodeScanner.clear(); } catch (e) {}
                 html5QrcodeScanner = null;
             }
         }
 
         async function startScanner(mode) {
             currentScanMode = mode;
-            
-            // 先清理舊的相機實體
             await cleanupScanner();
 
             if (mode === 'staff_auth') {
@@ -228,21 +251,14 @@
                 document.getElementById('manual-input-section').classList.remove('hidden');
             }
 
-            // 重新初始化
             html5QrcodeScanner = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => {
-                console.log(err);
-                alert("相機啟動失敗，請確認權限或重整網頁");
-            });
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess).catch(err => { console.log(err); alert("相機啟動失敗"); });
         }
 
-        async function onScanSuccess(decodedText, decodedResult) {
+        async function onScanSuccess(decodedText) {
             if (!decodedText.startsWith('BBX-')) return;
             const scannedId = decodedText.replace('BBX-', '');
-
-            // 掃描成功後，一定要先清理相機
             await cleanupScanner();
 
             if (currentScanMode === 'member') {
@@ -252,39 +268,31 @@
             }
         }
 
+        // 手動搜尋
         async function searchByPhone() {
             const phone = document.getElementById('manual-phone').value;
-            if (!/^09\d{8}$/.test(phone)) {
-                alert('電話格式錯誤');
-                return;
-            }
+            if (!/^09\d{8}$/.test(phone)) { alert('電話格式錯誤'); return; }
             const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
-            if (error || !data) {
-                alert('查無此會員！');
-                return;
-            }
+            if (error || !data) { alert('查無此會員！'); return; }
             
             await cleanupScanner();
             fetchCustomerData(data.line_id);
         }
 
+        // 讀取會員
         async function fetchCustomerData(lineId) {
-            // 切換到表單畫面
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
             currentTargetLineId = lineId;
 
             const { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineId).single();
-            if (error || !data) {
-                alert('查無此會員資料');
-                resetScan();
-                return;
-            }
+            if (error || !data) { alert('查無此會員資料'); resetScan(); return; }
 
             document.getElementById('user-name').innerText = data.full_name;
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
+            // 重置欄位
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
@@ -293,17 +301,7 @@
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        async function verifyStaffIdentity(staffLineId) {
-            const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffLineId).single();
-            if (error || !data || data.role !== 'staff') {
-                alert('⛔️ 權限不足或驗證失敗');
-                // 驗證失敗回到表單，而非重新掃描
-                resetToForm();
-                return;
-            }
-            processTransaction(data.full_name);
-        }
-
+        // UI 操作
         function calcPreview() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
             calculatedPoints = Math.round(amount / 100);
@@ -312,73 +310,108 @@
 
         function toggleCoupon(el, couponName) {
             if (el.classList.contains('selected')) {
-                el.classList.remove('selected');
-                selectedCoupon = null;
+                el.classList.remove('selected'); selectedCoupon = null;
             } else {
                 document.querySelectorAll('.coupon-card').forEach(c => c.classList.remove('selected'));
-                el.classList.add('selected');
-                selectedCoupon = couponName;
+                el.classList.add('selected'); selectedCoupon = couponName;
             }
         }
 
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
-            if (!amount && !selectedCoupon) {
-                alert('請至少輸入金額或選擇一張優惠券');
-                return;
-            }
+            if (!amount && !selectedCoupon) { alert('請至少輸入金額或選擇一張優惠券'); return; }
             startScanner('staff_auth');
         }
 
-        // 4. (修正) 取消掃描 -> 跳回表單
-        async function resetToForm() {
-            await cleanupScanner();
+        function resetToForm() {
+            cleanupScanner();
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
         }
 
-        async function processTransaction(staffName) {
-            const store = document.getElementById('store-select').value;
-            const orderNo = document.getElementById('order-no').value || '無單號';
-            const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            
-            const confirmMsg = `確認交易？\n----------------\n會員：${document.getElementById('user-name').innerText}\n單號：${orderNo}\n金額：$${amount}\n積分：${calculatedPoints}\n發券：${selectedCoupon || '無'}\n經手人：${staffName}`;
-
-            if (!confirm(confirmMsg)) {
-                resetToForm();
-                return;
-            }
-
-            const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
-            const newTotal = (profile.total_points || 0) + calculatedPoints;
-
-            const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
-
-            if (updateError) {
-                alert('交易失敗');
-                resetToForm();
-                return;
-            }
-
-            await _supabase.from('point_logs').insert({
-                line_id: currentTargetLineId,
-                staff_name: staffName,
-                store_name: store,
-                order_number: orderNo,
-                amount: amount,
-                points_change: calculatedPoints
-            });
-
-            alert('✅ 交易完成！');
-            resetScan(); 
-        }
-
-        // 3. (修正) 放棄並重新掃描 -> 跳回會員掃描
         async function resetScan() {
-            // 清理一切並重新開始
             await cleanupScanner();
             currentTargetLineId = null;
             startScanner('member');
+        }
+
+        // --- 驗證與交易流程 (關鍵修改) ---
+
+        // 1. 驗證員工身分
+        async function verifyStaffIdentity(staffLineId) {
+            const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffLineId).single();
+            if (error || !data || data.role !== 'staff') {
+                alert('⛔️ 權限不足或驗證失敗');
+                resetToForm();
+                return;
+            }
+            // 驗證成功，暫存員工名，開啟確認視窗
+            currentStaffName = data.full_name;
+            showConfirmModal();
+        }
+
+        // 2. 顯示確認圖卡
+        function showConfirmModal() {
+            // 填入資料
+            document.getElementById('cfm-name').innerText = document.getElementById('user-name').innerText;
+            document.getElementById('cfm-phone').innerText = document.getElementById('user-phone').innerText;
+            document.getElementById('cfm-order').innerText = document.getElementById('order-no').value || '無';
+            document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
+            
+            document.getElementById('cfm-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
+            document.getElementById('cfm-coupon').innerText = selectedCoupon || '無';
+            document.getElementById('cfm-staff').innerText = currentStaffName;
+
+            // 顯示 Modal
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
+        // 關閉確認視窗
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+            // 回到表單頁，讓員工可以繼續修改
+            resetToForm();
+        }
+
+        // 3. 執行真正的交易 (按下「確認送出」後觸發)
+        async function executeTransaction() {
+            const btn = document.getElementById('btn-submit-real');
+            btn.disabled = true;
+            btn.innerText = "處理中...";
+
+            const store = document.getElementById('store-select').value;
+            const orderNo = document.getElementById('order-no').value || '無單號';
+            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+
+            try {
+                // 更新積分
+                const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
+                const newTotal = (profile.total_points || 0) + calculatedPoints;
+                const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
+                if (updateError) throw updateError;
+
+                // 寫入紀錄
+                await _supabase.from('point_logs').insert({
+                    line_id: currentTargetLineId,
+                    staff_name: currentStaffName,
+                    store_name: store,
+                    order_number: orderNo,
+                    amount: amount,
+                    points_change: calculatedPoints
+                });
+
+                // 成功
+                alert('✅ 交易完成！');
+                document.getElementById('confirm-modal').style.display = 'none';
+                resetScan(); // 自動回到掃會員頁
+
+            } catch (err) {
+                console.error(err);
+                alert('交易失敗，請檢查網路');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "確認送出";
+            }
         }
     </script>
 </body>
