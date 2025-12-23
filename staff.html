@@ -16,7 +16,7 @@
             background-color: #f3f4f6;
             color: #111827;
             overscroll-behavior: none;
-            height: 100dvh; /* 使用 dvh 解決手機瀏覽器網址列問題 */
+            height: 100dvh; 
             width: 100%;
             overflow: hidden; 
         }
@@ -33,7 +33,7 @@
         .soft-input:focus { border-color: #ca8a04; box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1); }
         .soft-input::placeholder { color: #9ca3af; }
 
-        /* 4. 優惠券樣式 (含日期標籤) */
+        /* 4. 優惠券樣式 */
         .coupon-card { 
             background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; 
             transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); select-user: none;
@@ -231,26 +231,34 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // --- 優惠券讀取 (邏輯修改：在前端進行過濾與排序，支援永久有效) ---
+        // --- 核心變數 ---
+        let html5QrcodeScanner = null;
+        let currentTargetLineId = null; 
+        let currentScanMode = 'member'; 
+        let selectedCoupons = []; 
+        let calculatedPoints = 0;
+        let currentStaffName = '';
+        
+        // 新增：用來暫存所有抓下來的優惠券詳細資料，方便結帳時查詢
+        let allCouponsData = []; 
+
+        // --- 優惠券讀取 (儲存完整資料) ---
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const today = new Date().toISOString().split('T')[0];
 
-            // 1. 從 DB 抓取所有 is_active = true 的券 (不篩日期)
-            const { data, error } = await _supabase
-                .from('coupons')
-                .select('*')
-                .eq('is_active', true);
+            const { data, error } = await _supabase.from('coupons').select('*').eq('is_active', true);
 
             if (error) { container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>'; return; }
             if (!data || data.length === 0) { container.innerHTML = '<p class="col-span-2 text-center text-gray-400 text-xs py-2">目前無可用優惠券</p>'; return; }
 
-            // 2. JS 過濾與排序
+            // 儲存到全域變數，供送出時使用
+            allCouponsData = data;
+
+            // 過濾與排序
             const validCoupons = data.filter(coupon => {
-                // 保留條件：沒有期限 OR 期限 >= 今天
                 return !coupon.valid_until || coupon.valid_until >= today;
             }).sort((a, b) => {
-                // 排序：快過期的排前，永久有效排後
                 if (a.valid_until && b.valid_until) return a.valid_until.localeCompare(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
                 if (!a.valid_until && b.valid_until) return 1;
@@ -262,7 +270,6 @@
                 return;
             }
 
-            // 3. 渲染
             container.innerHTML = validCoupons.map(coupon => {
                 let badgeHtml = '';
                 if (coupon.valid_until) {
@@ -280,14 +287,6 @@
                 `;
             }).join('');
         }
-
-        // --- 核心邏輯 ---
-        let html5QrcodeScanner = null;
-        let currentTargetLineId = null; 
-        let currentScanMode = 'member'; 
-        let selectedCoupons = []; 
-        let calculatedPoints = 0;
-        let currentStaffName = '';
 
         async function cleanupScanner() {
             if (html5QrcodeScanner) {
@@ -425,6 +424,7 @@
             resetToForm();
         }
 
+        // --- 交易執行 (關鍵修改：同時寫入Log 與 客戶票夾) ---
         async function executeTransaction() {
             const btn = document.getElementById('btn-submit-real');
             btn.disabled = true; btn.innerText = "處理中...";
@@ -432,15 +432,15 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            // 將多張優惠券轉成字串
-            const couponString = selectedCoupons.length > 0 ? selectedCoupons.join(', ') : null;
 
             try {
+                // 1. 更新積分
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
                 const newTotal = (profile.total_points || 0) + calculatedPoints;
                 const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
                 if (updateError) throw updateError;
 
+                // 2. 寫入積分紀錄 (Log)
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId,
                     staff_name: currentStaffName,
@@ -448,8 +448,25 @@
                     order_number: orderNo,
                     amount: amount,
                     points_change: calculatedPoints
-                    // 若資料庫有 coupon 欄位可加： , coupon: couponString
                 });
+
+                // 3. 發送優惠券到客戶票夾 (user_coupons)
+                if (selectedCoupons.length > 0) {
+                    const couponsToInsert = selectedCoupons.map(couponName => {
+                        // 從 allCouponsData 找回完整的優惠券資訊 (為了取得 description 和 valid_until)
+                        const originalCoupon = allCouponsData.find(c => c.name === couponName);
+                        return {
+                            line_id: currentTargetLineId,
+                            coupon_name: couponName,
+                            description: originalCoupon ? originalCoupon.description : '',
+                            valid_until: originalCoupon ? originalCoupon.valid_until : null, // 複製期限 (或 null 為永久)
+                            status: 'unused'
+                        };
+                    });
+                    
+                    const { error: couponError } = await _supabase.from('user_coupons').insert(couponsToInsert);
+                    if (couponError) console.error("發券失敗", couponError);
+                }
 
                 alert('✅ 交易完成！');
                 document.getElementById('confirm-modal').style.display = 'none';
