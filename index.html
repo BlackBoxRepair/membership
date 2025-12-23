@@ -126,7 +126,7 @@
                     <input id="input-email" type="email" placeholder="Email" class="soft-input">
                 </div>
 
-                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">領取我的數位盒子</button>
+                <button id="btn-save" onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">領取我的數位盒子</button>
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@
                 <span class="text-[10px] font-black uppercase tracking-tighter">線上預約</span>
             </button>
             <button onclick="switchTab('card')" class="flex-1 py-3 flex flex-col items-center gap-1 active-nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H5a2 2 0 002 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
                 <span class="text-[10px] font-black uppercase tracking-tighter">會員卡</span>
             </button>
             <button onclick="switchTab('coupon')" class="flex-1 py-3 flex flex-col items-center gap-1 inactive-nav-item">
@@ -226,7 +226,7 @@
             }
         }
 
-        // 恢復電話欄位格式辨別
+        // 電話格式即時偵測
         document.getElementById('input-phone').addEventListener('input', function(e) {
             const regex = /^09\d{8}$/;
             const errorEl = document.getElementById('phone-error');
@@ -238,26 +238,51 @@
         });
 
         async function saveProfile() {
+            const btn = document.getElementById('btn-save');
             const name = document.getElementById('input-name').value;
             const phone = document.getElementById('input-phone').value;
             const year = document.getElementById('birth-year').value;
             const month = document.getElementById('birth-month').value.padStart(2, '0');
             const day = document.getElementById('birth-day').value.padStart(2, '0');
-            const birthday = `${year}-${month}-${day}`;
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
 
-            // 嚴格驗證必填項
+            // 1. 驗證邏輯：統一錯誤訊息
             if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { 
-                alert('請完整正確填寫必填欄位！'); return; 
+                alert('請正確填寫必填欄位'); 
+                return; 
             }
 
-            const { data, error } = await _supabase.from('profiles').upsert({
-                line_id: currentUserLineId, full_name: name, phone: phone, 
-                birthday: birthday, email: email, area: area, total_points: 0
-            }).select().single();
+            // 2. 按鈕狀態：處理中
+            btn.disabled = true;
+            btn.innerText = "處理中...";
 
-            if (!error) { document.getElementById('profile-modal').style.display = 'none'; renderApp(data, currentUserLineId); }
+            try {
+                const birthday = `${year}-${month}-${day}`;
+                
+                // 3. 送出資料
+                const { data, error } = await _supabase.from('profiles').upsert({
+                    line_id: currentUserLineId, 
+                    full_name: name, 
+                    phone: phone, 
+                    birthday: birthday, 
+                    email: email, 
+                    area: area, 
+                    total_points: 0
+                }).select().single();
+
+                if (error) throw error;
+
+                // 4. 成功：關閉彈窗
+                document.getElementById('profile-modal').style.display = 'none';
+                renderApp(data, currentUserLineId);
+            } catch (err) {
+                // 5. 失敗：恢復按鈕
+                console.error("Save Error:", err);
+                alert('儲存失敗，請檢查網路或重試');
+                btn.disabled = false;
+                btn.innerText = "領取我的數位盒子";
+            }
         }
 
         function renderApp(data, lineId) {
