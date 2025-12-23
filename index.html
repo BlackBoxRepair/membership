@@ -43,30 +43,18 @@
             align-items: center; justify-content: center;
         }
 
-        /* 改良版 Flatpickr 樣式：內嵌式且不超出 */
-        .flatpickr-calendar.inline {
-            background: transparent !important;
-            box-shadow: none !important;
+        /* 彈出式日曆優化：確保不超出邊界且置中 */
+        .flatpickr-calendar {
+            background: #fff !important;
+            border-radius: 20px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            width: 280px !important; /* 固定寬度，防止遮住週六 */
             border: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
-        }
-        .flatpickr-months .flatpickr-month { background: transparent !important; color: #000 !important; }
-        .flatpickr-innerContainer { width: 100% !important; }
-        .flatpickr-rContainer { width: 100% !important; }
-        .flatpickr-days { width: 100% !important; }
-        .dayContainer { 
-            width: 100% !important; 
-            min-width: 100% !important; 
-            max-width: 100% !important; 
-            justify-content: space-around !important;
-        }
-        .flatpickr-day {
-            max-width: 38px !important;
-            flex-basis: 14% !important;
         }
         .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 10px !important; }
+        .flatpickr-months .flatpickr-month { background: #fff !important; color: #000 !important; }
         .flatpickr-weekday { color: #9ca3af !important; font-weight: 700 !important; }
+        .flatpickr-innerContainer { padding: 5px !important; }
     </style>
 </head>
 <body>
@@ -77,7 +65,7 @@
     </div>
 
     <div id="profile-modal">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
             <h3 class="text-2xl font-black mb-1 tracking-tight">完善會員資料</h3>
             <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">Member Profile Update</p>
             
@@ -95,9 +83,7 @@
 
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">會員生日 <span class="text-red-500">*</span></label>
-                    <div id="calendar-container" class="border border-gray-100 rounded-2xl p-2 bg-gray-50">
-                        <input id="input-birthday" type="hidden">
-                    </div>
+                    <input id="input-birthday" type="text" placeholder="點擊選擇日期" class="soft-input" readonly>
                 </div>
 
                 <div>
@@ -177,14 +163,14 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
-        // 修改：使用內嵌式日曆
+        // 初始化日曆：恢復為彈出式，但限制寬度
         const fp = flatpickr("#input-birthday", {
             locale: "zh",
             dateFormat: "Y-m-d",
-            inline: true, // 核心修正：內嵌顯示
-            appendTo: document.getElementById('calendar-container'),
-            maxDate: "today",
-            yearRange: [1940, 2025]
+            disableMobile: true,
+            animate: true,
+            static: true, // 核心：讓日曆對齊輸入框，不隨意漂浮
+            maxDate: "today"
         });
 
         async function init() {
@@ -225,7 +211,7 @@
             const area = document.getElementById('input-area').value;
             
             if (!name || !/^09\d{8}$/.test(phone) || !birthday) {
-                alert('請完整正確填寫姓名、電話與生日！'); return;
+                alert('請填寫姓名、電話與生日！'); return;
             }
 
             const { data, error } = await _supabase.from('profiles').upsert({
