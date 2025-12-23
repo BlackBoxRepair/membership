@@ -54,7 +54,7 @@
             <button onclick="lockSystem()" class="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full active:bg-gray-800">鎖定</button>
         </div>
 
-        <div id="scan-view" class="flex-1 flex flex-col items-center justify-center p-4 relative">
+        <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-24 p-4 relative">
             <div class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl">
                 <div id="reader" class="w-full h-full bg-black"></div>
                 <div class="scan-frame"><div class="scan-line"></div></div>
@@ -233,8 +233,6 @@
             document.getElementById('scan-view').classList.remove('hidden');
             startScanner();
         }
-
-        // 載入時不做任何事，等待輸入密碼解鎖
     </script>
 </body>
 </html>
