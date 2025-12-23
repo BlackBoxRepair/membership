@@ -177,7 +177,7 @@
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         
-        // ✅ 已填入您提供的正確金鑰
+        // ✅ 已經填入您正確的金鑰
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -260,6 +260,7 @@
             try {
                 const birthday = `${year}-${month}-${day}`;
                 
+                // ✅ 關鍵修正：確保 Supabase 知道要比對 line_id
                 const { data, error } = await _supabase.from('profiles').upsert({
                     line_id: currentUserLineId, 
                     full_name: name, 
