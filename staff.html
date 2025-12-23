@@ -10,52 +10,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* 1. 基礎風格 (與客戶端一致) */
+        /* 1. 基礎風格 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #f3f4f6; /* 質感灰背景 */
-            color: #111827; /* 深灰文字 */
+            background-color: #f3f4f6;
+            color: #111827;
             overscroll-behavior: none;
-            touch-action: pan-y;
-            height: 100%; width: 100%;
-            overflow: hidden; position: fixed;
+            /* 改用 dvh 確保在各種瀏覽器(含橫式)都能正確取得視窗高度 */
+            height: 100dvh; 
+            width: 100%;
+            overflow: hidden; 
         }
 
-        /* 2. 會員卡樣式 (黑金風格保留) */
+        /* 2. 會員卡樣式 */
         .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 160px; border-radius: 2.2rem; }
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; border-radius: 0.75rem; }
 
-        /* 3. 輸入框樣式 (柔和白) */
+        /* 3. 輸入框樣式 */
         .soft-input { 
-            background-color: #ffffff; 
-            border: 1px solid #e5e7eb; 
-            border-radius: 12px; 
-            padding: 12px 14px; 
-            font-size: 16px; 
-            width: 100%; 
-            outline: none;
-            appearance: none;
-            transition: all 0.2s;
-            color: #111;
+            background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; 
+            font-size: 16px; width: 100%; outline: none; appearance: none; transition: all 0.2s; color: #111;
         }
         .soft-input:focus { border-color: #ca8a04; box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1); }
         .soft-input::placeholder { color: #9ca3af; }
 
-        /* 4. 優惠券樣式 (白底卡片) */
+        /* 4. 優惠券樣式 */
         .coupon-card { 
-            background: #ffffff; 
-            border: 1px solid #e5e7eb; 
-            border-radius: 16px; 
-            padding: 16px; 
-            transition: all 0.2s; 
-            cursor: pointer; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; 
+            transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); select-user: none;
         }
         .coupon-card.selected { 
-            border-color: #ca8a04; 
-            background: #fffbeb; /* 淺黃底 */
-            transform: scale(1.02); 
-            box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); 
+            border-color: #ca8a04; background: #fffbeb; transform: scale(1.02); 
+            box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); position: relative;
+        }
+        /* 選中時右上角打勾 */
+        .coupon-card.selected::after {
+            content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900;
         }
 
         /* 5. 掃描框樣式 */
@@ -63,20 +53,27 @@
         .scan-line { position: absolute; width: 100%; height: 2px; background: #eab308; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px #eab308; }
         @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
 
-        /* 6. Modal 彈窗樣式 */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        /* 6. Modal 彈窗樣式 (優化橫式顯示) */
+        .modal-overlay { 
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); 
+            z-index: 100; align-items: center; justify-content: center; padding: 20px; 
+        }
+        /* 讓 Modal 內容可滾動，避免在橫式手機被切掉 */
+        .modal-content {
+            max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        }
         .confirm-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
-        .confirm-label { color: #6b7280; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; uppercase; }
-        .confirm-value { color: #111; font-weight: 700; text-align: right; }
+        .confirm-label { color: #6b7280; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; }
+        .confirm-value { color: #111; font-weight: 700; text-align: right; word-break: break-all; max-width: 70%; }
 
         .select-wrapper { position: relative; width: 100%; }
         .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden">
+<body class="flex flex-col h-full w-full">
 
     <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center modal-content">
             <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">員工登入</h1>
             <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">STAFF ACCESS ONLY</p>
             
@@ -90,7 +87,7 @@
     </div>
 
     <div id="confirm-modal" class="modal-overlay">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative modal-content">
             <h3 class="text-2xl font-black text-gray-900 mb-1 tracking-tight">送出確認</h3>
             <p class="text-gray-400 text-[10px] mb-8 tracking-wider uppercase font-bold italic">CONFIRM TRANSACTION</p>
             
@@ -101,7 +98,10 @@
                 <div class="pt-2 border-t border-gray-200 my-2"></div>
                 <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
                 <div class="confirm-row"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
-                <div class="confirm-row"><span class="confirm-label">優惠券</span><span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold">無</span></div>
+                <div class="confirm-row items-start">
+                    <span class="confirm-label mt-1">優惠券</span>
+                    <span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span>
+                </div>
             </div>
 
             <div class="text-right mb-6 px-2">
@@ -128,14 +128,14 @@
         </div>
 
         <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-4 p-6 overflow-y-auto">
-            <div class="w-full aspect-square bg-black rounded-[2rem] overflow-hidden relative shadow-lg shrink-0 mb-6">
+            <div class="w-full aspect-square bg-black rounded-[2rem] overflow-hidden relative shadow-lg shrink-0 mb-6 max-h-[50vh]">
                 <div id="reader" class="w-full h-full"></div>
                 <div class="scan-frame"><div class="scan-line"></div></div>
             </div>
             
             <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-8">Ready to Scan</p>
 
-            <div id="manual-input-section" class="w-full border-t border-gray-200 pt-8">
+            <div id="manual-input-section" class="w-full border-t border-gray-200 pt-8 pb-8">
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm">
                     <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center">手動查詢會員</p>
                     <div class="flex gap-2">
@@ -145,12 +145,12 @@
                 </div>
             </div>
 
-            <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-8 text-gray-400 text-sm font-bold border-b border-gray-300 pb-1">取消掃描</button>
+            <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-4 mb-10 text-gray-400 text-sm font-bold border-b border-gray-300 pb-1">取消掃描</button>
         </div>
 
         <div id="action-view" class="hidden flex-1 flex flex-col p-6 overflow-y-auto pb-32">
             
-            <div class="card-black-gold p-7 mb-8 relative overflow-hidden">
+            <div class="card-black-gold p-7 mb-8 relative overflow-hidden shrink-0">
                 <div class="relative z-10 flex justify-between items-start mb-10">
                     <div><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="user-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
                     <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p><p id="user-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p></div>
@@ -185,17 +185,17 @@
             </div>
 
             <div class="bg-white rounded-[2rem] p-6 shadow-sm mb-8">
-                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券</h3>
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券 (可多選)</h3>
                 <div id="coupon-container" class="grid grid-cols-2 gap-3 min-h-[50px]">
                     <p class="col-span-2 text-center text-gray-300 text-xs py-4">讀取中...</p>
                 </div>
             </div>
 
-            <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition">
+            <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">
                 下一步
             </button>
             
-            <button onclick="resetScan()" class="w-full mt-6 text-gray-400 text-xs font-bold py-2">放棄並重新掃描</button>
+            <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
         </div>
     </div>
 
@@ -253,11 +253,11 @@
             `).join('');
         }
 
-        // --- 核心邏輯變數 ---
+        // --- 核心變數 ---
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
         let currentScanMode = 'member'; 
-        let selectedCoupon = null;
+        let selectedCoupons = []; // 改為陣列，支援多選
         let calculatedPoints = 0;
         let currentStaffName = '';
 
@@ -278,14 +278,14 @@
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('scan-hint').innerHTML = "Security Check<br>掃描您的會員條碼";
                 document.getElementById('cancel-scan-btn').classList.remove('hidden'); 
-                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; // 紅色警戒
+                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
                 document.getElementById('manual-input-section').classList.add('hidden');
             } else {
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-hint').innerHTML = "Ready to Scan";
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
-                document.querySelector('.scan-frame').style.borderColor = 'rgba(255, 255, 255, 0.6)'; // 白色框
+                document.querySelector('.scan-frame').style.borderColor = 'rgba(255, 255, 255, 0.6)';
                 document.getElementById('manual-input-section').classList.remove('hidden');
             }
 
@@ -327,11 +327,14 @@
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
+            // 重置
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
             document.getElementById('manual-phone').value = ''; 
-            selectedCoupon = null;
+            
+            // 重置多選
+            selectedCoupons = [];
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
@@ -341,18 +344,23 @@
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
 
+        // 修改：支援多選
         function toggleCoupon(el, couponName) {
-            if (el.classList.contains('selected')) {
-                el.classList.remove('selected'); selectedCoupon = null;
+            if (selectedCoupons.includes(couponName)) {
+                // 取消選取
+                selectedCoupons = selectedCoupons.filter(c => c !== couponName);
+                el.classList.remove('selected');
             } else {
-                document.querySelectorAll('.coupon-card').forEach(c => c.classList.remove('selected'));
-                el.classList.add('selected'); selectedCoupon = couponName;
+                // 加入選取
+                selectedCoupons.push(couponName);
+                el.classList.add('selected');
             }
         }
 
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
-            if (!amount && !selectedCoupon) { alert('請至少輸入金額或選擇一張優惠券'); return; }
+            // 檢查是否至少輸入金額 或 至少選了一張券
+            if (!amount && selectedCoupons.length === 0) { alert('請至少輸入金額或選擇一張優惠券'); return; }
             startScanner('staff_auth');
         }
 
@@ -385,7 +393,10 @@
             document.getElementById('cfm-order').innerText = document.getElementById('order-no').value || '無';
             document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
             document.getElementById('cfm-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
-            document.getElementById('cfm-coupon').innerText = selectedCoupon || '無';
+            
+            // 顯示多張優惠券，用頓號分隔
+            document.getElementById('cfm-coupon').innerText = selectedCoupons.length > 0 ? selectedCoupons.join('、') : '無';
+            
             document.getElementById('cfm-staff').innerText = currentStaffName;
             document.getElementById('confirm-modal').style.display = 'flex';
         }
@@ -402,6 +413,8 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            // 將多張優惠券轉成字串儲存
+            const couponString = selectedCoupons.length > 0 ? selectedCoupons.join(', ') : null;
 
             try {
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
@@ -416,6 +429,7 @@
                     order_number: orderNo,
                     amount: amount,
                     points_change: calculatedPoints
+                    // 若資料庫有 coupon 欄位可加： , coupon: couponString
                 });
 
                 alert('✅ 交易完成！');
