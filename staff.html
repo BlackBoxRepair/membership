@@ -49,7 +49,6 @@
         </div>
 
         <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-8 p-4 relative overflow-y-auto">
-            
             <div id="camera-container" class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl shrink-0">
                 <div id="reader" class="w-full h-full bg-black"></div>
                 <div class="scan-frame"><div class="scan-line"></div></div>
@@ -145,14 +144,13 @@
             document.getElementById('password-input').value = ''; 
             startScanner('member'); 
             resetIdleTimer();
-            // 解鎖後順便預載優惠券
             loadCoupons();
         }
 
         function lockSystem() {
             document.getElementById('lock-screen').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
-            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
+            cleanupScanner();
         }
 
         function resetIdleTimer() {
@@ -161,29 +159,19 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // --- 優惠券讀取功能 ---
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
-            
-            // 從 coupons 表格撈取啟用中 (is_active = true) 的券
-            const { data, error } = await _supabase
-                .from('coupons')
-                .select('*')
-                .eq('is_active', true)
-                .order('created_at', { ascending: false });
+            const { data, error } = await _supabase.from('coupons').select('*').eq('is_active', true).order('created_at', { ascending: false });
 
             if (error) {
-                console.error(error);
                 container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>';
                 return;
             }
-
             if (!data || data.length === 0) {
                 container.innerHTML = '<p class="col-span-2 text-center text-gray-600 text-xs py-2">目前無可用優惠券</p>';
                 return;
             }
 
-            // 產生 HTML
             container.innerHTML = data.map(coupon => `
                 <div class="coupon-card" onclick="toggleCoupon(this, '${coupon.name}')">
                     <p class="text-yellow-500 font-black text-lg">${coupon.name}</p>
@@ -191,49 +179,75 @@
                 </div>
             `).join('');
         }
-        // ---------------------
 
+        // --- 相機與邏輯核心 (修正版) ---
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
         let currentScanMode = 'member'; 
         let selectedCoupon = null;
         let calculatedPoints = 0;
 
-        function startScanner(mode) {
+        // 強制清理相機資源的函式
+        async function cleanupScanner() {
+            if (html5QrcodeScanner) {
+                try {
+                    // 如果正在掃描，先停止
+                    if (html5QrcodeScanner.isScanning) {
+                        await html5QrcodeScanner.stop();
+                    }
+                } catch (e) { console.log('Stop failed', e); }
+                
+                try {
+                    // 清除畫面
+                    html5QrcodeScanner.clear();
+                } catch (e) { console.log('Clear failed', e); }
+                
+                html5QrcodeScanner = null;
+            }
+        }
+
+        async function startScanner(mode) {
             currentScanMode = mode;
-            if(html5QrcodeScanner && html5QrcodeScanner.isScanning) return;
             
+            // 先清理舊的相機實體
+            await cleanupScanner();
+
             if (mode === 'staff_auth') {
                 document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan <span class='text-yellow-500'>YOUR</span> Member Code";
-                document.getElementById('cancel-scan-btn').classList.remove('hidden'); // 顯示取消按鈕
+                document.getElementById('cancel-scan-btn').classList.remove('hidden'); 
                 document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
                 document.getElementById('manual-input-section').classList.add('hidden');
             } else {
+                document.getElementById('scan-view').classList.remove('hidden');
+                document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>Member QR Code";
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
                 document.querySelector('.scan-frame').style.borderColor = 'rgba(234, 179, 8, 0.3)';
                 document.getElementById('manual-input-section').classList.remove('hidden');
             }
 
+            // 重新初始化
             html5QrcodeScanner = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => alert("相機啟動失敗"));
+            .catch(err => {
+                console.log(err);
+                alert("相機啟動失敗，請確認權限或重整網頁");
+            });
         }
 
         async function onScanSuccess(decodedText, decodedResult) {
             if (!decodedText.startsWith('BBX-')) return;
             const scannedId = decodedText.replace('BBX-', '');
 
+            // 掃描成功後，一定要先清理相機
+            await cleanupScanner();
+
             if (currentScanMode === 'member') {
-                await html5QrcodeScanner.stop();
-                html5QrcodeScanner.clear();
                 fetchCustomerData(scannedId);
             } else if (currentScanMode === 'staff_auth') {
-                await html5QrcodeScanner.stop();
-                html5QrcodeScanner.clear();
                 verifyStaffIdentity(scannedId);
             }
         }
@@ -241,22 +255,21 @@
         async function searchByPhone() {
             const phone = document.getElementById('manual-phone').value;
             if (!/^09\d{8}$/.test(phone)) {
-                alert('電話格式錯誤，請輸入 09 開頭的 10 碼數字');
+                alert('電話格式錯誤');
                 return;
             }
             const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
             if (error || !data) {
-                alert('查無此會員！請確認電話是否正確。');
+                alert('查無此會員！');
                 return;
             }
-            if (html5QrcodeScanner) {
-                await html5QrcodeScanner.stop().catch(e => console.log(e));
-                html5QrcodeScanner.clear();
-            }
+            
+            await cleanupScanner();
             fetchCustomerData(data.line_id);
         }
 
         async function fetchCustomerData(lineId) {
+            // 切換到表單畫面
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
             currentTargetLineId = lineId;
@@ -284,6 +297,7 @@
             const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffLineId).single();
             if (error || !data || data.role !== 'staff') {
                 alert('⛔️ 權限不足或驗證失敗');
+                // 驗證失敗回到表單，而非重新掃描
                 resetToForm();
                 return;
             }
@@ -316,10 +330,9 @@
             startScanner('staff_auth');
         }
 
-        // 4. 修改：取消掃描 (跳回表單)
-        function resetToForm() {
-            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
-            html5QrcodeScanner.clear();
+        // 4. (修正) 取消掃描 -> 跳回表單
+        async function resetToForm() {
+            await cleanupScanner();
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
         }
@@ -360,13 +373,11 @@
             resetScan(); 
         }
 
-        // 3. 修改：放棄並重新掃描 (跳回會員掃描)
-        function resetScan() {
-            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
-            html5QrcodeScanner.clear();
+        // 3. (修正) 放棄並重新掃描 -> 跳回會員掃描
+        async function resetScan() {
+            // 清理一切並重新開始
+            await cleanupScanner();
             currentTargetLineId = null;
-            document.getElementById('action-view').classList.add('hidden');
-            document.getElementById('scan-view').classList.remove('hidden');
             startScanner('member');
         }
     </script>
