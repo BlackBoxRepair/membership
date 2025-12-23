@@ -63,11 +63,8 @@
 
             <div id="manual-input-section" class="w-full max-w-sm border-t border-gray-800 pt-6">
                 <div class="relative flex items-center mb-4">
-                    <div class="h-px bg-gray-800 flex-1"></div>
-                    <span class="px-3 text-xs text-gray-600 font-bold uppercase tracking-wider">OR</span>
-                    <div class="h-px bg-gray-800 flex-1"></div>
+                    <div class="h-px bg-gray-800 flex-1"></div><span class="px-3 text-xs text-gray-600 font-bold uppercase tracking-wider">OR</span><div class="h-px bg-gray-800 flex-1"></div>
                 </div>
-                
                 <div class="flex gap-2">
                     <input id="manual-phone" type="tel" placeholder="輸入客戶電話查詢" class="soft-input font-mono text-center tracking-widest" maxlength="10">
                     <button onclick="searchByPhone()" class="bg-gray-800 text-white px-6 rounded-xl font-bold hover:bg-gray-700 transition border border-gray-700">查詢</button>
@@ -100,7 +97,7 @@
                             <option value="沙鹿站前店">沙鹿站前店</option>
                         </select>
                     </div>
-                    <input id="order-no" type="text" placeholder="維修單號 (選填)" class="soft-input">
+                    <input id="order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號 (選填)" class="soft-input uppercase placeholder-normal">
                 </div>
                 <input id="amount-input" type="number" placeholder="單筆消費金額" class="soft-input font-mono text-yellow-500 font-bold" oninput="calcPreview()">
                 
@@ -111,24 +108,14 @@
             </div>
 
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">發送優惠券 (選填)</h3>
-            <div class="grid grid-cols-2 gap-3 mb-8">
-                <div class="coupon-card" onclick="toggleCoupon(this, '9折券')">
-                    <p class="text-yellow-500 font-black text-lg">9折</p><p class="text-gray-400 text-[10px]">全品項維修折扣</p>
-                </div>
-                <div class="coupon-card" onclick="toggleCoupon(this, '玻璃貼免費')">
-                    <p class="text-yellow-500 font-black text-lg">FREE</p><p class="text-gray-400 text-[10px]">贈送滿版玻璃貼</p>
-                </div>
-                <div class="coupon-card" onclick="toggleCoupon(this, '100元折價')">
-                    <p class="text-yellow-500 font-black text-lg">$100</p><p class="text-gray-400 text-[10px]">配件滿千折百</p>
-                </div>
-                <div class="coupon-card" onclick="toggleCoupon(this, '免費清潔')">
-                    <p class="text-yellow-500 font-black text-lg">CLEAN</p><p class="text-gray-400 text-[10px]">全機深層清潔</p>
-                </div>
+            <div id="coupon-container" class="grid grid-cols-2 gap-3 mb-8 min-h-[50px]">
+                <p class="col-span-2 text-center text-gray-600 text-xs py-4">正在讀取票券庫...</p>
             </div>
 
             <button onclick="startStaffAuth()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg shadow-lg shadow-white/10 active:scale-95 transition">
                 結算並驗證員工身分
             </button>
+            
             <button onclick="resetScan()" class="w-full mt-4 text-gray-500 text-xs py-2">放棄並重新掃描</button>
         </div>
     </div>
@@ -138,7 +125,6 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 🔐 系統鎖定
         const VALID_PASSWORDS = ['26633009', '23015157'];
         const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
@@ -159,6 +145,8 @@
             document.getElementById('password-input').value = ''; 
             startScanner('member'); 
             resetIdleTimer();
+            // 解鎖後順便預載優惠券
+            loadCoupons();
         }
 
         function lockSystem() {
@@ -173,7 +161,37 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // ----------------------------------------------------
+        // --- 優惠券讀取功能 ---
+        async function loadCoupons() {
+            const container = document.getElementById('coupon-container');
+            
+            // 從 coupons 表格撈取啟用中 (is_active = true) 的券
+            const { data, error } = await _supabase
+                .from('coupons')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="col-span-2 text-center text-gray-600 text-xs py-2">目前無可用優惠券</p>';
+                return;
+            }
+
+            // 產生 HTML
+            container.innerHTML = data.map(coupon => `
+                <div class="coupon-card" onclick="toggleCoupon(this, '${coupon.name}')">
+                    <p class="text-yellow-500 font-black text-lg">${coupon.name}</p>
+                    <p class="text-gray-400 text-[10px]">${coupon.description || ''}</p>
+                </div>
+            `).join('');
+        }
+        // ---------------------
 
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
@@ -189,17 +207,13 @@
                 document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan <span class='text-yellow-500'>YOUR</span> Member Code";
-                document.getElementById('cancel-scan-btn').classList.remove('hidden');
+                document.getElementById('cancel-scan-btn').classList.remove('hidden'); // 顯示取消按鈕
                 document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
-                
-                // 員工驗證時，隱藏手動輸入框 (員工一定要掃碼)
                 document.getElementById('manual-input-section').classList.add('hidden');
             } else {
                 document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>Member QR Code";
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
                 document.querySelector('.scan-frame').style.borderColor = 'rgba(234, 179, 8, 0.3)';
-                
-                // 掃描會員時，顯示手動輸入框
                 document.getElementById('manual-input-section').classList.remove('hidden');
             }
 
@@ -224,36 +238,23 @@
             }
         }
 
-        // --- 新增：電話手動查詢功能 ---
         async function searchByPhone() {
             const phone = document.getElementById('manual-phone').value;
-            // 簡單格式檢查
             if (!/^09\d{8}$/.test(phone)) {
                 alert('電話格式錯誤，請輸入 09 開頭的 10 碼數字');
                 return;
             }
-
-            // 查詢 Supabase
-            // 注意：因為我們要取得 line_id 才能呼叫 fetchCustomerData
-            const { data, error } = await _supabase
-                .from('profiles')
-                .select('line_id')
-                .eq('phone', phone)
-                .single();
-
+            const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
             if (error || !data) {
-                alert('查無此會員！請確認電話是否正確，或是否尚未註冊。');
+                alert('查無此會員！請確認電話是否正確。');
                 return;
             }
-
-            // 查詢成功，關閉相機並載入資料
             if (html5QrcodeScanner) {
                 await html5QrcodeScanner.stop().catch(e => console.log(e));
                 html5QrcodeScanner.clear();
             }
             fetchCustomerData(data.line_id);
         }
-        // -----------------------------
 
         async function fetchCustomerData(lineId) {
             document.getElementById('scan-view').classList.add('hidden');
@@ -271,26 +272,18 @@
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
-            // 重置表單
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
-            document.getElementById('manual-phone').value = ''; // 清空查詢欄位
+            document.getElementById('manual-phone').value = ''; 
             selectedCoupon = null;
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
         async function verifyStaffIdentity(staffLineId) {
             const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffLineId).single();
-
-            if (error || !data) {
-                alert('驗證失敗：讀取資料錯誤');
-                resetToForm();
-                return;
-            }
-
-            if (data.role !== 'staff') {
-                alert('⛔️ 權限不足！\n此帳號不是員工身份。');
+            if (error || !data || data.role !== 'staff') {
+                alert('⛔️ 權限不足或驗證失敗');
                 resetToForm();
                 return;
             }
@@ -323,6 +316,7 @@
             startScanner('staff_auth');
         }
 
+        // 4. 修改：取消掃描 (跳回表單)
         function resetToForm() {
             if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
             html5QrcodeScanner.clear();
@@ -335,18 +329,7 @@
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
             
-            const confirmMsg = `
-                確認交易？
-                ----------------
-                會員：${document.getElementById('user-name').innerText}
-                門市：${store}
-                單號：${orderNo}
-                金額：$${amount}
-                積分：${calculatedPoints > 0 ? '+' : ''}${calculatedPoints}
-                發券：${selectedCoupon || '無'}
-                ----------------
-                經手人：${staffName}
-            `;
+            const confirmMsg = `確認交易？\n----------------\n會員：${document.getElementById('user-name').innerText}\n單號：${orderNo}\n金額：$${amount}\n積分：${calculatedPoints}\n發券：${selectedCoupon || '無'}\n經手人：${staffName}`;
 
             if (!confirm(confirmMsg)) {
                 resetToForm();
@@ -359,7 +342,7 @@
             const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
             if (updateError) {
-                alert('交易失敗：積分更新錯誤');
+                alert('交易失敗');
                 resetToForm();
                 return;
             }
@@ -377,6 +360,7 @@
             resetScan(); 
         }
 
+        // 3. 修改：放棄並重新掃描 (跳回會員掃描)
         function resetScan() {
             if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
             html5QrcodeScanner.clear();
