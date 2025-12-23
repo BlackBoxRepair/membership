@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BLACKBOX | 店員管理終端</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #000; color: white; overscroll-behavior: none; }
+        .btn-action { transition: all 0.1s; user-select: none; }
+        .btn-action:active { transform: scale(0.95); opacity: 0.8; }
+        
+        /* 掃描框特效 */
+        .scan-frame {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border: 2px solid rgba(234, 179, 8, 0.3);
+            box-shadow: 0 0 50px rgba(234, 179, 8, 0.1);
+            pointer-events: none;
+        }
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: #eab308;
+            top: 0; animation: scan 2s infinite linear;
+            box-shadow: 0 0 10px #eab308;
+        }
+        @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
+    </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-black z-20">
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <h1 class="text-lg font-black tracking-wider text-white">STAFF <span class="text-yellow-500">TERMINAL</span></h1>
+        </div>
+        <button onclick="location.reload()" class="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full">重整</button>
+    </div>
+
+    <div id="scan-view" class="flex-1 flex flex-col items-center justify-center p-4 relative">
+        <div class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl">
+            <div id="reader" class="w-full h-full bg-black"></div>
+            <div class="scan-frame"><div class="scan-line"></div></div>
+            
+            <div class="absolute top-4 left-4 w-6 h-6 border-t-4 border-l-4 border-yellow-500 rounded-tl-lg z-10"></div>
+            <div class="absolute top-4 right-4 w-6 h-6 border-t-4 border-r-4 border-yellow-500 rounded-tr-lg z-10"></div>
+            <div class="absolute bottom-4 left-4 w-6 h-6 border-b-4 border-l-4 border-yellow-500 rounded-bl-lg z-10"></div>
+            <div class="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-yellow-500 rounded-br-lg z-10"></div>
+        </div>
+        <p class="mt-8 text-gray-500 text-xs font-bold tracking-[0.2em] uppercase text-center">Ready to Scan<br>Member QR Code</p>
+    </div>
+
+    <div id="action-view" class="hidden flex-1 flex flex-col p-6 overflow-y-auto bg-black">
+        <div class="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-[2rem] p-6 mb-8 relative overflow-hidden shadow-2xl">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-600/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            
+            <div class="relative z-10">
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Member</p>
+                <h2 id="user-name" class="text-3xl font-black text-white mb-4 tracking-tight">---</h2>
+                
+                <div class="flex justify-between items-end border-t border-gray-800 pt-4 mt-2">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Phone</p>
+                        <p id="user-phone" class="text-sm font-mono text-gray-300 font-bold">---</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] text-yellow-500 uppercase tracking-widest mb-1 font-bold">Points</p>
+                        <p id="user-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="modifyPoints(100)" class="btn-action bg-gray-900 text-green-400 py-6 rounded-2xl font-black text-xl border border-gray-800 flex flex-col items-center justify-center gap-1">
+                    <span>+100</span>
+                    <span class="text-[10px] text-gray-600 font-normal uppercase tracking-wider">Add Points</span>
+                </button>
+                <button onclick="modifyPoints(-100)" class="btn-action bg-gray-900 text-red-400 py-6 rounded-2xl font-black text-xl border border-gray-800 flex flex-col items-center justify-center gap-1">
+                    <span>-100</span>
+                    <span class="text-[10px] text-gray-600 font-normal uppercase tracking-wider">Deduct</span>
+                </button>
+            </div>
+
+            <div class="bg-gray-900/50 p-1 rounded-2xl border border-gray-800 flex">
+                <input id="custom-points" type="number" placeholder="自訂金額" class="bg-transparent text-white px-4 py-3 w-full outline-none font-mono text-center placeholder-gray-700 font-bold">
+                <button onclick="addCustomPoints()" class="bg-yellow-600 text-black font-black px-6 rounded-xl hover:bg-yellow-500 transition">OK</button>
+            </div>
+        </div>
+
+        <button onclick="resetScan()" class="mt-auto w-full bg-white text-black py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition mt-8">
+            完成並掃描下一位
+        </button>
+    </div>
+
+    <script>
+        // 設定 Supabase
+        const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let html5QrcodeScanner = null;
+        let currentTargetLineId = null;
+        let currentPoints = 0;
+
+        // 1. 啟動相機
+        function startScanner() {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            
+            // 優先使用後置鏡頭 (facingMode: "environment")
+            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
+            .catch(err => {
+                console.error("相機啟動失敗", err);
+                alert("無法啟動相機，請確認瀏覽器權限或使用 Safari/Chrome 開啟。\n錯誤: " + err);
+            });
+        }
+
+        // 2. 掃描成功處理
+        async function onScanSuccess(decodedText, decodedResult) {
+            // 檢查格式是否為 BBX- 開頭
+            if (decodedText.startsWith('BBX-')) {
+                // 停止掃描
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner.clear(); 
+                
+                const lineId = decodedText.replace('BBX-', '');
+                fetchUserData(lineId);
+            }
+        }
+
+        // 3. 讀取會員資料
+        async function fetchUserData(lineId) {
+            // 切換介面
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view').classList.remove('hidden');
+            
+            currentTargetLineId = lineId;
+
+            // 從資料庫撈取資料
+            const { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineId).single();
+            
+            if (error || !data) {
+                alert('找不到此會員資料！可能是新會員尚未註冊。');
+                resetScan();
+                return;
+            }
+
+            // 更新畫面
+            document.getElementById('user-name').innerText = data.full_name;
+            document.getElementById('user-phone').innerText = data.phone;
+            document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
+            currentPoints = data.total_points || 0;
+        }
+
+        // 4. 加扣點邏輯
+        async function modifyPoints(amount) {
+            const newPoints = currentPoints + amount;
+            
+            if (newPoints < 0) {
+                alert('點數不足，無法扣除！');
+                return;
+            }
+
+            // 樂觀更新 (先改畫面，再送資料庫，感覺比較快)
+            document.getElementById('user-points').innerText = newPoints.toLocaleString();
+
+            const { error } = await _supabase
+                .from('profiles')
+                .update({ total_points: newPoints })
+                .eq('line_id', currentTargetLineId);
+
+            if (error) {
+                alert('更新失敗！請檢查網路。');
+                // 回滾畫面
+                document.getElementById('user-points').innerText = currentPoints.toLocaleString(); 
+            } else {
+                currentPoints = newPoints;
+            }
+        }
+
+        // 自訂金額處理
+        function addCustomPoints() {
+            const input = document.getElementById('custom-points');
+            const val = parseInt(input.value);
+            if (isNaN(val) || val === 0) return;
+            modifyPoints(val);
+            input.value = ''; // 清空欄位
+        }
+
+        // 5. 重置並掃描下一位
+        function resetScan() {
+            currentTargetLineId = null;
+            document.getElementById('action-view').classList.add('hidden');
+            document.getElementById('scan-view').classList.remove('hidden');
+            // 重新啟動掃描器
+            startScanner();
+        }
+
+        // 網頁載入後自動啟動
+        window.onload = startScanner;
+
+    </script>
+</body>
+</html>
