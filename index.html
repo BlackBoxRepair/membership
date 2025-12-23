@@ -42,35 +42,34 @@
             align-items: center; justify-content: center;
         }
 
-        /* 日曆強制置中樣式 */
+        /* 🚀 解決方案：強制日曆樣式，解決週六被切與鍵盤問題 */
         .flatpickr-calendar {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
-            margin: 0 !important;
-            transform: translate(-50%, -50%) !important;
+            transform: translate(-50%, -50%) scale(0.9) !important; /* 縮放一點點，確保不超出邊界 */
             background: #fff !important;
             border-radius: 24px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-            width: 300px !important; 
+            width: 315px !important; /* 略微調寬，確保週六完美顯示 */
             border: none !important;
+            user-select: none;
         }
         .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
-        .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 12px !important; }
         
-        /* 讓下拉選單看起來更直覺 */
-        .flatpickr-monthDropdown-months, .numInputWrapper {
-            background: #f3f4f6 !important;
-            border-radius: 8px !important;
-            padding: 2px 8px !important;
-        }
+        /* 隱藏掉會觸發鍵盤的輸入框，強制客戶點選 */
+        .flatpickr-monthDropdown-months, .numInputWrapper { pointer-events: auto !important; }
+        .numInputWrapper input { pointer-events: none !important; } /* 禁止年份輸入 */
+        
+        .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 12px !important; }
+        .flatpickr-weekday { color: #9ca3af !important; font-weight: 700 !important; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Security Checking</p>
+        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Blackbox Security</p>
     </div>
 
     <div id="profile-modal">
@@ -123,7 +122,7 @@
                     </div>
                 </div>
 
-                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存領取卡片</button>
+                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存並開啟會員卡</button>
             </div>
         </div>
     </div>
@@ -179,17 +178,14 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
-        // 🛠️ 核心修正：啟用下拉選單模式
         const fp = flatpickr("#input-birthday", {
             locale: "zh",
             dateFormat: "Y-m-d",
             disableMobile: true,
             maxDate: "today",
-            monthSelectorType: "dropdown", // 月份下拉選單
-            showMonths: 1,
+            monthSelectorType: "dropdown", // 維持下拉月份
             static: false,
-            appendTo: document.body,
-            yearRange: [1940, 2025] // 設定年份範圍
+            appendTo: document.body
         });
 
         async function init() {
