@@ -48,8 +48,9 @@
             <button onclick="lockSystem()" class="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full">鎖定</button>
         </div>
 
-        <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-16 p-4 relative">
-            <div class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl">
+        <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-8 p-4 relative overflow-y-auto">
+            
+            <div id="camera-container" class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl shrink-0">
                 <div id="reader" class="w-full h-full bg-black"></div>
                 <div class="scan-frame"><div class="scan-line"></div></div>
                 <div class="absolute top-4 left-4 w-6 h-6 border-t-4 border-l-4 border-yellow-500 rounded-tl-lg z-10"></div>
@@ -57,7 +58,23 @@
                 <div class="absolute bottom-4 left-4 w-6 h-6 border-b-4 border-l-4 border-yellow-500 rounded-bl-lg z-10"></div>
                 <div class="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-yellow-500 rounded-br-lg z-10"></div>
             </div>
-            <p id="scan-hint" class="mt-8 text-gray-500 text-xs font-bold tracking-[0.2em] uppercase text-center">Ready to Scan<br>Member QR Code</p>
+            
+            <p id="scan-hint" class="mt-4 text-gray-500 text-xs font-bold tracking-[0.2em] uppercase text-center mb-6">Ready to Scan<br>Member QR Code</p>
+
+            <div id="manual-input-section" class="w-full max-w-sm border-t border-gray-800 pt-6">
+                <div class="relative flex items-center mb-4">
+                    <div class="h-px bg-gray-800 flex-1"></div>
+                    <span class="px-3 text-xs text-gray-600 font-bold uppercase tracking-wider">OR</span>
+                    <div class="h-px bg-gray-800 flex-1"></div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <input id="manual-phone" type="tel" placeholder="輸入客戶電話查詢" class="soft-input font-mono text-center tracking-widest" maxlength="10">
+                    <button onclick="searchByPhone()" class="bg-gray-800 text-white px-6 rounded-xl font-bold hover:bg-gray-700 transition border border-gray-700">查詢</button>
+                </div>
+                <p class="text-[10px] text-gray-600 mt-2 text-center">若客戶無法出示 QR 碼，請手動輸入電話</p>
+            </div>
+
             <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-4 text-gray-400 text-sm underline">取消掃描</button>
         </div>
 
@@ -121,7 +138,7 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 🔐 系統鎖定邏輯
+        // 🔐 系統鎖定
         const VALID_PASSWORDS = ['26633009', '23015157'];
         const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
@@ -140,7 +157,7 @@
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('password-input').value = ''; 
-            startScanner('member'); // 預設開啟會員掃描
+            startScanner('member'); 
             resetIdleTimer();
         }
 
@@ -159,27 +176,31 @@
         // ----------------------------------------------------
 
         let html5QrcodeScanner = null;
-        let currentTargetLineId = null; // 客戶 ID
-        let currentScanMode = 'member'; // member 或 staff_auth
+        let currentTargetLineId = null; 
+        let currentScanMode = 'member'; 
         let selectedCoupon = null;
         let calculatedPoints = 0;
 
-        // 啟動掃描器
         function startScanner(mode) {
             currentScanMode = mode;
             if(html5QrcodeScanner && html5QrcodeScanner.isScanning) return;
             
-            // UI 調整
             if (mode === 'staff_auth') {
                 document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan <span class='text-yellow-500'>YOUR</span> Member Code";
                 document.getElementById('cancel-scan-btn').classList.remove('hidden');
-                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; // 紅色警戒
+                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
+                
+                // 員工驗證時，隱藏手動輸入框 (員工一定要掃碼)
+                document.getElementById('manual-input-section').classList.add('hidden');
             } else {
                 document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>Member QR Code";
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
                 document.querySelector('.scan-frame').style.borderColor = 'rgba(234, 179, 8, 0.3)';
+                
+                // 掃描會員時，顯示手動輸入框
+                document.getElementById('manual-input-section').classList.remove('hidden');
             }
 
             html5QrcodeScanner = new Html5Qrcode("reader");
@@ -189,26 +210,51 @@
         }
 
         async function onScanSuccess(decodedText, decodedResult) {
-            // 無論是客戶還是員工，QR Code 都是 "BBX-" 開頭
             if (!decodedText.startsWith('BBX-')) return;
-
             const scannedId = decodedText.replace('BBX-', '');
 
-            // 🛑 模式 1: 掃描客戶
             if (currentScanMode === 'member') {
                 await html5QrcodeScanner.stop();
                 html5QrcodeScanner.clear();
                 fetchCustomerData(scannedId);
-            } 
-            // 🛑 模式 2: 員工身份驗證
-            else if (currentScanMode === 'staff_auth') {
+            } else if (currentScanMode === 'staff_auth') {
                 await html5QrcodeScanner.stop();
                 html5QrcodeScanner.clear();
                 verifyStaffIdentity(scannedId);
             }
         }
 
-        // 讀取客戶資料
+        // --- 新增：電話手動查詢功能 ---
+        async function searchByPhone() {
+            const phone = document.getElementById('manual-phone').value;
+            // 簡單格式檢查
+            if (!/^09\d{8}$/.test(phone)) {
+                alert('電話格式錯誤，請輸入 09 開頭的 10 碼數字');
+                return;
+            }
+
+            // 查詢 Supabase
+            // 注意：因為我們要取得 line_id 才能呼叫 fetchCustomerData
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('line_id')
+                .eq('phone', phone)
+                .single();
+
+            if (error || !data) {
+                alert('查無此會員！請確認電話是否正確，或是否尚未註冊。');
+                return;
+            }
+
+            // 查詢成功，關閉相機並載入資料
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.stop().catch(e => console.log(e));
+                html5QrcodeScanner.clear();
+            }
+            fetchCustomerData(data.line_id);
+        }
+        // -----------------------------
+
         async function fetchCustomerData(lineId) {
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
@@ -229,18 +275,13 @@
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
+            document.getElementById('manual-phone').value = ''; // 清空查詢欄位
             selectedCoupon = null;
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        // 員工身份驗證邏輯
         async function verifyStaffIdentity(staffLineId) {
-            // 查詢掃描到的這個人，是不是員工
-            const { data, error } = await _supabase
-                .from('profiles')
-                .select('full_name, role')
-                .eq('line_id', staffLineId)
-                .single();
+            const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffLineId).single();
 
             if (error || !data) {
                 alert('驗證失敗：讀取資料錯誤');
@@ -248,14 +289,11 @@
                 return;
             }
 
-            // 【關鍵檢查】 確認 role 欄位是否為 staff
             if (data.role !== 'staff') {
-                alert('⛔️ 權限不足！\n此帳號不是員工身份，無法執行交易。');
+                alert('⛔️ 權限不足！\n此帳號不是員工身份。');
                 resetToForm();
                 return;
             }
-
-            // 驗證通過，執行交易
             processTransaction(data.full_name);
         }
 
@@ -282,7 +320,6 @@
                 alert('請至少輸入金額或選擇一張優惠券');
                 return;
             }
-            // 切換成 "員工驗證模式"
             startScanner('staff_auth');
         }
 
@@ -308,7 +345,7 @@
                 積分：${calculatedPoints > 0 ? '+' : ''}${calculatedPoints}
                 發券：${selectedCoupon || '無'}
                 ----------------
-                經手人：${staffName} (驗證成功)
+                經手人：${staffName}
             `;
 
             if (!confirm(confirmMsg)) {
@@ -316,14 +353,10 @@
                 return;
             }
 
-            // 1. 更新積分
             const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
             const newTotal = (profile.total_points || 0) + calculatedPoints;
 
-            const { error: updateError } = await _supabase
-                .from('profiles')
-                .update({ total_points: newTotal })
-                .eq('line_id', currentTargetLineId);
+            const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
             if (updateError) {
                 alert('交易失敗：積分更新錯誤');
@@ -331,10 +364,9 @@
                 return;
             }
 
-            // 2. 寫入 Log
             await _supabase.from('point_logs').insert({
                 line_id: currentTargetLineId,
-                staff_name: staffName, // 這裡記錄的是剛剛掃描到的員工名字
+                staff_name: staffName,
                 store_name: store,
                 order_number: orderNo,
                 amount: amount,
