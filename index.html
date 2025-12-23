@@ -176,7 +176,10 @@
     <script>
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_bIqoSDyBrvU7NJOc0Dr47A_LcO0xk3M';
+        
+        // ✅ 已填入您提供的正確金鑰
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
@@ -226,7 +229,6 @@
             }
         }
 
-        // 電話格式即時偵測
         document.getElementById('input-phone').addEventListener('input', function(e) {
             const regex = /^09\d{8}$/;
             const errorEl = document.getElementById('phone-error');
@@ -247,20 +249,17 @@
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
 
-            // 1. 驗證邏輯：統一錯誤訊息
             if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { 
                 alert('請正確填寫必填欄位'); 
                 return; 
             }
 
-            // 2. 按鈕狀態：處理中
             btn.disabled = true;
             btn.innerText = "處理中...";
 
             try {
                 const birthday = `${year}-${month}-${day}`;
                 
-                // 3. 送出資料
                 const { data, error } = await _supabase.from('profiles').upsert({
                     line_id: currentUserLineId, 
                     full_name: name, 
@@ -269,15 +268,13 @@
                     email: email, 
                     area: area, 
                     total_points: 0
-                }).select().single();
+                }, { onConflict: 'line_id' }).select().single();
 
                 if (error) throw error;
 
-                // 4. 成功：關閉彈窗
                 document.getElementById('profile-modal').style.display = 'none';
                 renderApp(data, currentUserLineId);
             } catch (err) {
-                // 5. 失敗：恢復按鈕
                 console.error("Save Error:", err);
                 alert('儲存失敗，請檢查網路或重試');
                 btn.disabled = false;
