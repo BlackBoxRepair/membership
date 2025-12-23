@@ -11,11 +11,9 @@
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #000; color: white; overscroll-behavior: none; }
         
-        /* 會員卡樣式 (與客戶端一致) */
         .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); min-height: 160px; border: 1px solid #333; }
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
 
-        /* 優惠券樣式 */
         .coupon-card { border: 1px solid #333; background: #111; border-radius: 12px; padding: 12px; transition: all 0.2s; cursor: pointer; opacity: 0.6; }
         .coupon-card.selected { border-color: #eab308; background: #1a1a1a; opacity: 1; transform: scale(1.02); box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); }
 
@@ -98,27 +96,22 @@
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">發送優惠券 (選填)</h3>
             <div class="grid grid-cols-2 gap-3 mb-8">
                 <div class="coupon-card" onclick="toggleCoupon(this, '9折券')">
-                    <p class="text-yellow-500 font-black text-lg">9折</p>
-                    <p class="text-gray-400 text-[10px]">全品項維修折扣</p>
+                    <p class="text-yellow-500 font-black text-lg">9折</p><p class="text-gray-400 text-[10px]">全品項維修折扣</p>
                 </div>
                 <div class="coupon-card" onclick="toggleCoupon(this, '玻璃貼免費')">
-                    <p class="text-yellow-500 font-black text-lg">FREE</p>
-                    <p class="text-gray-400 text-[10px]">贈送滿版玻璃貼</p>
+                    <p class="text-yellow-500 font-black text-lg">FREE</p><p class="text-gray-400 text-[10px]">贈送滿版玻璃貼</p>
                 </div>
                 <div class="coupon-card" onclick="toggleCoupon(this, '100元折價')">
-                    <p class="text-yellow-500 font-black text-lg">$100</p>
-                    <p class="text-gray-400 text-[10px]">配件滿千折百</p>
+                    <p class="text-yellow-500 font-black text-lg">$100</p><p class="text-gray-400 text-[10px]">配件滿千折百</p>
                 </div>
                 <div class="coupon-card" onclick="toggleCoupon(this, '免費清潔')">
-                    <p class="text-yellow-500 font-black text-lg">CLEAN</p>
-                    <p class="text-gray-400 text-[10px]">全機深層清潔</p>
+                    <p class="text-yellow-500 font-black text-lg">CLEAN</p><p class="text-gray-400 text-[10px]">全機深層清潔</p>
                 </div>
             </div>
 
             <button onclick="startStaffAuth()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg shadow-lg shadow-white/10 active:scale-95 transition">
                 結算並驗證員工身分
             </button>
-            
             <button onclick="resetScan()" class="w-full mt-4 text-gray-500 text-xs py-2">放棄並重新掃描</button>
         </div>
     </div>
@@ -166,23 +159,23 @@
         // ----------------------------------------------------
 
         let html5QrcodeScanner = null;
-        let currentTargetLineId = null; // 當前會員 ID
-        let currentScanMode = 'member'; // member 或 staff
+        let currentTargetLineId = null; // 客戶 ID
+        let currentScanMode = 'member'; // member 或 staff_auth
         let selectedCoupon = null;
         let calculatedPoints = 0;
 
-        // 啟動掃描器 (mode = 'member' or 'staff')
+        // 啟動掃描器
         function startScanner(mode) {
             currentScanMode = mode;
             if(html5QrcodeScanner && html5QrcodeScanner.isScanning) return;
             
             // UI 調整
-            if (mode === 'staff') {
+            if (mode === 'staff_auth') {
                 document.getElementById('action-view').classList.add('hidden');
                 document.getElementById('scan-view').classList.remove('hidden');
-                document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan STAFF ID Card";
+                document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan <span class='text-yellow-500'>YOUR</span> Member Code";
                 document.getElementById('cancel-scan-btn').classList.remove('hidden');
-                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; // 紅色警戒色
+                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; // 紅色警戒
             } else {
                 document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>Member QR Code";
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
@@ -196,27 +189,27 @@
         }
 
         async function onScanSuccess(decodedText, decodedResult) {
+            // 無論是客戶還是員工，QR Code 都是 "BBX-" 開頭
+            if (!decodedText.startsWith('BBX-')) return;
+
+            const scannedId = decodedText.replace('BBX-', '');
+
+            // 🛑 模式 1: 掃描客戶
             if (currentScanMode === 'member') {
-                if (decodedText.startsWith('BBX-')) {
-                    await html5QrcodeScanner.stop();
-                    html5QrcodeScanner.clear();
-                    const lineId = decodedText.replace('BBX-', '');
-                    fetchUserData(lineId);
-                }
-            } else if (currentScanMode === 'staff') {
-                if (decodedText.startsWith('STAFF-')) {
-                    await html5QrcodeScanner.stop();
-                    html5QrcodeScanner.clear();
-                    const staffName = decodedText.replace('STAFF-', '');
-                    processTransaction(staffName);
-                } else {
-                    alert('錯誤：這不是有效的員工 QR 碼');
-                }
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner.clear();
+                fetchCustomerData(scannedId);
+            } 
+            // 🛑 模式 2: 員工身份驗證
+            else if (currentScanMode === 'staff_auth') {
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner.clear();
+                verifyStaffIdentity(scannedId);
             }
         }
 
-        // 讀取會員資料
-        async function fetchUserData(lineId) {
+        // 讀取客戶資料
+        async function fetchCustomerData(lineId) {
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
             currentTargetLineId = lineId;
@@ -228,12 +221,11 @@
                 return;
             }
 
-            // 更新會員卡畫面
             document.getElementById('user-name').innerText = data.full_name;
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
-            // 清空表單
+            // 重置表單
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
@@ -241,15 +233,38 @@
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        // 積分計算預覽
+        // 員工身份驗證邏輯
+        async function verifyStaffIdentity(staffLineId) {
+            // 查詢掃描到的這個人，是不是員工
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('full_name, role')
+                .eq('line_id', staffLineId)
+                .single();
+
+            if (error || !data) {
+                alert('驗證失敗：讀取資料錯誤');
+                resetToForm();
+                return;
+            }
+
+            // 【關鍵檢查】 確認 role 欄位是否為 staff
+            if (data.role !== 'staff') {
+                alert('⛔️ 權限不足！\n此帳號不是員工身份，無法執行交易。');
+                resetToForm();
+                return;
+            }
+
+            // 驗證通過，執行交易
+            processTransaction(data.full_name);
+        }
+
         function calcPreview() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            // 規則：100元 = 1分，四捨五入
             calculatedPoints = Math.round(amount / 100);
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
 
-        // 選擇優惠券
         function toggleCoupon(el, couponName) {
             if (el.classList.contains('selected')) {
                 el.classList.remove('selected');
@@ -261,14 +276,14 @@
             }
         }
 
-        // 按下結算 -> 切換到員工掃碼模式
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
             if (!amount && !selectedCoupon) {
                 alert('請至少輸入金額或選擇一張優惠券');
                 return;
             }
-            startScanner('staff');
+            // 切換成 "員工驗證模式"
+            startScanner('staff_auth');
         }
 
         function resetToForm() {
@@ -278,13 +293,11 @@
             document.getElementById('action-view').classList.remove('hidden');
         }
 
-        // 最終交易處理
         async function processTransaction(staffName) {
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
             
-            // 二次確認
             const confirmMsg = `
                 確認交易？
                 ----------------
@@ -295,7 +308,7 @@
                 積分：${calculatedPoints > 0 ? '+' : ''}${calculatedPoints}
                 發券：${selectedCoupon || '無'}
                 ----------------
-                經手人：${staffName}
+                經手人：${staffName} (驗證成功)
             `;
 
             if (!confirm(confirmMsg)) {
@@ -303,8 +316,7 @@
                 return;
             }
 
-            // 1. 更新會員總積分
-            // 先抓最新積分以免並發錯誤 (嚴謹作法)
+            // 1. 更新積分
             const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
             const newTotal = (profile.total_points || 0) + calculatedPoints;
 
@@ -319,10 +331,10 @@
                 return;
             }
 
-            // 2. 寫入 Log (重要！這是您的新需求)
+            // 2. 寫入 Log
             await _supabase.from('point_logs').insert({
                 line_id: currentTargetLineId,
-                staff_name: staffName,
+                staff_name: staffName, // 這裡記錄的是剛剛掃描到的員工名字
                 store_name: store,
                 order_number: orderNo,
                 amount: amount,
@@ -330,7 +342,7 @@
             });
 
             alert('✅ 交易完成！');
-            resetScan(); // 回到最開始
+            resetScan(); 
         }
 
         function resetScan() {
