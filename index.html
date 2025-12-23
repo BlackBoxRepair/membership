@@ -30,9 +30,8 @@
 
         .nav-full-width { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
         
-        /* 導覽列按鈕樣式 */
         .nav-btn { color: #d1d5db; transition: color 0.3s; }
-        .nav-btn.active { color: #ca8a04; } /* yellow-600 */
+        .nav-btn.active { color: #ca8a04; }
 
         .soft-input { 
             background-color: #f9fafb; 
@@ -328,9 +327,29 @@
             if (!currentUserLineId) { showMsg('系統錯誤', '無法取得 LINE ID'); return; }
 
             btn.disabled = true;
-            btn.innerText = "處理中...";
+            btn.innerText = "檢查中...";
 
             try {
+                // 1. 【新增功能】檢查電話號碼是否重複
+                // 使用 maybeSingle()，如果有找到資料回傳 object，沒找到回傳 null
+                const { data: existingUser, error: checkError } = await _supabase
+                    .from('profiles')
+                    .select('line_id')
+                    .eq('phone', phone)
+                    .maybeSingle();
+
+                if (checkError) throw checkError;
+
+                // 如果找到資料，且該資料的 line_id 不是現在這個人 (避免自己擋自己)
+                if (existingUser && existingUser.line_id !== currentUserLineId) {
+                    showMsg('註冊失敗', '此電話號碼已被其他會員註冊，請確認或聯繫客服。');
+                    btn.disabled = false;
+                    btn.innerText = "領取我的數位盒子";
+                    return; // 這裡很重要，直接結束函式，不往下執行
+                }
+
+                // 2. 驗證通過，開始儲存
+                btn.innerText = "處理中...";
                 const birthday = `${year}-${month}-${day}`;
                 const { data, error } = await _supabase.from('profiles').upsert({
                     line_id: currentUserLineId, 
@@ -346,6 +365,7 @@
                 document.getElementById('profile-modal').style.display = 'none';
                 currentUserProfile = data;
                 renderApp(data, currentUserLineId);
+
             } catch (err) {
                 showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}\n請截圖回報工程師。`);
                 btn.disabled = false;
@@ -399,14 +419,11 @@
             document.getElementById('main-content').classList.remove('hidden');
         }
 
-        // --- Tab 切換功能更新 ---
         function switchTab(tab) {
-            // 1. 隱藏所有內容
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            // 2. 顯示目標內容
             document.getElementById('tab-' + tab).classList.add('active');
             
-            // 3. 更新標題 (Header)
+            // 更新標題
             const titles = {
                 'booking': '我的預約',
                 'card': '會員中心',
@@ -414,7 +431,7 @@
             };
             document.getElementById('page-title').innerText = titles[tab];
 
-            // 4. 更新導覽列按鈕顏色 (Nav)
+            // 更新按鈕顏色
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
         }
