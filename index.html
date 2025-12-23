@@ -176,8 +176,7 @@
     <script>
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-        
-        // ✅ 已經填入您正確的金鑰
+        // 使用您提供的正確金鑰
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -249,9 +248,15 @@
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
 
+            // 1. 欄位驗證
             if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { 
                 alert('請正確填寫必填欄位'); 
                 return; 
+            }
+            // 2. 確保有抓到 LINE ID
+            if (!currentUserLineId) {
+                alert('系統錯誤：無法取得 LINE ID，請嘗試重新整理或重新登入');
+                return;
             }
 
             btn.disabled = true;
@@ -260,7 +265,7 @@
             try {
                 const birthday = `${year}-${month}-${day}`;
                 
-                // ✅ 關鍵修正：確保 Supabase 知道要比對 line_id
+                // 3. 送出資料，並加入 onConflict
                 const { data, error } = await _supabase.from('profiles').upsert({
                     line_id: currentUserLineId, 
                     full_name: name, 
@@ -271,13 +276,23 @@
                     total_points: 0
                 }, { onConflict: 'line_id' }).select().single();
 
-                if (error) throw error;
+                // 4. 【重點修正】顯示具體錯誤訊息
+                if (error) {
+                    throw error; // 拋出錯誤到 catch 區塊處理
+                }
 
                 document.getElementById('profile-modal').style.display = 'none';
                 renderApp(data, currentUserLineId);
             } catch (err) {
                 console.error("Save Error:", err);
-                alert('儲存失敗，請檢查網路或重試');
+                
+                // 讓手機顯示具體錯誤原因
+                let errorMsg = "系統忙碌中";
+                if (err.message) errorMsg = err.message;
+                if (err.code) errorMsg += ` (Code: ${err.code})`;
+                
+                alert(`儲存失敗：\n${errorMsg}\n\n請截圖此畫面回報工程師。`);
+                
                 btn.disabled = false;
                 btn.innerText = "領取我的數位盒子";
             }
