@@ -42,10 +42,9 @@
             appearance: none;
             -webkit-appearance: none;
         }
-        /* 鎖定欄位的樣式 */
         .locked-input {
-            background-color: #e5e7eb; /* 灰色底 */
-            color: #6b7280; /* 灰色字 */
+            background-color: #e5e7eb;
+            color: #6b7280;
             border-color: #d1d5db;
             cursor: not-allowed;
         }
@@ -54,6 +53,11 @@
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(15px); z-index: 1000; padding: 20px;
             align-items: center; justify-content: center;
+        }
+        /* 系統提示彈窗專用樣式 */
+        .msg-modal-content {
+            background: white; border-radius: 20px; padding: 24px; text-align: center; width: 85%; max-width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .select-wrapper { position: relative; width: 100%; }
@@ -71,6 +75,14 @@
         <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Security Checking</p>
     </div>
 
+    <div id="msg-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="msg-modal-content">
+            <h3 id="msg-title" class="text-lg font-black text-gray-900 mb-2">系統提示</h3>
+            <p id="msg-body" class="text-sm text-gray-500 mb-6 leading-relaxed">---</p>
+            <button onclick="closeMsgModal()" class="w-full bg-black text-white py-3 rounded-xl font-bold active:scale-95 transition">確定</button>
+        </div>
+    </div>
+
     <div id="profile-modal" class="modal-overlay">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative">
             <h3 class="text-2xl font-black mb-1 tracking-tight">加入會員</h3>
@@ -85,8 +97,7 @@
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
                         <div class="select-wrapper">
-                            <select id="input-area" class="soft-input bg-white">
-                                </select>
+                            <select id="input-area" class="soft-input bg-white"></select>
                         </div>
                     </div>
                 </div>
@@ -137,21 +148,17 @@
                     <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1 px-1">會員生日 (不可修改)</label>
                     <input id="edit-birthday" type="text" disabled class="soft-input locked-input">
                 </div>
-
                 <div class="pt-2 border-t border-gray-100"></div>
-                
                 <div>
                     <label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">居住區域 <span class="text-[9px] text-gray-400">(可修改)</span></label>
                     <div class="select-wrapper">
-                        <select id="edit-area" class="soft-input bg-white text-gray-900 font-medium border-yellow-500/30">
-                            </select>
+                        <select id="edit-area" class="soft-input bg-white text-gray-900 font-medium border-yellow-500/30"></select>
                     </div>
                 </div>
                 <div>
                     <label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">電子信箱 <span class="text-[9px] text-gray-400">(可修改)</span></label>
                     <input id="edit-email" type="email" class="soft-input bg-white text-gray-900 font-medium border-yellow-500/30">
                 </div>
-
                 <button id="btn-update" onclick="updateProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存變更</button>
             </div>
         </div>
@@ -207,12 +214,11 @@
     <script>
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-        // 使用正確的金鑰
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
-        let currentUserProfile = null; // 儲存當前會員資料，供修改頁面使用
+        let currentUserProfile = null;
 
         const areaList = [
             "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區",
@@ -220,13 +226,22 @@
             "潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"
         ];
 
+        // --- 新增：自定義訊息視窗功能 ---
+        function showMsg(title, msg) {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = msg;
+            document.getElementById('msg-modal').style.display = 'flex';
+        }
+        function closeMsgModal() {
+            document.getElementById('msg-modal').style.display = 'none';
+        }
+        // -----------------------------
+
         function initSelects() {
-            // 填充區域選單 (註冊用 + 修改用)
             const areaOpts = '<option value="">選擇區域</option>' + areaList.map(a => `<option value="${a}">${a}</option>`).join('');
             document.getElementById('input-area').innerHTML = areaOpts;
             document.getElementById('edit-area').innerHTML = areaOpts;
 
-            // 填充生日選單
             const yearSelect = document.getElementById('birth-year');
             const monthSelect = document.getElementById('birth-month');
             const currentYear = new Date().getFullYear();
@@ -268,12 +283,11 @@
                 document.getElementById('input-name').value = lineProfile.displayName || "";
                 document.getElementById('loading-overlay').style.display = 'none';
             } else {
-                currentUserProfile = data; // 存起來給修改頁面用
+                currentUserProfile = data;
                 renderApp(data, lineProfile.userId);
             }
         }
 
-        // 註冊頁面的電話檢查
         document.getElementById('input-phone').addEventListener('input', function(e) {
             const regex = /^09\d{8}$/;
             const errorEl = document.getElementById('phone-error');
@@ -284,7 +298,6 @@
             }
         });
 
-        // 註冊資料儲存
         async function saveProfile() {
             const btn = document.getElementById('btn-save');
             const name = document.getElementById('input-name').value;
@@ -295,10 +308,11 @@
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
 
+            // 改用 showMsg 取代 alert
             if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { 
-                alert('請正確填寫必填欄位'); return; 
+                showMsg('提醒', '請正確填寫所有必填欄位'); return; 
             }
-            if (!currentUserLineId) { alert('無法取得 LINE ID'); return; }
+            if (!currentUserLineId) { showMsg('系統錯誤', '無法取得 LINE ID'); return; }
 
             btn.disabled = true;
             btn.innerText = "處理中...";
@@ -320,29 +334,22 @@
                 currentUserProfile = data;
                 renderApp(data, currentUserLineId);
             } catch (err) {
-                alert(`儲存失敗：\n${err.message || err.code}\n請截圖回報。`);
+                showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}\n請截圖回報工程師。`);
                 btn.disabled = false;
                 btn.innerText = "領取我的數位盒子";
             }
         }
 
-        // 打開修改彈窗
         function openEditModal() {
             if (!currentUserProfile) return;
-            
-            // 填入資料
             document.getElementById('edit-name').value = currentUserProfile.full_name;
             document.getElementById('edit-phone').value = currentUserProfile.phone;
             document.getElementById('edit-birthday').value = currentUserProfile.birthday;
-            
             document.getElementById('edit-area').value = currentUserProfile.area || "";
             document.getElementById('edit-email').value = currentUserProfile.email || "";
-
-            // 顯示彈窗
             document.getElementById('edit-modal').style.display = 'flex';
         }
 
-        // 更新資料 (僅更新區域與 Email)
         async function updateProfile() {
             const btn = document.getElementById('btn-update');
             const newArea = document.getElementById('edit-area').value;
@@ -358,15 +365,15 @@
                     .select().single();
 
                 if (error) throw error;
-
-                // 更新成功
-                currentUserProfile = data; // 更新本地資料
-                alert('資料更新成功！');
+                currentUserProfile = data;
+                
+                // 成功訊息
+                showMsg('成功', '您的資料已更新完畢！');
                 document.getElementById('edit-modal').style.display = 'none';
                 
             } catch (err) {
                 console.error(err);
-                alert('更新失敗，請檢查網路');
+                showMsg('更新失敗', '請檢查網路連線或稍後再試。');
             } finally {
                 btn.disabled = false;
                 btn.innerText = "儲存變更";
