@@ -16,93 +16,84 @@
             background-color: #f3f4f6;
             overscroll-behavior: none;
             touch-action: none;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-            position: fixed;
+            height: 100%; width: 100%;
+            overflow: hidden; position: fixed;
         }
 
-        #app {
-            height: 100%;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            background-color: #f3f4f6;
-        }
-
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
-        }
-
+        #app { height: 100%; width: 100%; display: flex; flex-direction: column; background-color: #f3f4f6; }
+        .content-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        .card-black-gold {
-            background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            min-height: 180px;
-        }
+        .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
 
-        .rank-badge {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            display: flex; align-items: center; justify-content: center;
-            min-width: 80px; height: 28px;
-        }
-
-        .nav-full-width {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 50; shrink-0;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
+        /* 滿版平底導覽列 */
+        .nav-full-width { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
         .active-nav-item { color: #000; }
         .inactive-nav-item { color: #d1d5db; }
 
-        /* 彈窗遮罩 */
+        /* 彈窗遮罩 - 增加滾動支持以防小螢幕擋到內容 */
         #profile-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            padding: 24px;
-            align-items: center; justify-content: center;
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px); z-index: 1000; padding: 20px;
+            align-items: center; justify-content: center; overflow-y: auto;
         }
+
+        input, select { -webkit-appearance: none; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Security Checking</p>
+        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Blackbox Security</p>
     </div>
 
-    <div id="profile-modal" class="flex">
-        <div class="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl">
-            <h3 class="text-2xl font-black mb-2 tracking-tight">建立會員檔案</h3>
-            <p class="text-gray-400 text-xs mb-8">歡迎來到黑盒子，請先完善您的資料</p>
+    <div id="profile-modal">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl my-auto">
+            <h3 class="text-2xl font-black mb-1 tracking-tight">完善會員資料</h3>
+            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold">Please complete your profile</p>
             
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">真實姓名</label>
-                    <input id="input-name" type="text" placeholder="例：王小明" class="w-full border-b border-gray-100 py-3 outline-none focus:border-black transition">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">真實姓名 <span class="text-red-500">*</span></label>
+                    <input id="input-name" type="text" placeholder="輸入姓名" class="w-full border-b border-gray-100 py-2 outline-none focus:border-black transition text-sm">
                 </div>
+                
                 <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">連絡電話</label>
-                    <input id="input-phone" type="tel" placeholder="0912345678" class="w-full border-b border-gray-100 py-3 outline-none focus:border-black transition">
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">連絡電話 <span class="text-red-500">*</span></label>
+                    <input id="input-phone" type="tel" maxlength="10" placeholder="0912345678" class="w-full border-b border-gray-100 py-2 outline-none focus:border-black transition text-sm">
+                    <p id="phone-error" class="text-[10px] text-red-500 mt-1 hidden font-medium">格式錯誤：須為09開頭之10位數字</p>
                 </div>
-                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-4">確認送出</button>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">會員生日 <span class="text-red-500">*</span></label>
+                    <input id="input-birthday" type="date" class="w-full border-b border-gray-100 py-2 outline-none focus:border-black transition text-sm">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">電子信箱</label>
+                    <input id="input-email" type="email" placeholder="example@mail.com" class="w-full border-b border-gray-100 py-2 outline-none focus:border-black transition text-sm">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">居住區域</label>
+                    <select id="input-area" class="w-full border-b border-gray-100 py-2 outline-none focus:border-black bg-white transition text-sm">
+                        <option value="">請選擇區域</option>
+                        <option value="中區">中區</option><option value="東區">東區</option><option value="西區">西區</option><option value="南區">南區</option>
+                        <option value="北區">北區</option><option value="北屯區">北屯區</option><option value="西屯區">西屯區</option><option value="南屯區">南屯區</option>
+                        <option value="太平區">太平區</option><option value="大里區">大里區</option><option value="霧峰區">霧峰區</option><option value="烏日區">烏日區</option>
+                        <option value="豐原區">豐原區</option><option value="后里區">后里區</option><option value="石岡區">石岡區</option><option value="東勢區">東勢區</option>
+                        <option value="和平區">和平區</option><option value="新社區">新社區</option><option value="潭子區">潭子區</option><option value="大雅區">大雅區</option>
+                        <option value="神岡區">神岡區</option><option value="大肚區">大肚區</option><option value="沙鹿區">沙鹿區</option><option value="龍井區">龍井區</option>
+                        <option value="梧棲區">梧棲區</option><option value="清水區">清水區</option><option value="大甲區">大甲區</option><option value="外埔區">外埔區</option>
+                        <option value="大安區">大安區</option>
+                    </select>
+                </div>
+
+                <button id="btn-submit" onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-4">儲存並領取卡片</button>
             </div>
         </div>
     </div>
@@ -117,17 +108,6 @@
         </header>
 
         <div id="main-content" class="content-scroll hidden">
-            <main id="tab-booking" class="tab-content p-6 space-y-6">
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 text-center">
-                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-black">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </div>
-                    <h2 class="text-xl font-bold mb-2">預約您的維修服務</h2>
-                    <p class="text-sm text-gray-400 mb-6">專屬工程師為您節省排隊時間</p>
-                    <button onclick="window.open('https://blackbox3c.simplybook.asia/v2/')" class="w-full bg-black text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">立即預約</button>
-                </div>
-            </main>
-
             <main id="tab-card" class="tab-content active p-6">
                 <div class="card-black-gold rounded-[2rem] p-7 mb-8 relative overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 rounded-full -mr-16 -mt-16 blur-3xl"></div>
@@ -146,6 +126,16 @@
                 </div>
             </main>
 
+            <main id="tab-booking" class="tab-content p-6">
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 text-center">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-black">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                    <h2 class="text-xl font-bold mb-2">預約您的維修服務</h2>
+                    <button onclick="window.open('https://blackbox3c.simplybook.asia/v2/')" class="w-full bg-black text-white py-4 rounded-2xl font-bold mt-4 shadow-lg active:scale-95 transition">立即預約</button>
+                </div>
+            </main>
+
             <main id="tab-coupon" class="tab-content p-6">
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 opacity-60 text-center">
                     <p class="text-sm font-bold text-gray-400 italic">目前尚無可用優惠券</p>
@@ -159,7 +149,7 @@
                 <span class="text-[10px] font-black uppercase tracking-tighter">線上預約</span>
             </button>
             <button onclick="switchTab('card')" id="nav-card" class="flex-1 py-3 flex flex-col items-center gap-1 active-nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 <span class="text-[10px] font-black uppercase tracking-tighter">會員卡</span>
             </button>
             <button onclick="switchTab('coupon')" id="nav-coupon" class="flex-1 py-3 flex flex-col items-center gap-1 inactive-nav-item">
@@ -174,55 +164,81 @@
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_bIqoSDyBrvU7NJOc0Dr47A_LcO0xk3M';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let currentUserData = null;
+        let currentUserLineId = null;
 
         async function init() {
             try {
                 await liff.init({ liffId: LIFF_ID });
-                // 1. 強制登入檢測
-                if (!liff.isLoggedIn()) {
-                    liff.login();
-                } else {
+                if (!liff.isLoggedIn()) { liff.login(); } 
+                else {
                     const profile = await liff.getProfile();
-                    await checkMemberStatus(profile);
+                    currentUserLineId = profile.userId;
+                    checkMemberStatus(profile);
                 }
-            } catch (err) { console.error('LIFF Init Fail'); }
+            } catch (err) { console.error('Init Fail'); }
         }
 
         async function checkMemberStatus(lineProfile) {
             let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
             
-            // 2. 如果查無資料或電話是空的 -> 強制填寫資料
-            if (!data || !data.phone || data.phone === '未登記') {
+            // 檢查是否有完整必填資料（電話與生日）
+            if (!data || !data.phone || !data.birthday) {
                 document.getElementById('profile-modal').style.display = 'flex';
                 document.getElementById('input-name').value = lineProfile.displayName;
-                currentUserData = { line_id: lineProfile.userId };
+                document.getElementById('loading-overlay').style.display = 'none';
             } else {
                 renderApp(data, lineProfile.userId);
             }
         }
 
+        // 即時檢查電話格式
+        document.getElementById('input-phone').addEventListener('input', function(e) {
+            const phone = e.target.value;
+            const regex = /^09\d{8}$/;
+            const errorEl = document.getElementById('phone-error');
+            if (phone.length > 0 && !regex.test(phone)) {
+                errorEl.classList.remove('hidden');
+            } else {
+                errorEl.classList.add('hidden');
+            }
+        });
+
         async function saveProfile() {
             const name = document.getElementById('input-name').value;
             const phone = document.getElementById('input-phone').value;
-            if (!name || phone.length < 10) return alert('請完整填寫姓名與電話');
+            const birthday = document.getElementById('input-birthday').value;
+            const email = document.getElementById('input-email').value;
+            const area = document.getElementById('input-area').value;
+            
+            // 必填與格式檢核
+            const phoneRegex = /^09\d{8}$/;
+            if (!name || !phoneRegex.test(phone) || !birthday) {
+                alert('請完整且正確填寫「姓名」、「電話」及「生日」！');
+                return;
+            }
 
+            // 更新至 Supabase
             const { data, error } = await _supabase.from('profiles').upsert({
-                line_id: currentUserData.line_id,
+                line_id: currentUserLineId,
                 full_name: name,
                 phone: phone,
+                birthday: birthday,
+                email: email,
+                area: area,
                 total_points: 0
             }).select().single();
 
             if (!error) {
                 document.getElementById('profile-modal').style.display = 'none';
-                renderApp(data, currentUserData.line_id);
+                renderApp(data, currentUserLineId);
+            } else {
+                alert('儲存失敗，請檢查網路連線');
             }
         }
 
         function renderApp(data, lineId) {
             document.getElementById('m-name').innerText = data.full_name;
-            document.getElementById('m-points').innerText = data.total_points.toLocaleString();
+            document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
             document.getElementById('loading-overlay').style.display = 'none';
