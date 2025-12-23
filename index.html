@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_orange.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/zh.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -32,12 +31,12 @@
         .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; }
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
 
-        /* 導覽列 */
+        /* 滿版平底導覽列 */
         .nav-full-width { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
         .active-nav-item { color: #000; }
         .inactive-nav-item { color: #d1d5db; }
 
-        /* 修改後的圓角輸入框 */
+        /* 圓角柔和輸入框 */
         .soft-input {
             background-color: #f9fafb;
             border: 1px solid #e5e7eb;
@@ -50,16 +49,29 @@
         }
         .soft-input:focus { border-color: #000; background-color: #fff; }
 
-        /* 彈窗遮罩 */
+        /* 填寫資料彈窗 */
         #profile-modal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(15px); z-index: 1000; padding: 20px;
             align-items: center; justify-content: center;
         }
 
-        /* 覆寫 Flatpickr 配色為黑金 */
-        .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; }
-        .flatpickr-calendar { border-radius: 20px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important; }
+        /* 自定義 Flatpickr 白色清新主題 */
+        .flatpickr-calendar {
+            background: #fff !important;
+            border-radius: 24px !important;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.15) !important;
+            border: none !important;
+            padding: 10px !important;
+        }
+        .flatpickr-day.selected {
+            background: #000 !important;
+            border-color: #000 !important;
+            border-radius: 12px !important;
+        }
+        .flatpickr-months .flatpickr-month { background: #fff !important; color: #000 !important; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 700 !important; }
+        .flatpickr-weekday { color: #9ca3af !important; font-weight: 700 !important; }
     </style>
 </head>
 <body>
@@ -72,7 +84,7 @@
     <div id="profile-modal">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-2xl font-black mb-1 tracking-tight">完善會員資料</h3>
-            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">Let's get to know you</p>
+            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">Member Profile Update</p>
             
             <div class="space-y-4">
                 <div>
@@ -88,7 +100,7 @@
 
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">會員生日 <span class="text-red-500">*</span></label>
-                    <input id="input-birthday" type="text" placeholder="選擇日期" class="soft-input">
+                    <input id="input-birthday" type="text" placeholder="點擊選擇日期" class="soft-input" readonly>
                 </div>
 
                 <div>
@@ -111,7 +123,7 @@
                     </select>
                 </div>
 
-                <button id="btn-submit" onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">開啟我的黑盒子</button>
+                <button id="btn-submit" onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">開啟會員卡</button>
             </div>
         </div>
     </div>
@@ -167,11 +179,12 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
-        // 初始化可愛日曆
+        // 初始化可愛清新白色日曆
         const fp = flatpickr("#input-birthday", {
             locale: "zh",
             dateFormat: "Y-m-d",
-            disableMobile: "true" // 強制使用庫的 UI
+            disableMobile: true,
+            animate: true
         });
 
         async function init() {
@@ -188,24 +201,17 @@
 
         async function checkMemberStatus(lineProfile) {
             let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
-            
             if (!data || !data.phone || !data.birthday) {
                 document.getElementById('profile-modal').style.display = 'flex';
                 document.getElementById('input-name').value = lineProfile.displayName || "";
-                
-                // 嘗試抓取 LINE 生日 (若權限允許)
-                // 注意：這需要後台開放身分驗證權限中的「birthdate」
-                if (lineProfile.birthdate) {
-                    fp.setDate(lineProfile.birthdate);
-                }
-                
+                // 若 LINE 有提供生日則自動填入
+                if (lineProfile.birthdate) fp.setDate(lineProfile.birthdate);
                 document.getElementById('loading-overlay').style.display = 'none';
             } else {
                 renderApp(data, lineProfile.userId);
             }
         }
 
-        // 電話檢查
         document.getElementById('input-phone').addEventListener('input', function(e) {
             const regex = /^09\d{8}$/;
             const errorEl = document.getElementById('phone-error');
@@ -220,8 +226,7 @@
             const area = document.getElementById('input-area').value;
             
             if (!name || !/^09\d{8}$/.test(phone) || !birthday) {
-                alert('請完整正確填寫姓名、電話與生日！');
-                return;
+                alert('請填寫必填欄位！'); return;
             }
 
             const { data, error } = await _supabase.from('profiles').upsert({
