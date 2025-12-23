@@ -22,7 +22,7 @@
             height: 100%; width: 100%;
             overflow: hidden; position: fixed;
         }
-        #app { height: 100%; width: 100%; display: flex; flex-direction: column; background-color: #f3f4f6; }
+        #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         .content-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
@@ -32,10 +32,9 @@
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
 
         .nav-full-width { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
-        .active-nav-item { color: #000; }
         .inactive-nav-item { color: #d1d5db; }
 
-        .soft-input { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px 14px; font-size: 14px; width: 100%; outline: none; }
+        .soft-input { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 14px; width: 100%; outline: none; }
 
         #profile-modal {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
@@ -43,71 +42,65 @@
             align-items: center; justify-content: center;
         }
 
-        /* 彈出式日曆優化：確保不超出邊界且置中 */
+        /* 關鍵修正：日曆強制置中且不漂移 */
         .flatpickr-calendar {
             background: #fff !important;
-            border-radius: 20px !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-            width: 280px !important; /* 固定寬度，防止遮住週六 */
+            border-radius: 24px !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
             border: none !important;
+            width: 300px !important; /* 固定寬度防止週六被遮 */
         }
-        .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 10px !important; }
-        .flatpickr-months .flatpickr-month { background: #fff !important; color: #000 !important; }
+        .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; } /* 移除箭頭 */
+        
+        .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 12px !important; }
+        .flatpickr-months .flatpickr-month { background: transparent !important; color: #000 !important; }
         .flatpickr-weekday { color: #9ca3af !important; font-weight: 700 !important; }
-        .flatpickr-innerContainer { padding: 5px !important; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Blackbox Security</p>
+        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Security Checking</p>
     </div>
 
     <div id="profile-modal">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative">
             <h3 class="text-2xl font-black mb-1 tracking-tight">完善會員資料</h3>
-            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">Member Profile Update</p>
+            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">Member Profile</p>
             
             <div class="space-y-4">
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">真實姓名 <span class="text-red-500">*</span></label>
-                    <input id="input-name" type="text" placeholder="輸入姓名" class="soft-input">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">真實姓名 <span class="text-red-500">*</span></label>
+                    <input id="input-name" type="text" placeholder="例：王小明" class="soft-input">
                 </div>
                 
                 <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">連絡電話 <span class="text-red-500">*</span></label>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 <span class="text-red-500">*</span></label>
                     <input id="input-phone" type="tel" maxlength="10" placeholder="0912345678" class="soft-input">
-                    <p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1">格式錯誤：須為09開頭之10位數字</p>
+                    <p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤：須為09開頭之10位數字</p>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">會員生日 <span class="text-red-500">*</span></label>
-                    <input id="input-birthday" type="text" placeholder="點擊選擇日期" class="soft-input" readonly>
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">會員生日 <span class="text-red-500">*</span></label>
+                    <input id="input-birthday" type="text" placeholder="選擇日期" class="soft-input" readonly>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">電子信箱</label>
-                    <input id="input-email" type="email" placeholder="example@mail.com" class="soft-input">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">電子信箱</label>
+                        <input id="input-email" type="email" placeholder="Email" class="soft-input">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
+                        <select id="input-area" class="soft-input bg-white">
+                            <option value="">選擇區域</option>
+                            <option value="西屯區">西屯區</option><option value="沙鹿區">沙鹿區</option>
+                            </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-2 px-1">居住區域</label>
-                    <select id="input-area" class="soft-input bg-white">
-                        <option value="">請選擇區域</option>
-                        <option value="西屯區">西屯區</option><option value="沙鹿區">沙鹿區</option>
-                        <option value="中區">中區</option><option value="東區">東區</option><option value="西區">西區</option><option value="南區">南區</option>
-                        <option value="北區">北區</option><option value="北屯區">北屯區</option><option value="南屯區">南屯區</option>
-                        <option value="太平區">太平區</option><option value="大里區">大里區</option><option value="霧峰區">霧峰區</option><option value="烏日區">烏日區</option>
-                        <option value="豐原區">豐原區</option><option value="后里區">后里區</option><option value="石岡區">石岡區</option><option value="東勢區">東勢區</option>
-                        <option value="和平區">和平區</option><option value="新社區">新社區</option><option value="潭子區">潭子區</option><option value="大雅區">大雅區</option>
-                        <option value="神岡區">神岡區</option><option value="大肚區">大肚區</option><option value="龍井區">龍井區</option>
-                        <option value="梧棲區">梧棲區</option><option value="清水區">清水區</option><option value="大甲區">大甲區</option><option value="外埔區">外埔區</option>
-                        <option value="大安區">大安區</option>
-                    </select>
-                </div>
-
-                <button id="btn-submit" onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">開啟會員卡</button>
+                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存領取卡片</button>
             </div>
         </div>
     </div>
@@ -116,7 +109,7 @@
         <header class="p-6 pb-2 flex justify-between items-center shrink-0">
             <div class="flex flex-col">
                 <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">BLACK BOX REPAIR</span>
-                <h1 id="page-title" class="text-2xl font-black text-gray-900">會員中心</h1>
+                <h1 id="page-title" class="text-2xl font-black text-gray-900 tracking-tight">會員中心</h1>
             </div>
             <button onclick="liff.logout(); location.reload();" class="text-[9px] text-gray-400 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-widest font-bold">登出</button>
         </header>
@@ -163,14 +156,20 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
-        // 初始化日曆：恢復為彈出式，但限制寬度
+        // 徹底修正定位問題：使用 appendTo 並移除所有自動計算的偏移
         const fp = flatpickr("#input-birthday", {
             locale: "zh",
             dateFormat: "Y-m-d",
             disableMobile: true,
-            animate: true,
-            static: true, // 核心：讓日曆對齊輸入框，不隨意漂浮
-            maxDate: "today"
+            maxDate: "today",
+            onOpen: function(selectedDates, dateStr, instance) {
+                // 強制日曆出現在視窗正中央
+                const calendar = instance.calendarContainer;
+                calendar.style.position = 'fixed';
+                calendar.style.left = '50%';
+                calendar.style.top = '50%';
+                calendar.style.transform = 'translate(-50%, -50%)';
+            }
         });
 
         async function init() {
@@ -191,7 +190,6 @@
                 document.getElementById('profile-modal').style.display = 'flex';
                 document.getElementById('input-name').value = lineProfile.displayName || "";
                 document.getElementById('loading-overlay').style.display = 'none';
-                if (lineProfile.birthdate) fp.setDate(lineProfile.birthdate);
             } else {
                 renderApp(data, lineProfile.userId);
             }
@@ -209,20 +207,12 @@
             const birthday = document.getElementById('input-birthday').value;
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
-            
-            if (!name || !/^09\d{8}$/.test(phone) || !birthday) {
-                alert('請填寫姓名、電話與生日！'); return;
-            }
-
+            if (!name || !/^09\d{8}$/.test(phone) || !birthday) { alert('請填寫必填欄位！'); return; }
             const { data, error } = await _supabase.from('profiles').upsert({
                 line_id: currentUserLineId, full_name: name, phone: phone, 
                 birthday: birthday, email: email, area: area, total_points: 0
             }).select().single();
-
-            if (!error) {
-                document.getElementById('profile-modal').style.display = 'none';
-                renderApp(data, currentUserLineId);
-            }
+            if (!error) { document.getElementById('profile-modal').style.display = 'none'; renderApp(data, currentUserLineId); }
         }
 
         function renderApp(data, lineId) {
