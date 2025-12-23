@@ -42,13 +42,13 @@
             align-items: center; justify-content: center;
         }
 
-        /* 🚀 最終解決方案：強制定心 CSS */
+        /* 日曆強制置中樣式 */
         .flatpickr-calendar {
             position: fixed !important;
             top: 50% !important;
             left: 50% !important;
             margin: 0 !important;
-            transform: translate(-50%, -50%) !important; /* 絕對置中 */
+            transform: translate(-50%, -50%) !important;
             background: #fff !important;
             border-radius: 24px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
@@ -57,13 +57,20 @@
         }
         .flatpickr-calendar:before, .flatpickr-calendar:after { display: none !important; }
         .flatpickr-day.selected { background: #000 !important; border-color: #000 !important; border-radius: 12px !important; }
+        
+        /* 讓下拉選單看起來更直覺 */
+        .flatpickr-monthDropdown-months, .numInputWrapper {
+            background: #f3f4f6 !important;
+            border-radius: 8px !important;
+            padding: 2px 8px !important;
+        }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
-        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Blackbox Security</p>
+        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Security Checking</p>
     </div>
 
     <div id="profile-modal">
@@ -85,7 +92,7 @@
 
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">會員生日 <span class="text-red-500">*</span></label>
-                    <input id="input-birthday" type="text" placeholder="選擇日期" class="soft-input" readonly>
+                    <input id="input-birthday" type="text" placeholder="點擊選擇日期" class="soft-input" readonly>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -97,40 +104,26 @@
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
                         <select id="input-area" class="soft-input bg-white">
                             <option value="">選擇區域</option>
-                            <option value="西屯區">西屯區</option>
-                            <option value="沙鹿區">沙鹿區</option>
-                            <option value="中區">中區</option>
-                            <option value="東區">東區</option>
-                            <option value="西區">西區</option>
-                            <option value="南區">南區</option>
-                            <option value="北區">北區</option>
-                            <option value="北屯區">北屯區</option>
-                            <option value="南屯區">南屯區</option>
-                            <option value="太平區">太平區</option>
-                            <option value="大里區">大里區</option>
-                            <option value="霧峰區">霧峰區</option>
-                            <option value="烏日區">烏日區</option>
-                            <option value="豐原區">豐原區</option>
-                            <option value="后里區">后里區</option>
-                            <option value="石岡區">石岡區</option>
-                            <option value="東勢區">東勢區</option>
-                            <option value="和平區">和平區</option>
-                            <option value="新社區">新社區</option>
-                            <option value="潭子區">潭子區</option>
-                            <option value="大雅區">大雅區</option>
-                            <option value="神岡區">神岡區</option>
-                            <option value="大肚區">大肚區</option>
-                            <option value="龍井區">龍井區</option>
-                            <option value="梧棲區">梧棲區</option>
-                            <option value="清水區">清水區</option>
-                            <option value="大甲區">大甲區</option>
-                            <option value="外埔區">外埔區</option>
+                            <option value="西屯區">西屯區</option><option value="沙鹿區">沙鹿區</option>
+                            <option value="中區">中區</option><option value="東區">東區</option>
+                            <option value="西區">西區</option><option value="南區">南區</option>
+                            <option value="北區">北區</option><option value="北屯區">北屯區</option>
+                            <option value="南屯區">南屯區</option><option value="太平區">太平區</option>
+                            <option value="大里區">大里區</option><option value="霧峰區">霧峰區</option>
+                            <option value="烏日區">烏日區</option><option value="豐原區">豐原區</option>
+                            <option value="后里區">后里區</option><option value="石岡區">石岡區</option>
+                            <option value="東勢區">東勢區</option><option value="和平區">和平區</option>
+                            <option value="新社區">新社區</option><option value="潭子區">潭子區</option>
+                            <option value="大雅區">大雅區</option><option value="神岡區">神岡區</option>
+                            <option value="大肚區">大肚區</option><option value="龍井區">龍井區</option>
+                            <option value="梧棲區">梧棲區</option><option value="清水區">清水區</option>
+                            <option value="大甲區">大甲區</option><option value="外埔區">外埔區</option>
                             <option value="大安區">大安區</option>
                         </select>
                     </div>
                 </div>
 
-                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存並開啟卡片</button>
+                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存領取卡片</button>
             </div>
         </div>
     </div>
@@ -186,14 +179,17 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
-        // 初始化日曆
+        // 🛠️ 核心修正：啟用下拉選單模式
         const fp = flatpickr("#input-birthday", {
             locale: "zh",
             dateFormat: "Y-m-d",
             disableMobile: true,
             maxDate: "today",
-            static: false, // 關閉靜態定位
-            appendTo: document.body // 將 DOM 移到最外層 Body 避免被父層遮擋
+            monthSelectorType: "dropdown", // 月份下拉選單
+            showMonths: 1,
+            static: false,
+            appendTo: document.body,
+            yearRange: [1940, 2025] // 設定年份範圍
         });
 
         async function init() {
