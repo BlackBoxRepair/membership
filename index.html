@@ -36,7 +36,7 @@
             border: 1px solid #e5e7eb; 
             border-radius: 12px; 
             padding: 12px 14px; 
-            font-size: 16px; /* 防止 iOS 自動放大 */
+            font-size: 16px; 
             width: 100%; 
             outline: none;
             appearance: none;
@@ -49,15 +49,12 @@
             align-items: center; justify-content: center;
         }
 
-        /* 優化原生日期選擇器的外觀 */
-        input[type="date"] {
-            position: relative;
-            min-height: 48px;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            position: absolute;
-            right: 12px;
-            opacity: 0.5;
+        /* 下拉選單的小箭頭樣式 */
+        .select-wrapper { position: relative; width: 100%; }
+        .select-wrapper::after {
+            content: '▼'; font-size: 8px; color: #9ca3af;
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            pointer-events: none;
         }
     </style>
 </head>
@@ -82,12 +79,21 @@
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 <span class="text-red-500">*</span></label>
                     <input id="input-phone" type="tel" maxlength="10" placeholder="0912345678" class="soft-input">
-                    <p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤：須為09開頭之10位數字</p>
                 </div>
 
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">會員生日 <span class="text-red-500">*</span></label>
-                    <input id="input-birthday" type="date" class="soft-input">
+                    <div class="flex gap-2">
+                        <div class="select-wrapper flex-[2]">
+                            <select id="birth-year" class="soft-input bg-white"><option value="">年</option></select>
+                        </div>
+                        <div class="select-wrapper flex-1">
+                            <select id="birth-month" class="soft-input bg-white"><option value="">月</option></select>
+                        </div>
+                        <div class="select-wrapper flex-1">
+                            <select id="birth-day" class="soft-input bg-white"><option value="">日</option></select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -97,28 +103,30 @@
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
-                        <select id="input-area" class="soft-input bg-white">
-                            <option value="">選擇區域</option>
-                            <option value="西屯區">西屯區</option><option value="沙鹿區">沙鹿區</option>
-                            <option value="中區">中區</option><option value="東區">東區</option>
-                            <option value="西區">西區</option><option value="南區">南區</option>
-                            <option value="北區">北區</option><option value="北屯區">北屯區</option>
-                            <option value="南屯區">南屯區</option><option value="太平區">太平區</option>
-                            <option value="大里區">大里區</option><option value="霧峰區">霧峰區</option>
-                            <option value="烏日區">烏日區</option><option value="豐原區">豐原區</option>
-                            <option value="後里區">後里區</option><option value="石岡區">石岡區</option>
-                            <option value="東勢區">東勢區</option><option value="和平區">和平區</option>
-                            <option value="新社區">新社區</option><option value="潭子區">潭子區</option>
-                            <option value="大雅區">大雅區</option><option value="神岡區">神岡區</option>
-                            <option value="大肚區">大肚區</option><option value="龍井區">龍井區</option>
-                            <option value="梧棲區">梧棲區</option><option value="清水區">清水區</option>
-                            <option value="大甲區">大甲區</option><option value="外埔區">外埔區</option>
-                            <option value="大安區">大安區</option>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="input-area" class="soft-input bg-white">
+                                <option value="">選擇區域</option>
+                                <option value="西屯區">西屯區</option><option value="沙鹿區">沙鹿區</option>
+                                <option value="中區">中區</option><option value="東區">東區</option>
+                                <option value="西區">西區</option><option value="南區">南區</option>
+                                <option value="北區">北區</option><option value="北屯區">北屯區</option>
+                                <option value="南屯區">南屯區</option><option value="太平區">太平區</option>
+                                <option value="大里區">大里區</option><option value="霧峰區">霧峰區</option>
+                                <option value="烏日區">烏日區</option><option value="豐原區">豐原區</option>
+                                <option value="後里區">後里區</option><option value="石岡區">石岡區</option>
+                                <option value="東勢區">東勢區</option><option value="和平區">和平區</option>
+                                <option value="新社區">新社區</option><option value="潭子區">潭子區</option>
+                                <option value="大雅區">大雅區</option><option value="神岡區">神岡區</option>
+                                <option value="大肚區">大肚區</option><option value="龍井區">龍井區</option>
+                                <option value="梧棲區">梧棲區</option><option value="清水區">清水區</option>
+                                <option value="大甲區">大甲區</option><option value="外埔區">外埔區</option>
+                                <option value="大安區">大安區</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存領取會員卡</button>
+                <button onclick="saveProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存並領取卡片</button>
             </div>
         </div>
     </div>
@@ -131,7 +139,6 @@
             </div>
             <button onclick="liff.logout(); location.reload();" class="text-[9px] text-gray-400 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-widest font-bold">登出</button>
         </header>
-
         <div id="main-content" class="content-scroll hidden">
             <main id="tab-card" class="tab-content active p-6">
                 <div class="card-black-gold rounded-[2.2rem] p-7 mb-8 relative overflow-hidden">
@@ -157,7 +164,7 @@
                 <span class="text-[10px] font-black uppercase tracking-tighter">線上預約</span>
             </button>
             <button onclick="switchTab('card')" class="flex-1 py-3 flex flex-col items-center gap-1 active-nav-item">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H5a2 2 0 002 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
                 <span class="text-[10px] font-black uppercase tracking-tighter">會員卡</span>
             </button>
             <button onclick="switchTab('coupon')" class="flex-1 py-3 flex flex-col items-center gap-1 inactive-nav-item">
@@ -174,7 +181,26 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
 
+        // 生成年、月、日下拉選項
+        function setupBirthdaySelects() {
+            const yearSelect = document.getElementById('birth-year');
+            const monthSelect = document.getElementById('birth-month');
+            const daySelect = document.getElementById('birth-day');
+            
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1940; i--) {
+                yearSelect.options.add(new Option(i + '年', i));
+            }
+            for (let i = 1; i <= 12; i++) {
+                monthSelect.options.add(new Option(i + '月', i));
+            }
+            for (let i = 1; i <= 31; i++) {
+                daySelect.options.add(new Option(i + '日', i));
+            }
+        }
+
         async function init() {
+            setupBirthdaySelects();
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); } 
@@ -197,23 +223,26 @@
             }
         }
 
-        document.getElementById('input-phone').addEventListener('input', function(e) {
-            const regex = /^09\d{8}$/;
-            const errorEl = document.getElementById('phone-error');
-            (!regex.test(e.target.value) && e.target.value.length > 0) ? errorEl.classList.remove('hidden') : errorEl.classList.add('hidden');
-        });
-
         async function saveProfile() {
             const name = document.getElementById('input-name').value;
             const phone = document.getElementById('input-phone').value;
-            const birthday = document.getElementById('input-birthday').value;
+            const year = document.getElementById('birth-year').value;
+            const month = document.getElementById('birth-month').value.padStart(2, '0');
+            const day = document.getElementById('birth-day').value.padStart(2, '0');
+            const birthday = `${year}-${month}-${day}`; // 格式化為資料庫需要的 YYYY-MM-DD
+            
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
-            if (!name || !/^09\d{8}$/.test(phone) || !birthday) { alert('請填寫必填欄位！'); return; }
+
+            if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { 
+                alert('請完整正確填寫姓名、電話與生日！'); return; 
+            }
+
             const { data, error } = await _supabase.from('profiles').upsert({
                 line_id: currentUserLineId, full_name: name, phone: phone, 
                 birthday: birthday, email: email, area: area, total_points: 0
             }).select().single();
+
             if (!error) { document.getElementById('profile-modal').style.display = 'none'; renderApp(data, currentUserLineId); }
         }
 
