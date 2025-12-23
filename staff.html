@@ -238,11 +238,9 @@
         let selectedCoupons = []; 
         let calculatedPoints = 0;
         let currentStaffName = '';
-        
-        // 新增：用來暫存所有抓下來的優惠券詳細資料，方便結帳時查詢
         let allCouponsData = []; 
 
-        // --- 優惠券讀取 (儲存完整資料) ---
+        // --- 優惠券讀取 ---
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const today = new Date().toISOString().split('T')[0];
@@ -252,7 +250,7 @@
             if (error) { container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>'; return; }
             if (!data || data.length === 0) { container.innerHTML = '<p class="col-span-2 text-center text-gray-400 text-xs py-2">目前無可用優惠券</p>'; return; }
 
-            // 儲存到全域變數，供送出時使用
+            // 儲存完整資料供發送使用
             allCouponsData = data;
 
             // 過濾與排序
@@ -424,7 +422,6 @@
             resetToForm();
         }
 
-        // --- 交易執行 (關鍵修改：同時寫入Log 與 客戶票夾) ---
         async function executeTransaction() {
             const btn = document.getElementById('btn-submit-real');
             btn.disabled = true; btn.innerText = "處理中...";
@@ -440,7 +437,7 @@
                 const { error: updateError } = await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
                 if (updateError) throw updateError;
 
-                // 2. 寫入積分紀錄 (Log)
+                // 2. 寫入積分紀錄
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId,
                     staff_name: currentStaffName,
@@ -450,22 +447,23 @@
                     points_change: calculatedPoints
                 });
 
-                // 3. 發送優惠券到客戶票夾 (user_coupons)
+                // 3. 【修復】寫入優惠券 (如果有錯誤會彈出警告)
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(couponName => {
-                        // 從 allCouponsData 找回完整的優惠券資訊 (為了取得 description 和 valid_until)
                         const originalCoupon = allCouponsData.find(c => c.name === couponName);
                         return {
                             line_id: currentTargetLineId,
                             coupon_name: couponName,
                             description: originalCoupon ? originalCoupon.description : '',
-                            valid_until: originalCoupon ? originalCoupon.valid_until : null, // 複製期限 (或 null 為永久)
+                            valid_until: originalCoupon ? originalCoupon.valid_until : null,
                             status: 'unused'
                         };
                     });
                     
                     const { error: couponError } = await _supabase.from('user_coupons').insert(couponsToInsert);
-                    if (couponError) console.error("發券失敗", couponError);
+                    if (couponError) {
+                        alert("⚠️ 積分發送成功，但「優惠券」寫入失敗！\n錯誤代碼：" + couponError.message + "\n請確認 SQL 權限是否已開啟。");
+                    }
                 }
 
                 alert('✅ 交易完成！');
