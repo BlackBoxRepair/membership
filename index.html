@@ -204,9 +204,11 @@
             </main>
 
             <main id="tab-coupon" class="tab-content p-6">
-                 <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
-                    <p class="text-gray-400 font-bold">目前沒有可用的優惠券</p>
-                </div>
+                <div id="coupon-list" class="space-y-4">
+                     <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
+                        <p class="text-gray-400 font-bold">讀取中...</p>
+                    </div>
+                 </div>
             </main>
         </div>
 
@@ -330,8 +332,6 @@
             btn.innerText = "檢查中...";
 
             try {
-                // 1. 【新增功能】檢查電話號碼是否重複
-                // 使用 maybeSingle()，如果有找到資料回傳 object，沒找到回傳 null
                 const { data: existingUser, error: checkError } = await _supabase
                     .from('profiles')
                     .select('line_id')
@@ -340,15 +340,13 @@
 
                 if (checkError) throw checkError;
 
-                // 如果找到資料，且該資料的 line_id 不是現在這個人 (避免自己擋自己)
                 if (existingUser && existingUser.line_id !== currentUserLineId) {
                     showMsg('註冊失敗', '此電話號碼已被其他會員註冊，請確認或聯繫客服。');
                     btn.disabled = false;
                     btn.innerText = "領取我的數位盒子";
-                    return; // 這裡很重要，直接結束函式，不往下執行
+                    return; 
                 }
 
-                // 2. 驗證通過，開始儲存
                 btn.innerText = "處理中...";
                 const birthday = `${year}-${month}-${day}`;
                 const { data, error } = await _supabase.from('profiles').upsert({
@@ -423,7 +421,6 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             
-            // 更新標題
             const titles = {
                 'booking': '我的預約',
                 'card': '會員中心',
@@ -431,9 +428,66 @@
             };
             document.getElementById('page-title').innerText = titles[tab];
 
-            // 更新按鈕顏色
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
+
+            // 2. 修改：如果切換到優惠券頁籤，讀取資料
+            if(tab === 'coupon') {
+                loadUserCoupons();
+            }
+        }
+
+        // 3. 修改：新增讀取優惠券函式 (樣式使用現有的 Tailwind 類別，保持風格一致)
+        async function loadUserCoupons() {
+            const list = document.getElementById('coupon-list');
+            const today = new Date().toISOString().split('T')[0];
+
+            // 讀取 Supabase
+            const { data, error } = await _supabase
+                .from('user_coupons')
+                .select('*')
+                .eq('line_id', currentUserLineId)
+                .eq('status', 'unused') // 只抓未使用的
+                .order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                 list.innerHTML = `
+                    <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
+                        <p class="text-gray-400 font-bold">目前沒有可用的優惠券</p>
+                    </div>`;
+                return;
+            }
+
+            // 過濾過期
+            const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today);
+
+            if (validCoupons.length === 0) {
+                 list.innerHTML = `
+                    <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
+                        <p class="text-gray-400 font-bold">目前沒有可用的優惠券</p>
+                    </div>`;
+                return;
+            }
+
+            // 產生卡片 HTML (使用原本風格：白底、圓角、陰影)
+            list.innerHTML = validCoupons.map(coupon => {
+                const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
+                return `
+                <div class="bg-white rounded-[1.5rem] p-6 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-bold bg-yellow-100 text-yellow-700 px-2 py-1 rounded-md mb-2 inline-block">未使用</span>
+                            <h4 class="text-lg font-black text-gray-900 mb-1">${coupon.coupon_name}</h4>
+                            <p class="text-xs text-gray-400 mb-2">${coupon.description || '店員發送'}</p>
+                            <p class="text-[10px] text-gray-400 font-mono">${dateText}</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-full">
+                            <span class="text-2xl">🎟️</span>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
         
         window.onload = init;
