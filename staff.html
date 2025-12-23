@@ -16,7 +16,7 @@
             background-color: #f3f4f6;
             color: #111827;
             overscroll-behavior: none;
-            height: 100dvh; 
+            height: 100dvh; /* 使用 dvh 解決手機瀏覽器網址列問題 */
             width: 100%;
             overflow: hidden; 
         }
@@ -231,32 +231,57 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // --- 優惠券讀取 (含期限與自動過濾) ---
+        // --- 優惠券讀取 (邏輯修改：在前端進行過濾與排序，支援永久有效) ---
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
-            const today = new Date().toISOString().split('T')[0]; // 取得 YYYY-MM-DD
+            const today = new Date().toISOString().split('T')[0];
 
-            // 只撈取: 1. 啟用中 2. 期限 >= 今天 (未過期)
+            // 1. 從 DB 抓取所有 is_active = true 的券 (不篩日期)
             const { data, error } = await _supabase
                 .from('coupons')
                 .select('*')
-                .eq('is_active', true)
-                .gte('valid_until', today) 
-                .order('valid_until', { ascending: true }); // 快過期的排前面
+                .eq('is_active', true);
 
             if (error) { container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>'; return; }
             if (!data || data.length === 0) { container.innerHTML = '<p class="col-span-2 text-center text-gray-400 text-xs py-2">目前無可用優惠券</p>'; return; }
 
-            container.innerHTML = data.map(coupon => `
+            // 2. JS 過濾與排序
+            const validCoupons = data.filter(coupon => {
+                // 保留條件：沒有期限 OR 期限 >= 今天
+                return !coupon.valid_until || coupon.valid_until >= today;
+            }).sort((a, b) => {
+                // 排序：快過期的排前，永久有效排後
+                if (a.valid_until && b.valid_until) return a.valid_until.localeCompare(b.valid_until);
+                if (a.valid_until && !b.valid_until) return -1;
+                if (!a.valid_until && b.valid_until) return 1;
+                return 0;
+            });
+
+            if (validCoupons.length === 0) {
+                container.innerHTML = '<p class="col-span-2 text-center text-gray-400 text-xs py-2">目前無可用優惠券</p>';
+                return;
+            }
+
+            // 3. 渲染
+            container.innerHTML = validCoupons.map(coupon => {
+                let badgeHtml = '';
+                if (coupon.valid_until) {
+                    badgeHtml = `<span class="date-badge">效期：${coupon.valid_until}</span>`;
+                } else {
+                    badgeHtml = `<span class="date-badge" style="background:#e5e7eb; color:#374151">永久有效</span>`;
+                }
+
+                return `
                 <div class="coupon-card" onclick="toggleCoupon(this, '${coupon.name}')">
                     <p class="text-gray-900 font-bold text-sm mb-1">${coupon.name}</p>
                     <p class="text-gray-400 text-[10px] leading-tight">${coupon.description || ''}</p>
-                    <span class="date-badge">效期：${coupon.valid_until}</span>
+                    ${badgeHtml}
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
-        // ----------------------------------------
 
+        // --- 核心邏輯 ---
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
         let currentScanMode = 'member'; 
@@ -334,6 +359,7 @@
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
             document.getElementById('manual-phone').value = ''; 
+            
             selectedCoupons = [];
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
@@ -406,7 +432,7 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            // 轉存為字串
+            // 將多張優惠券轉成字串
             const couponString = selectedCoupons.length > 0 ? selectedCoupons.join(', ') : null;
 
             try {
@@ -422,7 +448,7 @@
                     order_number: orderNo,
                     amount: amount,
                     points_change: calculatedPoints
-                    // 若需要存優惠券字串，可在 SQL 增加 coupon 欄位後這裡加入: , coupon: couponString
+                    // 若資料庫有 coupon 欄位可加： , coupon: couponString
                 });
 
                 alert('✅ 交易完成！');
