@@ -16,7 +16,6 @@
             background-color: #f3f4f6;
             color: #111827;
             overscroll-behavior: none;
-            /* 改用 dvh 確保在各種瀏覽器(含橫式)都能正確取得視窗高度 */
             height: 100dvh; 
             width: 100%;
             overflow: hidden; 
@@ -34,18 +33,21 @@
         .soft-input:focus { border-color: #ca8a04; box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1); }
         .soft-input::placeholder { color: #9ca3af; }
 
-        /* 4. 優惠券樣式 */
+        /* 4. 優惠券樣式 (含日期標籤) */
         .coupon-card { 
             background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; 
             transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); select-user: none;
+            position: relative; overflow: hidden;
         }
         .coupon-card.selected { 
             border-color: #ca8a04; background: #fffbeb; transform: scale(1.02); 
-            box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); position: relative;
+            box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); 
         }
-        /* 選中時右上角打勾 */
         .coupon-card.selected::after {
             content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900;
+        }
+        .date-badge {
+            font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500;
         }
 
         /* 5. 掃描框樣式 */
@@ -53,15 +55,12 @@
         .scan-line { position: absolute; width: 100%; height: 2px; background: #eab308; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px #eab308; }
         @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
 
-        /* 6. Modal 彈窗樣式 (優化橫式顯示) */
+        /* 6. Modal 彈窗樣式 */
         .modal-overlay { 
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); 
             z-index: 100; align-items: center; justify-content: center; padding: 20px; 
         }
-        /* 讓 Modal 內容可滾動，避免在橫式手機被切掉 */
-        .modal-content {
-            max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-        }
+        .modal-content { max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .confirm-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
         .confirm-label { color: #6b7280; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; }
         .confirm-value { color: #111; font-weight: 700; text-align: right; word-break: break-all; max-width: 70%; }
@@ -76,7 +75,6 @@
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center modal-content">
             <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">員工登入</h1>
             <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">STAFF ACCESS ONLY</p>
-            
             <div class="space-y-4">
                 <input id="password-input" type="password" inputmode="numeric" placeholder="輸入解鎖密碼" class="soft-input text-center font-bold text-xl tracking-widest h-14">
                 <button onclick="checkPassword()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition">解除鎖定</button>
@@ -191,10 +189,7 @@
                 </div>
             </div>
 
-            <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">
-                下一步
-            </button>
-            
+            <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">下一步</button>
             <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
         </div>
     </div>
@@ -208,7 +203,6 @@
         const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
 
-        // 登入邏輯
         function checkPassword() {
             const input = document.getElementById('password-input');
             if (VALID_PASSWORDS.includes(input.value)) {
@@ -237,10 +231,18 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // 讀取優惠券
+        // --- 優惠券讀取 (含期限與自動過濾) ---
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
-            const { data, error } = await _supabase.from('coupons').select('*').eq('is_active', true).order('created_at', { ascending: false });
+            const today = new Date().toISOString().split('T')[0]; // 取得 YYYY-MM-DD
+
+            // 只撈取: 1. 啟用中 2. 期限 >= 今天 (未過期)
+            const { data, error } = await _supabase
+                .from('coupons')
+                .select('*')
+                .eq('is_active', true)
+                .gte('valid_until', today) 
+                .order('valid_until', { ascending: true }); // 快過期的排前面
 
             if (error) { container.innerHTML = '<p class="col-span-2 text-center text-red-500 text-xs">讀取失敗</p>'; return; }
             if (!data || data.length === 0) { container.innerHTML = '<p class="col-span-2 text-center text-gray-400 text-xs py-2">目前無可用優惠券</p>'; return; }
@@ -248,16 +250,17 @@
             container.innerHTML = data.map(coupon => `
                 <div class="coupon-card" onclick="toggleCoupon(this, '${coupon.name}')">
                     <p class="text-gray-900 font-bold text-sm mb-1">${coupon.name}</p>
-                    <p class="text-gray-400 text-[10px]">${coupon.description || ''}</p>
+                    <p class="text-gray-400 text-[10px] leading-tight">${coupon.description || ''}</p>
+                    <span class="date-badge">效期：${coupon.valid_until}</span>
                 </div>
             `).join('');
         }
+        // ----------------------------------------
 
-        // --- 核心變數 ---
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
         let currentScanMode = 'member'; 
-        let selectedCoupons = []; // 改為陣列，支援多選
+        let selectedCoupons = []; 
         let calculatedPoints = 0;
         let currentStaffName = '';
 
@@ -327,13 +330,10 @@
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
-            // 重置
             document.getElementById('amount-input').value = '';
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
             document.getElementById('manual-phone').value = ''; 
-            
-            // 重置多選
             selectedCoupons = [];
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
@@ -344,14 +344,11 @@
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
 
-        // 修改：支援多選
         function toggleCoupon(el, couponName) {
             if (selectedCoupons.includes(couponName)) {
-                // 取消選取
                 selectedCoupons = selectedCoupons.filter(c => c !== couponName);
                 el.classList.remove('selected');
             } else {
-                // 加入選取
                 selectedCoupons.push(couponName);
                 el.classList.add('selected');
             }
@@ -359,7 +356,6 @@
 
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
-            // 檢查是否至少輸入金額 或 至少選了一張券
             if (!amount && selectedCoupons.length === 0) { alert('請至少輸入金額或選擇一張優惠券'); return; }
             startScanner('staff_auth');
         }
@@ -393,10 +389,7 @@
             document.getElementById('cfm-order').innerText = document.getElementById('order-no').value || '無';
             document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
             document.getElementById('cfm-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
-            
-            // 顯示多張優惠券，用頓號分隔
             document.getElementById('cfm-coupon').innerText = selectedCoupons.length > 0 ? selectedCoupons.join('、') : '無';
-            
             document.getElementById('cfm-staff').innerText = currentStaffName;
             document.getElementById('confirm-modal').style.display = 'flex';
         }
@@ -413,7 +406,7 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            // 將多張優惠券轉成字串儲存
+            // 轉存為字串
             const couponString = selectedCoupons.length > 0 ? selectedCoupons.join(', ') : null;
 
             try {
@@ -429,7 +422,7 @@
                     order_number: orderNo,
                     amount: amount,
                     points_change: calculatedPoints
-                    // 若資料庫有 coupon 欄位可加： , coupon: couponString
+                    // 若需要存優惠券字串，可在 SQL 增加 coupon 欄位後這裡加入: , coupon: couponString
                 });
 
                 alert('✅ 交易完成！');
