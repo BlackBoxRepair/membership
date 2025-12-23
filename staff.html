@@ -10,20 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #000; color: white; overscroll-behavior: none; }
-        .btn-action { transition: all 0.1s; user-select: none; }
-        .btn-action:active { transform: scale(0.95); opacity: 0.8; }
         
-        .scan-frame {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border: 2px solid rgba(234, 179, 8, 0.3);
-            box-shadow: 0 0 50px rgba(234, 179, 8, 0.1);
-            pointer-events: none;
-        }
-        .scan-line {
-            position: absolute; width: 100%; height: 2px; background: #eab308;
-            top: 0; animation: scan 2s infinite linear;
-            box-shadow: 0 0 10px #eab308;
-        }
+        /* 會員卡樣式 (與客戶端一致) */
+        .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5); min-height: 160px; border: 1px solid #333; }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
+
+        /* 優惠券樣式 */
+        .coupon-card { border: 1px solid #333; background: #111; border-radius: 12px; padding: 12px; transition: all 0.2s; cursor: pointer; opacity: 0.6; }
+        .coupon-card.selected { border-color: #eab308; background: #1a1a1a; opacity: 1; transform: scale(1.02); box-shadow: 0 0 15px rgba(234, 179, 8, 0.2); }
+
+        .soft-input { background-color: #111; border: 1px solid #333; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; color: white; transition: border 0.2s; }
+        .soft-input:focus { border-color: #eab308; }
+
+        .scan-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid rgba(234, 179, 8, 0.3); box-shadow: 0 0 50px rgba(234, 179, 8, 0.1); pointer-events: none; }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: #eab308; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px #eab308; }
         @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
     </style>
 </head>
@@ -34,27 +34,23 @@
             <h1 class="text-3xl font-black text-white tracking-widest mb-2">RESTRICTED</h1>
             <p class="text-yellow-600 tracking-[0.3em] text-xs font-bold uppercase">Staff Access Only</p>
         </div>
-
         <div class="bg-gray-900 p-2 rounded-2xl border border-gray-800 flex w-full max-w-xs mb-6 focus-within:border-yellow-600 transition">
             <input id="password-input" type="password" inputmode="numeric" placeholder="PASSCODE" class="bg-transparent text-white px-4 py-3 w-full outline-none font-mono text-center placeholder-gray-700 font-bold tracking-[0.5em] text-xl">
         </div>
-
-        <button onclick="checkPassword()" class="w-full max-w-xs bg-yellow-600 text-black py-4 rounded-2xl font-black tracking-widest hover:bg-yellow-500 transition shadow-lg shadow-yellow-900/20 text-sm">UNLOCK SYSTEM</button>
-        
+        <button onclick="checkPassword()" class="w-full max-w-xs bg-yellow-600 text-black py-4 rounded-2xl font-black tracking-widest hover:bg-yellow-500 transition">UNLOCK SYSTEM</button>
         <p id="login-error" class="text-red-500 text-xs font-bold mt-6 tracking-widest hidden animate-pulse">WRONG PASSCODE</p>
     </div>
 
     <div id="app-container" class="hidden flex-col h-full w-full">
-        
         <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-black z-20 shrink-0">
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 <h1 class="text-lg font-black tracking-wider text-white">STAFF <span class="text-yellow-500">TERMINAL</span></h1>
             </div>
-            <button onclick="lockSystem()" class="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full active:bg-gray-800">鎖定</button>
+            <button onclick="lockSystem()" class="text-xs text-gray-500 border border-gray-800 px-3 py-1 rounded-full">鎖定</button>
         </div>
 
-        <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-24 p-4 relative">
+        <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-16 p-4 relative">
             <div class="w-full max-w-sm aspect-square bg-gray-900 rounded-3xl overflow-hidden border border-gray-800 relative shadow-2xl">
                 <div id="reader" class="w-full h-full bg-black"></div>
                 <div class="scan-frame"><div class="scan-line"></div></div>
@@ -63,46 +59,67 @@
                 <div class="absolute bottom-4 left-4 w-6 h-6 border-b-4 border-l-4 border-yellow-500 rounded-bl-lg z-10"></div>
                 <div class="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-yellow-500 rounded-br-lg z-10"></div>
             </div>
-            <p class="mt-8 text-gray-500 text-xs font-bold tracking-[0.2em] uppercase text-center">Ready to Scan<br>Member QR Code</p>
+            <p id="scan-hint" class="mt-8 text-gray-500 text-xs font-bold tracking-[0.2em] uppercase text-center">Ready to Scan<br>Member QR Code</p>
+            <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-4 text-gray-400 text-sm underline">取消掃描</button>
         </div>
 
-        <div id="action-view" class="hidden flex-1 flex flex-col p-6 overflow-y-auto bg-black">
-            <div class="bg-gradient-to-br from-gray-900 to-black border border-gray-800 rounded-[2rem] p-6 mb-8 relative overflow-hidden shadow-2xl">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-600/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                <div class="relative z-10">
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-bold">Member</p>
-                    <h2 id="user-name" class="text-3xl font-black text-white mb-4 tracking-tight">---</h2>
-                    <div class="flex justify-between items-end border-t border-gray-800 pt-4 mt-2">
-                        <div>
-                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Phone</p>
-                            <p id="user-phone" class="text-sm font-mono text-gray-300 font-bold">---</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-yellow-500 uppercase tracking-widest mb-1 font-bold">Points</p>
-                            <p id="user-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p>
-                        </div>
+        <div id="action-view" class="hidden flex-1 flex flex-col p-6 overflow-y-auto bg-black pb-32">
+            
+            <div class="card-black-gold rounded-[2rem] p-6 mb-8 relative overflow-hidden">
+                <div class="relative z-10 flex justify-between items-start mb-8">
+                    <div><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="user-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
+                    <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Current Points</p><p id="user-points" class="text-3xl font-black text-yellow-400 tracking-tighter">0</p></div>
+                </div>
+                <div class="relative z-10 flex justify-between items-end">
+                    <div class="flex flex-col"><span class="text-[8px] text-white/30 uppercase tracking-widest mb-1 font-bold">Phone Number</span><p id="user-phone" class="text-xs text-white/70 font-mono tracking-widest font-bold">---</p></div>
+                    <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
+                </div>
+            </div>
+
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">積分計算</h3>
+            <div class="space-y-3 mb-8">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="select-wrapper">
+                        <select id="store-select" class="soft-input">
+                            <option value="勤美公益店">勤美公益店</option>
+                            <option value="沙鹿站前店">沙鹿站前店</option>
+                        </select>
                     </div>
+                    <input id="order-no" type="text" placeholder="維修單號 (選填)" class="soft-input">
+                </div>
+                <input id="amount-input" type="number" placeholder="單筆消費金額" class="soft-input font-mono text-yellow-500 font-bold" oninput="calcPreview()">
+                
+                <div class="flex justify-between items-center bg-gray-900/50 p-3 rounded-xl border border-gray-800">
+                    <span class="text-xs text-gray-400">預計獲得積分</span>
+                    <span id="preview-points" class="text-xl font-black text-green-400">+0</span>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="modifyPoints(100)" class="btn-action bg-gray-900 text-green-400 py-6 rounded-2xl font-black text-xl border border-gray-800 flex flex-col items-center justify-center gap-1">
-                        <span>+100</span><span class="text-[10px] text-gray-600 font-normal uppercase tracking-wider">Add</span>
-                    </button>
-                    <button onclick="modifyPoints(-100)" class="btn-action bg-gray-900 text-red-400 py-6 rounded-2xl font-black text-xl border border-gray-800 flex flex-col items-center justify-center gap-1">
-                        <span>-100</span><span class="text-[10px] text-gray-600 font-normal uppercase tracking-wider">Deduct</span>
-                    </button>
+            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">發送優惠券 (選填)</h3>
+            <div class="grid grid-cols-2 gap-3 mb-8">
+                <div class="coupon-card" onclick="toggleCoupon(this, '9折券')">
+                    <p class="text-yellow-500 font-black text-lg">9折</p>
+                    <p class="text-gray-400 text-[10px]">全品項維修折扣</p>
                 </div>
-                <div class="bg-gray-900/50 p-1 rounded-2xl border border-gray-800 flex focus-within:border-yellow-600 transition">
-                    <input id="custom-points" type="number" placeholder="自訂金額" class="bg-transparent text-white px-4 py-3 w-full outline-none font-mono text-center placeholder-gray-700 font-bold">
-                    <button onclick="addCustomPoints()" class="bg-yellow-600 text-black font-black px-6 rounded-xl hover:bg-yellow-500 transition">OK</button>
+                <div class="coupon-card" onclick="toggleCoupon(this, '玻璃貼免費')">
+                    <p class="text-yellow-500 font-black text-lg">FREE</p>
+                    <p class="text-gray-400 text-[10px]">贈送滿版玻璃貼</p>
+                </div>
+                <div class="coupon-card" onclick="toggleCoupon(this, '100元折價')">
+                    <p class="text-yellow-500 font-black text-lg">$100</p>
+                    <p class="text-gray-400 text-[10px]">配件滿千折百</p>
+                </div>
+                <div class="coupon-card" onclick="toggleCoupon(this, '免費清潔')">
+                    <p class="text-yellow-500 font-black text-lg">CLEAN</p>
+                    <p class="text-gray-400 text-[10px]">全機深層清潔</p>
                 </div>
             </div>
 
-            <button onclick="resetScan()" class="mt-auto w-full bg-white text-black py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition mt-8">
-                完成並掃描下一位
+            <button onclick="startStaffAuth()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-lg shadow-lg shadow-white/10 active:scale-95 transition">
+                結算並驗證員工身分
             </button>
+            
+            <button onclick="resetScan()" class="w-full mt-4 text-gray-500 text-xs py-2">放棄並重新掃描</button>
         </div>
     </div>
 
@@ -111,21 +128,18 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 🔐 1. 密碼設定與自動上鎖邏輯
+        // 🔐 系統鎖定邏輯
         const VALID_PASSWORDS = ['26633009', '23015157'];
-        const AUTO_LOCK_TIME = 30 * 60 * 1000; // 30分鐘
+        const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
 
         function checkPassword() {
             const input = document.getElementById('password-input');
-            const val = input.value;
-            if (VALID_PASSWORDS.includes(val)) {
+            if (VALID_PASSWORDS.includes(input.value)) {
                 unlockSystem();
             } else {
-                const err = document.getElementById('login-error');
-                err.classList.remove('hidden');
+                document.getElementById('login-error').classList.remove('hidden');
                 input.value = '';
-                input.focus();
             }
         }
 
@@ -133,59 +147,75 @@
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('password-input').value = ''; 
-            startScanner(); // 解鎖後才啟動相機 (省電)
+            startScanner('member'); // 預設開啟會員掃描
             resetIdleTimer();
         }
 
         function lockSystem() {
             document.getElementById('lock-screen').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('login-error').classList.add('hidden');
-            
-            // 停止相機 (保護隱私+省電)
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().catch(err => console.log('Camera stop', err));
-            }
+            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
         }
 
         function resetIdleTimer() {
             clearTimeout(idleTimer);
             idleTimer = setTimeout(lockSystem, AUTO_LOCK_TIME);
         }
-
-        // 監聽任何操作以重置計時器
-        ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'].forEach(evt => {
-            document.addEventListener(evt, resetIdleTimer);
-        });
+        ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
         // ----------------------------------------------------
 
         let html5QrcodeScanner = null;
-        let currentTargetLineId = null;
-        let currentPoints = 0;
+        let currentTargetLineId = null; // 當前會員 ID
+        let currentScanMode = 'member'; // member 或 staff
+        let selectedCoupon = null;
+        let calculatedPoints = 0;
 
-        function startScanner() {
-            // 避免重複啟動
+        // 啟動掃描器 (mode = 'member' or 'staff')
+        function startScanner(mode) {
+            currentScanMode = mode;
             if(html5QrcodeScanner && html5QrcodeScanner.isScanning) return;
+            
+            // UI 調整
+            if (mode === 'staff') {
+                document.getElementById('action-view').classList.add('hidden');
+                document.getElementById('scan-view').classList.remove('hidden');
+                document.getElementById('scan-hint').innerHTML = "Security Check<br>Scan STAFF ID Card";
+                document.getElementById('cancel-scan-btn').classList.remove('hidden');
+                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; // 紅色警戒色
+            } else {
+                document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>Member QR Code";
+                document.getElementById('cancel-scan-btn').classList.add('hidden');
+                document.querySelector('.scan-frame').style.borderColor = 'rgba(234, 179, 8, 0.3)';
+            }
 
             html5QrcodeScanner = new Html5Qrcode("reader");
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => {
-                console.error("相機啟動失敗", err);
-                alert("相機啟動失敗，請確認權限或使用 Safari/Chrome。");
-            });
+            .catch(err => alert("相機啟動失敗"));
         }
 
         async function onScanSuccess(decodedText, decodedResult) {
-            if (decodedText.startsWith('BBX-')) {
-                await html5QrcodeScanner.stop();
-                html5QrcodeScanner.clear(); 
-                const lineId = decodedText.replace('BBX-', '');
-                fetchUserData(lineId);
+            if (currentScanMode === 'member') {
+                if (decodedText.startsWith('BBX-')) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner.clear();
+                    const lineId = decodedText.replace('BBX-', '');
+                    fetchUserData(lineId);
+                }
+            } else if (currentScanMode === 'staff') {
+                if (decodedText.startsWith('STAFF-')) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner.clear();
+                    const staffName = decodedText.replace('STAFF-', '');
+                    processTransaction(staffName);
+                } else {
+                    alert('錯誤：這不是有效的員工 QR 碼');
+                }
             }
         }
 
+        // 讀取會員資料
         async function fetchUserData(lineId) {
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view').classList.remove('hidden');
@@ -193,45 +223,123 @@
 
             const { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineId).single();
             if (error || !data) {
-                alert('查無此會員資料！');
+                alert('查無此會員資料');
                 resetScan();
                 return;
             }
 
+            // 更新會員卡畫面
             document.getElementById('user-name').innerText = data.full_name;
             document.getElementById('user-phone').innerText = data.phone;
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
-            currentPoints = data.total_points || 0;
+            
+            // 清空表單
+            document.getElementById('amount-input').value = '';
+            document.getElementById('order-no').value = '';
+            document.getElementById('preview-points').innerText = '+0';
+            selectedCoupon = null;
+            document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        async function modifyPoints(amount) {
-            const newPoints = currentPoints + amount;
-            if (newPoints < 0) { alert('點數不足！'); return; }
+        // 積分計算預覽
+        function calcPreview() {
+            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            // 規則：100元 = 1分，四捨五入
+            calculatedPoints = Math.round(amount / 100);
+            document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
+        }
 
-            document.getElementById('user-points').innerText = newPoints.toLocaleString();
-            const { error } = await _supabase.from('profiles').update({ total_points: newPoints }).eq('line_id', currentTargetLineId);
-
-            if (error) {
-                alert('連線失敗！');
-                document.getElementById('user-points').innerText = currentPoints.toLocaleString(); 
+        // 選擇優惠券
+        function toggleCoupon(el, couponName) {
+            if (el.classList.contains('selected')) {
+                el.classList.remove('selected');
+                selectedCoupon = null;
             } else {
-                currentPoints = newPoints;
+                document.querySelectorAll('.coupon-card').forEach(c => c.classList.remove('selected'));
+                el.classList.add('selected');
+                selectedCoupon = couponName;
             }
         }
 
-        function addCustomPoints() {
-            const input = document.getElementById('custom-points');
-            const val = parseInt(input.value);
-            if (isNaN(val) || val === 0) return;
-            modifyPoints(val);
-            input.value = '';
+        // 按下結算 -> 切換到員工掃碼模式
+        function startStaffAuth() {
+            const amount = document.getElementById('amount-input').value;
+            if (!amount && !selectedCoupon) {
+                alert('請至少輸入金額或選擇一張優惠券');
+                return;
+            }
+            startScanner('staff');
+        }
+
+        function resetToForm() {
+            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
+            html5QrcodeScanner.clear();
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view').classList.remove('hidden');
+        }
+
+        // 最終交易處理
+        async function processTransaction(staffName) {
+            const store = document.getElementById('store-select').value;
+            const orderNo = document.getElementById('order-no').value || '無單號';
+            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            
+            // 二次確認
+            const confirmMsg = `
+                確認交易？
+                ----------------
+                會員：${document.getElementById('user-name').innerText}
+                門市：${store}
+                單號：${orderNo}
+                金額：$${amount}
+                積分：${calculatedPoints > 0 ? '+' : ''}${calculatedPoints}
+                發券：${selectedCoupon || '無'}
+                ----------------
+                經手人：${staffName}
+            `;
+
+            if (!confirm(confirmMsg)) {
+                resetToForm();
+                return;
+            }
+
+            // 1. 更新會員總積分
+            // 先抓最新積分以免並發錯誤 (嚴謹作法)
+            const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
+            const newTotal = (profile.total_points || 0) + calculatedPoints;
+
+            const { error: updateError } = await _supabase
+                .from('profiles')
+                .update({ total_points: newTotal })
+                .eq('line_id', currentTargetLineId);
+
+            if (updateError) {
+                alert('交易失敗：積分更新錯誤');
+                resetToForm();
+                return;
+            }
+
+            // 2. 寫入 Log (重要！這是您的新需求)
+            await _supabase.from('point_logs').insert({
+                line_id: currentTargetLineId,
+                staff_name: staffName,
+                store_name: store,
+                order_number: orderNo,
+                amount: amount,
+                points_change: calculatedPoints
+            });
+
+            alert('✅ 交易完成！');
+            resetScan(); // 回到最開始
         }
 
         function resetScan() {
+            if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(err=>{});
+            html5QrcodeScanner.clear();
             currentTargetLineId = null;
             document.getElementById('action-view').classList.add('hidden');
             document.getElementById('scan-view').classList.remove('hidden');
-            startScanner();
+            startScanner('member');
         }
     </script>
 </body>
