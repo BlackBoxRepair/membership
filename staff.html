@@ -501,23 +501,27 @@
         async function executeRedeem() {
             const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
             try {
-                const { error } = await _supabase
-                    .from('user_coupons')
-                    .update({ 
-                        status: 'used', 
-                        used_at: new Date().toISOString(),
-                        used_by: currentStaffName 
-                    })
-                    .eq('id', currentTargetCouponId);
+                // 修改處：使用 RPC 呼叫後端函式以繞過 RLS 限制
+                const { error } = await _supabase.rpc('redeem_coupon', {
+                    target_coupon_id: currentTargetCouponId,
+                    staff_name: currentStaffName
+                });
 
                 if (error) {
-                    alert('核銷失敗：' + error.message + '\n請確認資料庫 used_by 欄位是否存在。');
+                    // 如果還是有錯，顯示詳細訊息
+                    alert('核銷失敗：' + error.message);
+                    console.error('RPC Error:', error);
                 } else {
                     alert('✅ 核銷成功！');
                     closeConfirmModal();
                     resetScan();
                 }
-            } catch (err) { alert('系統錯誤'); console.error(err); } finally { btn.disabled = false; }
+            } catch (err) { 
+                alert('系統錯誤'); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false; 
+            }
         }
 
         // --- 輔助 ---
