@@ -512,7 +512,8 @@
                     alert('核銷失敗：' + error.message);
                     console.error('RPC Error:', error);
                 } else {
-                    alert('✅ 核銷成功！');
+                    // 多加一個 V2，方便我們辨識
+alert('✅ 核銷成功 (V2)！');
                     closeConfirmModal();
                     resetScan();
                 }
