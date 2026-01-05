@@ -164,7 +164,13 @@
 
         <div id="action-view-redeem" class="hidden flex-1 flex flex-col p-6 overflow-y-auto pb-32">
             <div class="bg-white w-full rounded-[2.5rem] p-8 shadow-xl relative text-center">
-                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🎫</div>
+                
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                </div>
+
                 <h3 class="text-2xl font-black text-gray-900 mb-2">確認核銷</h3>
                 <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest">VERIFY COUPON</p>
                 
@@ -182,8 +188,8 @@
                         <p id="redeem-date" class="text-sm font-mono text-gray-600">---</p>
                     </div>
                     <div class="pt-2 border-t border-gray-200 mt-2">
-                        <p class="text-[10px] text-gray-400 uppercase font-bold">持有會員 ID</p>
-                        <p id="redeem-user" class="text-xs font-mono text-gray-400 truncate">---</p>
+                        <p class="text-[10px] text-gray-400 uppercase font-bold">持有會員姓名</p>
+                        <p id="redeem-user" class="text-base font-bold text-gray-900 truncate">讀取中...</p>
                     </div>
                 </div>
 
@@ -235,20 +241,16 @@
         const AUTO_LOCK_TIME = 30 * 60 * 1000;
         let idleTimer;
 
-        // --- 狀態變數 ---
-        let currentSystemMode = 'issue'; // 'issue' | 'redeem'
+        let currentSystemMode = 'issue';
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
-        let currentTargetCouponId = null; // 核銷用
+        let currentTargetCouponId = null; 
         let selectedCoupons = []; 
         let calculatedPoints = 0;
         let currentStaffName = '';
         let allCouponsData = []; 
-        
-        // 新增：掃描鎖定狀態 (防止彈窗無限跳出)
         let isScanLocked = false;
 
-        // --- 登入與鎖定 ---
         function checkPassword() {
             const val = document.getElementById('password-input').value;
             if (VALID_PASSWORDS.includes(val)) unlockSystem();
@@ -257,9 +259,9 @@
         function unlockSystem() {
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('password-input').value = '';
-            document.getElementById('dashboard-view').classList.remove('hidden'); // 先到主選單
+            document.getElementById('dashboard-view').classList.remove('hidden');
             resetIdleTimer();
-            loadCoupons(); // 預載
+            loadCoupons();
         }
         function lockSystem() {
             cleanupScanner();
@@ -278,7 +280,6 @@
         }
         ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
 
-        // --- 模式切換 ---
         function enterMode(mode) {
             currentSystemMode = mode;
             document.getElementById('dashboard-view').classList.add('hidden');
@@ -302,7 +303,6 @@
             resetScan();
         }
 
-        // --- 掃描核心 ---
         async function cleanupScanner() {
             if (html5QrcodeScanner) {
                 try { if (html5QrcodeScanner.isScanning) await html5QrcodeScanner.stop(); } catch (e) {}
@@ -311,12 +311,11 @@
             }
         }
 
-        async function startScanner(type) { // type: 'normal' | 'staff_auth'
+        async function startScanner(type) { 
             await cleanupScanner();
-            isScanLocked = false; // 每次重啟掃描時解鎖
+            isScanLocked = false; 
             
             if (type === 'staff_auth') {
-                // 驗證店員時，隱藏所有表單
                 document.getElementById('action-view-issue').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.add('hidden');
                 document.getElementById('scan-view').classList.remove('hidden');
@@ -325,7 +324,6 @@
                 document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
                 document.getElementById('manual-input-section').classList.add('hidden');
             } else {
-                // 一般掃描
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('action-view-issue').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.add('hidden');
@@ -348,18 +346,14 @@
         }
 
         async function onScanSuccess(text, type) {
-            // 防連點機制：如果正在鎖定中（例如剛跳出錯誤視窗），直接忽略這次掃描
             if (isScanLocked) return;
-
             console.log("Scanned:", text);
 
             if (type === 'staff_auth') {
                 if (text.startsWith('BBX-')) {
-                    // 正確：是 BBX 開頭，進行驗證
-                    isScanLocked = true; // 鎖定直到處理完畢
+                    isScanLocked = true;
                     verifyStaff(text.replace('BBX-', ''));
                 } else {
-                    // 錯誤：掃到奇怪的東西
                     handleScanError('❌ 格式錯誤！\n\n系統需要：店員/會員卡 (BBX 開頭)\n您掃描的是：' + text);
                 }
                 return;
@@ -373,7 +367,7 @@
                 } else {
                     handleScanError('❌ 請掃描會員卡 (BBX 開頭)');
                 }
-            } else { // redeem
+            } else { 
                 if (text.startsWith('CPN-')) {
                     isScanLocked = true;
                     await cleanupScanner();
@@ -384,17 +378,14 @@
             }
         }
 
-        // 處理掃描錯誤並設置冷卻時間
         function handleScanError(msg) {
-            isScanLocked = true; // 先鎖定
-            alert(msg); // 彈窗
-            // 彈窗關閉後，等待 2 秒才解鎖，給使用者時間移開手機
+            isScanLocked = true;
+            alert(msg);
             setTimeout(() => {
                 isScanLocked = false;
             }, 2000);
         }
 
-        // --- 模式 A: 發放 ---
         async function searchByPhone() {
             const phone = document.getElementById('manual-phone').value;
             if (!/^09\d{8}$/.test(phone)) { alert('電話格式錯誤'); return; }
@@ -424,7 +415,7 @@
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        // --- 模式 B: 核銷 ---
+        // 修改處：增加反查會員姓名的邏輯
         async function fetchCouponData(couponUuid) {
             currentTargetCouponId = couponUuid;
             const { data, error } = await _supabase.from('user_coupons').select('*').eq('id', couponUuid).single();
@@ -442,10 +433,21 @@
             document.getElementById('redeem-name').innerText = data.coupon_name;
             document.getElementById('redeem-desc').innerText = data.description || '';
             document.getElementById('redeem-date').innerText = data.valid_until ? data.valid_until : '永久有效';
-            document.getElementById('redeem-user').innerText = data.line_id;
+            
+            // 這裡做一個「讀取中」的佔位，提升體驗
+            document.getElementById('redeem-user').innerText = '讀取中...';
+
+            // 反查會員姓名：拿 user_coupons 裡的 line_id 去 profiles 表找 full_name
+            let memberName = '未知會員';
+            if (data.line_id) {
+                const { data: profileData } = await _supabase.from('profiles').select('full_name').eq('line_id', data.line_id).maybeSingle();
+                if (profileData && profileData.full_name) {
+                    memberName = profileData.full_name;
+                }
+            }
+            document.getElementById('redeem-user').innerText = memberName;
         }
 
-        // --- 驗證與執行 ---
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
             if (currentSystemMode === 'issue' && !amount && selectedCoupons.length === 0) {
@@ -502,18 +504,15 @@
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
 
             try {
-                // 更新積分
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
                 const newTotal = (profile.total_points || 0) + calculatedPoints;
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
-                // 寫 Log
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, amount: amount, points_change: calculatedPoints
                 });
 
-                // 發券
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
@@ -535,14 +534,12 @@
         async function executeRedeem() {
             const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
             try {
-                // 修改處：使用 RPC 呼叫後端函式以繞過 RLS 限制
                 const { error } = await _supabase.rpc('redeem_coupon', {
                     target_coupon_id: currentTargetCouponId,
                     staff_name: currentStaffName
                 });
 
                 if (error) {
-                    // 如果還是有錯，顯示詳細訊息
                     alert('核銷失敗：' + error.message);
                     console.error('RPC Error:', error);
                 } else {
@@ -558,7 +555,6 @@
             }
         }
 
-        // --- 輔助 ---
         function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; resetToForm(); }
         function resetToForm() {
             cleanupScanner();
