@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.2</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.3</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -179,9 +179,12 @@
                     
                     <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span><input id="amount-input" type="number" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="calcPreview()"></div>
                     
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
-                        <input id="redeem-input" type="number" placeholder="積分折抵 (預設 0)" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="calcPreview()">
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
+                            <input id="redeem-input" type="number" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="calcPreview()">
+                        </div>
+                        <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
                     </div>
 
                     <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
@@ -237,7 +240,6 @@
                 <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
                 <div class="confirm-row"><span class="confirm-label text-red-500">折抵積分</span><span id="cfm-redeem" class="confirm-value text-red-500 font-bold">-0</span></div>
                 <div class="confirm-row border-t border-gray-200 pt-2 mt-2"><span class="confirm-label text-black">實收金額</span><span id="cfm-total-due" class="confirm-value text-2xl font-black">$0</span></div>
-                
                 <div class="confirm-row mt-2"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
                 <div class="confirm-row items-start"><span class="confirm-label mt-1">優惠券</span><span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span></div>
             </div>
@@ -542,7 +544,6 @@
                 document.getElementById('cfm-name').innerText = document.getElementById('user-name').innerText;
                 document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
                 
-                // 新增：顯示折抵與實收
                 let rawAmount = parseInt(document.getElementById('amount-input').value) || 0;
                 let actualDue = rawAmount - calculatedRedeem;
                 document.getElementById('cfm-redeem').innerText = '-' + calculatedRedeem;
@@ -634,6 +635,16 @@
             if (successMsg) {
                 handleSuccessMsg(successMsg);
             }
+        }
+
+        // 新增：全數折抵功能
+        function redeemAll() {
+            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            // 取帳單金額與現有積分的較小值
+            const maxRedeem = Math.min(amount, currentMemberPoints);
+            
+            document.getElementById('redeem-input').value = maxRedeem > 0 ? maxRedeem : '';
+            calcPreview();
         }
 
         function calcPreview() {
