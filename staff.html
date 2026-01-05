@@ -25,7 +25,7 @@
         .coupon-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900; }
         .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
         
-        /* --- 強迫症友善：完美對齊掃描框 (v3.0 確保移除舊樣式) --- */
+        /* --- 強迫症友善：完美對齊掃描框 (v3.1 移除所有多餘邊框) --- */
         .scan-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; /* 讓點擊穿透 */
@@ -37,9 +37,8 @@
             position: relative;
             width: 260px; height: 260px; /* 固定正方形尺寸 */
             border-radius: 24px;
-            /* 使用超大陰影來製作遮罩，確保只有框內是亮的 */
+            /* 修正：移除 border，只保留遮罩陰影，解決雙重框問題 */
             box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); 
-            border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
 
@@ -98,7 +97,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v3.0</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v3.1</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -381,7 +380,7 @@
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
                 
                 if (currentSystemMode === 'issue') {
-                    // 修改提示文字以符合 v3.0
+                    // 修改提示文字以符合 v3.1
                     document.getElementById('scan-hint').innerHTML = "請將 QR Code 對準框內";
                     document.getElementById('manual-input-section').classList.remove('hidden');
                 } else {
