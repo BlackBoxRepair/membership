@@ -342,20 +342,34 @@
         }
 
         async function onScanSuccess(text, type) {
+            console.log("Scanned:", text); // 在 Console 印出來方便除錯
+
             if (type === 'staff_auth') {
-                if (text.startsWith('BBX-')) verifyStaff(text.replace('BBX-', ''));
+                // --- 這裡改了：增加錯誤提示 ---
+                if (text.startsWith('BBX-')) {
+                    verifyStaff(text.replace('BBX-', ''));
+                } else {
+                    // 如果掃錯了，直接彈窗告訴你！
+                    alert('❌ 格式錯誤！\n\n系統需要：店員/會員卡 (BBX 開頭)\n您掃描的是：' + text);
+                    // 掃錯通常是因為還拿著上一張優惠券，這裡不關閉相機，讓你可以馬上換一張掃
+                }
                 return;
             }
 
+            // 一般模式的掃描邏輯維持不變
             if (currentSystemMode === 'issue') {
                 if (text.startsWith('BBX-')) {
                     await cleanupScanner();
                     fetchMemberData(text.replace('BBX-', ''));
+                } else {
+                    alert('❌ 請掃描會員卡 (BBX 開頭)');
                 }
             } else { // redeem
                 if (text.startsWith('CPN-')) {
                     await cleanupScanner();
                     fetchCouponData(text.replace('CPN-', ''));
+                } else {
+                    alert('❌ 請掃描優惠券 (CPN 開頭)');
                 }
             }
         }
