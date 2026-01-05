@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.1</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.2</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -235,7 +235,10 @@
             <div id="cfm-content-issue" class="space-y-2 mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-100 hidden">
                 <div class="confirm-row"><span class="confirm-label">會員姓名</span><span id="cfm-name" class="confirm-value">---</span></div>
                 <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
-                <div class="confirm-row"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-red-500">折抵積分</span><span id="cfm-redeem" class="confirm-value text-red-500 font-bold">-0</span></div>
+                <div class="confirm-row border-t border-gray-200 pt-2 mt-2"><span class="confirm-label text-black">實收金額</span><span id="cfm-total-due" class="confirm-value text-2xl font-black">$0</span></div>
+                
+                <div class="confirm-row mt-2"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
                 <div class="confirm-row items-start"><span class="confirm-label mt-1">優惠券</span><span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span></div>
             </div>
             <div id="cfm-content-redeem" class="space-y-2 mb-8 bg-green-50 p-6 rounded-2xl border border-green-100 hidden">
@@ -268,10 +271,10 @@
         let currentTargetCouponId = null; 
         let selectedCoupons = []; 
         let calculatedPoints = 0;
-        let calculatedRedeem = 0; // 新增：追蹤折抵金額
+        let calculatedRedeem = 0; 
         let currentStaffName = '';
         let allCouponsData = []; 
-        let currentMemberPoints = 0; // 新增：追蹤該會員現有積分
+        let currentMemberPoints = 0; 
         let isScanLocked = false;
         let errorMsgTimeout; 
         let isStaffAuthStep = false; 
@@ -455,7 +458,6 @@
             const { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineId).single();
             if (error || !data) { alert('查無此會員'); resetScan(); return; }
 
-            // 儲存當前會員的積分，用於折抵檢核
             currentMemberPoints = data.total_points || 0;
 
             document.getElementById('scan-view').classList.add('hidden');
@@ -466,10 +468,10 @@
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
             document.getElementById('amount-input').value = '';
-            document.getElementById('redeem-input').value = ''; // 清空折抵
+            document.getElementById('redeem-input').value = ''; 
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
-            document.getElementById('total-due').innerText = '$0'; // 重置應收
+            document.getElementById('total-due').innerText = '$0'; 
             
             selectedCoupons = [];
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
@@ -504,8 +506,6 @@
 
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
-            // 只有當「沒輸入金額」且「沒選優惠券」時才擋
-            // 如果有折抵但沒金額(不可能因為折抵需小於金額)，邏輯上這行還是防呆
             if (currentSystemMode === 'issue' && !amount && selectedCoupons.length === 0) {
                 alert('請至少輸入金額或選擇一張優惠券'); return;
             }
@@ -541,6 +541,13 @@
                 
                 document.getElementById('cfm-name').innerText = document.getElementById('user-name').innerText;
                 document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
+                
+                // 新增：顯示折抵與實收
+                let rawAmount = parseInt(document.getElementById('amount-input').value) || 0;
+                let actualDue = rawAmount - calculatedRedeem;
+                document.getElementById('cfm-redeem').innerText = '-' + calculatedRedeem;
+                document.getElementById('cfm-total-due').innerText = '$' + actualDue.toLocaleString();
+
                 document.getElementById('cfm-points').innerText = document.getElementById('preview-points').innerText;
                 document.getElementById('cfm-coupon').innerText = selectedCoupons.length > 0 ? selectedCoupons.join('、') : '無';
             } else {
@@ -552,7 +559,6 @@
             }
         }
 
-        // 修改：執行發放 (包含積分扣除邏輯)
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
             const store = document.getElementById('store-select').value;
@@ -562,14 +568,11 @@
             try {
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
                 
-                // 計算淨積分變化：賺取的 - 折抵的
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
                 
-                // 更新會員總積分
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
-                // 寫入紀錄 (這裡記錄的是淨變化，方便對帳)
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, amount: amount, points_change: netPointChange
@@ -633,18 +636,15 @@
             }
         }
 
-        // 修改：計算預覽 (包含積分折抵邏輯)
         function calcPreview() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
             let redeem = parseInt(document.getElementById('redeem-input').value) || 0;
 
-            // 防呆 1：折抵不能超過帳單金額
             if (redeem > amount) {
                 redeem = amount;
                 document.getElementById('redeem-input').value = redeem;
             }
 
-            // 防呆 2：折抵不能超過擁有積分
             if (redeem > currentMemberPoints) {
                 redeem = currentMemberPoints;
                 document.getElementById('redeem-input').value = redeem;
@@ -652,11 +652,9 @@
 
             const totalDue = Math.max(0, amount - redeem);
             
-            // 積分依據「實付金額 (Total Due)」計算
             calculatedPoints = Math.round(totalDue / 100);
-            calculatedRedeem = redeem; // 儲存折抵值供後續使用
+            calculatedRedeem = redeem; 
 
-            // 更新 UI
             document.getElementById('total-due').innerText = '$' + totalDue.toLocaleString();
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
