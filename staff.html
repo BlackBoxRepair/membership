@@ -59,12 +59,11 @@
         .dash-btn-dark { background: #111; color: white; border-color: #333; }
         .dash-btn-light { background: white; color: #111; }
 
-        /* v3.8 關鍵修正：定義內部捲動區域的行為 */
         .scrollable-content {
             flex: 1;
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* iOS 滑動慣性 */
-            padding-bottom: 150px; /* 預設大底部，防止被遮 */
+            -webkit-overflow-scrolling: touch; 
+            padding-bottom: 150px; 
         }
     </style>
 </head>
@@ -84,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.0</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v4.1</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -98,7 +97,6 @@
                     <p class="text-gray-400 text-xs mt-1">給點數 / 發優惠券</p>
                 </div>
             </button>
-            
             <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light h-full min-h-[150px]">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
@@ -170,6 +168,7 @@
                     <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
                 </div>
             </div>
+            
             <div class="bg-white rounded-[2rem] p-6 shadow-sm mb-6">
                 <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">訂單資訊</h3>
                 <div class="space-y-3">
@@ -177,10 +176,26 @@
                         <div class="select-wrapper"><select id="store-select" class="soft-input bg-gray-50 cursor-pointer"><option value="勤美公益店">勤美公益店</option><option value="沙鹿站前店">沙鹿站前店</option></select></div>
                         <input id="order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
                     </div>
-                    <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span><input id="amount-input" type="number" placeholder="金額" class="soft-input pl-8 font-bold text-lg" oninput="calcPreview()"></div>
-                    <div class="flex justify-between items-center px-2 pt-2"><span class="text-xs text-gray-400 font-bold">預計獲得積分</span><span id="preview-points" class="text-xl font-black text-green-500">+0</span></div>
+                    
+                    <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span><input id="amount-input" type="number" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="calcPreview()"></div>
+                    
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
+                        <input id="redeem-input" type="number" placeholder="積分折抵 (預設 0)" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="calcPreview()">
+                    </div>
+
+                    <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
+                        <span class="text-xs text-gray-400 font-bold">本次應收費總額</span>
+                        <span id="total-due" class="text-xl font-black text-gray-900">$0</span>
+                    </div>
+
+                    <div class="flex justify-between items-center px-2 pt-1">
+                        <span class="text-xs text-gray-400 font-bold">預計獲得積分</span>
+                        <span id="preview-points" class="text-xl font-black text-green-500">+0</span>
+                    </div>
                 </div>
             </div>
+            
             <div class="bg-white rounded-[2rem] p-6 shadow-sm mb-8">
                 <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券 (可多選)</h3>
                 <div id="coupon-container" class="grid grid-cols-2 gap-3 min-h-[50px]"></div>
@@ -253,8 +268,10 @@
         let currentTargetCouponId = null; 
         let selectedCoupons = []; 
         let calculatedPoints = 0;
+        let calculatedRedeem = 0; // 新增：追蹤折抵金額
         let currentStaffName = '';
         let allCouponsData = []; 
+        let currentMemberPoints = 0; // 新增：追蹤該會員現有積分
         let isScanLocked = false;
         let errorMsgTimeout; 
         let isStaffAuthStep = false; 
@@ -430,16 +447,16 @@
             const successEl = document.getElementById('scan-success-msg');
             successEl.innerText = msg;
             successEl.classList.remove('hidden');
-            
-            setTimeout(() => {
-                successEl.classList.add('hidden');
-            }, 3000);
+            setTimeout(() => { successEl.classList.add('hidden'); }, 3000);
         }
 
         async function fetchMemberData(lineId) {
             currentTargetLineId = lineId;
             const { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineId).single();
             if (error || !data) { alert('查無此會員'); resetScan(); return; }
+
+            // 儲存當前會員的積分，用於折抵檢核
+            currentMemberPoints = data.total_points || 0;
 
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-issue').classList.remove('hidden');
@@ -449,8 +466,11 @@
             document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
             
             document.getElementById('amount-input').value = '';
+            document.getElementById('redeem-input').value = ''; // 清空折抵
             document.getElementById('order-no').value = '';
             document.getElementById('preview-points').innerText = '+0';
+            document.getElementById('total-due').innerText = '$0'; // 重置應收
+            
             selectedCoupons = [];
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
@@ -484,6 +504,8 @@
 
         function startStaffAuth() {
             const amount = document.getElementById('amount-input').value;
+            // 只有當「沒輸入金額」且「沒選優惠券」時才擋
+            // 如果有折抵但沒金額(不可能因為折抵需小於金額)，邏輯上這行還是防呆
             if (currentSystemMode === 'issue' && !amount && selectedCoupons.length === 0) {
                 alert('請至少輸入金額或選擇一張優惠券'); return;
             }
@@ -530,6 +552,7 @@
             }
         }
 
+        // 修改：執行發放 (包含積分扣除邏輯)
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
             const store = document.getElementById('store-select').value;
@@ -538,12 +561,18 @@
 
             try {
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
-                const newTotal = (profile.total_points || 0) + calculatedPoints;
+                
+                // 計算淨積分變化：賺取的 - 折抵的
+                const netPointChange = calculatedPoints - calculatedRedeem;
+                const newTotal = (profile.total_points || 0) + netPointChange;
+                
+                // 更新會員總積分
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
+                // 寫入紀錄 (這裡記錄的是淨變化，方便對帳)
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
-                    store_name: store, order_number: orderNo, amount: amount, points_change: calculatedPoints
+                    store_name: store, order_number: orderNo, amount: amount, points_change: netPointChange
                 });
 
                 if (selectedCoupons.length > 0) {
@@ -594,24 +623,44 @@
             }
         }
 
-        // 修改：resetScan 支援帶入成功訊息
         async function resetScan(successMsg) {
             await cleanupScanner();
             currentTargetLineId = null;
             currentTargetCouponId = null;
-            
             await startScanner('normal');
-            
             if (successMsg) {
                 handleSuccessMsg(successMsg);
             }
         }
 
+        // 修改：計算預覽 (包含積分折抵邏輯)
         function calcPreview() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            calculatedPoints = Math.round(amount / 100);
+            let redeem = parseInt(document.getElementById('redeem-input').value) || 0;
+
+            // 防呆 1：折抵不能超過帳單金額
+            if (redeem > amount) {
+                redeem = amount;
+                document.getElementById('redeem-input').value = redeem;
+            }
+
+            // 防呆 2：折抵不能超過擁有積分
+            if (redeem > currentMemberPoints) {
+                redeem = currentMemberPoints;
+                document.getElementById('redeem-input').value = redeem;
+            }
+
+            const totalDue = Math.max(0, amount - redeem);
+            
+            // 積分依據「實付金額 (Total Due)」計算
+            calculatedPoints = Math.round(totalDue / 100);
+            calculatedRedeem = redeem; // 儲存折抵值供後續使用
+
+            // 更新 UI
+            document.getElementById('total-due').innerText = '$' + totalDue.toLocaleString();
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
+
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const today = new Date().toISOString().split('T')[0];
