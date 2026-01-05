@@ -103,7 +103,7 @@
                 <div class="scan-frame"><div class="scan-line"></div></div>
             </div>
             
-            <p id="scan-error-msg" class="text-red-500 text-sm font-black tracking-wider uppercase text-center mb-2 hidden animate-pulse bg-red-50 py-2 rounded-lg border border-red-100"></p>
+            <p id="scan-error-msg" class="text-red-500 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4 hidden animate-pulse"></p>
 
             <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-8">Ready to Scan</p>
 
@@ -353,14 +353,14 @@
 
         async function onScanSuccess(text, type) {
             if (isScanLocked) return;
-            // console.log("Scanned:", text);
 
             if (type === 'staff_auth') {
                 if (text.startsWith('BBX-')) {
                     isScanLocked = true;
                     verifyStaff(text.replace('BBX-', ''));
                 } else {
-                    handleScanError('❌ 格式錯誤：請掃描 BBX 開頭的員工證');
+                    // 修改處：更新文字
+                    handleScanError('錯誤：請掃描員工憑證碼');
                 }
                 return;
             }
@@ -371,7 +371,8 @@
                     await cleanupScanner();
                     fetchMemberData(text.replace('BBX-', ''));
                 } else {
-                    handleScanError('❌ 錯誤：請掃描會員卡 (BBX)');
+                    // 修改處：更新文字
+                    handleScanError('錯誤：請掃描會員憑證碼');
                 }
             } else { 
                 if (text.startsWith('CPN-')) {
@@ -379,26 +380,24 @@
                     await cleanupScanner();
                     fetchCouponData(text.replace('CPN-', ''));
                 } else {
-                    handleScanError('❌ 錯誤：請掃描優惠券 (CPN)');
+                    // 修改處：更新文字
+                    handleScanError('錯誤：請掃描優惠券憑證碼');
                 }
             }
         }
 
-        // 修改處：處理掃描錯誤 - 不彈窗，改顯示紅字
         function handleScanError(msg) {
-            isScanLocked = true; // 鎖定
+            isScanLocked = true; 
             
             const errorEl = document.getElementById('scan-error-msg');
             errorEl.innerText = msg;
             errorEl.classList.remove('hidden');
             
-            // 清除之前的計時器（如果有的話）
             if (errorMsgTimeout) clearTimeout(errorMsgTimeout);
 
-            // 1.5秒後自動隱藏訊息並解鎖
             errorMsgTimeout = setTimeout(() => {
                 errorEl.classList.add('hidden');
-                isScanLocked = false; // 解鎖
+                isScanLocked = false; 
             }, 1500);
         }
 
