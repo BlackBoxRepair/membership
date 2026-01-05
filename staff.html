@@ -187,9 +187,11 @@
                     </div>
                 </div>
 
-                <button onclick="startRedeemAuth()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition">
-                    確認核銷
+                <button onclick="startRedeemAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-lg active:scale-95 transition">
+                    工作人員驗證
                 </button>
+                <p class="text-[10px] text-gray-400 mt-2 font-bold tracking-widest">(下一步需掃描員工證)</p>
+                
                 <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mt-2">取消</button>
             </div>
         </div>
@@ -242,6 +244,9 @@
         let calculatedPoints = 0;
         let currentStaffName = '';
         let allCouponsData = []; 
+        
+        // 新增：掃描鎖定狀態 (防止彈窗無限跳出)
+        let isScanLocked = false;
 
         // --- 登入與鎖定 ---
         function checkPassword() {
@@ -308,6 +313,7 @@
 
         async function startScanner(type) { // type: 'normal' | 'staff_auth'
             await cleanupScanner();
+            isScanLocked = false; // 每次重啟掃描時解鎖
             
             if (type === 'staff_auth') {
                 // 驗證店員時，隱藏所有表單
@@ -342,36 +348,50 @@
         }
 
         async function onScanSuccess(text, type) {
-            console.log("Scanned:", text); // 在 Console 印出來方便除錯
+            // 防連點機制：如果正在鎖定中（例如剛跳出錯誤視窗），直接忽略這次掃描
+            if (isScanLocked) return;
+
+            console.log("Scanned:", text);
 
             if (type === 'staff_auth') {
-                // --- 這裡改了：增加錯誤提示 ---
                 if (text.startsWith('BBX-')) {
+                    // 正確：是 BBX 開頭，進行驗證
+                    isScanLocked = true; // 鎖定直到處理完畢
                     verifyStaff(text.replace('BBX-', ''));
                 } else {
-                    // 如果掃錯了，直接彈窗告訴你！
-                    alert('❌ 格式錯誤！\n\n系統需要：店員/會員卡 (BBX 開頭)\n您掃描的是：' + text);
-                    // 掃錯通常是因為還拿著上一張優惠券，這裡不關閉相機，讓你可以馬上換一張掃
+                    // 錯誤：掃到奇怪的東西
+                    handleScanError('❌ 格式錯誤！\n\n系統需要：店員/會員卡 (BBX 開頭)\n您掃描的是：' + text);
                 }
                 return;
             }
 
-            // 一般模式的掃描邏輯維持不變
             if (currentSystemMode === 'issue') {
                 if (text.startsWith('BBX-')) {
+                    isScanLocked = true;
                     await cleanupScanner();
                     fetchMemberData(text.replace('BBX-', ''));
                 } else {
-                    alert('❌ 請掃描會員卡 (BBX 開頭)');
+                    handleScanError('❌ 請掃描會員卡 (BBX 開頭)');
                 }
             } else { // redeem
                 if (text.startsWith('CPN-')) {
+                    isScanLocked = true;
                     await cleanupScanner();
                     fetchCouponData(text.replace('CPN-', ''));
                 } else {
-                    alert('❌ 請掃描優惠券 (CPN 開頭)');
+                    handleScanError('❌ 請掃描優惠券 (CPN 開頭)');
                 }
             }
+        }
+
+        // 處理掃描錯誤並設置冷卻時間
+        function handleScanError(msg) {
+            isScanLocked = true; // 先鎖定
+            alert(msg); // 彈窗
+            // 彈窗關閉後，等待 2 秒才解鎖，給使用者時間移開手機
+            setTimeout(() => {
+                isScanLocked = false;
+            }, 2000);
         }
 
         // --- 模式 A: 發放 ---
@@ -526,8 +546,7 @@
                     alert('核銷失敗：' + error.message);
                     console.error('RPC Error:', error);
                 } else {
-                    // 多加一個 V2，方便我們辨識
-alert('✅ 核銷成功 (V2)！');
+                    alert('✅ 核銷成功！');
                     closeConfirmModal();
                     resetScan();
                 }
