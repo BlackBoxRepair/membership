@@ -103,6 +103,8 @@
                 <div class="scan-frame"><div class="scan-line"></div></div>
             </div>
             
+            <p id="scan-error-msg" class="text-red-500 text-sm font-black tracking-wider uppercase text-center mb-2 hidden animate-pulse bg-red-50 py-2 rounded-lg border border-red-100"></p>
+
             <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-8">Ready to Scan</p>
 
             <div id="manual-input-section" class="w-full border-t border-gray-200 pt-8 pb-8 hidden">
@@ -250,6 +252,7 @@
         let currentStaffName = '';
         let allCouponsData = []; 
         let isScanLocked = false;
+        let errorMsgTimeout; // 用來控制紅字消失
 
         function checkPassword() {
             const val = document.getElementById('password-input').value;
@@ -315,6 +318,9 @@
             await cleanupScanner();
             isScanLocked = false; 
             
+            // 清除之前的錯誤訊息
+            document.getElementById('scan-error-msg').classList.add('hidden');
+            
             if (type === 'staff_auth') {
                 document.getElementById('action-view-issue').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.add('hidden');
@@ -347,14 +353,14 @@
 
         async function onScanSuccess(text, type) {
             if (isScanLocked) return;
-            console.log("Scanned:", text);
+            // console.log("Scanned:", text);
 
             if (type === 'staff_auth') {
                 if (text.startsWith('BBX-')) {
                     isScanLocked = true;
                     verifyStaff(text.replace('BBX-', ''));
                 } else {
-                    handleScanError('❌ 格式錯誤！\n\n系統需要：店員/會員卡 (BBX 開頭)\n您掃描的是：' + text);
+                    handleScanError('❌ 格式錯誤：請掃描 BBX 開頭的員工證');
                 }
                 return;
             }
@@ -365,7 +371,7 @@
                     await cleanupScanner();
                     fetchMemberData(text.replace('BBX-', ''));
                 } else {
-                    handleScanError('❌ 請掃描會員卡 (BBX 開頭)');
+                    handleScanError('❌ 錯誤：請掃描會員卡 (BBX)');
                 }
             } else { 
                 if (text.startsWith('CPN-')) {
@@ -373,17 +379,27 @@
                     await cleanupScanner();
                     fetchCouponData(text.replace('CPN-', ''));
                 } else {
-                    handleScanError('❌ 請掃描優惠券 (CPN 開頭)');
+                    handleScanError('❌ 錯誤：請掃描優惠券 (CPN)');
                 }
             }
         }
 
+        // 修改處：處理掃描錯誤 - 不彈窗，改顯示紅字
         function handleScanError(msg) {
-            isScanLocked = true;
-            alert(msg);
-            setTimeout(() => {
-                isScanLocked = false;
-            }, 2000);
+            isScanLocked = true; // 鎖定
+            
+            const errorEl = document.getElementById('scan-error-msg');
+            errorEl.innerText = msg;
+            errorEl.classList.remove('hidden');
+            
+            // 清除之前的計時器（如果有的話）
+            if (errorMsgTimeout) clearTimeout(errorMsgTimeout);
+
+            // 1.5秒後自動隱藏訊息並解鎖
+            errorMsgTimeout = setTimeout(() => {
+                errorEl.classList.add('hidden');
+                isScanLocked = false; // 解鎖
+            }, 1500);
         }
 
         async function searchByPhone() {
@@ -415,7 +431,6 @@
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
         }
 
-        // 修改處：增加反查會員姓名的邏輯
         async function fetchCouponData(couponUuid) {
             currentTargetCouponId = couponUuid;
             const { data, error } = await _supabase.from('user_coupons').select('*').eq('id', couponUuid).single();
@@ -434,10 +449,8 @@
             document.getElementById('redeem-desc').innerText = data.description || '';
             document.getElementById('redeem-date').innerText = data.valid_until ? data.valid_until : '永久有效';
             
-            // 這裡做一個「讀取中」的佔位，提升體驗
             document.getElementById('redeem-user').innerText = '讀取中...';
 
-            // 反查會員姓名：拿 user_coupons 裡的 line_id 去 profiles 表找 full_name
             let memberName = '未知會員';
             if (data.line_id) {
                 const { data: profileData } = await _supabase.from('profiles').select('full_name').eq('line_id', data.line_id).maybeSingle();
