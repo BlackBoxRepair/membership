@@ -68,7 +68,7 @@
         }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-full w-full">
 
     <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center modal-content">
@@ -84,20 +84,33 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v3.8</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v3.9</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
             <button onclick="enterMode('issue')" class="dash-btn dash-btn-dark h-full min-h-[150px]">
-                <span class="text-4xl mb-2">💎</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 3h12l4 6-10 10L2 9l4-6z"/>
+                    <path d="M2 9h20"/>
+                    <path d="M12 22L8 9"/>
+                    <path d="M12 22l4-13"/>
+                </svg>
                 <div class="text-center">
                     <h2 class="text-xl font-black">會員作業</h2>
                     <p class="text-gray-400 text-xs mt-1">給點數 / 發優惠券</p>
                 </div>
             </button>
             <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light h-full min-h-[150px]">
-                <span class="text-4xl mb-2">🎫</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-gray-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                    <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                    <rect x="7" y="7" width="10" height="10" rx="1"/>
+                    <path d="M12 10v4"/>
+                    <path d="M10 12h4"/>
+                </svg>
                 <div class="text-center">
                     <h2 class="text-xl font-black">票券核銷</h2>
                     <p class="text-gray-400 text-xs mt-1">掃描 QR Code 核銷</p>
@@ -547,6 +560,7 @@
                     await _supabase.from('user_coupons').insert(couponsToInsert);
                 }
 
+                // 修正：等待畫面完全重置後，才顯示成功提示
                 closeConfirmModal();
                 await resetScan('系統發放完成，請提醒貴賓是否取得本次發放之點數及憑證');
 
@@ -564,6 +578,7 @@
                 if (error) {
                     alert('核銷失敗：' + error.message);
                 } else {
+                    // 修正：等待畫面完全重置後，才顯示成功提示
                     closeConfirmModal();
                     await resetScan('核銷已完成');
                 }
@@ -583,11 +598,13 @@
             }
         }
 
+        // 修改：resetScan 支援帶入成功訊息
         async function resetScan(successMsg) {
             await cleanupScanner();
             currentTargetLineId = null;
             currentTargetCouponId = null;
             
+            // 重要：這裡一定要 await，確保相機啟動完畢（且舊訊息被隱藏）後，才執行後面的顯示
             await startScanner('normal');
             
             if (successMsg) {
