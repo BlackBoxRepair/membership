@@ -25,10 +25,44 @@
         .coupon-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900; }
         .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
         
-        /* 掃描框 */
-        .scan-frame { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 2px solid rgba(255, 255, 255, 0.6); box-shadow: 0 0 0 1000px rgba(0,0,0,0.5); pointer-events: none; border-radius: 24px; }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #eab308; top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 10px #eab308; }
-        @keyframes scan { 0% {top: 0%; opacity: 0;} 10% {opacity: 1;} 90% {opacity: 1;} 100% {top: 100%; opacity: 0;} }
+        /* --- 強迫症友善：完美對齊掃描框 --- */
+        .scan-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* 讓點擊穿透 */
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .scan-box {
+            position: relative;
+            width: 260px; height: 260px; /* 固定正方形尺寸 */
+            border-radius: 24px; /* 圓角 */
+            box-shadow: 0 0 0 2000px rgba(0,0,0,0.6); /* 用巨大的陰影來壓暗周圍 */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* 極細微的邊框 */
+            overflow: hidden;
+        }
+
+        /* 四個角落的標記 - 絕對定位於 scan-box 內部，保證對齊 */
+        .corner {
+            position: absolute; width: 30px; height: 30px;
+            border-color: #fff; border-style: solid; border-width: 4px;
+            border-radius: 4px; /* 角落稍微圓潤一點 */
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+        }
+        .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 20px; }
+        .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 20px; }
+        .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 20px; }
+        .br { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 20px; }
+
+        /* 雷射掃描線 */
+        .scan-laser {
+            position: absolute; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, #eab308, transparent);
+            top: 0;
+            animation: laserMove 2s infinite ease-in-out;
+            box-shadow: 0 0 15px #eab308;
+            opacity: 0.8;
+        }
+        @keyframes laserMove { 0% {top: 10%; opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {top: 90%; opacity: 0;} }
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
@@ -99,8 +133,18 @@
 
         <div id="scan-view" class="flex-1 flex flex-col items-center justify-start pt-4 p-6 overflow-y-auto">
             <div class="w-full aspect-square bg-black rounded-[2rem] overflow-hidden relative shadow-lg shrink-0 mb-6 max-h-[50vh]">
-                <div id="reader" class="w-full h-full"></div>
-                <div class="scan-frame"><div class="scan-line"></div></div>
+                <div id="reader" class="w-full h-full object-cover"></div>
+                
+                <div class="scan-container">
+                    <div class="scan-box">
+                        <div class="corner tl"></div>
+                        <div class="corner tr"></div>
+                        <div class="corner bl"></div>
+                        <div class="corner br"></div>
+                        <div class="scan-laser"></div>
+                    </div>
+                </div>
+
             </div>
             
             <p id="scan-error-msg" class="text-red-500 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4 hidden animate-pulse"></p>
@@ -327,14 +371,13 @@
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('scan-hint').innerHTML = "Security Check<br>請掃描店員識別證";
                 document.getElementById('cancel-scan-btn').classList.remove('hidden');
-                document.querySelector('.scan-frame').style.borderColor = '#ef4444'; 
+                // 這裡的框框顏色，在新的CSS中其實已經被固定了，如果需要改變顏色可以動態加 class，但為了保持設計一致，建議維持白色
                 document.getElementById('manual-input-section').classList.add('hidden');
             } else {
                 document.getElementById('scan-view').classList.remove('hidden');
                 document.getElementById('action-view-issue').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.add('hidden');
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
-                document.querySelector('.scan-frame').style.borderColor = 'rgba(255, 255, 255, 0.6)';
                 
                 if (currentSystemMode === 'issue') {
                     document.getElementById('scan-hint').innerHTML = "Ready to Scan<br>掃描會員 QR Code";
@@ -359,7 +402,6 @@
                     isScanLocked = true;
                     verifyStaff(text.replace('BBX-', ''));
                 } else {
-                    // 修改處：更新文字
                     handleScanError('錯誤：請掃描員工憑證碼');
                 }
                 return;
@@ -371,7 +413,6 @@
                     await cleanupScanner();
                     fetchMemberData(text.replace('BBX-', ''));
                 } else {
-                    // 修改處：更新文字
                     handleScanError('錯誤：請掃描會員憑證碼');
                 }
             } else { 
@@ -380,7 +421,6 @@
                     await cleanupScanner();
                     fetchCouponData(text.replace('CPN-', ''));
                 } else {
-                    // 修改處：更新文字
                     handleScanError('錯誤：請掃描優惠券憑證碼');
                 }
             }
