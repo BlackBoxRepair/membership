@@ -25,34 +25,31 @@
         .coupon-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900; }
         .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
         
-        /* --- 強迫症友善：完美對齊掃描框 --- */
-        /* 注意：舊的 .scan-frame 樣式已徹底移除，確保不會出現雙重框 */
-        
+        /* --- 強迫症友善：完美對齊掃描框 (舊樣式已移除) --- */
         .scan-container {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; /* 讓點擊穿透 */
             display: flex; align-items: center; justify-content: center;
-            z-index: 10; /* 確保浮在影片上方 */
+            z-index: 10;
         }
 
         .scan-box {
             position: relative;
             width: 260px; height: 260px; /* 固定正方形尺寸 */
-            border-radius: 24px; /* 圓角 */
+            border-radius: 24px;
             /* 使用超大陰影來製作遮罩，確保只有框內是亮的 */
             box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); 
-            border: 1px solid rgba(255, 255, 255, 0.1); /* 極細微的邊框 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
 
-        /* 四個角落的標記 - 絕對定位於 scan-box 內部，保證對齊 */
+        /* 四個角落的標記 */
         .corner {
             position: absolute; width: 30px; height: 30px;
             border-color: #fff; border-style: solid; border-width: 4px;
-            border-radius: 4px; /* 角落稍微圓潤一點 */
+            border-radius: 4px;
             filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
         }
-        /* 修正圓角半徑以完美貼合外框 */
         .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 20px; }
         .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 20px; }
         .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 20px; }
