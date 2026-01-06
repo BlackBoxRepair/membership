@@ -29,7 +29,8 @@
         /* 優惠券 */
         .coupon-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); select-user: none; position: relative; overflow: hidden; }
         .coupon-card.selected { border-color: #ca8a04; background: #fffbeb; transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); }
-        .coupon-card.selected::after { content: '✓'; position: absolute; top: 8px; right: 8px; color: #ca8a04; font-weight: 900; }
+        /* 修改：打勾勾移到右下角，避免擋住右上角的類型標籤 */
+        .coupon-card.selected::after { content: '✓'; position: absolute; bottom: 8px; right: 8px; color: #ca8a04; font-weight: 900; font-size: 1.2rem; }
         .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
         
         /* 現金抵用券樣式 (Check box style) */
@@ -90,7 +91,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.1</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.2</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -561,15 +562,12 @@
                 return; 
             }
 
-            // --- v5.1 關鍵修改：拒收現金券 ---
+            // v5.1 防呆：拒收現金券
             if (data.type === 'cash') {
-                // 1. 重啟掃描，確保不卡住
                 await startScanner('normal');
-                // 2. 顯示紅色錯誤提示
                 handleScanError('錯誤：此為現金折抵券，請至會員作業使用');
-                return; // 3. 結束函式，不進入核銷畫面
+                return;
             }
-            // --------------------------------
 
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.remove('hidden');
@@ -790,9 +788,28 @@
                 return 0;
             });
             container.innerHTML = validCoupons.map(c => {
-                const badge = c.valid_until ? `<span class="date-badge">效期：${c.valid_until}</span>` : `<span class="date-badge" style="background:#e5e7eb;color:#374151">永久有效</span>`;
-                const typeLabel = c.type === 'cash' ? `<span class="text-xs text-red-500 font-bold ml-1">($${c.discount_amount})</span>` : '';
-                return `<div class="coupon-card" onclick="toggleCoupon(this, '${c.name}')"><p class="font-bold text-sm mb-1">${c.name}${typeLabel}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
+                // v5.2 修改：動態計算效期顯示 (使用當下設備時間)
+                let expiryText = '永久有效';
+                if (c.validity_days > 0) {
+                    const d = new Date();
+                    d.setDate(d.getDate() + c.validity_days);
+                    // 格式化為 YYYY-MM-DD
+                    const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    expiryText = `效期：${dateStr}`;
+                } else if (c.valid_until) {
+                    expiryText = `效期：${c.valid_until}`;
+                }
+
+                // v5.2 修改：右上角類型標籤
+                let typeBadge = '';
+                if (c.type === 'cash') {
+                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">折抵</span>`;
+                } else {
+                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200 tracking-wider">兌換</span>`;
+                }
+
+                const badge = `<span class="date-badge">${expiryText}</span>`;
+                return `<div class="coupon-card" onclick="toggleCoupon(this, '${c.name}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${c.name}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
             }).join('');
         }
         function toggleCoupon(el, name) {
