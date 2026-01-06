@@ -116,6 +116,9 @@
         }
         .ticket-stub:active .chip-icon { border-color: #ca8a04; background: #fff; transform: scale(0.9); }
 
+        /* iFrame 樣式 */
+        iframe { border: none; width: 100%; height: 100%; display: block; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -206,16 +209,8 @@
         </header>
         
         <div id="main-content" class="content-scroll hidden">
-            <main id="tab-blackbox" class="tab-content p-6 h-full">
-                <div class="h-[60vh] flex flex-col items-center justify-center text-center">
-                    <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-900 mb-2">小黑盒驚喜</h3>
-                    <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
-                </div>
+            <main id="tab-blackbox" class="tab-content h-full">
+                <div id="activity-container" class="h-full w-full"></div>
             </main>
 
             <main id="tab-card" class="tab-content active px-6 pt-2">
@@ -269,6 +264,13 @@
     </div>
 
     <script>
+        // --- 設定區 ---
+        // 當有活動時，請將活動網頁的 URL 填入下方引號中 (必須是 https 開頭)
+        // 例如: const ACTIVITY_URL = 'https://blackboxrepair.github.io/event-page/';
+        // 當沒有活動時，請保持為空字串: const ACTIVITY_URL = '';
+        const ACTIVITY_URL = ''; 
+        // --------------
+
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
@@ -278,6 +280,35 @@
         let currentUserProfile = null;
 
         const areaList = ["西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","後里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"];
+
+        // 初始化
+        window.onload = async () => {
+            initSelects();
+            renderActivityTab(); // 渲染活動頁面
+            await initLiff();
+            switchTab('coupon'); // 預設頁面
+        };
+
+        // 渲染小黑盒頁面邏輯
+        function renderActivityTab() {
+            const container = document.getElementById('activity-container');
+            if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                // 如果有活動網址，插入 iframe
+                container.innerHTML = `<iframe src="${ACTIVITY_URL}" class="w-full h-full border-0"></iframe>`;
+            } else {
+                // 如果沒有活動網址，顯示「敬請期待」空狀態
+                container.innerHTML = `
+                <div class="h-[60vh] flex flex-col items-center justify-center text-center">
+                    <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-900 mb-2">小黑盒驚喜</h3>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
+                </div>`;
+            }
+        }
 
         function showMsg(title, msg) {
             document.getElementById('msg-title').innerText = title;
@@ -314,8 +345,7 @@
             }
         }
 
-        async function init() {
-            initSelects();
+        async function initLiff() {
             try {
                 await liff.init({ liffId: LIFF_ID });
                 if (!liff.isLoggedIn()) { liff.login(); } 
@@ -439,7 +469,7 @@
             if(tab === 'coupon') loadUserCoupons();
         }
 
-        // --- 優惠券核心功能 (UI更新 + 獨立QR Code) ---
+        // --- 優惠券核心功能 ---
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -463,7 +493,7 @@
                 return;
             }
 
-            // 排序：快過期 > 有期限 > 永久
+            // 排序
             validCoupons.sort((a, b) => {
                 if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
@@ -475,7 +505,6 @@
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
-                // 修改 2：根據類型顯示標籤
                 let typeBadge = '';
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
@@ -528,7 +557,7 @@
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
         
-        window.onload = init;
+        // window.onload = init; // 移除這行，因為上面已經有 window.onload
     </script>
 </body>
 </html>
