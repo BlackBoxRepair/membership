@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v6.0 樣式優化 */
+        /* v6.1 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -22,7 +22,7 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden; 
-            user-select: none; /* 防止長按選取文字 */
+            user-select: none;
         }
         
         .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; transition: all 0.2s; color: #111; }
@@ -84,7 +84,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.0</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.1</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -624,6 +624,12 @@
         }
 
         // --- 核心邏輯修正區 ---
+        
+        // 補上遺失的 closeConfirmModal 函式
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -642,7 +648,6 @@
             }
 
             try {
-                // 1. 讀取最新資料 & 錯誤偵測
                 const { data: profile, error: profileError } = await _supabase
                     .from('profiles')
                     .select('total_points')
@@ -655,14 +660,12 @@
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
 
-                // 2. 餘額檢查
                 if (newTotal < 0) {
                     alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n預計扣除: ${Math.abs(netPointChange)}`);
                     btn.disabled = false; btn.innerText = "確認送出";
                     return;
                 }
 
-                // 3. 更新積分
                 const { error: updateError } = await _supabase
                     .from('profiles')
                     .update({ total_points: newTotal })
@@ -670,7 +673,6 @@
 
                 if (updateError) throw new Error("更新積分失敗: " + updateError.message);
 
-                // 4. 更新現金券
                 if (selectedCashCoupons.length > 0) {
                     const now = new Date().toISOString();
                     const { error: couponError } = await _supabase.from('user_coupons')
@@ -679,7 +681,6 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 5. 寫入 Log
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
@@ -687,7 +688,6 @@
                 });
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
 
-                // 6. 發送新券
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
