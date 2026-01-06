@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v6.1 樣式優化 */
+        /* v6.2 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -30,7 +30,6 @@
         .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); border-radius: 2.2rem; }
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; border-radius: 0.75rem; }
         
-        /* 優惠券與掃描框樣式 */
         .coupon-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
         .coupon-card.selected { border-color: #ca8a04; background: #fffbeb; transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); }
         .coupon-card.selected::after { content: '✓'; position: absolute; bottom: 8px; right: 8px; color: #ca8a04; font-weight: 900; font-size: 1.2rem; }
@@ -84,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.1</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.2</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -648,6 +647,7 @@
             }
 
             try {
+                // 1. 讀取最新資料 & 錯誤偵測
                 const { data: profile, error: profileError } = await _supabase
                     .from('profiles')
                     .select('total_points')
@@ -660,12 +660,14 @@
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
 
+                // 2. 餘額檢查
                 if (newTotal < 0) {
                     alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n預計扣除: ${Math.abs(netPointChange)}`);
                     btn.disabled = false; btn.innerText = "確認送出";
                     return;
                 }
 
+                // 3. 更新積分
                 const { error: updateError } = await _supabase
                     .from('profiles')
                     .update({ total_points: newTotal })
@@ -673,6 +675,7 @@
 
                 if (updateError) throw new Error("更新積分失敗: " + updateError.message);
 
+                // 4. 更新現金券
                 if (selectedCashCoupons.length > 0) {
                     const now = new Date().toISOString();
                     const { error: couponError } = await _supabase.from('user_coupons')
@@ -681,6 +684,7 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
+                // 5. 寫入 Log
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
@@ -688,6 +692,7 @@
                 });
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
 
+                // 6. 發送新券
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
