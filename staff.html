@@ -656,25 +656,122 @@
         }
 
         async function executeIssue() {
-            const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
+            const btn = document.getElementById('btn-submit-real'); 
+            btn.disabled = true; 
+            btn.innerText = "處理中...";
+            
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
-            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            
+            // 優化：強制轉成數字，去除開頭的 0
+            const amountInput = document.getElementById('amount-input').value;
+            const amount = amountInput ? parseInt(amountInput) : 0;
+
+            if (!currentTargetLineId) {
+                alert("錯誤：會員 ID 遺失，請重新掃描");
+                btn.disabled = false;
+                return;
+            }
 
             try {
-                // 1. 重新抓取最新的會員資料 (避免資料不同步)
-                const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
+                // 1. 重新抓取最新的會員資料 (加入錯誤偵測)
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('total_points')
+                    .eq('line_id', currentTargetLineId)
+                    .single();
+                
+                // 如果讀取失敗，直接報錯
+                if (profileError) {
+                    throw new Error("讀取會員資料失敗: " + profileError.message);
+                }
+                if (!profile) {
+                    throw new Error("找不到此會員資料 (Profile is null)");
+                }
                 
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
 
-                // 2. 嚴格檢查：最後防線，確認積分不會變成負數
+                // 2. 嚴格檢查：最後防線
                 if (newTotal < 0) {
-                    alert('交易失敗：積分餘額不足！');
+                    alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n預計扣除: ${Math.abs(netPointChange)}`);
                     btn.disabled = false;
                     btn.innerText = "確認送出";
                     return;
                 }
+
+                // 3. 執行更新 (加入錯誤偵測)
+                const { error: updateError } = await _supabase
+                    .from('profiles')
+                    .update({ total_points: newTotal })
+                    .eq('line_id', currentTargetLineId);
+
+                if (updateError) throw new Error("更新積分失敗: " + updateError.message);
+
+                if (selectedCashCoupons.length > 0) {
+                    const now = new Date().toISOString();
+                    const { error: couponError } = await _supabase.from('user_coupons')
+                        .update({ status: 'used', used_at: now, used_by: currentStaffName })
+                        .in('id', selectedCashCoupons);
+                    
+                    if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
+                }
+
+                const { error: logError } = await _supabase.from('point_logs').insert({
+                    line_id: currentTargetLineId, 
+                    staff_name: currentStaffName,
+                    store_name: store, 
+                    order_number: orderNo, 
+                    amount: amount, 
+                    points_change: netPointChange
+                });
+
+                if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
+
+                if (selectedCoupons.length > 0) {
+                    const couponsToInsert = selectedCoupons.map(name => {
+                        const org = allCouponsData.find(c => c.name === name);
+                        // 防呆：如果找不到對應的券
+                        if (!org) return null;
+
+                        let expiryDate = null;
+                        if (org.validity_days && org.validity_days > 0) {
+                            const d = new Date();
+                            d.setDate(d.getDate() + org.validity_days);
+                            expiryDate = d.toISOString().split('T')[0];
+                        } else {
+                            expiryDate = org.valid_until;
+                        }
+
+                        return {
+                            line_id: currentTargetLineId, 
+                            coupon_name: name,
+                            description: org.description || '', 
+                            valid_until: expiryDate,
+                            status: 'unused',
+                            type: org.type || 'exchange',
+                            discount_amount: org.discount_amount || 0
+                        };
+                    }).filter(c => c !== null); // 過濾掉無效的券
+
+                    if (couponsToInsert.length > 0) {
+                        const { error: insertError } = await _supabase.from('user_coupons').insert(couponsToInsert);
+                        if (insertError) throw new Error("發送優惠券失敗: " + insertError.message);
+                    }
+                }
+
+                closeConfirmModal();
+                await resetScan('系統發放完成，請提醒貴賓是否取得本次發放之點數及憑證');
+
+            } catch (err) { 
+                // 這裡會把真正的錯誤原因顯示出來
+                alert('系統錯誤：' + err.message); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = "確認送出";
+            }
+        }
 
                 // 3. 執行更新
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
