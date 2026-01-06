@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BLACKBOX | 店員管理終端</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -13,36 +14,34 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v3.8 核心：重置所有捲動行為 */
+        /* v6.0 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
             color: #111827; 
             margin: 0; padding: 0;
             width: 100%; height: 100%;
-            overflow: hidden; /* 禁止外層捲動，只允許內部區塊捲動 */
+            overflow: hidden; 
+            user-select: none; /* 防止長按選取文字 */
         }
         
-        /* 樣式元件 */
         .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; transition: all 0.2s; color: #111; }
         .soft-input:focus { border-color: #ca8a04; box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1); }
         .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); border-radius: 2.2rem; }
         .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; border-radius: 0.75rem; }
         
-        /* 優惠券 */
-        .coupon-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); select-user: none; position: relative; overflow: hidden; }
+        /* 優惠券與掃描框樣式 */
+        .coupon-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
         .coupon-card.selected { border-color: #ca8a04; background: #fffbeb; transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); }
         .coupon-card.selected::after { content: '✓'; position: absolute; bottom: 8px; right: 8px; color: #ca8a04; font-weight: 900; font-size: 1.2rem; }
         .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
         
-        /* 現金抵用券樣式 (Check box style) */
         .cash-coupon-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
         .cash-coupon-item.active { border-color: #ca8a04; background: #fffbeb; }
         .cash-coupon-item .checkbox-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #d1d5db; margin-right: 10px; flex-shrink: 0; position: relative; }
         .cash-coupon-item.active .checkbox-circle { border-color: #ca8a04; background: #ca8a04; }
         .cash-coupon-item.active .checkbox-circle::after { content: ''; position: absolute; top: 50%; left: 50%; width: 6px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: translate(-50%, -60%) rotate(45deg); }
 
-        /* 掃描框 */
         .scan-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 10; }
         .scan-box { position: relative; width: 260px; height: 260px; border-radius: 24px; box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); overflow: hidden; }
         .corner { position: absolute; width: 30px; height: 30px; border-color: #fff; border-style: solid; border-width: 4px; border-radius: 4px; filter: drop-shadow(0 0 4px rgba(0,0,0,0.5)); }
@@ -54,7 +53,6 @@
         @keyframes laserMove { 0% {top: 10%; opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {top: 90%; opacity: 0;} }
         #reader div { box-shadow: none !important; border: none !important; }
         
-        /* Modal */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .confirm-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 14px; }
@@ -63,18 +61,11 @@
         .select-wrapper { position: relative; width: 100%; }
         .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
         
-        /* Dashboard 按鈕 */
         .dash-btn { flex: 1; border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s; box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); border: 1px solid white; }
         .dash-btn:active { transform: scale(0.96); }
-        .dash-btn-dark { background: #111; color: white; border-color: #333; }
         .dash-btn-light { background: white; color: #111; }
 
-        .scrollable-content {
-            flex: 1;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch; 
-            padding-bottom: 150px; 
-        }
+        .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
@@ -93,37 +84,20 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.7</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.0</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
             <button onclick="enterMode('issue')" class="dash-btn dash-btn-light h-full min-h-[150px]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>
-                </svg>
-                <div class="text-center">
-                    <h2 class="text-xl font-black text-yellow-600">會員作業</h2>
-                    <p class="text-gray-400 text-xs mt-1">積分/優惠券發放&折抵作業</p>
-                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+                <div class="text-center"><h2 class="text-xl font-black text-yellow-600">會員作業</h2><p class="text-gray-400 text-xs mt-1">積分/優惠券發放&折抵作業</p></div>
             </button>
             <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light h-full min-h-[150px]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
-                    <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
-                    <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
-                    <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
-                    <rect x="7" y="7" width="10" height="10" rx="1"/>
-                    <path d="M12 10v4"/>
-                    <path d="M10 12h4"/>
-                </svg>
-                <div class="text-center">
-                    <h2 class="text-xl font-black text-yellow-600">票券核銷</h2>
-                    <p class="text-gray-400 text-xs mt-1">掃描 QR Code 核銷</p>
-                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-2 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M12 10v4"/><path d="M10 12h4"/></svg>
+                <div class="text-center"><h2 class="text-xl font-black text-yellow-600">票券核銷</h2><p class="text-gray-400 text-xs mt-1">掃描 QR Code 核銷</p></div>
             </button>
         </div>
-        
         <button onclick="lockSystem()" class="text-xs text-gray-400 font-bold py-4 text-center w-full shrink-0">重新鎖定系統</button>
     </div>
 
@@ -133,24 +107,16 @@
                 <span id="mode-badge" class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">MODE</span>
                 <h1 id="mode-title" class="text-2xl font-black text-gray-900 tracking-tight">---</h1>
             </div>
-            <button onclick="returnToDashboard()" class="bg-white px-4 py-2 rounded-full text-xs font-bold text-gray-900 shadow-sm active:scale-95 transition">
-                回選單
-            </button>
+            <button onclick="returnToDashboard()" class="bg-white px-4 py-2 rounded-full text-xs font-bold text-gray-900 shadow-sm active:scale-95 transition">回選單</button>
         </div>
 
         <div id="scan-view" class="scrollable-content flex flex-col items-center justify-start pt-4 p-6">
             <div class="w-full aspect-square bg-black rounded-[2rem] overflow-hidden relative shadow-lg shrink-0 mb-6 max-h-[50vh]">
                 <div id="reader" class="w-full h-full object-cover"></div>
-                <div class="scan-container">
-                    <div class="scan-box">
-                        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="scan-laser"></div>
-                    </div>
-                </div>
+                <div class="scan-container"><div class="scan-box"><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="scan-laser"></div></div></div>
             </div>
-            
             <p id="scan-error-msg" class="text-red-500 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4 hidden animate-pulse"></p>
             <p id="scan-success-msg" class="text-green-600 text-[10px] font-black tracking-wider uppercase text-center mb-4 hidden animate-bounce bg-green-50 py-2 px-4 rounded-xl border border-green-100 shadow-sm"></p>
-
             <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-8">請將 QR Code 對準框內</p>
 
             <div id="manual-input-section" class="w-full border-t border-gray-200 pt-8 pb-8 hidden">
@@ -162,7 +128,6 @@
                     </div>
                 </div>
             </div>
-
             <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-4 mb-10 text-gray-400 text-sm font-bold border-b border-gray-300 pb-1">取消掃描</button>
             <div class="h-24 shrink-0"></div> 
         </div>
@@ -190,14 +155,14 @@
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
                         <input id="amount-input" type="tel" pattern="[0-9]*" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" 
-                               oninput="value=value.replace(/[^\d]/g,'').replace(/^0+(?=\d)/,''); calcPreview()">
+                               oninput="cleanInput(this); calcPreview()">
                     </div>
                     
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
                             <input id="redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" 
-                                   oninput="value=value.replace(/[^\d]/g,'').replace(/^0+(?=\d)/,''); calcPreview()">
+                                   oninput="cleanInput(this); calcPreview()">
                         </div>
                         <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
                     </div>
@@ -225,7 +190,6 @@
             </div>
             <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">下一步</button>
             <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
-            
             <div class="h-24 w-full shrink-0"></div>
         </div>
 
@@ -246,7 +210,6 @@
                 <p class="text-[10px] text-gray-400 mt-2 font-bold tracking-widest">(下一步需掃描員工證或輸入電話)</p>
                 <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mt-2">取消</button>
             </div>
-            
             <div class="h-24 w-full shrink-0"></div>
         </div>
     </div>
@@ -304,6 +267,11 @@
         let isScanLocked = false;
         let errorMsgTimeout; 
         let isStaffAuthStep = false; 
+
+        // 輸入過濾函數 (只能數字, 去除開頭0)
+        function cleanInput(el) {
+            el.value = el.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+        }
 
         function checkPassword() {
             const val = document.getElementById('password-input').value;
@@ -655,6 +623,7 @@
             }
         }
 
+        // --- 核心邏輯修正區 ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -663,7 +632,6 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             
-            // 優化：強制轉成數字，去除開頭的 0
             const amountInput = document.getElementById('amount-input').value;
             const amount = amountInput ? parseInt(amountInput) : 0;
 
@@ -674,33 +642,27 @@
             }
 
             try {
-                // 1. 重新抓取最新的會員資料 (加入錯誤偵測)
+                // 1. 讀取最新資料 & 錯誤偵測
                 const { data: profile, error: profileError } = await _supabase
                     .from('profiles')
                     .select('total_points')
                     .eq('line_id', currentTargetLineId)
                     .single();
                 
-                // 如果讀取失敗，直接報錯
-                if (profileError) {
-                    throw new Error("讀取會員資料失敗: " + profileError.message);
-                }
-                if (!profile) {
-                    throw new Error("找不到此會員資料 (Profile is null)");
-                }
+                if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
+                if (!profile) throw new Error("找不到此會員資料");
                 
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
 
-                // 2. 嚴格檢查：最後防線
+                // 2. 餘額檢查
                 if (newTotal < 0) {
                     alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n預計扣除: ${Math.abs(netPointChange)}`);
-                    btn.disabled = false;
-                    btn.innerText = "確認送出";
+                    btn.disabled = false; btn.innerText = "確認送出";
                     return;
                 }
 
-                // 3. 執行更新 (加入錯誤偵測)
+                // 3. 更新積分
                 const { error: updateError } = await _supabase
                     .from('profiles')
                     .update({ total_points: newTotal })
@@ -708,51 +670,42 @@
 
                 if (updateError) throw new Error("更新積分失敗: " + updateError.message);
 
+                // 4. 更新現金券
                 if (selectedCashCoupons.length > 0) {
                     const now = new Date().toISOString();
                     const { error: couponError } = await _supabase.from('user_coupons')
                         .update({ status: 'used', used_at: now, used_by: currentStaffName })
                         .in('id', selectedCashCoupons);
-                    
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
+                // 5. 寫入 Log
                 const { error: logError } = await _supabase.from('point_logs').insert({
-                    line_id: currentTargetLineId, 
-                    staff_name: currentStaffName,
-                    store_name: store, 
-                    order_number: orderNo, 
-                    amount: amount, 
-                    points_change: netPointChange
+                    line_id: currentTargetLineId, staff_name: currentStaffName,
+                    store_name: store, order_number: orderNo, 
+                    amount: amount, points_change: netPointChange
                 });
-
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
 
+                // 6. 發送新券
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
-                        // 防呆：如果找不到對應的券
                         if (!org) return null;
-
                         let expiryDate = null;
                         if (org.validity_days && org.validity_days > 0) {
-                            const d = new Date();
-                            d.setDate(d.getDate() + org.validity_days);
+                            const d = new Date(); d.setDate(d.getDate() + org.validity_days);
                             expiryDate = d.toISOString().split('T')[0];
                         } else {
                             expiryDate = org.valid_until;
                         }
-
                         return {
-                            line_id: currentTargetLineId, 
-                            coupon_name: name,
-                            description: org.description || '', 
-                            valid_until: expiryDate,
-                            status: 'unused',
-                            type: org.type || 'exchange',
+                            line_id: currentTargetLineId, coupon_name: name,
+                            description: org.description || '', valid_until: expiryDate,
+                            status: 'unused', type: org.type || 'exchange',
                             discount_amount: org.discount_amount || 0
                         };
-                    }).filter(c => c !== null); // 過濾掉無效的券
+                    }).filter(c => c !== null);
 
                     if (couponsToInsert.length > 0) {
                         const { error: insertError } = await _supabase.from('user_coupons').insert(couponsToInsert);
@@ -761,79 +714,24 @@
                 }
 
                 closeConfirmModal();
-                await resetScan('系統發放完成，請提醒貴賓是否取得本次發放之點數及憑證');
+                await resetScan('系統發放完成！');
 
             } catch (err) { 
-                // 這裡會把真正的錯誤原因顯示出來
                 alert('系統錯誤：' + err.message); 
                 console.error(err); 
             } finally { 
-                btn.disabled = false; 
-                btn.innerText = "確認送出";
+                btn.disabled = false; btn.innerText = "確認送出"; 
             }
-        }
-
-                // 3. 執行更新
-                await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
-
-                if (selectedCashCoupons.length > 0) {
-                    const now = new Date().toISOString();
-                    await _supabase.from('user_coupons')
-                        .update({ status: 'used', used_at: now, used_by: currentStaffName })
-                        .in('id', selectedCashCoupons);
-                }
-
-                await _supabase.from('point_logs').insert({
-                    line_id: currentTargetLineId, staff_name: currentStaffName,
-                    store_name: store, order_number: orderNo, amount: amount, points_change: netPointChange
-                });
-
-                if (selectedCoupons.length > 0) {
-                    const couponsToInsert = selectedCoupons.map(name => {
-                        const org = allCouponsData.find(c => c.name === name);
-                        let expiryDate = null;
-
-                        if (org.validity_days && org.validity_days > 0) {
-                            const d = new Date();
-                            d.setDate(d.getDate() + org.validity_days);
-                            expiryDate = d.toISOString().split('T')[0];
-                        } else {
-                            expiryDate = org.valid_until;
-                        }
-
-                        return {
-                            line_id: currentTargetLineId, 
-                            coupon_name: name,
-                            description: org.description || '', 
-                            valid_until: expiryDate,
-                            status: 'unused',
-                            type: org.type || 'exchange',
-                            discount_amount: org.discount_amount || 0
-                        };
-                    });
-                    await _supabase.from('user_coupons').insert(couponsToInsert);
-                }
-
-                closeConfirmModal();
-                await resetScan('系統發放完成，請提醒貴賓是否取得本次發放之點數及憑證');
-
-            } catch (err) { alert('交易失敗'); console.error(err); } finally { btn.disabled = false; }
         }
 
         async function executeRedeem() {
             const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
             try {
                 const { error } = await _supabase.rpc('redeem_coupon', {
-                    target_coupon_id: currentTargetCouponId,
-                    staff_name: currentStaffName
+                    target_coupon_id: currentTargetCouponId, staff_name: currentStaffName
                 });
-
-                if (error) {
-                    alert('核銷失敗：' + error.message);
-                } else {
-                    closeConfirmModal();
-                    await resetScan('核銷已完成');
-                }
+                if (error) { alert('核銷失敗：' + error.message); } 
+                else { closeConfirmModal(); await resetScan('核銷已完成'); }
             } catch (err) { alert('系統錯誤'); console.error(err); } finally { btn.disabled = false; }
         }
 
@@ -868,11 +766,8 @@
         }
 
         function calcPreview() {
-            // 強制過濾非數字和開頭的 0 (除非是單獨的 0)
             const amountInput = document.getElementById('amount-input');
             const redeemInput = document.getElementById('redeem-input');
-            
-            // 使用 replace(/^0+(?=\d)/, '') 移除開頭多餘的 0
             amountInput.value = amountInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
             redeemInput.value = redeemInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
 
@@ -889,7 +784,6 @@
             });
 
             const totalDue = Math.max(0, amount - redeem - calculatedCashDiscount);
-            
             calculatedPoints = Math.round(totalDue / 100);
             calculatedRedeem = redeem; 
 
@@ -913,32 +807,24 @@
             container.innerHTML = validCoupons.map(c => {
                 let expiryText = '永久有效';
                 if (c.validity_days > 0) {
-                    const d = new Date();
-                    d.setDate(d.getDate() + c.validity_days);
+                    const d = new Date(); d.setDate(d.getDate() + c.validity_days);
                     const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                     expiryText = `效期：${dateStr}`;
                 } else if (c.valid_until) {
                     expiryText = `效期：${c.valid_until}`;
                 }
-
-                let typeBadge = '';
-                if (c.type === 'cash') {
-                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-${c.discount_amount || 0}</span>`;
-                } else {
-                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
-                }
-
+                let typeBadge = (c.type === 'cash') 
+                    ? `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-${c.discount_amount || 0}</span>`
+                    : `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
                 const badge = `<span class="date-badge">${expiryText}</span>`;
                 return `<div class="coupon-card" onclick="toggleCoupon(this, '${c.name}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${c.name}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
             }).join('');
         }
         function toggleCoupon(el, name) {
             if (selectedCoupons.includes(name)) {
-                selectedCoupons = selectedCoupons.filter(c => c !== name);
-                el.classList.remove('selected');
+                selectedCoupons = selectedCoupons.filter(c => c !== name); el.classList.remove('selected');
             } else {
-                selectedCoupons.push(name);
-                el.classList.add('selected');
+                selectedCoupons.push(name); el.classList.add('selected');
             }
         }
     </script>
