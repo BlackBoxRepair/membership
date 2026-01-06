@@ -75,7 +75,8 @@
         }
         .nav-btn { color: #d1d5db; transition: all 0.3s; transform: scale(0.95); }
         .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
-        .nav-btn.active svg { stroke-width: 2.5px; filter: drop-shadow(0 4px 6px rgba(202,138,4,0.2)); }
+        /* 修改 1：移除 filter: drop-shadow，只保留 stroke 加粗效果 */
+        .nav-btn.active svg { stroke-width: 2.5px; }
 
         /* 輸入框 */
         .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; -webkit-appearance: none; }
@@ -474,10 +475,20 @@
             // 產生票券 HTML
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
+                
+                // 修改 2：根據類型顯示標籤
+                let typeBadge = '';
+                if (coupon.type === 'cash') {
+                    typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
+                } else {
+                    typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
+                }
+
                 return `
                 <div class="ticket-card">
                     <div class="ticket-main">
-                        <h4 class="text-lg font-black text-gray-900 mb-1">${coupon.coupon_name}</h4>
+                        ${typeBadge}
+                        <h4 class="text-lg font-black text-gray-900 mb-1 pr-12">${coupon.coupon_name}</h4>
                         <p class="text-xs text-gray-400 mb-2">${coupon.description || '店員專屬優惠'}</p>
                         <p class="text-[10px] text-gray-500 font-mono tracking-wide">${dateText}</p>
                     </div>
