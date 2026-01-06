@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v6.2 樣式優化 */
+        /* v6.3 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.2</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.3</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -622,13 +622,11 @@
             }
         }
 
-        // --- 核心邏輯修正區 ---
-        
-        // 補上遺失的 closeConfirmModal 函式
         function closeConfirmModal() {
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
+        // --- 核心邏輯 (v6.3：修復 closeConfirmModal + 增加超額折抵提示) ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -646,8 +644,31 @@
                 return;
             }
 
+            // --- 新增：防呆檢查 (v6.3) ---
+            // 計算：總現金券折抵金額
+            let currentCashDiscount = 0;
+            selectedCashCoupons.forEach(id => {
+                const coupon = userCashCoupons.find(c => c.id === id);
+                if (coupon) currentCashDiscount += (coupon.discount_amount || 0);
+            });
+
+            // 計算：扣除積分後的剩餘應付金額
+            const redeemInputVal = document.getElementById('redeem-input').value;
+            const currentRedeem = redeemInputVal ? parseInt(redeemInputVal) : 0;
+            const remainingBill = amount - currentRedeem;
+
+            // 判斷：如果剩餘應付 < 現金券總額
+            if (currentCashDiscount > 0 && remainingBill < currentCashDiscount) {
+                 const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
+                 if (!confirmOverpay) {
+                     btn.disabled = false;
+                     btn.innerText = "確認送出";
+                     return; // 使用者取消，停止交易
+                 }
+            }
+            // ---------------------------
+
             try {
-                // 1. 讀取最新資料 & 錯誤偵測
                 const { data: profile, error: profileError } = await _supabase
                     .from('profiles')
                     .select('total_points')
@@ -660,14 +681,12 @@
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
 
-                // 2. 餘額檢查
                 if (newTotal < 0) {
                     alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n預計扣除: ${Math.abs(netPointChange)}`);
                     btn.disabled = false; btn.innerText = "確認送出";
                     return;
                 }
 
-                // 3. 更新積分
                 const { error: updateError } = await _supabase
                     .from('profiles')
                     .update({ total_points: newTotal })
@@ -675,7 +694,6 @@
 
                 if (updateError) throw new Error("更新積分失敗: " + updateError.message);
 
-                // 4. 更新現金券
                 if (selectedCashCoupons.length > 0) {
                     const now = new Date().toISOString();
                     const { error: couponError } = await _supabase.from('user_coupons')
@@ -684,7 +702,6 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 5. 寫入 Log
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
@@ -692,7 +709,6 @@
                 });
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
 
-                // 6. 發送新券
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
@@ -740,8 +756,6 @@
             } catch (err) { alert('系統錯誤'); console.error(err); } finally { btn.disabled = false; }
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
         function resetToForm() {
             cleanupScanner();
             if (currentSystemMode === 'issue') {
