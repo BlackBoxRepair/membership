@@ -268,6 +268,9 @@
 
     <script>
         // --- 設定區 ---
+        // 當有活動時，請將活動網頁的 URL 填入下方引號中 (必須是 https 開頭)
+        // 例如: const ACTIVITY_URL = 'https://blackboxrepair.github.io/event-page/';
+        // 當沒有活動時，請保持為空字串: const ACTIVITY_URL = '';
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -284,17 +287,19 @@
         // 初始化
         window.onload = async () => {
             initSelects();
-            renderActivityTab();
+            renderActivityTab(); // 渲染活動頁面
             await initLiff();
-            // 預設先顯示會員卡，確保資料載入
-            switchTab('card');
+            switchTab('coupon'); // 預設頁面
         };
 
+        // 渲染小黑盒頁面邏輯
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                // 如果有活動網址，插入 iframe
                 container.innerHTML = `<iframe src="${ACTIVITY_URL}" class="w-full h-full border-0"></iframe>`;
             } else {
+                // 如果沒有活動網址，顯示「敬請期待」空狀態
                 container.innerHTML = `
                 <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
@@ -350,25 +355,13 @@
                 else {
                     const profile = await liff.getProfile();
                     currentUserLineId = profile.userId;
-                    // Debug: 確認抓到的 ID
-                    // alert("Debug: LINE ID = " + currentUserLineId);
                     checkMemberStatus(profile);
                 }
-            } catch (err) { 
-                console.error('Init Fail', err);
-                alert("LIFF 初始化失敗：" + err.message);
-            }
+            } catch (err) { console.error('Init Fail', err); }
         }
 
         async function checkMemberStatus(lineProfile) {
-            let { data, error } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
-            
-            if (error) {
-                // 如果讀取 Profile 就出錯，代表資料庫連線或 RLS 還有問題
-                console.error("Profile Error", error);
-                // 暫時不 alert，避免嚇到新用戶，但在 console 留紀錄
-            }
-
+            let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
             if (!data || !data.phone || !data.birthday) {
                 document.getElementById('profile-modal').style.display = 'flex';
                 document.getElementById('input-name').value = lineProfile.displayName || "";
@@ -462,7 +455,8 @@
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
             
-            // 注意：這裡不強制 switchTab，避免覆蓋使用者的操作
+            // 預設頁面
+            switchTab('card');
         }
 
         function switchTab(tab) {
@@ -478,57 +472,31 @@
             if(tab === 'coupon') loadUserCoupons();
         }
 
-        // --- 核心 Debug 修改區 ---
+        // --- 優惠券核心功能 (UI更新 + 獨立QR Code) ---
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
 
-            // 顯示 Loading
-            list.innerHTML = `<div class="py-12 text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-100 border-t-yellow-600"></div></div>`;
-
-            // 1. 檢查 LINE ID 是否存在
-            if (!currentUserLineId) {
-                list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-red-500 font-bold text-sm">錯誤：找不到會員 ID (請重新整理)</p></div>`;
-                return;
-            }
-
-            // 2. 發送請求
             const { data, error } = await _supabase
                 .from('user_coupons')
                 .select('*')
                 .eq('line_id', currentUserLineId)
-                .eq('status', 'unused') // 確保這裡過濾條件正確
+                .eq('status', 'unused')
                 .order('created_at', { ascending: false });
 
-            // 3. 錯誤診斷
-            if (error) {
-                console.error("Coupon Error:", error);
-                // 直接把錯誤顯示在畫面上，讓我們知道發生什麼事
-                list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
-                    <p class="text-red-500 font-bold text-sm mb-2">資料讀取失敗</p>
-                    <p class="text-xs text-gray-400 font-mono">${error.message}</p>
-                </div>`;
+            if (error || !data || data.length === 0) {
+                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`;
                 return;
             }
 
-            // 4. 空資料診斷
-            if (!data || data.length === 0) {
-                // 這裡會顯示 LINE ID，方便您比對資料庫
-                list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
-                    <p class="text-gray-400 font-bold text-sm tracking-wider mb-2">目前沒有可用的優惠券</p>
-                    <p class="text-[9px] text-gray-300 font-mono">ID: ${currentUserLineId.substring(0, 8)}...</p>
-                </div>`;
-                return;
-            }
-
-            // 5. 資料處理與顯示
             const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today);
 
             if (validCoupons.length === 0) {
-                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券 (已過期)</p></div>`;
+                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`;
                 return;
             }
 
+            // 排序：快過期 > 有期限 > 永久
             validCoupons.sort((a, b) => {
                 if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
@@ -536,9 +504,11 @@
                 return 0;
             });
 
+            // 產生票券 HTML
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
+                // 修改 2：根據類型顯示標籤
                 let typeBadge = '';
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
@@ -590,6 +560,8 @@
             });
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
+        
+        window.onload = init;
     </script>
 </body>
 </html>
