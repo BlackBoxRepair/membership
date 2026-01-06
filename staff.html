@@ -93,7 +93,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.6</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.7</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -190,14 +190,14 @@
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
                         <input id="amount-input" type="tel" pattern="[0-9]*" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" 
-                               oninput="value=value.replace(/[^\d]/g,''); calcPreview()">
+                               oninput="value=value.replace(/[^\d]/g,'').replace(/^0+(?=\d)/,''); calcPreview()">
                     </div>
                     
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
                             <input id="redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" 
-                                   oninput="value=value.replace(/[^\d]/g,''); calcPreview()">
+                                   oninput="value=value.replace(/[^\d]/g,'').replace(/^0+(?=\d)/,''); calcPreview()">
                         </div>
                         <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
                     </div>
@@ -771,12 +771,13 @@
         }
 
         function calcPreview() {
-            // 強制過濾非數字，確保乾淨
+            // 強制過濾非數字和開頭的 0 (除非是單獨的 0)
             const amountInput = document.getElementById('amount-input');
             const redeemInput = document.getElementById('redeem-input');
             
-            amountInput.value = amountInput.value.replace(/[^\d]/g, '');
-            redeemInput.value = redeemInput.value.replace(/[^\d]/g, '');
+            // 使用 replace(/^0+(?=\d)/, '') 移除開頭多餘的 0
+            amountInput.value = amountInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+            redeemInput.value = redeemInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
 
             let amount = parseInt(amountInput.value) || 0;
             let redeem = parseInt(redeemInput.value) || 0;
