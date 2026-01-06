@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BLACKBOX | 會員中心</title>
+    
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -265,9 +268,6 @@
 
     <script>
         // --- 設定區 ---
-        // 當有活動時，請將活動網頁的 URL 填入下方引號中 (必須是 https 開頭)
-        // 例如: const ACTIVITY_URL = 'https://blackboxrepair.github.io/event-page/';
-        // 當沒有活動時，請保持為空字串: const ACTIVITY_URL = '';
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -284,21 +284,18 @@
         // 初始化
         window.onload = async () => {
             initSelects();
-            renderActivityTab(); // 渲染活動頁面
+            renderActivityTab();
             await initLiff();
-            switchTab('coupon'); // 預設頁面
+            switchTab('card');
         };
 
-        // 渲染小黑盒頁面邏輯
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                // 如果有活動網址，插入 iframe
                 container.innerHTML = `<iframe src="${ACTIVITY_URL}" class="w-full h-full border-0"></iframe>`;
             } else {
-                // 如果沒有活動網址，顯示「敬請期待」空狀態
                 container.innerHTML = `
-                <div class="h-[60vh] flex flex-col items-center justify-center text-center">
+                <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -452,7 +449,6 @@
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
             
-            // 預設頁面
             switchTab('card');
         }
 
@@ -469,7 +465,6 @@
             if(tab === 'coupon') loadUserCoupons();
         }
 
-        // --- 優惠券核心功能 ---
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -493,7 +488,6 @@
                 return;
             }
 
-            // 排序
             validCoupons.sort((a, b) => {
                 if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
@@ -501,7 +495,6 @@
                 return 0;
             });
 
-            // 產生票券 HTML
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
@@ -556,8 +549,6 @@
             });
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
-        
-        // window.onload = init; // 移除這行，因為上面已經有 window.onload
     </script>
 </body>
 </html>
