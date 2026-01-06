@@ -11,12 +11,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="shortcut icon" type="image/png" href="favicon.png">
     <link rel="apple-touch-icon" href="favicon.png">
-    <link rel="apple-touch-icon-precomposed" href="favicon.png">
     
     <style>
-        /* v7.3 樣式與邏輯保留 */
+        /* v7.4 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -85,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.3</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.4</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -516,7 +514,7 @@
             }).join('');
         }
 
-        // --- 核心修改：在選擇當下檢查金額 (v7.3) ---
+        // --- 核心修改：在選擇當下檢查金額 (v7.4) ---
         function toggleCashCoupon(el, id, discountAmount) {
             // 1. 取得當前金額與折抵 (需手動解析，避免空值)
             const amountVal = document.getElementById('amount-input').value;
@@ -661,7 +659,7 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
-        // --- 核心邏輯 (v7.3：實收金額修正) ---
+        // --- 核心邏輯 (v7.4：實收金額修正 + 修復 closeConfirmModal) ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -729,7 +727,7 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 寫入詳細 Log (v7.3: amount = finalCashCollected)
+                // 寫入詳細 Log (v7.4: amount = finalCashCollected)
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
