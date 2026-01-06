@@ -90,7 +90,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.0</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.1</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -252,9 +252,7 @@
                 <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
                 <div class="confirm-row"><span class="confirm-label text-red-500">積分折抵</span><span id="cfm-redeem" class="confirm-value text-red-500 font-bold">-0</span></div>
                 <div id="cfm-cash-row" class="confirm-row hidden"><span class="confirm-label text-red-500">現金券折抵</span><span id="cfm-cash-coupon" class="confirm-value text-red-500 font-bold">-0</span></div>
-                
                 <div class="confirm-row border-t border-gray-200 pt-2 mt-2"><span class="confirm-label text-black">實收金額</span><span id="cfm-total-due" class="confirm-value text-2xl font-black">$0</span></div>
-                
                 <div class="confirm-row mt-2"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
                 <div class="confirm-row items-start"><span class="confirm-label mt-1">發送優惠券</span><span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span></div>
             </div>
@@ -287,11 +285,11 @@
         let currentTargetLineId = null; 
         let currentTargetCouponId = null; 
         let selectedCoupons = []; 
-        let selectedCashCoupons = []; // 新增：選中的現金券ID
-        let userCashCoupons = [];     // 新增：用戶擁有的現金券
+        let selectedCashCoupons = []; 
+        let userCashCoupons = [];     
         let calculatedPoints = 0;
         let calculatedRedeem = 0; 
-        let calculatedCashDiscount = 0; // 新增：現金券折抵總額
+        let calculatedCashDiscount = 0; 
         let currentStaffName = '';
         let allCouponsData = []; 
         let currentMemberPoints = 0; 
@@ -494,21 +492,19 @@
             document.getElementById('total-due').innerText = '$0'; 
             
             selectedCoupons = [];
-            selectedCashCoupons = []; // 重置
+            selectedCashCoupons = []; 
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
 
-            // 新增：撈取會員的「未使用」且「未過期」的現金券
             const { data: cashCoupons } = await _supabase.from('user_coupons')
                 .select('*')
                 .eq('line_id', lineId)
                 .eq('status', 'unused')
-                .eq('type', 'cash'); // 假設資料庫已有 type 欄位
+                .eq('type', 'cash'); 
 
             userCashCoupons = cashCoupons || [];
             renderCashCoupons();
         }
 
-        // 新增：渲染現金券列表
         function renderCashCoupons() {
             const container = document.getElementById('cash-coupon-list');
             const section = document.getElementById('cash-coupon-section');
@@ -520,7 +516,6 @@
             }
             
             section.classList.remove('hidden');
-            // 過濾掉過期的
             const today = new Date().toISOString().split('T')[0];
             const validCoupons = userCashCoupons.filter(c => !c.valid_until || c.valid_until >= today);
 
@@ -544,7 +539,6 @@
             }).join('');
         }
 
-        // 新增：切換現金券選擇
         function toggleCashCoupon(el, id, amount) {
             if (selectedCashCoupons.includes(id)) {
                 selectedCashCoupons = selectedCashCoupons.filter(cid => cid !== id);
@@ -566,6 +560,16 @@
                 resetScan(); 
                 return; 
             }
+
+            // --- v5.1 關鍵修改：拒收現金券 ---
+            if (data.type === 'cash') {
+                // 1. 重啟掃描，確保不卡住
+                await startScanner('normal');
+                // 2. 顯示紅色錯誤提示
+                handleScanError('錯誤：此為現金折抵券，請至會員作業使用');
+                return; // 3. 結束函式，不進入核銷畫面
+            }
+            // --------------------------------
 
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.remove('hidden');
@@ -622,11 +626,10 @@
                 document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
                 
                 let rawAmount = parseInt(document.getElementById('amount-input').value) || 0;
-                let actualDue = rawAmount - calculatedRedeem - calculatedCashDiscount; // 總價 - 積分 - 現金券
+                let actualDue = rawAmount - calculatedRedeem - calculatedCashDiscount; 
                 
                 document.getElementById('cfm-redeem').innerText = '-' + calculatedRedeem;
                 
-                // 處理現金券顯示
                 const cashRow = document.getElementById('cfm-cash-row');
                 const cashVal = document.getElementById('cfm-cash-coupon');
                 if (calculatedCashDiscount > 0) {
@@ -655,13 +658,11 @@
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
 
             try {
-                // 1. 更新積分
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
-                // 2. 標記使用的現金券為 used
                 if (selectedCashCoupons.length > 0) {
                     const now = new Date().toISOString();
                     await _supabase.from('user_coupons')
@@ -669,26 +670,21 @@
                         .in('id', selectedCashCoupons);
                 }
 
-                // 3. 寫入 Log
                 await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, amount: amount, points_change: netPointChange
                 });
 
-                // 4. 發放新優惠券 (處理動態效期)
                 if (selectedCoupons.length > 0) {
                     const couponsToInsert = selectedCoupons.map(name => {
                         const org = allCouponsData.find(c => c.name === name);
                         let expiryDate = null;
 
-                        // 判斷效期邏輯
                         if (org.validity_days && org.validity_days > 0) {
-                            // 動態效期：今天 + N天
                             const d = new Date();
                             d.setDate(d.getDate() + org.validity_days);
                             expiryDate = d.toISOString().split('T')[0];
                         } else {
-                            // 固定效期或永久
                             expiryDate = org.valid_until;
                         }
 
@@ -765,14 +761,12 @@
             if (redeem > amount) { redeem = amount; document.getElementById('redeem-input').value = redeem; }
             if (redeem > currentMemberPoints) { redeem = currentMemberPoints; document.getElementById('redeem-input').value = redeem; }
 
-            // 計算現金券總折抵
             calculatedCashDiscount = 0;
             selectedCashCoupons.forEach(id => {
                 const coupon = userCashCoupons.find(c => c.id === id);
                 if (coupon) calculatedCashDiscount += (coupon.discount_amount || 0);
             });
 
-            // 應收 = 原價 - 積分折抵 - 現金券折抵 (最小為0)
             const totalDue = Math.max(0, amount - redeem - calculatedCashDiscount);
             
             calculatedPoints = Math.round(totalDue / 100);
@@ -789,8 +783,6 @@
             if (!data) return;
             allCouponsData = data;
             
-            // 這裡我們只顯示「非現金」的券給店員發放 (避免混淆)，或者全部顯示也可以
-            // 通常店員發放的都是「兌換券」或「下次使用的抵用券」
             const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today).sort((a, b) => {
                 if (a.valid_until && b.valid_until) return a.valid_until.localeCompare(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
@@ -799,7 +791,6 @@
             });
             container.innerHTML = validCoupons.map(c => {
                 const badge = c.valid_until ? `<span class="date-badge">效期：${c.valid_until}</span>` : `<span class="date-badge" style="background:#e5e7eb;color:#374151">永久有效</span>`;
-                // 在卡片上標示類型
                 const typeLabel = c.type === 'cash' ? `<span class="text-xs text-red-500 font-bold ml-1">($${c.discount_amount})</span>` : '';
                 return `<div class="coupon-card" onclick="toggleCoupon(this, '${c.name}')"><p class="font-bold text-sm mb-1">${c.name}${typeLabel}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
             }).join('');
