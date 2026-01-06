@@ -9,6 +9,9 @@
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    
     <style>
         /* v3.8 核心：重置所有捲動行為 */
         html, body { 
@@ -184,12 +187,12 @@
                         <input id="order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
                     </div>
                     
-                    <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span><input id="amount-input" type="number" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="calcPreview()"></div>
+                    <div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span><input id="amount-input" type="number" min="0" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="calcPreview()"></div>
                     
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
-                            <input id="redeem-input" type="number" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="calcPreview()">
+                            <input id="redeem-input" type="number" min="0" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="calcPreview()">
                         </div>
                         <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
                     </div>
@@ -286,7 +289,7 @@
         let currentTargetCouponId = null; 
         let selectedCoupons = []; 
         let selectedCashCoupons = []; 
-        let userCashCoupons = [];     
+        let userCashCoupons = [];      
         let calculatedPoints = 0;
         let calculatedRedeem = 0; 
         let calculatedCashDiscount = 0; 
@@ -336,7 +339,7 @@
             
             if (mode === 'issue') {
                 titleEl.innerText = "會員作業";
-                badgeEl.innerText = "MEMBERSHIP"; // 修改：標題改成 MEMBERSHIP
+                badgeEl.innerText = "MEMBERSHIP"; 
                 badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
             } else {
                 titleEl.innerText = "票券核銷";
@@ -561,7 +564,6 @@
                 return; 
             }
 
-            // v5.1 防呆：拒收現金券
             if (data.type === 'cash') {
                 await startScanner('normal');
                 handleScanError('錯誤：此為現金折抵券，請至會員作業使用');
@@ -655,9 +657,21 @@
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
 
             try {
+                // 1. 重新抓取最新的會員資料 (避免資料不同步)
                 const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentTargetLineId).single();
+                
                 const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + netPointChange;
+
+                // 2. 嚴格檢查：最後防線，確認積分不會變成負數
+                if (newTotal < 0) {
+                    alert('交易失敗：積分餘額不足！');
+                    btn.disabled = false;
+                    btn.innerText = "確認送出";
+                    return;
+                }
+
+                // 3. 執行更新
                 await _supabase.from('profiles').update({ total_points: newTotal }).eq('line_id', currentTargetLineId);
 
                 if (selectedCashCoupons.length > 0) {
@@ -721,7 +735,7 @@
             } catch (err) { alert('系統錯誤'); console.error(err); } finally { btn.disabled = false; }
         }
 
-        function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         
         function resetToForm() {
             cleanupScanner();
@@ -752,8 +766,12 @@
         }
 
         function calcPreview() {
-            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            let amount = parseInt(document.getElementById('amount-input').value) || 0;
             let redeem = parseInt(document.getElementById('redeem-input').value) || 0;
+
+            // 修正：防止輸入負數，若小於 0 自動歸零
+            if (amount < 0) { amount = 0; document.getElementById('amount-input').value = ''; }
+            if (redeem < 0) { redeem = 0; document.getElementById('redeem-input').value = ''; }
 
             if (redeem > amount) { redeem = amount; document.getElementById('redeem-input').value = redeem; }
             if (redeem > currentMemberPoints) { redeem = currentMemberPoints; document.getElementById('redeem-input').value = redeem; }
@@ -801,7 +819,6 @@
                 if (c.type === 'cash') {
                     typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-${c.discount_amount || 0}</span>`;
                 } else {
-                    // 修改：標籤改為「兌換」
                     typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
                 }
 
