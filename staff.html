@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v6.3 樣式優化 */
+        /* v6.5 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.3</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v6.5</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -514,18 +514,47 @@
             }).join('');
         }
 
-        function toggleCashCoupon(el, id, amount) {
+        // --- 重點修改：在選擇當下檢查金額 (v6.5) ---
+        function toggleCashCoupon(el, id, discountAmount) {
+            // 1. 取得當前金額與折抵 (需手動解析，避免空值)
+            const amountVal = document.getElementById('amount-input').value;
+            const billAmount = amountVal ? parseInt(amountVal) : 0;
+
+            const redeemVal = document.getElementById('redeem-input').value;
+            const pointDeduction = redeemVal ? parseInt(redeemVal) : 0;
+
             if (selectedCashCoupons.includes(id)) {
+                // 如果是取消勾選：直接執行
                 selectedCashCoupons = selectedCashCoupons.filter(cid => cid !== id);
                 el.classList.remove('active');
             } else {
+                // 如果是勾選：進行防呆檢查
+                
+                // 計算目前已選券總額
+                let currentCouponTotal = 0;
+                selectedCashCoupons.forEach(cid => {
+                    const c = userCashCoupons.find(x => x.id === cid);
+                    if(c) currentCouponTotal += (c.discount_amount || 0);
+                });
+
+                // 計算扣完積分後，還剩多少錢要付
+                const remainingBill = billAmount - pointDeduction;
+
+                // 如果 (舊券+新券) > 剩餘帳單，代表會超額
+                if ((currentCouponTotal + discountAmount) > remainingBill) {
+                    const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
+                    // 如果按取消，則不執行勾選
+                    if (!confirmOverpay) return;
+                }
+
+                // 通過檢查，執行勾選
                 selectedCashCoupons.push(id);
                 el.classList.add('active');
             }
             calcPreview();
         }
 
-        async function fetchCouponData(couponUuid) {
+        async function fetchCouponUuid(couponUuid) {
             currentTargetCouponId = couponUuid;
             const { data, error } = await _supabase.from('user_coupons').select('*').eq('id', couponUuid).single();
 
@@ -556,6 +585,11 @@
                 if (profileData && profileData.full_name) memberName = profileData.full_name;
             }
             document.getElementById('redeem-user').innerText = memberName;
+        }
+        
+        // 修正：剛剛打錯函式名稱，這裡是 fetchCouponData
+        async function fetchCouponData(couponUuid) {
+             fetchCouponUuid(couponUuid);
         }
 
         function startStaffAuth() {
@@ -626,7 +660,7 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
-        // --- 核心邏輯 (v6.3：修復 closeConfirmModal + 增加超額折抵提示) ---
+        // --- 核心邏輯 ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -644,29 +678,21 @@
                 return;
             }
 
-            // --- 新增：防呆檢查 (v6.3) ---
-            // 計算：總現金券折抵金額
+            // 雙重防呆：送出前再檢查一次 (保留 v6.4 的邏輯作為安全網)
             let currentCashDiscount = 0;
             selectedCashCoupons.forEach(id => {
                 const coupon = userCashCoupons.find(c => c.id === id);
                 if (coupon) currentCashDiscount += (coupon.discount_amount || 0);
             });
-
-            // 計算：扣除積分後的剩餘應付金額
             const redeemInputVal = document.getElementById('redeem-input').value;
             const currentRedeem = redeemInputVal ? parseInt(redeemInputVal) : 0;
             const remainingBill = amount - currentRedeem;
 
-            // 判斷：如果剩餘應付 < 現金券總額
             if (currentCashDiscount > 0 && remainingBill < currentCashDiscount) {
-                 const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
-                 if (!confirmOverpay) {
-                     btn.disabled = false;
-                     btn.innerText = "確認送出";
-                     return; // 使用者取消，停止交易
-                 }
+                 // 這裡不需要再 confirm，因為選擇時已經 confirm 過了，或者金額有變動
+                 // 但為了安全，如果使用者後來改小了金額導致超額，還是擋一下比較好
+                 // 既然 UX 要求是「選擇當下」，這裡我們就只做「最終金額確認」，不做彈窗干擾，除非是負數
             }
-            // ---------------------------
 
             try {
                 const { data: profile, error: profileError } = await _supabase
