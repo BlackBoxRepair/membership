@@ -8,163 +8,83 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* 基礎設定 */
         html, body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background-color: #f3f4f6; 
-            color: #111827; 
-            height: 100dvh; 
-            width: 100%;
-            overflow: hidden; 
-            position: fixed; 
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            overscroll-behavior: none;
+            touch-action: pan-y;
+            height: 100%; width: 100%;
+            overflow: hidden; position: fixed;
         }
+        #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
+        .content-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 20px; }
         
-        /* 隱藏捲軸但保留功能 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* 會員卡樣式 */
-        .card-black-gold { background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); border-radius: 1.5rem; }
-        
-        /* 底部導航欄 */
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #9ca3af; transition: all 0.2s; }
-        .nav-item.active { color: #ca8a04; transform: translateY(-2px); }
-        .nav-item.active svg { stroke-width: 2.5px; }
-        /* 適配 iPhone 底部安全區 */
-        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
-
-        /* 票券樣式 (左側鋸齒狀) */
-        .ticket-card { background: white; border-radius: 1rem; position: relative; display: flex; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 12px; }
-        .ticket-left { flex: 1; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; border-right: 2px dashed #e5e7eb; position: relative; }
-        /* 圓孔裝飾 */
-        .ticket-left::after, .ticket-left::before { content: ''; position: absolute; right: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
-        .ticket-left::before { top: -8px; }
-        .ticket-left::after { bottom: -8px; }
-        
-        /* 右側按鈕區 */
-        .ticket-right { width: 80px; display: flex; align-items: center; justify-content: center; background: #f9fafb; cursor: pointer; transition: background 0.2s; flex-direction: column; gap: 4px; }
-        .ticket-right:active { background: #e5e7eb; }
-
-        /* 修改：晶片按鈕樣式 */
-        .chip-icon { 
-            width: 36px; height: 36px; 
-            background: #e5e7eb; border-radius: 8px; 
-            display: flex; align-items: center; justify-content: center; 
-            border: 1px solid #d1d5db; transition: all 0.2s; 
-        }
-        .ticket-right:active .chip-icon { transform: scale(0.95); border-color: #ca8a04; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 50; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease-out; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Loading */
-        #loading-overlay { display: flex; }
+        .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
+
+        .nav-full-width { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-btn { color: #d1d5db; transition: color 0.3s; }
+        .nav-btn.active { color: #ca8a04; }
+
+        .soft-input { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; -webkit-appearance: none; }
+        .locked-input { background-color: #e5e7eb; color: #6b7280; border-color: #d1d5db; cursor: not-allowed; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
+        .msg-modal-content { background: white; border-radius: 20px; padding: 24px; text-align: center; width: 85%; max-width: 300px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+
+        .select-wrapper { position: relative; width: 100%; }
+        .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
+        /* 票券樣式 (仿照您的參考圖) */
+        .ticket-card {
+            background: white; border-radius: 12px; overflow: hidden; display: flex;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 12px; min-height: 100px;
+        }
+        .ticket-main { flex: 1; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+        .ticket-stub {
+            width: 90px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; position: relative;
+        }
+        .ticket-stub:active { background-color: #e5e7eb; }
+        /* 票券圓角裝飾 (模擬撕票口) */
+        .ticket-notch { position: absolute; width: 16px; height: 16px; background-color: #f3f4f6; border-radius: 50%; left: -8px; }
+        .notch-top { top: -8px; } .notch-bottom { bottom: -8px; }
     </style>
 </head>
-<body class="flex flex-col">
+<body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
         <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Loading</p>
     </div>
 
-    <header class="px-6 pt-12 pb-4 bg-[#f3f4f6] shrink-0 flex justify-between items-end z-10">
-        <div>
-            <p class="text-[10px] text-yellow-600 font-bold tracking-[0.2em] uppercase mb-1">BLACK BOX REPAIR</p>
-            <h1 id="page-title" class="text-3xl font-black text-gray-900 tracking-tight">專屬票夾</h1>
+    <div id="msg-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="msg-modal-content">
+            <h3 id="msg-title" class="text-lg font-black text-gray-900 mb-2">提示</h3>
+            <p id="msg-body" class="text-sm text-gray-500 mb-6 leading-relaxed">---</p>
+            <button onclick="closeMsgModal()" class="w-full bg-black text-white py-3 rounded-xl font-bold active:scale-95 transition">確定</button>
         </div>
-        <div class="flex gap-3">
-            <button onclick="liff.logout(); location.reload();" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            </button>
-        </div>
-    </header>
+    </div>
 
-    <main id="main-content" class="flex-1 overflow-y-auto no-scrollbar px-6 pb-32 hidden">
-        
-        <div id="view-blackbox" class="hidden h-full flex flex-col items-center justify-center text-center opacity-0 transition-opacity duration-300 min-h-[50vh]">
-            <div class="w-24 h-24 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-3 transform hover:rotate-6 transition duration-300 cursor-pointer">
-                <span class="text-5xl">🎁</span>
-            </div>
-            <h2 class="text-2xl font-black text-gray-900 mb-2">小黑盒驚喜</h2>
-            <p class="text-gray-400 text-sm font-medium">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
-        </div>
-
-        <div id="view-card" class="hidden opacity-0 transition-opacity duration-300">
-            <div class="card-black-gold p-8 text-white relative overflow-hidden mb-8 mt-4">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500 rounded-full blur-[60px] opacity-20"></div>
-                
-                <div class="flex justify-between items-start mb-12 relative z-10">
-                    <div>
-                        <p class="text-[10px] text-yellow-500 tracking-widest font-bold mb-1">MEMBER NAME</p>
-                        <h2 id="card-name" class="text-2xl font-black italic tracking-wide">載入中...</h2>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-yellow-500 tracking-widest font-bold mb-1">POINTS</p>
-                        <p id="card-points" class="text-4xl font-black text-yellow-400">0</p>
-                    </div>
-                </div>
-                
-                <div class="flex justify-between items-end relative z-10">
-                    <div id="qr-code-area" class="bg-white p-2 rounded-lg"></div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-gray-400 tracking-widest mb-1">PHONE</p>
-                        <p id="card-phone" class="font-mono font-bold tracking-wider text-lg">---</p>
-                    </div>
-                </div>
-            </div>
-            <p class="text-center text-xs text-gray-400 font-bold tracking-widest uppercase">Scan to collect points</p>
-        </div>
-
-        <div id="view-coupon" class="w-full">
-            <div id="coupon-list" class="space-y-4 pt-2">
-                </div>
-        </div>
-
-    </main>
-
-    <nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 pb-safe pt-2 px-6 pb-6 flex justify-between items-end z-40">
-        <button onclick="switchTab('blackbox')" class="nav-item flex-1" id="nav-blackbox">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span class="text-[10px] font-bold">小黑盒</span>
-        </button>
-
-        <button onclick="switchTab('card')" class="nav-item flex-1" id="nav-card">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-            </svg>
-            <span class="text-[10px] font-bold">會員卡</span>
-        </button>
-
-        <button onclick="switchTab('coupon')" class="nav-item flex-1 active" id="nav-coupon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-            </svg>
-            <span class="text-[10px] font-bold">專屬票夾</span>
-        </button>
-    </nav>
-
-    <div id="use-modal" class="modal-overlay">
-        <div class="bg-white rounded-[2rem] p-8 w-full max-w-xs text-center relative transform transition-all scale-100 shadow-2xl">
-            <button onclick="closeModal()" class="absolute top-5 right-5 text-gray-300 hover:text-gray-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <h3 class="text-xl font-black text-gray-900 mb-1 tracking-tight">出示核銷碼</h3>
-            <p class="text-xs text-gray-400 mb-8 font-bold tracking-wide">請將此 QR Code 出示給店員</p>
+    <div id="coupon-qr-modal" class="modal-overlay" style="z-index: 1500;">
+        <div class="bg-white w-full max-w-xs rounded-[2rem] p-8 text-center relative shadow-2xl">
+            <button onclick="document.getElementById('coupon-qr-modal').style.display='none'" class="absolute top-4 right-4 text-gray-300 text-2xl">✕</button>
+            <h3 class="text-xl font-black text-gray-900 mb-1" id="cqr-title">優惠券名稱</h3>
+            <p class="text-xs text-gray-400 mb-6" id="cqr-desc">請出示給店員掃描核銷</p>
             
-            <div id="coupon-qrcode" class="flex justify-center mb-8"></div>
-            
-            <div class="bg-gray-50 p-5 rounded-2xl text-left border border-gray-100">
-                <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">Selected Coupon</p>
-                <p id="modal-coupon-name" class="font-black text-gray-900 text-base">---</p>
+            <div class="bg-white p-2 rounded-xl inline-block shadow-inner border border-gray-100 mb-4">
+                <canvas id="cqr-canvas"></canvas>
             </div>
+            
+            <p class="text-[10px] text-gray-300 font-mono tracking-widest uppercase">One-Time Use Only</p>
         </div>
     </div>
 
@@ -192,43 +112,111 @@
         </div>
     </div>
 
+    <div id="edit-modal" class="modal-overlay">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative">
+            <button onclick="document.getElementById('edit-modal').style.display='none'" class="absolute top-6 right-6 text-gray-300 hover:text-gray-600 text-xl font-bold">✕</button>
+            <h3 class="text-2xl font-black mb-1 tracking-tight">個人資料</h3>
+            <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">EDIT PROFILE</p>
+            <div class="space-y-4">
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1 px-1">真實姓名</label><input id="edit-name" type="text" disabled class="soft-input locked-input"></div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1 px-1">連絡電話</label><input id="edit-phone" type="text" disabled class="soft-input locked-input"></div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1 px-1">會員生日</label><input id="edit-birthday" type="text" disabled class="soft-input locked-input"></div>
+                <div class="pt-2 border-t border-gray-100"></div>
+                <div><label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">居住區域</label><div class="select-wrapper"><select id="edit-area" class="soft-input bg-white"></select></div></div>
+                <div><label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input bg-white"></div>
+                <button id="btn-update" onclick="updateProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存變更</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="max-w-md mx-auto">
+        <header class="p-6 pb-2 flex justify-between items-center shrink-0">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">BLACK BOX REPAIR</span>
+                <h1 id="page-title" class="text-2xl font-black text-gray-900 tracking-tight">會員中心</h1>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openEditModal()" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 active:scale-90 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </button>
+                <button onclick="liff.logout(); location.reload();" class="text-[9px] text-gray-400 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-widest font-bold">登出</button>
+            </div>
+        </header>
+        
+        <div id="main-content" class="content-scroll hidden">
+            <main id="tab-booking" class="tab-content p-6">
+                <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
+                    <p class="text-gray-400 font-bold">預約功能建置中...</p>
+                </div>
+            </main>
+
+            <main id="tab-card" class="tab-content active p-6">
+                <div class="card-black-gold rounded-[2.2rem] p-7 mb-8 relative overflow-hidden">
+                    <div class="relative z-10 flex justify-between items-start mb-12">
+                        <div><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="m-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
+                        <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p><p id="m-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p></div>
+                    </div>
+                    <div class="relative z-10 flex justify-between items-end">
+                        <div class="flex flex-col"><span class="text-[8px] text-white/30 uppercase tracking-widest mb-1 font-bold">Phone Number</span><p id="m-phone" class="text-xs text-white/70 font-mono tracking-widest font-bold">---</p></div>
+                        <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 text-center">
+                    <div class="inline-block bg-white p-2 rounded-xl mb-4"><canvas id="qr-code"></canvas></div>
+                    <p class="text-[10px] font-bold text-gray-300 tracking-[0.5em] uppercase">Scan to collect points</p>
+                </div>
+            </main>
+
+            <main id="tab-coupon" class="tab-content p-6">
+                 <div id="coupon-list" class="space-y-3">
+                     <div class="bg-white rounded-[2rem] p-8 shadow-sm text-center">
+                        <p class="text-gray-400 font-bold">讀取中...</p>
+                    </div>
+                 </div>
+            </main>
+        </div>
+
+        <nav class="nav-full-width">
+            <button id="nav-booking" onclick="switchTab('booking')" class="flex-1 py-3 flex flex-col items-center gap-1 nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <span class="text-[10px] font-black uppercase tracking-tighter">線上預約</span>
+            </button>
+            <button id="nav-card" onclick="switchTab('card')" class="flex-1 py-3 flex flex-col items-center gap-1 nav-btn active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H5a2 2 0 002 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm5 3a2 2 0 100-4 2 2 0 000 4z" /></svg>
+                <span class="text-[10px] font-black uppercase tracking-tighter">會員卡</span>
+            </button>
+            <button id="nav-coupon" onclick="switchTab('coupon')" class="flex-1 py-3 flex flex-col items-center gap-1 nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                <span class="text-[10px] font-black uppercase tracking-tighter">優惠券</span>
+            </button>
+        </nav>
+    </div>
+
     <script>
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
         let currentUserProfile = null;
+
         const areaList = ["西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","後里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"];
 
-        // 初始化
-        window.onload = async () => {
-            initSelects();
-            await initLiff();
-            switchTab('coupon'); // 預設頁面
-        };
-
-        async function initLiff() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) { liff.login(); } 
-                else {
-                    const profile = await liff.getProfile();
-                    currentUserLineId = profile.userId;
-                    checkMemberStatus(profile);
-                }
-            } catch (err) { 
-                console.error('LIFF Init Error', err); 
-                document.getElementById('loading-overlay').style.display = 'none';
-                alert('系統載入失敗，請稍後再試');
-            }
+        function showMsg(title, msg) {
+            document.getElementById('msg-title').innerText = title;
+            document.getElementById('msg-body').innerText = msg;
+            document.getElementById('msg-modal').style.display = 'flex';
+        }
+        function closeMsgModal() {
+            document.getElementById('msg-modal').style.display = 'none';
         }
 
         function initSelects() {
             const areaOpts = '<option value="">選擇區域</option>' + areaList.map(a => `<option value="${a}">${a}</option>`).join('');
             document.getElementById('input-area').innerHTML = areaOpts;
-            
+            document.getElementById('edit-area').innerHTML = areaOpts;
+
             const yearSelect = document.getElementById('birth-year');
             const monthSelect = document.getElementById('birth-month');
             const currentYear = new Date().getFullYear();
@@ -241,27 +229,46 @@
             const year = parseInt(document.getElementById('birth-year').value);
             const month = parseInt(document.getElementById('birth-month').value);
             const daySelect = document.getElementById('birth-day');
+            const selectedDay = daySelect.value;
             daySelect.innerHTML = '<option value="">日</option>';
             if (year && month) {
                 const daysInMonth = new Date(year, month, 0).getDate();
                 for (let i = 1; i <= daysInMonth; i++) daySelect.options.add(new Option(i + '日', i));
+                if (selectedDay && selectedDay <= daysInMonth) daySelect.value = selectedDay;
             }
+        }
+
+        async function init() {
+            initSelects();
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); } 
+                else {
+                    const profile = await liff.getProfile();
+                    currentUserLineId = profile.userId;
+                    checkMemberStatus(profile);
+                }
+            } catch (err) { console.error('Init Fail', err); }
         }
 
         async function checkMemberStatus(lineProfile) {
             let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
-            
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('main-content').classList.remove('hidden');
-
             if (!data || !data.phone || !data.birthday) {
                 document.getElementById('profile-modal').style.display = 'flex';
                 document.getElementById('input-name').value = lineProfile.displayName || "";
+                document.getElementById('loading-overlay').style.display = 'none';
             } else {
                 currentUserProfile = data;
                 renderApp(data, lineProfile.userId);
             }
         }
+
+        document.getElementById('input-phone').addEventListener('input', function(e) {
+            const regex = /^09\d{8}$/;
+            const errorEl = document.getElementById('phone-error');
+            if (e.target.value.length > 0 && !regex.test(e.target.value)) errorEl.classList.remove('hidden');
+            else errorEl.classList.add('hidden');
+        });
 
         async function saveProfile() {
             const btn = document.getElementById('btn-save');
@@ -273,148 +280,151 @@
             const email = document.getElementById('input-email').value;
             const area = document.getElementById('input-area').value;
 
-            if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { alert('請正確填寫所有必填欄位'); return; }
-            
-            btn.disabled = true; btn.innerText = "處理中...";
-            const birthday = `${year}-${month}-${day}`;
-            
-            const { data, error } = await _supabase.from('profiles').upsert({
-                line_id: currentUserLineId, full_name: name, phone: phone, 
-                birthday: birthday, email: email, area: area, total_points: 0
-            }, { onConflict: 'line_id' }).select().single();
+            if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { showMsg('提醒', '請正確填寫所有必填欄位'); return; }
+            if (!currentUserLineId) { showMsg('系統錯誤', '無法取得 LINE ID'); return; }
 
-            if (error) {
-                alert('註冊失敗：' + error.message);
-                btn.disabled = false; btn.innerText = "確認加入";
-            } else {
+            btn.disabled = true; btn.innerText = "檢查中...";
+
+            try {
+                const { data: existingUser, error: checkError } = await _supabase.from('profiles').select('line_id').eq('phone', phone).maybeSingle();
+                if (checkError) throw checkError;
+                if (existingUser && existingUser.line_id !== currentUserLineId) {
+                    showMsg('註冊失敗', '此電話號碼已被註冊。');
+                    btn.disabled = false; btn.innerText = "確認加入";
+                    return; 
+                }
+
+                btn.innerText = "處理中...";
+                const birthday = `${year}-${month}-${day}`;
+                const { data, error } = await _supabase.from('profiles').upsert({
+                    line_id: currentUserLineId, full_name: name, phone: phone, 
+                    birthday: birthday, email: email, area: area, total_points: 0
+                }, { onConflict: 'line_id' }).select().single();
+
+                if (error) throw error;
                 document.getElementById('profile-modal').style.display = 'none';
                 currentUserProfile = data;
                 renderApp(data, currentUserLineId);
+
+            } catch (err) {
+                showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}`);
+                btn.disabled = false; btn.innerText = "確認加入";
             }
+        }
+
+        function openEditModal() {
+            if (!currentUserProfile) return;
+            document.getElementById('edit-name').value = currentUserProfile.full_name;
+            document.getElementById('edit-phone').value = currentUserProfile.phone;
+            document.getElementById('edit-birthday').value = currentUserProfile.birthday;
+            document.getElementById('edit-area').value = currentUserProfile.area || "";
+            document.getElementById('edit-email').value = currentUserProfile.email || "";
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        async function updateProfile() {
+            const btn = document.getElementById('btn-update');
+            const newArea = document.getElementById('edit-area').value;
+            const newEmail = document.getElementById('edit-email').value;
+            btn.disabled = true; btn.innerText = "更新中...";
+
+            try {
+                const { data, error } = await _supabase.from('profiles').update({ area: newArea, email: newEmail }).eq('line_id', currentUserLineId).select().single();
+                if (error) throw error;
+                currentUserProfile = data;
+                showMsg('成功', '資料已更新');
+                document.getElementById('edit-modal').style.display = 'none';
+            } catch (err) { showMsg('更新失敗', '請稍後再試'); } 
+            finally { btn.disabled = false; btn.innerText = "儲存變更"; }
         }
 
         function renderApp(data, lineId) {
-            document.getElementById('card-name').innerText = data.full_name;
-            document.getElementById('card-points').innerText = (data.total_points || 0).toLocaleString();
-            document.getElementById('card-phone').innerText = data.phone;
-            
-            // 確保 QRCode 容器是空的再生成
-            document.getElementById("qr-code-area").innerHTML = '';
-            new QRCode(document.getElementById("qr-code-area"), {
-                text: "BBX-" + lineId,
-                width: 100, height: 100,
-                colorDark : "#000000", colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            loadUserCoupons();
-        }
-
-        async function loadUserCoupons() {
-            const container = document.getElementById('coupon-list');
-            
-            // 撈取未使用的券
-            const { data } = await _supabase.from('user_coupons')
-                .select('*')
-                .eq('line_id', currentUserLineId)
-                .eq('status', 'unused'); 
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="text-center py-12 text-gray-400 text-sm font-bold tracking-wider">目前沒有可用優惠券</div>`;
-                return;
-            }
-
-            // 修改 3：排序邏輯 (快過期的在前 > 有日期的 > 永久有效的在後)
-            data.sort((a, b) => {
-                // 如果兩者都沒有期限，視為相等 (或依 ID/創建時間排序)
-                if (!a.valid_until && !b.valid_until) return 0;
-                // 如果 a 沒有期限 (永久)，往後排
-                if (!a.valid_until) return 1;
-                // 如果 b 沒有期限 (永久)，往後排
-                if (!b.valid_until) return -1;
-                // 兩者都有期限，比較日期 (早的在前)
-                return new Date(a.valid_until) - new Date(b.valid_until);
-            });
-
-            container.innerHTML = data.map(c => {
-                const expiryText = c.valid_until ? `有效期限：${c.valid_until}` : '永久有效';
-                
-                return `
-                <div class="ticket-card">
-                    <div class="ticket-left">
-                        <h3 class="font-black text-lg text-gray-900 mb-1">${c.coupon_name}</h3>
-                        <p class="text-[10px] text-gray-400 mb-2">店員專屬優惠</p>
-                        <p class="text-[10px] text-gray-500 font-mono tracking-wide">${expiryText}</p>
-                    </div>
-                    <div class="ticket-right" onclick="openUseModal('${c.id}', '${c.coupon_name}')">
-                        <div class="chip-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600">
-                                <rect x="2" y="2" width="20" height="20" rx="3" />
-                                <path d="M7 2v20" />
-                                <path d="M17 2v20" />
-                                <path d="M2 12h20" />
-                                <path d="M2 7h5" />
-                                <path d="M2 17h5" />
-                                <path d="M17 17h5" />
-                                <path d="M17 7h5" />
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-bold text-gray-500">使用</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function openUseModal(uuid, name) {
-            const modal = document.getElementById('use-modal');
-            const qrContainer = document.getElementById('coupon-qrcode');
-            
-            document.getElementById('modal-coupon-name').innerText = name;
-            qrContainer.innerHTML = ''; 
-            
-            new QRCode(qrContainer, {
-                text: "CPN-" + uuid,
-                width: 160, height: 160,
-                colorDark : "#000000", colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('use-modal').style.display = 'none';
+            document.getElementById('m-name').innerText = data.full_name;
+            document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
+            document.getElementById('m-phone').innerText = data.phone;
+            new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('main-content').classList.remove('hidden');
         }
 
         function switchTab(tab) {
-            // 更新標題
-            const titleEl = document.getElementById('page-title');
-            if (tab === 'blackbox') titleEl.innerText = '小黑盒'; // 修改 4
-            if (tab === 'card') titleEl.innerText = '會員卡';
-            if (tab === 'coupon') titleEl.innerText = '專屬票夾';
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            const titles = { 'booking': '我的預約', 'card': '會員中心', 'coupon': '專屬票夾' };
+            document.getElementById('page-title').innerText = titles[tab];
 
-            // 更新按鈕狀態
-            document.querySelectorAll('.nav-item').forEach(el => {
-                el.classList.remove('active');
-            });
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
-            
-            // 隱藏所有 View
-            document.getElementById('view-blackbox').classList.add('hidden');
-            document.getElementById('view-blackbox').classList.remove('flex');
-            document.getElementById('view-card').classList.add('hidden');
-            document.getElementById('view-coupon').classList.add('hidden');
-            
-            // 顯示當前 View
-            const currentView = document.getElementById('view-' + tab);
-            currentView.classList.remove('hidden');
-            
-            if (tab === 'blackbox') currentView.classList.add('flex'); // 小黑盒需要 flex 置中
 
-            setTimeout(() => {
-                currentView.classList.remove('opacity-0');
-            }, 50);
+            if(tab === 'coupon') loadUserCoupons();
         }
+
+        // --- 優惠券核心功能 (UI更新 + 獨立QR Code) ---
+        async function loadUserCoupons() {
+            const list = document.getElementById('coupon-list');
+            const today = new Date().toISOString().split('T')[0];
+
+            const { data, error } = await _supabase
+                .from('user_coupons')
+                .select('*')
+                .eq('line_id', currentUserLineId)
+                .eq('status', 'unused')
+                .order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold">目前沒有可用的優惠券</p></div>`;
+                return;
+            }
+
+            const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today);
+
+            if (validCoupons.length === 0) {
+                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold">目前沒有可用的優惠券</p></div>`;
+                return;
+            }
+
+            // 產生票券 HTML
+            list.innerHTML = validCoupons.map(coupon => {
+                const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
+                // 注意：這裡的 onclick 會呼叫 openCouponQR 並傳入這張票券的唯一 ID
+                return `
+                <div class="ticket-card">
+                    <div class="ticket-main">
+                        <h4 class="text-lg font-black text-gray-900 mb-1">${coupon.coupon_name}</h4>
+                        <p class="text-xs text-gray-400 mb-2">${coupon.description || '店員專屬優惠'}</p>
+                        <p class="text-[10px] text-gray-400 font-mono">${dateText}</p>
+                    </div>
+                    <div class="ticket-stub" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
+                        <div class="ticket-notch notch-top"></div>
+                        <div class="ticket-notch notch-bottom"></div>
+                        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mb-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 17h4.01M16 3h5m-3 12v5m0 0L8 8m2-2 2 2" /></svg>
+                        </div>
+                        <span class="text-[10px] font-bold text-gray-500 writing-vertical-lr tracking-widest">使用</span>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // 開啟單張優惠券的 QR Code 彈窗
+        function openCouponQR(couponId, couponName) {
+            document.getElementById('cqr-title').innerText = couponName;
+            
+            // 產生 QR Code: 內容格式為 "CPN-" 加上該票券的 UUID
+            const qrContent = "CPN-" + couponId;
+            new QRious({
+                element: document.getElementById('cqr-canvas'),
+                value: qrContent,
+                size: 200,
+                level: 'H'
+            });
+
+            document.getElementById('coupon-qr-modal').style.display = 'flex';
+        }
+        
+        window.onload = init;
     </script>
 </body>
 </html>
