@@ -31,7 +31,6 @@
             flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            /* 底部留白，避開導航欄 */
             padding-bottom: 90px; 
         }
         .content-scroll::-webkit-scrollbar { display: none; }
@@ -61,16 +60,15 @@
             min-width: 80px; height: 28px; 
         }
 
-        /* 底部導航 (高度調整) */
+        /* 底部導航 */
         .nav-full-width { 
             background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(12px); 
             border-top: 1px solid rgba(0, 0, 0, 0.05); 
             display: flex; justify-content: space-around; align-items: center; 
             z-index: 50; 
-            padding-bottom: env(safe-area-inset-bottom); /* 適配 iPhone */
-            padding-top: 6px; /* 稍微增加上方 Padding 來垂直置中 */
-            /* 高度縮減為 50px */
+            padding-bottom: env(safe-area-inset-bottom); 
+            padding-top: 6px;
             height: 50px; 
             box-sizing: content-box; 
             position: fixed; bottom: 0; width: 100%;
@@ -211,7 +209,9 @@
             <main id="tab-blackbox" class="tab-content p-6 h-full">
                 <div class="h-[60vh] flex flex-col items-center justify-center text-center">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
-                        <span class="text-4xl">🎁</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
                     </div>
                     <h3 class="text-2xl font-black text-gray-900 mb-2">小黑盒驚喜</h3>
                     <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
