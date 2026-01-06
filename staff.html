@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v7.0 數據結構優化版 */
+        /* v7.1 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.0</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.1</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -514,7 +514,7 @@
             }).join('');
         }
 
-        // --- 核心修改：在選擇當下檢查金額 (v6.5) ---
+        // --- 核心修改：在選擇當下檢查金額 (v7.1) ---
         function toggleCashCoupon(el, id, discountAmount) {
             // 1. 取得當前金額與折抵 (需手動解析，避免空值)
             const amountVal = document.getElementById('amount-input').value;
@@ -659,7 +659,7 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
-        // --- 核心邏輯 (v7.0：分開紀錄積分與金額) ---
+        // --- 核心邏輯 (v7.1：財務紀錄修正) ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -687,8 +687,11 @@
                 if (coupon) couponValue += (coupon.discount_amount || 0);
             });
 
+            // 計算實收金額 (Final Amount to be recorded)
+            // 邏輯：原始金額 - 積分折抵 - 優惠券折抵，但不能小於 0
+            const finalAmount = Math.max(0, amount - pointsRedeemed - couponValue);
+
             // 計算賺取的積分 (基於實付金額)
-            // calculatedPoints 已經是扣除折抵後的實付金額 / 100
             const pointsEarned = calculatedPoints;
 
             try {
@@ -725,12 +728,12 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 寫入詳細 Log (v7.0)
+                // 寫入詳細 Log (v7.1: amount 記錄實收金額)
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
-                    amount: amount, 
-                    points_change: pointsEarned,        // 只記錄賺取的正數
+                    amount: finalAmount,                // [修正] 記錄實收金額
+                    points_change: pointsEarned,        // 記錄賺取的正數
                     points_redeemed: pointsRedeemed,    // 記錄使用的點數
                     coupon_discount: couponValue        // 記錄優惠券折抵金額
                 });
