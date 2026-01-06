@@ -90,7 +90,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.3</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v5.4</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -101,7 +101,7 @@
                 </svg>
                 <div class="text-center">
                     <h2 class="text-xl font-black text-yellow-600">會員作業</h2>
-                    <p class="text-gray-400 text-xs mt-1">給點數 / 發優惠券</p>
+                    <p class="text-gray-400 text-xs mt-1">積分/優惠券發放&折抵作業</p>
                 </div>
             </button>
             <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light h-full min-h-[150px]">
@@ -336,7 +336,7 @@
             
             if (mode === 'issue') {
                 titleEl.innerText = "會員作業";
-                badgeEl.innerText = "ISSUE MODE";
+                badgeEl.innerText = "MEMBERSHIP"; // 修改：標題改成 MEMBERSHIP
                 badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
             } else {
                 titleEl.innerText = "票券核銷";
@@ -787,30 +787,25 @@
                 return 0;
             });
             container.innerHTML = validCoupons.map(c => {
-                // v5.2 修改：動態計算效期顯示 (使用當下設備時間)
                 let expiryText = '永久有效';
                 if (c.validity_days > 0) {
                     const d = new Date();
                     d.setDate(d.getDate() + c.validity_days);
-                    // 格式化為 YYYY-MM-DD
                     const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                     expiryText = `效期：${dateStr}`;
                 } else if (c.valid_until) {
                     expiryText = `效期：${c.valid_until}`;
                 }
 
-                // v5.3 修改：右上角標籤邏輯
                 let typeBadge = '';
                 if (c.type === 'cash') {
-                    // 紅色金額折抵
-                    typeBadge = `<span class="absolute top-2 right-2 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-${c.discount_amount || 0}</span>`;
+                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-${c.discount_amount || 0}</span>`;
                 } else {
-                    // 橘黃色兌換
-                    typeBadge = `<span class="absolute top-2 right-2 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兑</span>`;
+                    // 修改：標籤改為「兌換」
+                    typeBadge = `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
                 }
 
                 const badge = `<span class="date-badge">${expiryText}</span>`;
-                // 移除標題旁的 typeLabel，因為已經有了 typeBadge
                 return `<div class="coupon-card" onclick="toggleCoupon(this, '${c.name}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${c.name}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
             }).join('');
         }
