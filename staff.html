@@ -14,7 +14,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     
     <style>
-        /* v7.1 樣式優化 */
+        /* v7.2 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -83,7 +83,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.1</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.2</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -514,9 +514,7 @@
             }).join('');
         }
 
-        // --- 核心修改：在選擇當下檢查金額 (v7.1) ---
         function toggleCashCoupon(el, id, discountAmount) {
-            // 1. 取得當前金額與折抵 (需手動解析，避免空值)
             const amountVal = document.getElementById('amount-input').value;
             const billAmount = amountVal ? parseInt(amountVal) : 0;
 
@@ -524,30 +522,22 @@
             const pointDeduction = redeemVal ? parseInt(redeemVal) : 0;
 
             if (selectedCashCoupons.includes(id)) {
-                // 如果是取消勾選：直接執行
                 selectedCashCoupons = selectedCashCoupons.filter(cid => cid !== id);
                 el.classList.remove('active');
             } else {
-                // 如果是勾選：進行防呆檢查
-                
-                // 計算目前已選券總額
                 let currentCouponTotal = 0;
                 selectedCashCoupons.forEach(cid => {
                     const c = userCashCoupons.find(x => x.id === cid);
                     if(c) currentCouponTotal += (c.discount_amount || 0);
                 });
 
-                // 計算扣完積分後，還剩多少錢要付
                 const remainingBill = billAmount - pointDeduction;
 
-                // 如果 (舊券+新券) > 剩餘帳單，代表會超額
                 if ((currentCouponTotal + discountAmount) > remainingBill) {
                     const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
-                    // 如果按取消，則不執行勾選
                     if (!confirmOverpay) return;
                 }
 
-                // 通過檢查，執行勾選
                 selectedCashCoupons.push(id);
                 el.classList.add('active');
             }
@@ -659,7 +649,7 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
-        // --- 核心邏輯 (v7.1：財務紀錄修正) ---
+        // --- 核心邏輯 (v7.2：實收金額修正) ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -668,8 +658,9 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             
+            // 變數修正：區分「輸入原價」與「實收金額」
             const amountInput = document.getElementById('amount-input').value;
-            const amount = amountInput ? parseInt(amountInput) : 0;
+            const inputBillAmount = amountInput ? parseInt(amountInput) : 0; // 原價
 
             if (!currentTargetLineId) {
                 alert("錯誤：會員 ID 遺失，請重新掃描");
@@ -677,7 +668,6 @@
                 return;
             }
 
-            // 取得目前的折抵數據
             const redeemInputVal = document.getElementById('redeem-input').value;
             const pointsRedeemed = redeemInputVal ? parseInt(redeemInputVal) : 0;
             
@@ -687,11 +677,10 @@
                 if (coupon) couponValue += (coupon.discount_amount || 0);
             });
 
-            // 計算實收金額 (Final Amount to be recorded)
-            // 邏輯：原始金額 - 積分折抵 - 優惠券折抵，但不能小於 0
-            const finalAmount = Math.max(0, amount - pointsRedeemed - couponValue);
+            // 計算實收現金 (寫入資料庫用)
+            // 實收 = 輸入原價 - 積分 - 優惠券 (不能小於0)
+            const finalCashCollected = Math.max(0, inputBillAmount - pointsRedeemed - couponValue);
 
-            // 計算賺取的積分 (基於實付金額)
             const pointsEarned = calculatedPoints;
 
             try {
@@ -704,7 +693,7 @@
                 if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
                 if (!profile) throw new Error("找不到此會員資料");
                 
-                // 計算新餘額：舊餘額 + 賺取 - 使用
+                const netPointChange = calculatedPoints - calculatedRedeem;
                 const newTotal = (profile.total_points || 0) + pointsEarned - pointsRedeemed;
 
                 if (newTotal < 0) {
@@ -728,14 +717,14 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 寫入詳細 Log (v7.1: amount 記錄實收金額)
+                // 寫入詳細 Log (v7.2: amount = finalCashCollected)
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
-                    amount: finalAmount,                // [修正] 記錄實收金額
-                    points_change: pointsEarned,        // 記錄賺取的正數
-                    points_redeemed: pointsRedeemed,    // 記錄使用的點數
-                    coupon_discount: couponValue        // 記錄優惠券折抵金額
+                    amount: finalCashCollected,         // 這裡寫入實收金額
+                    points_change: pointsEarned,        
+                    points_redeemed: pointsRedeemed,    
+                    coupon_discount: couponValue        
                 });
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
 
