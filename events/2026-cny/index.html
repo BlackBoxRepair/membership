@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>新春好運三響砲</title>
 <style>
-  /* --- 基礎設定 (維持不變) --- */
+  /* --- 基礎設定 --- */
   html, body {
     margin: 0; padding: 0;
     width: 100%; height: 100%; 
@@ -31,7 +31,7 @@
     pointer-events: none;
   }
 
-  /* --- 中國結樣式 (維持不變) --- */
+  /* --- 中國結樣式 --- */
   .knot {
     position: absolute;
     width: 40vw; 
@@ -57,38 +57,34 @@
     100% { transform: rotate(1.5deg); }
   }
 
-  /* --- [關鍵修改]：新的上方提示文字樣式 --- */
+  /* --- [修改]: 文字區域位置與樣式 --- */
   .title-area {
     position: absolute;
-    /* 原本是 bottom: 8%，現在改到上面樹葉區 */
-    top: 12%;  
+    top: 13%; /* 稍微調整高度 */ 
     width: 100%;
     text-align: center;
-    pointer-events: none; /* 確保不擋住觸控 */
-    z-index: 15; /* 確保在紅繩上方 */
+    pointer-events: none; 
+    z-index: 15; 
   }
 
-  /* 新增的提示膠囊樣式 */
-  .hint-badge {
-    display: inline-block; /* 讓背景包覆文字 */
-    padding: 12px 35px;
-    /* 半透明深色背景，增加對比度 */
-    background: rgba(0, 40, 0, 0.65); 
-    color: #FFD700; /* 金色文字 */
-    font-size: 1.2rem;
+  /* [修改]: 純文字樣式 */
+  .hint-text {
+    display: inline-block;
+    color: #ffffff; /* 1. 改為白色 */
+    font-size: 1rem; /* 2. 稍微縮小 (原本是 1.2rem) */
     font-weight: bold;
-    border-radius: 50px; /* 圓角膠囊狀 */
-    /* 金色邊框與陰影，增加立體感 */
-    border: 2px solid rgba(255, 215, 0, 0.8);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-    letter-spacing: 1px;
+    letter-spacing: 1.5px; /* 字距稍微拉開增加質感 */
+    
+    /* 3. 移除邊框與背景色 */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    /* 4. 加強文字陰影，確保在樹葉背景上清楚可見 */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.9);
   }
-  
-  /* 原本的 h1 和 p 樣式已移除 */
 
-
-  /* --- 彈窗樣式 (維持不變) --- */
+  /* --- 彈窗樣式 --- */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 999;
@@ -118,7 +114,7 @@
   <div class="overlay"></div>
   
   <div class="title-area">
-    <div class="hint-badge">拉動幸運的新春紅線，好運降臨！</div>
+    <div class="hint-text">拉動幸運的新春紅線，好運降臨！</div>
   </div>
 
 </div>
