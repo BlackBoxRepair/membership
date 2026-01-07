@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新春好運三響砲 - 互動抽獎版</title>
+<title>新春好運三響砲 - LINE互動優化版</title>
 <style>
-  body {
+  /* --- 基礎設定 --- */
+  html, body {
     margin: 0; padding: 0;
-    font-family: "Microsoft JhengHei", Arial, sans-serif;
-    overflow: hidden; /* 禁止網頁捲動 */
+    width: 100%; height: 100%; /* 強制滿版 */
+    overflow: hidden; /* 禁止出現捲軸 */
     background-color: #000;
-    touch-action: none; /* 關鍵：禁止瀏覽器預設的手勢（如滑動上一頁），完全交給程式控制 */
+    
+    /* [關鍵修正 1]: CSS 鎖定 */
+    /* 告訴瀏覽器這個頁面不需要捲動回彈效果 */
+    overscroll-behavior: none; 
+    /* 禁止預設的手勢操作 (如上一頁、縮放) */
+    touch-action: none; 
   }
 
   .scene-container {
@@ -32,38 +38,31 @@
   /* --- 中國結樣式 --- */
   .knot {
     position: absolute;
-    width: 40vw; /* 巨大尺寸 */
+    width: 40vw; 
     max-width: 400px;
     height: auto;
-    
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
-    cursor: grab; /* 滑鼠游標變成「抓取」手勢 */
-    
+    cursor: grab;
     transform-origin: top center;
-    /* 預設擺動動畫 */
     animation: swing 3s ease-in-out infinite alternate;
-    
     z-index: 10;
-
-    /* 頂部遮罩 */
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     
-    /* 讓拖曳時不會選取到圖片本身 */
+    /* 防止拖曳時選取到圖片 */
     user-select: none;
     -webkit-user-drag: none;
+    -webkit-touch-callout: none; /* 禁止長按跳出選單 */
   }
   
-  /* 當正在拖曳時，滑鼠游標變緊抓，並移除過渡效果以達成即時跟隨 */
   .knot.dragging {
     cursor: grabbing;
     transition: none !important; 
-    animation: none !important; /* 拖曳時停止擺動 */
+    animation: none !important; 
   }
   
-  /* 放開手後的彈回動畫 */
   .knot.releasing {
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 彈性效果 */
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
   }
 
   @keyframes swing {
@@ -71,7 +70,7 @@
     100% { transform: rotate(1.5deg); }
   }
 
-  /* 標題與彈窗樣式 (維持不變) */
+  /* 標題與彈窗樣式 */
   .title-area {
     position: absolute; bottom: 8%; width: 100%;
     text-align: center; color: #fff; pointer-events: none; z-index: 5;
@@ -138,102 +137,111 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // 1. 水平定位
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
 
-    // 2. 垂直定位 (微調後)
     if (index === 1) {
-      knotImg.style.top = '18%'; // 中間 (最高)
+      knotImg.style.top = '18%'; 
     } else if (index === 0) {
-      knotImg.style.top = '21.5%'; // [修正]: 左邊從 20% 改為 21.5% (稍微往下)
+      knotImg.style.top = '21.5%'; 
     } else {
-      knotImg.style.top = '23%'; // 右邊 (最低)
+      knotImg.style.top = '23%'; 
     }
 
-    // 擺動動畫延遲
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
-
-    // --- 綁定拖曳事件 ---
     setupDragInteraction(knotImg);
-
     scene.appendChild(knotImg);
   }
 
-  // --- 核心互動邏輯：拖曳處理 ---
   function setupDragInteraction(element) {
     let startY = 0;
     let currentY = 0;
     let isDragging = false;
-    const maxDragDistance = 250; // 最大可以拉多長 (像素)
-    const triggerThreshold = 100; // 拉超過多少像素才算觸發
+    const maxDragDistance = 250; 
+    const triggerThreshold = 100; 
 
-    // 支援滑鼠與觸控
-    const startEvents = ['touchstart', 'mousedown'];
-    const moveEvents = ['touchmove', 'mousemove'];
-    const endEvents = ['touchend', 'mouseup', 'mouseleave'];
+    // 針對紅繩本身綁定 Touch Start
+    element.addEventListener('touchstart', function(e) {
+      // 防止多指觸控
+      if (e.touches.length > 1) return;
+      
+      // [關鍵修正 2]: 在開始觸摸的一瞬間，就阻止事件冒泡
+      // 這有助於告訴瀏覽器：「這個元素的互動我全包了」
+      // e.preventDefault(); // 註：touchstart 加 preventDefault 有時會擋住 click，這裡先不加，靠 touchmove 擋
+      
+      isDragging = true;
+      element.classList.add('dragging'); 
+      element.classList.remove('releasing');
+      startY = e.touches[0].clientY;
+    }, { passive: false }); // 設為 false 讓我們有權力在後續 preventDefault
 
-    startEvents.forEach(evt => {
-      element.addEventListener(evt, function(e) {
-        // 防止多指觸控或其他干擾
-        if(e.type === 'mousedown') e.preventDefault(); 
-        
-        isDragging = true;
-        element.classList.add('dragging'); // 移除動畫與過渡
-        element.classList.remove('releasing');
-
-        // 取得起始 Y 座標
-        startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-      });
+    // 滑鼠事件 (電腦版測試用)
+    element.addEventListener('mousedown', function(e) {
+      e.preventDefault(); // 防止圖片拖曳產生鬼影
+      isDragging = true;
+      element.classList.add('dragging'); 
+      element.classList.remove('releasing');
+      startY = e.clientY;
     });
 
-    moveEvents.forEach(evt => {
-      // 綁定在 window 上，避免拖太快滑鼠跑出圖片範圍
-      window.addEventListener(evt, function(e) {
-        if (!isDragging) return;
+    // 將 Move 事件綁在 Window 上，確保拖出紅繩範圍也能感應
+    window.addEventListener('touchmove', function(e) {
+      if (!isDragging) return;
 
-        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-        const diff = clientY - startY;
+      // [關鍵修正 3]: 這是最重要的部分！
+      // 如果正在拖曳紅繩，我們強制禁止瀏覽器的預設行為
+      // 這行代碼會讓 LINE 瀏覽器無法執行「下拉關閉」或「下拉刷新」
+      if (e.cancelable) {
+        e.preventDefault(); 
+      }
 
-        // 只有「向下拉」(diff > 0) 才有效
-        if (diff > 0) {
-          // 增加阻尼感：拉越長越難拉 (選用) -> 這裡直接 1:1 跟隨比較直覺
-          let pullDistance = Math.min(diff, maxDragDistance); // 限制最大距離
-          
-          // 即時改變圖片位置
-          element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
-          currentY = pullDistance;
-        }
-      }, { passive: false }); // passive: false 讓 preventDefault 有效
+      const clientY = e.touches[0].clientY;
+      const diff = clientY - startY;
+
+      if (diff > 0) {
+        let pullDistance = Math.min(diff, maxDragDistance); 
+        element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
+        currentY = pullDistance;
+      }
+    }, { passive: false }); // 這裡必須是 false，不然 preventDefault 會無效
+
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      e.preventDefault(); // 電腦版防止選取文字
+
+      const clientY = e.clientY;
+      const diff = clientY - startY;
+
+      if (diff > 0) {
+        let pullDistance = Math.min(diff, maxDragDistance); 
+        element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
+        currentY = pullDistance;
+      }
     });
 
-    endEvents.forEach(evt => {
-      window.addEventListener(evt, function(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        element.classList.remove('dragging');
-        element.classList.add('releasing'); // 加上彈回的過渡效果
+    // 結束事件
+    const endHandler = function() {
+      if (!isDragging) return;
+      isDragging = false;
+      element.classList.remove('dragging');
+      element.classList.add('releasing');
 
-        // 判斷是否拉得夠長
-        if (currentY > triggerThreshold) {
-          // 觸發成功！
-          // 讓它彈回去一點點然後顯示結果，或者直接顯示
-          element.style.transform = ''; // 彈回原位
-          
-          setTimeout(() => {
-            const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
-            showResult(randomPrize);
-          }, 300); // 等彈回去的動畫跑一下
-        } else {
-          // 拉不夠長，直接彈回去，什麼都不發生
-          element.style.transform = ''; 
-        }
-        
-        currentY = 0;
-      });
-    });
+      if (currentY > triggerThreshold) {
+        element.style.transform = ''; 
+        setTimeout(() => {
+          const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
+          showResult(randomPrize);
+        }, 300); 
+      } else {
+        element.style.transform = ''; 
+      }
+      currentY = 0;
+    };
+
+    window.addEventListener('touchend', endHandler);
+    window.addEventListener('mouseup', endHandler);
   }
 
   function showResult(prize) {
