@@ -39,8 +39,6 @@
     max-width: 280px;
     height: auto;
     
-    /* 注意：這裡的 top 會被 JS 覆蓋，所以 CSS 這邊可以不用寫，或是寫個預設值 */
-    
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
     cursor: pointer;
     transform-origin: top center;
@@ -150,17 +148,17 @@
     // --- 1. 水平定位 (Left) ---
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
-    const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半 (30vw/2)
+    const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 關鍵修改 ---
-    // index 0 是左邊，index 1 是中間，index 2 是右邊
+    // --- 2. 垂直定位 (Top) - 調整後 ---
     if (index === 1) {
-      // 中間那一條：掛高一點 (數值越小越上面)
+      // 中間那一條：維持原本高度
       knotImg.style.top = '18%'; 
     } else {
-      // 左右兩邊：掛低一點 (對齊之前設定的 28%)
-      knotImg.style.top = '28%'; 
+      // 左右兩邊：往上提一點
+      // 從 28% 改為 23% (數字越小越上面)
+      knotImg.style.top = '23%'; 
     }
 
     // 隨機動畫延遲
