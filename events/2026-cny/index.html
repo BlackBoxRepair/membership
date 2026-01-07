@@ -32,17 +32,18 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (巨大化修正版) --- */
+  /* --- 2. 中國結樣式 (位置下移修正版) --- */
   .knot {
     position: absolute;
-    /* 修正點 1: 尺寸大幅增加，填滿空間 */
-    width: 30vw;         /* 佔據螢幕寬度的 30% */
-    max-width: 280px;    /* 電腦版限制最大寬度 */
+    width: 30vw;         /* 巨大化尺寸 */
+    max-width: 280px;
     height: auto;
     
-    top: -5%;            /* 稍微往上提一點，隱藏圖片切邊 */
+    /* [關鍵修正]：往下移動到樹葉下方 */
+    /* 原本是 -5%，現在改成 15%，空出上方給樹葉 */
+    top: 15%;            
     
-    filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); /* 增加陰影讓它更立體 */
+    filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
     cursor: pointer;
     transform-origin: top center;
     animation: swing 3s ease-in-out infinite alternate;
@@ -51,13 +52,14 @@
   }
 
   @keyframes swing {
-    0% { transform: rotate(-1.5deg); } /* 因為變大，擺動幅度稍微調小一點比較自然 */
+    0% { transform: rotate(-1.5deg); } 
     100% { transform: rotate(1.5deg); }
   }
 
   .knot.pulled {
     /* 拉動時往下掉更多，並放大 */
-    transform: translateY(25vh) scale(1.05) !important; 
+    /* 因為初始位置變低了，這裡的位移量稍微減少一點，避免掉出螢幕太多 */
+    transform: translateY(20vh) scale(1.05) !important; 
   }
 
   /* --- 3. 標題與提示 --- */
@@ -135,7 +137,6 @@
   const modal = document.getElementById('resultModal');
   const prizeText = document.getElementById('prizeText');
   
-  // 修正點 2: 設定數量為 3
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
@@ -150,16 +151,11 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 修正點 3: 3分區精準定位法 ---
-    // 將螢幕分成 3 等份 (每份 33.33%)
-    
-    const sectionWidth = 100 / totalKnots; // 33.333...
-    // 計算每個區塊的中心點：(0*33.3 + 16.6), (33.3 + 16.6), (66.6 + 16.6)
+    // --- 3分區精準定位法 ---
+    const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     
-    // 為了讓圖片居中，需要減去圖片寬度的一半
-    // 我們的圖片寬度設為 30vw，所以要減去 15
-    // 這裡移除隨機偏移，讓它看起來更整齊
+    // 圖片寬度的一半 (30vw / 2 = 15)
     const finalLeft = centerOfSection - 15; 
 
     knotImg.style.left = finalLeft + '%';
@@ -167,7 +163,6 @@
     // 隨機動畫延遲
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
 
-    // 綁定點擊
     knotImg.addEventListener('click', function() {
       playPullAnimation(knotImg);
     });
@@ -183,7 +178,6 @@
       const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
       showResult(randomPrize);
       
-      // 復原
       setTimeout(() => {
         element.classList.remove('pulled');
         element.style.pointerEvents = 'auto'; 
