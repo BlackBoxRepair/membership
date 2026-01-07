@@ -31,64 +31,54 @@
     pointer-events: none;
   }
 
-  /* --- [1] 飛鳥動圖 (滑翔優化版) --- */
+  /* --- [1] 飛鳥動圖 (定點浮現版) --- */
   .flying-bird {
     position: absolute;
-    top: 10%;       
-    right: -20%;   /* 起始位置 */
+    
+    /* 垂直定位：稍微比文字高一點點 (文字是 top: 10%) */
+    top: 8.5%;       
+    
+    /* 水平定位：利用 left 50% 加上 margin-left 來定位到文字右邊 */
+    /* 假設文字寬度約 250px-300px，往右推 140px 剛好在旁邊 */
+    left: 50%;
+    margin-left: 140px; 
     
     width: 18vw;      
-    max-width: 100px; 
+    max-width: 90px; /* 稍微縮小一點，當作裝飾 */
     height: auto;
     
     z-index: 20;   
     pointer-events: none; 
     
-    /* 動畫：13秒循環 */
-    animation: flyPass 13s linear infinite;
-    will-change: transform; 
+    /* 初始狀態隱藏 */
+    opacity: 0;
+    
+    /* 動畫：15秒循環 */
+    animation: appearFade 15s ease-in-out infinite;
+    will-change: opacity, transform; 
   }
 
-  /* [關鍵修改]：加入上下起伏的「滑翔」軌跡 */
-  @keyframes flyPass {
+  /* [關鍵修改]：定點浮現動畫 */
+  @keyframes appearFade {
     0% { 
-      transform: translate(0, 0) scaleX(1); 
       opacity: 0; 
+      transform: translateY(5px); /* 從稍微下面一點點浮上來 */
     }
-    1% { opacity: 1; }
-    
-    /* 5% 時間點：往上飛一點 (模擬乘風) */
-    5% { 
-      transform: translate(-30vw, -4vh) scaleX(1); 
-      opacity: 1; 
-    }
-    
-    /* 10% 時間點：往下俯衝一點 */
     10% { 
-      transform: translate(-60vw, 2vh) scaleX(1); 
       opacity: 1; 
+      transform: translateY(0); /* 浮現完畢 */
     }
-    
-    /* 15% 時間點：再往上拉回 */
-    15% { 
-      transform: translate(-90vw, -2vh) scaleX(1); 
+    30% { 
       opacity: 1; 
+      transform: translateY(0); /* 停留 */
     }
-    
-    /* 20% 時間點：飛出畫面 */
-    20% { 
-      transform: translate(-130vw, 0) scaleX(1); 
-      opacity: 1; 
-    }
-    
-    /* 之後的時間保持消失，等待下一次循環 */
-    21% { 
-      transform: translate(-130vw, 0) scaleX(1); 
+    40% { 
       opacity: 0; 
+      transform: translateY(-5px); /* 往上飄一點點消失 */
     }
     100% { 
-      transform: translate(-130vw, 0) scaleX(1); 
       opacity: 0; 
+      transform: translateY(5px); /* 保持隱藏，重置位置 */
     }
   }
 
@@ -243,12 +233,10 @@
     scene.appendChild(knotImg);
   }
 
-  // --- 互動與拖曳邏輯 ---
   function setupDragInteraction(element) {
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
 
-    // 觸控開始
     element.addEventListener('touchstart', function(e) {
       if (e.touches.length > 1) return;
       isDragging = true;
@@ -257,7 +245,6 @@
       startY = e.touches[0].clientY;
     }, { passive: false });
 
-    // 滑鼠開始
     element.addEventListener('mousedown', function(e) {
       e.preventDefault();
       isDragging = true;
@@ -266,7 +253,6 @@
       startY = e.clientY;
     });
 
-    // 觸控移動
     window.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
       if (e.cancelable) { e.preventDefault(); }
@@ -279,7 +265,6 @@
       }
     }, { passive: false });
 
-    // 滑鼠移動
     window.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
       e.preventDefault();
@@ -292,7 +277,6 @@
       }
     });
 
-    // 結束拖曳
     const endHandler = function() {
       if (!isDragging) return;
       isDragging = false;
