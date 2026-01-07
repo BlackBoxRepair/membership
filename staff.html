@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v8.1 樣式優化 */
+        /* v8.2 樣式優化 + 印單動畫 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -55,9 +55,46 @@
         .dash-btn:active { transform: scale(0.96); }
         .dash-btn-light { background: white; color: #111; }
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+
+        /* === 印單動畫 CSS (v8.2 新增) === */
+        .printer-slot {
+            width: 100px;
+            height: 14px;
+            background-color: #facc15; /* 黃色 */
+            border-radius: 20px;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 2px 10px rgba(250, 204, 21, 0.3);
+        }
+        .receipt-paper {
+            width: 80px;
+            background-color: #ffffff;
+            margin: 0 auto;
+            position: absolute;
+            top: 7px; /* 從黃條中間開始 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            animation: printScroll 1.2s infinite ease-in-out;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        @keyframes printScroll {
+            0% { height: 0px; opacity: 0; }
+            10% { opacity: 1; }
+            80% { height: 100px; opacity: 1; }
+            100% { height: 120px; opacity: 0; }
+        }
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
+
+    <div id="loading-overlay" class="hidden fixed inset-0 z-[150] bg-black flex flex-col items-center justify-center">
+        <div class="relative w-40 h-40 flex items-center justify-center">
+            <div class="printer-slot"></div>
+            <div class="receipt-paper"></div>
+        </div>
+        <p class="text-white/80 font-bold mt-8 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
+    </div>
 
     <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl text-center modal-content">
@@ -73,7 +110,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.1</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.2</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
@@ -136,7 +173,6 @@
                             <p id="user-accumulated" class="text-xs text-yellow-500 font-mono tracking-widest font-bold">0</p>
                         </div>
                     </div>
-                    
                     <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
                 </div>
             </div>
@@ -439,7 +475,6 @@
             setTimeout(() => { successEl.classList.add('hidden'); }, 3000);
         }
 
-        // --- 核心邏輯 v8.1：排版更新 + 雙軌積分計算 ---
         async function fetchMemberData(lineId) {
             currentTargetLineId = lineId;
             const { data, error } = await _supabase
@@ -650,11 +685,20 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        }
+
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
-            btn.innerText = "處理中...";
             
+            showLoading(); // 開始動畫
+
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             
@@ -662,6 +706,7 @@
             const inputBillAmount = amountInput ? parseInt(amountInput) : 0; 
 
             if (!currentTargetLineId) {
+                hideLoading();
                 alert("錯誤：會員 ID 遺失，請重新掃描");
                 btn.disabled = false;
                 return;
@@ -680,7 +725,9 @@
             const pointsEarned = calculatedPoints;
 
             try {
-                // 1. 讀取最新資料
+                // 模擬一點延遲讓動畫跑一下 (0.8秒)
+                await new Promise(r => setTimeout(r, 800));
+
                 const { data: profile, error: profileError } = await _supabase
                     .from('profiles')
                     .select('total_points, accumulated_points')
@@ -690,17 +737,16 @@
                 if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
                 if (!profile) throw new Error("找不到此會員資料");
                 
-                // 2. 計算新數值
                 const newTotal = (profile.total_points || 0) + pointsEarned - pointsRedeemed;
                 const newAccumulated = (profile.accumulated_points || 0) + pointsEarned;
 
                 if (newTotal < 0) {
+                    hideLoading();
                     alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n欲抵扣: ${pointsRedeemed}`);
-                    btn.disabled = false; btn.innerText = "確認送出";
+                    btn.disabled = false; 
                     return;
                 }
 
-                // 3. 更新資料庫
                 const { error: updateError } = await _supabase
                     .from('profiles')
                     .update({ 
@@ -755,25 +801,46 @@
                 }
 
                 closeConfirmModal();
+                hideLoading(); // 隱藏動畫
                 await resetScan('系統發放完成！');
 
             } catch (err) { 
+                hideLoading();
                 alert('系統錯誤：' + err.message); 
                 console.error(err); 
             } finally { 
-                btn.disabled = false; btn.innerText = "確認送出"; 
+                btn.disabled = false; 
             }
         }
 
         async function executeRedeem() {
-            const btn = document.getElementById('btn-submit-real'); btn.disabled = true; btn.innerText = "處理中...";
+            const btn = document.getElementById('btn-submit-real'); 
+            btn.disabled = true; 
+            
+            showLoading(); // 開始動畫
+
             try {
+                // 模擬一點延遲
+                await new Promise(r => setTimeout(r, 800));
+
                 const { error } = await _supabase.rpc('redeem_coupon', {
                     target_coupon_id: currentTargetCouponId, staff_name: currentStaffName
                 });
-                if (error) { alert('核銷失敗：' + error.message); } 
-                else { closeConfirmModal(); await resetScan('核銷已完成'); }
-            } catch (err) { alert('系統錯誤'); console.error(err); } finally { btn.disabled = false; }
+                if (error) { 
+                    hideLoading();
+                    alert('核銷失敗：' + error.message); 
+                } else { 
+                    closeConfirmModal(); 
+                    hideLoading(); // 隱藏動畫
+                    await resetScan('核銷已完成'); 
+                }
+            } catch (err) { 
+                hideLoading();
+                alert('系統錯誤'); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false; 
+            }
         }
 
         function resetToForm() {
