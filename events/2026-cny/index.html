@@ -3,28 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新春好運三響砲 - 抽獎活動</title>
+<title>新春好運三響砲 - 互動抽獎版</title>
 <style>
-  /* --- 基礎設定 --- */
   body {
     margin: 0; padding: 0;
     font-family: "Microsoft JhengHei", Arial, sans-serif;
-    overflow: hidden;
+    overflow: hidden; /* 禁止網頁捲動 */
     background-color: #000;
+    touch-action: none; /* 關鍵：禁止瀏覽器預設的手勢（如滑動上一頁），完全交給程式控制 */
   }
 
-  /* --- 1. 主場景 --- */
   .scene-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('tree_bg.jpg'); /* 背景圖 */
+    width: 100vw; height: 100vh;
+    background-image: url('tree_bg.jpg');
     background-size: cover;
     background-position: center bottom;
     z-index: 1;
   }
 
-  /* 遮罩層 */
   .overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -32,24 +29,41 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (超級巨大版) --- */
+  /* --- 中國結樣式 --- */
   .knot {
     position: absolute;
-    /* [關鍵修正]: 尺寸再再放大 */
-    width: 40vw;         /* 從 36vw 增加到 40vw (非常巨大) */
-    max-width: 400px;    /* 電腦版最大寬度也同步放寬 */
+    width: 40vw; /* 巨大尺寸 */
+    max-width: 400px;
     height: auto;
     
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
-    cursor: pointer;
+    cursor: grab; /* 滑鼠游標變成「抓取」手勢 */
+    
     transform-origin: top center;
+    /* 預設擺動動畫 */
     animation: swing 3s ease-in-out infinite alternate;
-    transition: transform 0.5s cubic-bezier(0.25, 1.5, 0.5, 1);
+    
     z-index: 10;
 
-    /* 頂部若隱若現遮罩 */
+    /* 頂部遮罩 */
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
+    
+    /* 讓拖曳時不會選取到圖片本身 */
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  
+  /* 當正在拖曳時，滑鼠游標變緊抓，並移除過渡效果以達成即時跟隨 */
+  .knot.dragging {
+    cursor: grabbing;
+    transition: none !important; 
+    animation: none !important; /* 拖曳時停止擺動 */
+  }
+  
+  /* 放開手後的彈回動畫 */
+  .knot.releasing {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 彈性效果 */
   }
 
   @keyframes swing {
@@ -57,54 +71,30 @@
     100% { transform: rotate(1.5deg); }
   }
 
-  .knot.pulled {
-    transform: translateY(20vh) scale(1.05) !important; 
-  }
-
-  /* --- 3. 標題與提示 --- */
+  /* 標題與彈窗樣式 (維持不變) */
   .title-area {
-    position: absolute;
-    bottom: 8%;
-    width: 100%;
-    text-align: center;
-    color: #fff;
-    pointer-events: none;
-    z-index: 5;
+    position: absolute; bottom: 8%; width: 100%;
+    text-align: center; color: #fff; pointer-events: none; z-index: 5;
   }
-  .title-area h1 { 
-    margin: 0; 
-    font-size: 2rem; 
-    color: #FFD700; 
-    text-shadow: 0 0 10px #d32f2f;
-  }
+  .title-area h1 { margin: 0; font-size: 2rem; color: #FFD700; text-shadow: 0 0 10px #d32f2f; }
   .title-area p { margin: 10px 0 0; font-size: 1.1rem; opacity: 0.9; font-weight: bold; }
 
-  /* --- 4. 彈窗樣式 --- */
   .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 999;
+    justify-content: center; align-items: center;
   }
   .modal-content {
-    background: #fff;
-    width: 80%; max-width: 320px;
-    padding: 30px 20px;
-    border-radius: 20px;
-    text-align: center;
-    border: 5px solid #d32f2f;
+    background: #fff; width: 80%; max-width: 320px; padding: 30px 20px;
+    border-radius: 20px; text-align: center; border: 5px solid #d32f2f;
     animation: popIn 0.3s ease-out;
   }
   .prize-title { font-size: 1.2rem; color: #555; margin-bottom: 10px; }
   .prize-name { font-size: 2rem; color: #d32f2f; font-weight: bold; margin-bottom: 20px; }
   .btn-confirm {
     background: linear-gradient(to right, #d32f2f, #b71c1c);
-    color: white; border: none;
-    padding: 12px 40px; border-radius: 50px; font-size: 1.1rem;
-    cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    color: white; border: none; padding: 12px 40px; border-radius: 50px;
+    font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   }
   @keyframes popIn {
     0% { transform: scale(0.5); opacity: 0; }
@@ -116,10 +106,9 @@
 
 <div class="scene-container" id="scene">
   <div class="overlay"></div>
-  
   <div class="title-area">
     <h1>新春好運 • 三響砲</h1>
-    <p>請選擇一條幸運大紅繩向下拉</p>
+    <p>長按紅繩向下拉，試試手氣！</p>
   </div>
 </div>
 
@@ -135,7 +124,6 @@
   const scene = document.getElementById('scene');
   const modal = document.getElementById('resultModal');
   const prizeText = document.getElementById('prizeText');
-  
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
@@ -150,49 +138,102 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 1. 水平定位 (Left) - 配合巨大化修正 ---
+    // 1. 水平定位
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
-    
-    // [修正]: 圖片寬度改為 40vw，所以要減去 20 才能居中
     const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 維持您滿意的高度層次 ---
+    // 2. 垂直定位 (微調後)
     if (index === 1) {
-      // 中間 (index 1)：18% (最高)
-      knotImg.style.top = '18%'; 
+      knotImg.style.top = '18%'; // 中間 (最高)
     } else if (index === 0) {
-      // 左邊 (index 0)：20% (次高)
-      knotImg.style.top = '20%'; 
+      knotImg.style.top = '21.5%'; // [修正]: 左邊從 20% 改為 21.5% (稍微往下)
     } else {
-      // 右邊 (index 2)：23% (最低)
-      knotImg.style.top = '23%'; 
+      knotImg.style.top = '23%'; // 右邊 (最低)
     }
 
-    // 隨機動畫延遲
+    // 擺動動畫延遲
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
 
-    knotImg.addEventListener('click', function() {
-      playPullAnimation(knotImg);
-    });
+    // --- 綁定拖曳事件 ---
+    setupDragInteraction(knotImg);
 
     scene.appendChild(knotImg);
   }
 
-  function playPullAnimation(element) {
-    element.classList.add('pulled');
-    element.style.pointerEvents = 'none';
+  // --- 核心互動邏輯：拖曳處理 ---
+  function setupDragInteraction(element) {
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+    const maxDragDistance = 250; // 最大可以拉多長 (像素)
+    const triggerThreshold = 100; // 拉超過多少像素才算觸發
 
-    setTimeout(() => {
-      const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
-      showResult(randomPrize);
-      
-      setTimeout(() => {
-        element.classList.remove('pulled');
-        element.style.pointerEvents = 'auto'; 
-      }, 500);
-    }, 600);
+    // 支援滑鼠與觸控
+    const startEvents = ['touchstart', 'mousedown'];
+    const moveEvents = ['touchmove', 'mousemove'];
+    const endEvents = ['touchend', 'mouseup', 'mouseleave'];
+
+    startEvents.forEach(evt => {
+      element.addEventListener(evt, function(e) {
+        // 防止多指觸控或其他干擾
+        if(e.type === 'mousedown') e.preventDefault(); 
+        
+        isDragging = true;
+        element.classList.add('dragging'); // 移除動畫與過渡
+        element.classList.remove('releasing');
+
+        // 取得起始 Y 座標
+        startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+      });
+    });
+
+    moveEvents.forEach(evt => {
+      // 綁定在 window 上，避免拖太快滑鼠跑出圖片範圍
+      window.addEventListener(evt, function(e) {
+        if (!isDragging) return;
+
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        const diff = clientY - startY;
+
+        // 只有「向下拉」(diff > 0) 才有效
+        if (diff > 0) {
+          // 增加阻尼感：拉越長越難拉 (選用) -> 這裡直接 1:1 跟隨比較直覺
+          let pullDistance = Math.min(diff, maxDragDistance); // 限制最大距離
+          
+          // 即時改變圖片位置
+          element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
+          currentY = pullDistance;
+        }
+      }, { passive: false }); // passive: false 讓 preventDefault 有效
+    });
+
+    endEvents.forEach(evt => {
+      window.addEventListener(evt, function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        element.classList.remove('dragging');
+        element.classList.add('releasing'); // 加上彈回的過渡效果
+
+        // 判斷是否拉得夠長
+        if (currentY > triggerThreshold) {
+          // 觸發成功！
+          // 讓它彈回去一點點然後顯示結果，或者直接顯示
+          element.style.transform = ''; // 彈回原位
+          
+          setTimeout(() => {
+            const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
+            showResult(randomPrize);
+          }, 300); // 等彈回去的動畫跑一下
+        } else {
+          // 拉不夠長，直接彈回去，什麼都不發生
+          element.style.transform = ''; 
+        }
+        
+        currentY = 0;
+      });
+    });
   }
 
   function showResult(prize) {
