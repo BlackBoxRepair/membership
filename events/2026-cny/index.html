@@ -32,12 +32,12 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (尺寸加大版) --- */
+  /* --- 2. 中國結樣式 (超級巨大版) --- */
   .knot {
     position: absolute;
-    /* [關鍵修正]: 尺寸再放大 */
-    width: 36vw;         /* 從 30vw 增加到 36vw */
-    max-width: 350px;    /* 電腦版最大寬度也同步放寬 */
+    /* [關鍵修正]: 尺寸再再放大 */
+    width: 40vw;         /* 從 36vw 增加到 40vw (非常巨大) */
+    max-width: 400px;    /* 電腦版最大寬度也同步放寬 */
     height: auto;
     
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
@@ -150,15 +150,15 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 1. 水平定位 (Left) - 配合尺寸修正 ---
+    // --- 1. 水平定位 (Left) - 配合巨大化修正 ---
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     
-    // [修正]: 圖片變大了 (36vw)，所以這裡要減去 18 (36的一半) 才能居中
-    const finalLeft = centerOfSection - 18; 
+    // [修正]: 圖片寬度改為 40vw，所以要減去 20 才能居中
+    const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 保持階梯狀層次 ---
+    // --- 2. 垂直定位 (Top) - 維持您滿意的高度層次 ---
     if (index === 1) {
       // 中間 (index 1)：18% (最高)
       knotImg.style.top = '18%'; 
