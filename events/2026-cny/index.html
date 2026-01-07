@@ -69,23 +69,26 @@
   }
   .cat-gif:active { transform: scale(0.95); }
 
-  /* --- [修改] 貓咪對話框樣式 (縮小、往右移) --- */
+  /* --- [修改] 貓咪對話框 (位置調整) --- */
   .cat-speech-bubble {
     position: absolute;
-    bottom: 45%; 
     
-    /* [修改] 位置往右移 */
-    left: 38%;   /* 從 28% 改為 38% */
+    /* [修改點 1]: 高度微調，在石獅子上方 */
+    bottom: 42%; 
+    
+    /* [修改點 2]: 往右移，到貓咪的右邊 */
+    left: 52%;   
     
     background: #fff;
-    /* [修改] 尺寸縮小 */
-    padding: 8px 12px; /* 內距縮小 */
-    font-size: 0.9rem; /* 字體縮小 */
+    padding: 8px 12px;
+    font-size: 0.9rem;
     border-radius: 12px;
     border: 2px solid #333;
     font-weight: bold;
     color: #333;
-    z-index: 6; 
+    
+    /* 確保在最上層 */
+    z-index: 20; 
     
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     pointer-events: none; 
@@ -96,7 +99,7 @@
     transform-origin: bottom left;
   }
 
-  /* 對話框的小尾巴 (位置微調) */
+  /* 對話框的小尾巴 (保持在左下角指向貓咪) */
   .cat-speech-bubble::after {
     content: ''; position: absolute; bottom: -8px; left: 10px;
     border-width: 8px 8px 0; border-style: solid; border-color: #fff transparent;
@@ -174,25 +177,25 @@
   
   /* 輸入框 */
   .secret-input {
-    width: 80%; padding: 10px; margin: 15px 0 5px 0; /* 底部 margin 減少，留給錯誤訊息 */
+    width: 80%; padding: 10px; margin: 15px 0 5px 0; 
     font-size: 1.1rem; border: 2px solid #ccc; border-radius: 10px;
     text-align: center; outline: none;
   }
   .secret-input:focus { border-color: #d32f2f; }
   
-  /* [新增] 錯誤訊息樣式 */
+  /* 錯誤訊息樣式 */
   .error-message {
-    height: 24px; /* 固定高度，避免文字出現時撐開版面 */
+    height: 24px; 
     color: #d32f2f;
     font-size: 0.9rem;
     font-weight: bold;
     margin-bottom: 15px;
-    opacity: 0; /* 預設隱藏 */
+    opacity: 0; 
   }
   
-  /* [新增] 錯誤訊息閃爍動畫 (閃5次) */
+  /* 錯誤訊息閃爍動畫 */
   .flash-anim {
-    animation: blinkRed 0.4s 5; /* 每次0.4秒，共5次 = 2秒 */
+    animation: blinkRed 0.4s 5; 
   }
   @keyframes blinkRed {
     0%, 100% { opacity: 1; }
@@ -372,7 +375,6 @@
   
   function openSecretModal() {
     secretInput.value = "";
-    // 清除之前的錯誤訊息
     errorText.innerText = "";
     errorText.style.opacity = "0";
     errorText.classList.remove("flash-anim");
@@ -385,30 +387,19 @@
     const code = secretInput.value.trim();
     
     if (code === "新年快樂") {
-      // 成功：關閉視窗並顯示對話框
       closeModal('secretModal');
       showCatSpeechBubble();
     } else {
-      // 失敗：顯示紅色閃爍錯誤訊息
       showErrorAnim();
       secretInput.value = "";
     }
   }
 
   function showErrorAnim() {
-    // 1. 設定錯誤文字
     errorText.innerText = "喵？聽不懂喔～";
-    
-    // 2. 移除動畫 class (以便重置)
     errorText.classList.remove("flash-anim");
-    
-    // 3. 強制瀏覽器重繪 (Reflow)，讓動畫可以重新觸發
     void errorText.offsetWidth; 
-    
-    // 4. 加入動畫 class 開始閃爍
     errorText.classList.add("flash-anim");
-    
-    // 5. 動畫設定為 0.4s * 5次 = 2秒，結束後清除文字
     setTimeout(() => {
       errorText.innerText = "";
       errorText.classList.remove("flash-anim");
