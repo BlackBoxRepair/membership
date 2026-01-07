@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>BLACKBOX | 會員中心</title>
     
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="favicon.png">
+    <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="shortcut icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -163,10 +166,22 @@
             <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">MEMBER PROFILE</p>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">真實姓名 *</label><input id="input-name" type="text" class="soft-input"></div>
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label><div class="select-wrapper"><select id="input-area" class="soft-input bg-white"></select></div></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">真實姓名 *</label>
+                        <input id="input-name" type="text" class="soft-input">
+                        <p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請實名填寫以免影響會員權益</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
+                        <div class="select-wrapper"><select id="input-area" class="soft-input bg-white"></select></div>
+                    </div>
                 </div>
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 *</label><input id="input-phone" type="tel" maxlength="10" class="soft-input"><p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤</p></div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 *</label>
+                    <input id="input-phone" type="tel" maxlength="10" class="soft-input">
+                    <p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請填寫正確以免影響會員權益</p>
+                    <p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤</p>
+                </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">會員生日 *</label>
                     <div class="flex gap-2">
@@ -268,9 +283,6 @@
 
     <script>
         // --- 設定區 ---
-        // 當有活動時，請將活動網頁的 URL 填入下方引號中 (必須是 https 開頭)
-        // 例如: const ACTIVITY_URL = 'https://blackboxrepair.github.io/event-page/';
-        // 當沒有活動時，請保持為空字串: const ACTIVITY_URL = '';
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -282,7 +294,14 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
 
-        const areaList = ["西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","後里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區"];
+        // 修改1 & 修改2：更新地區清單，包含全台縣市
+        const areaList = [
+            "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
+            "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
+            "潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區",
+            "台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣",
+            "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
+        ];
 
         // 初始化
         window.onload = async () => {
@@ -561,7 +580,7 @@
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
         
-        window.onload = init;
+        window.onload = init; // 這裡其實是多餘的，因為上方已經有 window.onload 了，但為了保險可以留著，或刪除這行，上方已經定義了完整的 window.onload
     </script>
 </body>
 </html>
