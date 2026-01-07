@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新春五福臨門 - 抽獎活動</title>
+<title>新春好運三響砲 - 抽獎活動</title>
 <style>
   /* --- 基礎設定 --- */
   body {
@@ -32,33 +32,32 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (修正版) --- */
+  /* --- 2. 中國結樣式 (巨大化修正版) --- */
   .knot {
     position: absolute;
-    /* 修正點 1: 尺寸加大 */
-    width: 18vw;         /* 佔據螢幕寬度的 18%，手機上看很大 */
-    max-width: 130px;    /* 電腦版限制最大寬度，避免過大 */
+    /* 修正點 1: 尺寸大幅增加，填滿空間 */
+    width: 30vw;         /* 佔據螢幕寬度的 30% */
+    max-width: 280px;    /* 電腦版限制最大寬度 */
     height: auto;
     
-    /* 修正點 2: 統一從最上方垂掛 */
-    top: -5%;            /* 稍微往上提一點，隱藏圖片切邊，製造無限延伸感 */
+    top: -5%;            /* 稍微往上提一點，隱藏圖片切邊 */
     
-    filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.6));
+    filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); /* 增加陰影讓它更立體 */
     cursor: pointer;
-    transform-origin: top center; /* 擺動支點在頂部 */
+    transform-origin: top center;
     animation: swing 3s ease-in-out infinite alternate;
     transition: transform 0.5s cubic-bezier(0.25, 1.5, 0.5, 1);
     z-index: 10;
   }
 
   @keyframes swing {
-    0% { transform: rotate(-2deg); }
-    100% { transform: rotate(2deg); }
+    0% { transform: rotate(-1.5deg); } /* 因為變大，擺動幅度稍微調小一點比較自然 */
+    100% { transform: rotate(1.5deg); }
   }
 
   .knot.pulled {
     /* 拉動時往下掉更多，並放大 */
-    transform: translateY(20vh) scale(1.1) !important; 
+    transform: translateY(25vh) scale(1.05) !important; 
   }
 
   /* --- 3. 標題與提示 --- */
@@ -77,7 +76,7 @@
     color: #FFD700; 
     text-shadow: 0 0 10px #d32f2f;
   }
-  .title-area p { margin: 10px 0 0; font-size: 1rem; opacity: 0.9; }
+  .title-area p { margin: 10px 0 0; font-size: 1.1rem; opacity: 0.9; font-weight: bold; }
 
   /* --- 4. 彈窗樣式 --- */
   .modal-overlay {
@@ -118,8 +117,8 @@
   <div class="overlay"></div>
   
   <div class="title-area">
-    <h1>五福臨門 • 新春抽好禮</h1>
-    <p>請選擇一條幸運紅繩向下拉</p>
+    <h1>新春好運 • 三響砲</h1>
+    <p>請選擇一條幸運大紅繩向下拉</p>
   </div>
 </div>
 
@@ -136,14 +135,11 @@
   const modal = document.getElementById('resultModal');
   const prizeText = document.getElementById('prizeText');
   
-  // 修正點 2: 設定數量為 5
-  const totalKnots = 5;
+  // 修正點 2: 設定數量為 3
+  const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
   function initGame() {
-    // 取得螢幕寬度
-    const screenWidth = window.innerWidth;
-    
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
     }
@@ -154,18 +150,17 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 修正點 3: 絕對不重疊的分區定位法 ---
-    // 將螢幕分成 5 等份 (每份 20%)
-    // 每個結繩放在該區塊的中間，再加上一點點隨機偏移(-2% ~ +2%)讓它看起來自然
+    // --- 修正點 3: 3分區精準定位法 ---
+    // 將螢幕分成 3 等份 (每份 33.33%)
     
-    const sectionWidth = 100 / totalKnots; // 20
-    const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); // 10, 30, 50, 70, 90
+    const sectionWidth = 100 / totalKnots; // 33.333...
+    // 計算每個區塊的中心點：(0*33.3 + 16.6), (33.3 + 16.6), (66.6 + 16.6)
+    const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     
-    // 為了視覺平衡，我們要減去圖片本身寬度的一半 (假設圖片約寬 18vw -> 9vw)
-    // 加上一點點隨機偏移 (-2% 到 2%)
-    const randomOffset = (Math.random() * 4) - 2; 
-    
-    const finalLeft = centerOfSection - 9 + randomOffset; 
+    // 為了讓圖片居中，需要減去圖片寬度的一半
+    // 我們的圖片寬度設為 30vw，所以要減去 15
+    // 這裡移除隨機偏移，讓它看起來更整齊
+    const finalLeft = centerOfSection - 15; 
 
     knotImg.style.left = finalLeft + '%';
     
