@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v7.8 樣式優化 */
+        /* v7.9 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: #f3f4f6; 
@@ -85,7 +85,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.8</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v7.9</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         
@@ -187,7 +187,7 @@
             
             <div class="bg-white rounded-[2rem] p-6 shadow-sm mb-8">
                 <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券 (可多選)</h3>
-                <div id="coupon-container" class="grid grid-cols-2 gap-3 min-h-[50px]"></div>
+                <div id="coupon-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[50px]"></div>
             </div>
             <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">下一步</button>
             <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
@@ -516,7 +516,7 @@
             }).join('');
         }
 
-        // --- 核心修改：在選擇當下檢查金額 (v7.8) ---
+        // --- 核心修改：在選擇當下檢查金額 (v7.9) ---
         function toggleCashCoupon(el, id, discountAmount) {
             // 1. 取得當前金額與折抵 (需手動解析，避免空值)
             const amountVal = document.getElementById('amount-input').value;
@@ -661,7 +661,7 @@
             document.getElementById('confirm-modal').style.display = 'none';
         }
 
-        // --- 核心邏輯 (v7.8：實收金額修正) ---
+        // --- 核心邏輯 (v7.9：優惠券顯示優化 + 防呆機制 + 實收金額修正) ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -670,7 +670,6 @@
             const store = document.getElementById('store-select').value;
             const orderNo = document.getElementById('order-no').value || '無單號';
             
-            // 變數修正：區分「輸入原價」與「實收金額」
             const amountInput = document.getElementById('amount-input').value;
             const inputBillAmount = amountInput ? parseInt(amountInput) : 0; // 原價
 
@@ -729,11 +728,10 @@
                     if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
                 }
 
-                // 寫入詳細 Log (v7.8: amount = finalCashCollected)
                 const { error: logError } = await _supabase.from('point_logs').insert({
                     line_id: currentTargetLineId, staff_name: currentStaffName,
                     store_name: store, order_number: orderNo, 
-                    amount: finalCashCollected,         // 這裡寫入實收金額
+                    amount: finalCashCollected,         
                     points_change: pointsEarned,        
                     points_redeemed: pointsRedeemed,    
                     coupon_discount: couponValue        
