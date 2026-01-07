@@ -9,21 +9,25 @@
   html, body {
     margin: 0; padding: 0;
     width: 100%; height: 100%; 
-    overflow: hidden; 
+    overflow: hidden; /* 禁止網頁捲動 */
     background-color: #000;
+    
+    /* LINE/iOS 防下拉關閉視窗的關鍵設定 */
     overscroll-behavior: none; 
     touch-action: none; 
   }
 
+  /* --- 主場景 --- */
   .scene-container {
     position: relative;
     width: 100vw; height: 100vh;
-    background-image: url('tree_bg.jpg'); 
+    background-image: url('tree_bg.jpg'); /* 背景圖 */
     background-size: cover;
     background-position: center bottom;
     z-index: 1;
   }
 
+  /* 遮罩層 (讓背景稍微暗一點) */
   .overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -31,50 +35,36 @@
     pointer-events: none;
   }
 
-  /* --- [新增] 飛鳥動圖樣式 --- */
+  /* --- [1] 飛鳥動圖 (優化版) --- */
   .flying-bird {
     position: absolute;
-    top: 9%; /* 放在提示文字(10%)的稍微上面一點點 */
-    right: -20%; /* 起始位置在畫面右側外面 */
+    top: 9%;       /* 放在提示文字上方 */
+    right: -20%;   /* 起始位置在畫面右側外面 */
     
-    width: 18vw;      /* 設定大小 */
+    width: 18vw;      
     max-width: 100px; 
     height: auto;
     
-    z-index: 20; /* 層級很高，飛在文字附近 */
-    pointer-events: none; /* 不擋住點擊 */
+    z-index: 20;   /* 層級最高 */
+    pointer-events: none; /* 讓點擊穿透 */
     
-    /* 動畫設定：總時長 13s (約3秒飛+10秒等)，無限循環，線性移動 */
+    /* 動畫：13秒循環 (約3秒飛 + 10秒等待) */
     animation: flyPass 13s linear infinite;
+    
+    /* [優化] 啟動硬體加速，確保 GIF 邊飛邊動很順暢 */
+    will-change: transform; 
   }
 
-  /* 飛鳥的動畫關鍵影格 */
+  /* 飛鳥動畫關鍵影格 */
   @keyframes flyPass {
-    0% {
-      transform: translateX(0) scaleX(1); /* 從右邊開始 */
-      opacity: 0;
-    }
-    2% {
-      opacity: 1; /* 瞬間出現 */
-    }
-    20% {
-      /* 飛到畫面左側 (移動距離視窗寬度的 120%) */
-      transform: translateX(-120vw) scaleX(1); 
-      opacity: 1;
-    }
-    23% {
-      /* 繼續往左飛一點並消失 */
-      transform: translateX(-130vw) scaleX(1); 
-      opacity: 0; 
-    }
-    100% {
-      /* 剩下的時間(23%~100%)都保持消失狀態，達成等待效果 */
-      transform: translateX(-130vw) scaleX(1);
-      opacity: 0;
-    }
+    0% { transform: translateX(0) scaleX(1); opacity: 0; }
+    2% { opacity: 1; }
+    20% { transform: translateX(-120vw) scaleX(1); opacity: 1; }
+    23% { transform: translateX(-130vw) scaleX(1); opacity: 0; }
+    100% { transform: translateX(-130vw) scaleX(1); opacity: 0; }
   }
 
-  /* --- 貓咪動圖樣式 --- */
+  /* --- [2] 貓咪動圖 --- */
   .cat-gif {
     position: absolute;
     bottom: 30%; 
@@ -83,7 +73,7 @@
     z-index: 2; pointer-events: none; filter: brightness(0.95);
   }
 
-  /* --- 石獅子與陰影結構 --- */
+  /* --- [3] 石獅子與陰影 --- */
   .lion-wrapper {
     position: absolute;
     bottom: -5%; 
@@ -102,7 +92,7 @@
     z-index: 2; transform: scaleY(0.5); filter: blur(5px); 
   }
 
-  /* --- 中國結樣式 --- */
+  /* --- [4] 中國結 (紅繩) --- */
   .knot {
     position: absolute;
     width: 40vw; max-width: 400px; height: auto;
@@ -111,8 +101,12 @@
     transform-origin: top center;
     animation: swing 3s ease-in-out infinite alternate;
     z-index: 10;
+    
+    /* 頂部漸層遮罩 (若隱若現效果) */
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
+    
+    /* 禁止選取與預設拖曳 */
     user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none;
   }
   
@@ -124,7 +118,7 @@
     100% { transform: rotate(1.5deg); }
   }
 
-  /* --- 文字區域 --- */
+  /* --- [5] 提示文字 --- */
   .title-area {
     position: absolute; 
     top: 10%; 
@@ -209,12 +203,13 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
+    // 水平定位
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
 
-    // 垂直定位
+    // 垂直定位 (微調後的位置)
     if (index === 1) { knotImg.style.top = '18%'; } 
     else if (index === 0) { knotImg.style.top = '25.5%'; } 
     else { knotImg.style.top = '23%'; }
@@ -224,10 +219,12 @@
     scene.appendChild(knotImg);
   }
 
+  // --- 互動與拖曳邏輯 ---
   function setupDragInteraction(element) {
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
 
+    // 觸控開始
     element.addEventListener('touchstart', function(e) {
       if (e.touches.length > 1) return;
       isDragging = true;
@@ -236,6 +233,7 @@
       startY = e.touches[0].clientY;
     }, { passive: false });
 
+    // 滑鼠開始
     element.addEventListener('mousedown', function(e) {
       e.preventDefault();
       isDragging = true;
@@ -244,6 +242,7 @@
       startY = e.clientY;
     });
 
+    // 觸控移動 (含 LINE 防關閉機制)
     window.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
       if (e.cancelable) { e.preventDefault(); }
@@ -256,6 +255,7 @@
       }
     }, { passive: false });
 
+    // 滑鼠移動
     window.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
       e.preventDefault();
@@ -268,6 +268,7 @@
       }
     });
 
+    // 結束拖曳
     const endHandler = function() {
       if (!isDragging) return;
       isDragging = false;
