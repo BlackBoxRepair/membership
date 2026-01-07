@@ -32,11 +32,12 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (新增若隱若現效果) --- */
+  /* --- 2. 中國結樣式 (尺寸加大版) --- */
   .knot {
     position: absolute;
-    width: 30vw;         
-    max-width: 280px;
+    /* [關鍵修正]: 尺寸再放大 */
+    width: 36vw;         /* 從 30vw 增加到 36vw */
+    max-width: 350px;    /* 電腦版最大寬度也同步放寬 */
     height: auto;
     
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
@@ -46,9 +47,7 @@
     transition: transform 0.5s cubic-bezier(0.25, 1.5, 0.5, 1);
     z-index: 10;
 
-    /* [關鍵新增]：頂部漸層遮罩效果 */
-    /* 讓頂端 0% 處是透明的，到了 15% 的位置才完全顯示 */
-    /* 這樣看起來就像是繩子從樹葉陰影中慢慢浮現出來 */
+    /* 頂部若隱若現遮罩 */
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
   }
@@ -151,13 +150,15 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 1. 水平定位 (Left) ---
+    // --- 1. 水平定位 (Left) - 配合尺寸修正 ---
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
-    const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半
+    
+    // [修正]: 圖片變大了 (36vw)，所以這裡要減去 18 (36的一半) 才能居中
+    const finalLeft = centerOfSection - 18; 
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 保持上次的設定 ---
+    // --- 2. 垂直定位 (Top) - 保持階梯狀層次 ---
     if (index === 1) {
       // 中間 (index 1)：18% (最高)
       knotImg.style.top = '18%'; 
