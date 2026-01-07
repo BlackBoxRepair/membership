@@ -31,7 +31,7 @@
     pointer-events: none;
   }
 
-  /* --- [1] 飛鳥動圖 (靠近文字) --- */
+  /* --- [1] 飛鳥動圖 --- */
   .flying-bird {
     position: absolute;
     top: 7.5%;       
@@ -55,81 +55,63 @@
     100% { opacity: 0; transform: translateY(5px); }
   }
 
-  /* --- [2] 貓咪動圖 (改為可點擊) --- */
+  /* --- [2] 貓咪動圖 --- */
   .cat-gif {
     position: absolute;
     bottom: 30%; 
     left: 15%;   
     width: 42vw; max-width: 250px; height: auto;
-    z-index: 5; /* 提高層級，方便點擊 */
-    
-    /* [修改] 開啟點擊互動 */
+    z-index: 5; 
     pointer-events: auto; 
     cursor: pointer;
     filter: brightness(0.95);
-    transition: transform 0.1s; /* 點擊時的小縮放效果 */
+    transition: transform 0.1s; 
   }
-  
-  /* 點擊時的效果 */
-  .cat-gif:active {
-    transform: scale(0.95);
-  }
+  .cat-gif:active { transform: scale(0.95); }
 
-  /* --- [新增] 貓咪對話框樣式 --- */
+  /* --- [修改] 貓咪對話框樣式 (縮小、往右移) --- */
   .cat-speech-bubble {
     position: absolute;
-    bottom: 45%; /* 在貓咪頭上 */
-    left: 28%;   /* 在貓咪右邊 */
+    bottom: 45%; 
+    
+    /* [修改] 位置往右移 */
+    left: 38%;   /* 從 28% 改為 38% */
     
     background: #fff;
-    padding: 10px 15px;
-    border-radius: 15px;
+    /* [修改] 尺寸縮小 */
+    padding: 8px 12px; /* 內距縮小 */
+    font-size: 0.9rem; /* 字體縮小 */
+    border-radius: 12px;
     border: 2px solid #333;
-    font-size: 1rem;
     font-weight: bold;
     color: #333;
-    z-index: 6; /* 比貓咪高 */
+    z-index: 6; 
     
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    pointer-events: none; /* 對話框本身不擋點擊 */
+    pointer-events: none; 
     
-    /* 初始狀態：隱藏 */
     opacity: 0;
     transform: scale(0.8);
     transition: all 0.3s ease-out;
     transform-origin: bottom left;
   }
 
-  /* 對話框的小尾巴 */
+  /* 對話框的小尾巴 (位置微調) */
   .cat-speech-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 20px;
-    border-width: 10px 10px 0;
-    border-style: solid;
-    border-color: #fff transparent;
-    display: block;
-    width: 0;
+    content: ''; position: absolute; bottom: -8px; left: 10px;
+    border-width: 8px 8px 0; border-style: solid; border-color: #fff transparent;
+    display: block; width: 0;
   }
-  .cat-speech-bubble::before { /* 尾巴邊框 */
-    content: '';
-    position: absolute;
-    bottom: -13px;
-    left: 18px;
-    border-width: 12px 12px 0;
-    border-style: solid;
-    border-color: #333 transparent;
-    display: block;
-    width: 0;
-    z-index: -1;
+  .cat-speech-bubble::before {
+    content: ''; position: absolute; bottom: -11px; left: 8px;
+    border-width: 10px 10px 0; border-style: solid; border-color: #333 transparent;
+    display: block; width: 0; z-index: -1;
   }
 
   /* --- [3] 石獅子與陰影 --- */
   .lion-wrapper {
     position: absolute;
-    bottom: -5%; 
-    right: -8%;   
+    bottom: -5%; right: -8%;   
     width: 58vw; max-width: 360px; height: auto;
     z-index: 3; pointer-events: none; 
     display: flex; justify-content: center;
@@ -167,9 +149,7 @@
 
   /* --- [5] 提示文字 --- */
   .title-area {
-    position: absolute; 
-    top: 10%; 
-    width: 100%;
+    position: absolute; top: 10%; width: 100%;
     text-align: center; pointer-events: none; z-index: 15; 
   }
   .hint-text {
@@ -192,21 +172,33 @@
     position: relative;
   }
   
-  /* --- [新增] 密語輸入框樣式 --- */
+  /* 輸入框 */
   .secret-input {
-    width: 80%;
-    padding: 10px;
-    margin: 15px 0 25px 0;
-    font-size: 1.1rem;
-    border: 2px solid #ccc;
-    border-radius: 10px;
-    text-align: center;
-    outline: none;
+    width: 80%; padding: 10px; margin: 15px 0 5px 0; /* 底部 margin 減少，留給錯誤訊息 */
+    font-size: 1.1rem; border: 2px solid #ccc; border-radius: 10px;
+    text-align: center; outline: none;
   }
-  .secret-input:focus {
-    border-color: #d32f2f;
+  .secret-input:focus { border-color: #d32f2f; }
+  
+  /* [新增] 錯誤訊息樣式 */
+  .error-message {
+    height: 24px; /* 固定高度，避免文字出現時撐開版面 */
+    color: #d32f2f;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    opacity: 0; /* 預設隱藏 */
   }
   
+  /* [新增] 錯誤訊息閃爍動畫 (閃5次) */
+  .flash-anim {
+    animation: blinkRed 0.4s 5; /* 每次0.4秒，共5次 = 2秒 */
+  }
+  @keyframes blinkRed {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
   .prize-title { font-size: 1.2rem; color: #555; margin-bottom: 10px; }
   .prize-name { font-size: 2rem; color: #d32f2f; font-weight: bold; margin-bottom: 20px; }
   
@@ -216,11 +208,9 @@
     font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   }
   
-  /* 關閉按鈕 (X) */
   .close-btn {
     position: absolute; top: 10px; right: 15px;
-    font-size: 1.5rem; color: #999; cursor: pointer;
-    font-weight: bold;
+    font-size: 1.5rem; color: #999; cursor: pointer; font-weight: bold;
   }
 
   @keyframes popIn {
@@ -239,7 +229,6 @@
   </div>
 
   <img src="icon2.GIF" class="flying-bird">
-
   <img src="icon.GIF" class="cat-gif" onclick="openSecretModal()">
 
   <div class="cat-speech-bubble" id="catSpeech">小燕子身上有小秘密</div>
@@ -262,11 +251,13 @@
   <div class="modal-content">
     <div class="close-btn" onclick="closeModal('secretModal')">×</div>
     <div class="prize-name" style="margin-bottom: 5px;">喵喵喵～～</div>
-    <div class="prize-title" style="font-size: 1rem;">請輸入通關密語</div>
+    <div class="prize-title" style="font-size: 1rem;">猜猜看貓語吧</div>
     
     <input type="text" id="secretInput" class="secret-input" placeholder="輸入密語...">
     
-    <button class="btn-confirm" onclick="checkSecretCode()">解鎖</button>
+    <div id="errorText" class="error-message"></div>
+    
+    <button class="btn-confirm" onclick="checkSecretCode()">翻譯完成</button>
   </div>
 </div>
 
@@ -276,12 +267,12 @@
   const secretModal = document.getElementById('secretModal');
   const prizeText = document.getElementById('prizeText');
   const secretInput = document.getElementById('secretInput');
+  const errorText = document.getElementById('errorText');
   const catSpeech = document.getElementById('catSpeech');
 
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
-  // --- 遊戲初始化 ---
   function initGame() {
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
@@ -307,7 +298,6 @@
     scene.appendChild(knotImg);
   }
 
-  // --- 互動與拖曳邏輯 ---
   function setupDragInteraction(element) {
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
@@ -378,49 +368,66 @@
     resultModal.style.display = 'flex';
   }
 
-  // --- [新增] 密語相關功能 ---
+  // --- 密語相關邏輯 ---
   
-  // 1. 打開密語彈窗
   function openSecretModal() {
-    // 清空上次輸入
     secretInput.value = "";
+    // 清除之前的錯誤訊息
+    errorText.innerText = "";
+    errorText.style.opacity = "0";
+    errorText.classList.remove("flash-anim");
+    
     secretModal.style.display = 'flex';
-    // 讓輸入框自動聚焦 (手機上可能需要點一下)
     setTimeout(() => secretInput.focus(), 100);
   }
 
-  // 2. 檢查密語
   function checkSecretCode() {
     const code = secretInput.value.trim();
+    
     if (code === "新年快樂") {
-      // 密語正確
+      // 成功：關閉視窗並顯示對話框
       closeModal('secretModal');
       showCatSpeechBubble();
     } else {
-      // 密語錯誤
-      alert("喵？聽不懂喔～ (密語錯誤)");
+      // 失敗：顯示紅色閃爍錯誤訊息
+      showErrorAnim();
       secretInput.value = "";
     }
   }
 
-  // 3. 顯示對話框 20秒
+  function showErrorAnim() {
+    // 1. 設定錯誤文字
+    errorText.innerText = "喵？聽不懂喔～";
+    
+    // 2. 移除動畫 class (以便重置)
+    errorText.classList.remove("flash-anim");
+    
+    // 3. 強制瀏覽器重繪 (Reflow)，讓動畫可以重新觸發
+    void errorText.offsetWidth; 
+    
+    // 4. 加入動畫 class 開始閃爍
+    errorText.classList.add("flash-anim");
+    
+    // 5. 動畫設定為 0.4s * 5次 = 2秒，結束後清除文字
+    setTimeout(() => {
+      errorText.innerText = "";
+      errorText.classList.remove("flash-anim");
+    }, 2000); 
+  }
+
   let speechTimer;
   function showCatSpeechBubble() {
-    // 顯示
     catSpeech.style.opacity = '1';
     catSpeech.style.transform = 'scale(1)';
     
-    // 如果之前有計時器，先清除，避免閃爍
     if (speechTimer) clearTimeout(speechTimer);
 
-    // 設定 20秒後消失
     speechTimer = setTimeout(() => {
       catSpeech.style.opacity = '0';
       catSpeech.style.transform = 'scale(0.8)';
-    }, 20000); // 20000毫秒 = 20秒
+    }, 20000); 
   }
 
-  // --- 通用關閉彈窗 ---
   function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
   }
