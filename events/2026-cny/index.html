@@ -31,21 +31,38 @@
     pointer-events: none;
   }
 
-  /* --- [新增] 石獅子樣式 --- */
-  .stone-lion {
+  /* --- [修改] 石獅子容器與陰影 --- */
+  .lion-wrapper {
     position: absolute;
-    bottom: 2%;  /* 距離底部一點點 */
-    right: 2%;   /* 距離右邊一點點 */
-    width: 35vw; /* 手機上約佔 35% 寬度 */
-    max-width: 180px; /* 電腦版最大限制 */
+    bottom: 2%;  
+    right: 2%;   
+    /* 1. 尺寸放大 */
+    width: 45vw;      /* 從 35vw 改為 45vw */
+    max-width: 280px; /* 從 180px 改為 280px */
     height: auto;
-    z-index: 2; /* 在背景之上，但在紅繩之下 */
-    
-    /* 加一點陰影讓它融合進去 */
-    filter: drop-shadow(-5px 5px 10px rgba(0,0,0,0.6));
-    
-    /* 避免擋住使用者的誤觸 */
-    pointer-events: none;
+    z-index: 2; 
+    pointer-events: none; /* 讓點擊穿透 */
+    display: flex;
+    justify-content: center; /* 讓圖片跟陰影左右居中 */
+  }
+
+  .stone-lion {
+    width: 100%;
+    height: auto;
+    position: relative;
+    z-index: 2; /* 獅子在本體層 */
+    /* 移除原本的 filter: drop-shadow，因為那是全身陰影 */
+  }
+
+  /* 2. 新增底部落地陰影 (Shadow Base) */
+  .lion-shadow-base {
+    position: absolute;
+    bottom: 5px; /* 貼在底部 */
+    width: 90%;  /* 陰影寬度 */
+    height: 25px; /* 陰影高度 (扁扁的橢圓) */
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 70%);
+    z-index: 1; /* 在獅子下面 */
+    transform: scaleY(0.6); /* 壓扁一點看起來更有透視感 */
   }
 
   /* --- 中國結樣式 --- */
@@ -129,7 +146,10 @@
     <div class="hint-text">拉動幸運的新春紅線，好運降臨！</div>
   </div>
 
-  <img src="lion.png" class="stone-lion">
+  <div class="lion-wrapper">
+    <div class="lion-shadow-base"></div>
+    <img src="lion.png" class="stone-lion">
+  </div>
 
 </div>
 
