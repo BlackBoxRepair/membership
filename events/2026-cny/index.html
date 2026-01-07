@@ -3,19 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>新春好運三響砲 - LINE互動優化版</title>
+<title>新春好運三響砲</title>
 <style>
-  /* --- 基礎設定 --- */
+  /* --- 基礎設定 (維持不變) --- */
   html, body {
     margin: 0; padding: 0;
-    width: 100%; height: 100%; /* 強制滿版 */
-    overflow: hidden; /* 禁止出現捲軸 */
+    width: 100%; height: 100%; 
+    overflow: hidden; 
     background-color: #000;
-    
-    /* [關鍵修正 1]: CSS 鎖定 */
-    /* 告訴瀏覽器這個頁面不需要捲動回彈效果 */
     overscroll-behavior: none; 
-    /* 禁止預設的手勢操作 (如上一頁、縮放) */
     touch-action: none; 
   }
 
@@ -35,7 +31,7 @@
     pointer-events: none;
   }
 
-  /* --- 中國結樣式 --- */
+  /* --- 中國結樣式 (維持不變) --- */
   .knot {
     position: absolute;
     width: 40vw; 
@@ -48,36 +44,51 @@
     z-index: 10;
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
     mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
-    
-    /* 防止拖曳時選取到圖片 */
     user-select: none;
     -webkit-user-drag: none;
-    -webkit-touch-callout: none; /* 禁止長按跳出選單 */
+    -webkit-touch-callout: none;
   }
   
-  .knot.dragging {
-    cursor: grabbing;
-    transition: none !important; 
-    animation: none !important; 
-  }
-  
-  .knot.releasing {
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-  }
+  .knot.dragging { cursor: grabbing; transition: none !important; animation: none !important; }
+  .knot.releasing { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
   @keyframes swing {
     0% { transform: rotate(-1.5deg); } 
     100% { transform: rotate(1.5deg); }
   }
 
-  /* 標題與彈窗樣式 */
+  /* --- [關鍵修改]：新的上方提示文字樣式 --- */
   .title-area {
-    position: absolute; bottom: 8%; width: 100%;
-    text-align: center; color: #fff; pointer-events: none; z-index: 5;
+    position: absolute;
+    /* 原本是 bottom: 8%，現在改到上面樹葉區 */
+    top: 12%;  
+    width: 100%;
+    text-align: center;
+    pointer-events: none; /* 確保不擋住觸控 */
+    z-index: 15; /* 確保在紅繩上方 */
   }
-  .title-area h1 { margin: 0; font-size: 2rem; color: #FFD700; text-shadow: 0 0 10px #d32f2f; }
-  .title-area p { margin: 10px 0 0; font-size: 1.1rem; opacity: 0.9; font-weight: bold; }
 
+  /* 新增的提示膠囊樣式 */
+  .hint-badge {
+    display: inline-block; /* 讓背景包覆文字 */
+    padding: 12px 35px;
+    /* 半透明深色背景，增加對比度 */
+    background: rgba(0, 40, 0, 0.65); 
+    color: #FFD700; /* 金色文字 */
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px; /* 圓角膠囊狀 */
+    /* 金色邊框與陰影，增加立體感 */
+    border: 2px solid rgba(255, 215, 0, 0.8);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 1px;
+  }
+  
+  /* 原本的 h1 和 p 樣式已移除 */
+
+
+  /* --- 彈窗樣式 (維持不變) --- */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.85); z-index: 999;
@@ -105,10 +116,11 @@
 
 <div class="scene-container" id="scene">
   <div class="overlay"></div>
+  
   <div class="title-area">
-    <h1>新春好運 • 三響砲</h1>
-    <p>長按紅繩向下拉，試試手氣！</p>
+    <div class="hint-badge">拉動幸運的新春紅線，好運降臨！</div>
   </div>
+
 </div>
 
 <div class="modal-overlay" id="resultModal">
@@ -142,13 +154,9 @@
     const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
 
-    if (index === 1) {
-      knotImg.style.top = '18%'; 
-    } else if (index === 0) {
-      knotImg.style.top = '21.5%'; 
-    } else {
-      knotImg.style.top = '23%'; 
-    }
+    if (index === 1) { knotImg.style.top = '18%'; } 
+    else if (index === 0) { knotImg.style.top = '21.5%'; } 
+    else { knotImg.style.top = '23%'; }
 
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
     setupDragInteraction(knotImg);
@@ -162,40 +170,25 @@
     const maxDragDistance = 250; 
     const triggerThreshold = 100; 
 
-    // 針對紅繩本身綁定 Touch Start
     element.addEventListener('touchstart', function(e) {
-      // 防止多指觸控
       if (e.touches.length > 1) return;
-      
-      // [關鍵修正 2]: 在開始觸摸的一瞬間，就阻止事件冒泡
-      // 這有助於告訴瀏覽器：「這個元素的互動我全包了」
-      // e.preventDefault(); // 註：touchstart 加 preventDefault 有時會擋住 click，這裡先不加，靠 touchmove 擋
-      
       isDragging = true;
       element.classList.add('dragging'); 
       element.classList.remove('releasing');
       startY = e.touches[0].clientY;
-    }, { passive: false }); // 設為 false 讓我們有權力在後續 preventDefault
+    }, { passive: false });
 
-    // 滑鼠事件 (電腦版測試用)
     element.addEventListener('mousedown', function(e) {
-      e.preventDefault(); // 防止圖片拖曳產生鬼影
+      e.preventDefault();
       isDragging = true;
       element.classList.add('dragging'); 
       element.classList.remove('releasing');
       startY = e.clientY;
     });
 
-    // 將 Move 事件綁在 Window 上，確保拖出紅繩範圍也能感應
     window.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
-
-      // [關鍵修正 3]: 這是最重要的部分！
-      // 如果正在拖曳紅繩，我們強制禁止瀏覽器的預設行為
-      // 這行代碼會讓 LINE 瀏覽器無法執行「下拉關閉」或「下拉刷新」
-      if (e.cancelable) {
-        e.preventDefault(); 
-      }
+      if (e.cancelable) { e.preventDefault(); }
 
       const clientY = e.touches[0].clientY;
       const diff = clientY - startY;
@@ -205,15 +198,13 @@
         element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
         currentY = pullDistance;
       }
-    }, { passive: false }); // 這裡必須是 false，不然 preventDefault 會無效
+    }, { passive: false });
 
     window.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
-      e.preventDefault(); // 電腦版防止選取文字
-
+      e.preventDefault();
       const clientY = e.clientY;
       const diff = clientY - startY;
-
       if (diff > 0) {
         let pullDistance = Math.min(diff, maxDragDistance); 
         element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
@@ -221,7 +212,6 @@
       }
     });
 
-    // 結束事件
     const endHandler = function() {
       if (!isDragging) return;
       isDragging = false;
