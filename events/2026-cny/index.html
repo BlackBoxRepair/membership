@@ -31,6 +31,23 @@
     pointer-events: none;
   }
 
+  /* --- [新增] 石獅子樣式 --- */
+  .stone-lion {
+    position: absolute;
+    bottom: 2%;  /* 距離底部一點點 */
+    right: 2%;   /* 距離右邊一點點 */
+    width: 35vw; /* 手機上約佔 35% 寬度 */
+    max-width: 180px; /* 電腦版最大限制 */
+    height: auto;
+    z-index: 2; /* 在背景之上，但在紅繩之下 */
+    
+    /* 加一點陰影讓它融合進去 */
+    filter: drop-shadow(-5px 5px 10px rgba(0,0,0,0.6));
+    
+    /* 避免擋住使用者的誤觸 */
+    pointer-events: none;
+  }
+
   /* --- 中國結樣式 --- */
   .knot {
     position: absolute;
@@ -57,30 +74,25 @@
     100% { transform: rotate(1.5deg); }
   }
 
-  /* --- [修改]: 文字區域位置與樣式 --- */
+  /* --- 文字區域位置與樣式 --- */
   .title-area {
     position: absolute;
-    top: 13%; /* 稍微調整高度 */ 
+    top: 13%; 
     width: 100%;
     text-align: center;
     pointer-events: none; 
     z-index: 15; 
   }
 
-  /* [修改]: 純文字樣式 */
   .hint-text {
     display: inline-block;
-    color: #ffffff; /* 1. 改為白色 */
-    font-size: 1rem; /* 2. 稍微縮小 (原本是 1.2rem) */
+    color: #ffffff; 
+    font-size: 1rem; 
     font-weight: bold;
-    letter-spacing: 1.5px; /* 字距稍微拉開增加質感 */
-    
-    /* 3. 移除邊框與背景色 */
+    letter-spacing: 1.5px; 
     background: transparent;
     border: none;
     box-shadow: none;
-
-    /* 4. 加強文字陰影，確保在樹葉背景上清楚可見 */
     text-shadow: 0 2px 4px rgba(0,0,0,0.9);
   }
 
@@ -116,6 +128,8 @@
   <div class="title-area">
     <div class="hint-text">拉動幸運的新春紅線，好運降臨！</div>
   </div>
+
+  <img src="lion.png" class="stone-lion">
 
 </div>
 
