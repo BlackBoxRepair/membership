@@ -32,16 +32,14 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 (位置精準修正版) --- */
+  /* --- 2. 中國結樣式 --- */
   .knot {
     position: absolute;
-    width: 30vw;         /* 巨大化尺寸 */
+    width: 30vw;         
     max-width: 280px;
     height: auto;
     
-    /* [關鍵修正點]：將起點大幅下移至樹葉下方 */
-    /* 原本 15% -> 改為 28%，對齊您畫紅圈的位置 */
-    top: 28%;            
+    /* 注意：這裡的 top 會被 JS 覆蓋，所以 CSS 這邊可以不用寫，或是寫個預設值 */
     
     filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.7)); 
     cursor: pointer;
@@ -57,7 +55,6 @@
   }
 
   .knot.pulled {
-    /* 拉動時往下掉更多 */
     transform: translateY(20vh) scale(1.05) !important; 
   }
 
@@ -150,15 +147,22 @@
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
     
-    // --- 3分區精準定位法 ---
+    // --- 1. 水平定位 (Left) ---
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
-    
-    // 圖片寬度的一半 (30vw / 2 = 15)
-    const finalLeft = centerOfSection - 15; 
-
+    const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半 (30vw/2)
     knotImg.style.left = finalLeft + '%';
-    
+
+    // --- 2. 垂直定位 (Top) - 關鍵修改 ---
+    // index 0 是左邊，index 1 是中間，index 2 是右邊
+    if (index === 1) {
+      // 中間那一條：掛高一點 (數值越小越上面)
+      knotImg.style.top = '18%'; 
+    } else {
+      // 左右兩邊：掛低一點 (對齊之前設定的 28%)
+      knotImg.style.top = '28%'; 
+    }
+
     // 隨機動畫延遲
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
 
