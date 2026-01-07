@@ -151,13 +151,15 @@
     const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 調整後 ---
+    // --- 2. 垂直定位 (Top) - 針對每一條獨立微調 ---
     if (index === 1) {
-      // 中間那一條：維持原本高度
+      // 中間 (index 1)：維持最高
       knotImg.style.top = '18%'; 
+    } else if (index === 0) {
+      // 左邊 (index 0)：從 23% 改為 20% (往上提一點)
+      knotImg.style.top = '20%'; 
     } else {
-      // 左右兩邊：往上提一點
-      // 從 28% 改為 23% (數字越小越上面)
+      // 右邊 (index 2)：維持原本的 23%
       knotImg.style.top = '23%'; 
     }
 
