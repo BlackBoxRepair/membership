@@ -31,21 +31,19 @@
     pointer-events: none;
   }
 
-  /* --- [新增] 貓咪動圖樣式 --- */
+  /* --- [修改] 貓咪動圖樣式 --- */
   .cat-gif {
     position: absolute;
-    /* 根據您圈選的位置進行定位 */
-    bottom: 23%; 
+    /* 關鍵修改：往上移動 */
+    bottom: 33%; /* 從 23% 改為 33% */
     left: 35%;
     
-    width: 25vw; /* 設定適當大小 */
-    max-width: 150px; /* 電腦版限制 */
+    width: 25vw; 
+    max-width: 150px; 
     height: auto;
     
-    z-index: 2; /* 在背景之上，但在紅繩之下 */
-    pointer-events: none; /* 讓點擊穿透，不會擋住紅繩操作 */
-    
-    /* 微調一點亮度，讓它跟背景融合更好 */
+    z-index: 2; 
+    pointer-events: none; 
     filter: brightness(0.95);
   }
 
