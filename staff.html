@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v8.2 樣式優化 + 印單動畫 */
+        /* v8.3 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -55,45 +55,14 @@
         .dash-btn:active { transform: scale(0.96); }
         .dash-btn-light { background: white; color: #111; }
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
-
-        /* === 印單動畫 CSS (v8.2 新增) === */
-        .printer-slot {
-            width: 100px;
-            height: 14px;
-            background-color: #facc15; /* 黃色 */
-            border-radius: 20px;
-            position: relative;
-            z-index: 20;
-            box-shadow: 0 2px 10px rgba(250, 204, 21, 0.3);
-        }
-        .receipt-paper {
-            width: 80px;
-            background-color: #ffffff;
-            margin: 0 auto;
-            position: absolute;
-            top: 7px; /* 從黃條中間開始 */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            animation: printScroll 1.2s infinite ease-in-out;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        @keyframes printScroll {
-            0% { height: 0px; opacity: 0; }
-            10% { opacity: 1; }
-            80% { height: 100px; opacity: 1; }
-            100% { height: 120px; opacity: 0; }
-        }
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
 
     <div id="loading-overlay" class="hidden fixed inset-0 z-[150] bg-black flex flex-col items-center justify-center">
-        <div class="relative w-40 h-40 flex items-center justify-center">
-            <div class="printer-slot"></div>
-            <div class="receipt-paper"></div>
-        </div>
-        <p class="text-white/80 font-bold mt-8 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
+        <video id="success-video" src="printer.mp4" muted playsinline class="w-64 h-64 object-contain"></video>
+        
+        <p class="text-white/80 font-bold mt-4 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
     </div>
 
     <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
@@ -110,7 +79,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.2</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.3</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
@@ -687,10 +656,19 @@
 
         function showLoading() {
             document.getElementById('loading-overlay').classList.remove('hidden');
+            const video = document.getElementById('success-video');
+            if (video) {
+                video.currentTime = 0;
+                video.play().catch(e => console.log('Auto-play blocked:', e));
+            }
         }
 
         function hideLoading() {
             document.getElementById('loading-overlay').classList.add('hidden');
+            const video = document.getElementById('success-video');
+            if (video) {
+                video.pause();
+            }
         }
 
         async function executeIssue() {
