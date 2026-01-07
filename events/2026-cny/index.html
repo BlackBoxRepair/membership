@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>新春好運拉拉樂 - 測試版</title>
+<style>
+  /* --- 基礎設定 --- */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: "Microsoft JhengHei", Arial, sans-serif;
+    overflow: hidden; /* 防止出現捲軸 */
+    background-color: #000;
+  }
+
+  /* --- 1. 主場景 (大樹背景) --- */
+  .scene-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('tree_bg.jpg'); /* 請確保檔名正確 */
+    background-size: cover;
+    background-position: center bottom; /* 對齊底部，確保樹幹與地面清楚 */
+    z-index: 1;
+  }
+
+  /* 遮罩層 (讓樹葉下方稍微暗一點，凸顯紅繩，可選) */
+  .overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 40%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
+    pointer-events: none;
+  }
+
+  /* --- 2. 中國結樣式 --- */
+  .knot {
+    position: absolute;
+    width: 70px; /* 您可以根據圖片實際比例調整大小 */
+    height: auto;
+    filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.5)); /* 增加陰影立體感 */
+    cursor: pointer;
+    
+    /* 預設的微風擺動動畫 */
+    transform-origin: top center; /* 設定旋轉支點在繩子頂端 */
+    animation: swing 3s ease-in-out infinite alternate;
+    
+    /* 點擊後的過渡效果設定 */
+    transition: transform 0.5s cubic-bezier(0.25, 1.5, 0.5, 1); /* 彈性回彈效果 */
+  }
+
+  /* 定義擺動 Keyframes */
+  @keyframes swing {
+    0% { transform: rotate(-3deg); }
+    100% { transform: rotate(3deg); }
+  }
+
+  /* 被拉動時的狀態 class */
+  .knot.pulled {
+    /* 往下移動 150px 並且稍微放大 */
+    transform: translateY(150px) scale(1.1) !important; 
+    /* !important 覆蓋掉原本的 swing 動畫 */
+  }
+
+  /* --- 3. 標題與提示文字 --- */
+  .title-area {
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    pointer-events: none; /* 讓點擊可以穿透文字點到後面的東西 */
+  }
+  .title-area h1 { margin: 0; font-size: 24px; color: #FFD700; }
+  .title-area p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
+
+  /* --- 4. 中獎結果彈窗 (Modal) --- */
+  .modal-overlay {
+    display: none; /* 預設隱藏 */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 999;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: #fff;
+    width: 80%;
+    max-width: 300px;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    border: 4px solid #d32f2f;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    animation: popIn 0.3s ease-out;
+  }
+
+  .prize-title { font-size: 18px; color: #555; margin-bottom: 10px; }
+  .prize-name { font-size: 28px; color: #d32f2f; font-weight: bold; margin-bottom: 20px; }
+  
+  .btn-confirm {
+    background: #d32f2f; color: white; border: none;
+    padding: 10px 30px; border-radius: 20px; font-size: 16px;
+    cursor: pointer;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="scene-container" id="scene">
+  <div class="overlay"></div> <div class="title-area">
+    <h1>新春好運拉拉樂</h1>
+    <p>點擊樹上的紅繩，看看運氣如何？</p>
+  </div>
+</div>
+
+<div class="modal-overlay" id="resultModal">
+  <div class="modal-content">
+    <div class="prize-title">恭喜您獲得</div>
+    <div class="prize-name" id="prizeText">...</div>
+    <button class="btn-confirm" onclick="closeModal()">開心收下</button>
+  </div>
+</div>
+
+<script>
+  // --- 設定參數 ---
+  const scene = document.getElementById('scene');
+  const modal = document.getElementById('resultModal');
+  const prizeText = document.getElementById('prizeText');
+  
+  // 要生成的紅繩數量
+  const totalKnots = 8;
+  
+  // 模擬獎品清單 (未來這裡會換成從資料庫讀取)
+  const demoPrizes = [
+    "維修 9 折券", "免費鋼化膜", "充電線一條", 
+    "維修現折 $100", "銘謝惠顧", "全機包膜 8 折"
+  ];
+
+  // --- 初始化：掛上紅繩 ---
+  function initGame() {
+    for (let i = 0; i < totalKnots; i++) {
+      createKnot(i);
+    }
+  }
+
+  function createKnot(index) {
+    const knotImg = document.createElement('img');
+    knotImg.src = 'knot.png'; // 確保檔名正確
+    knotImg.className = 'knot';
+    
+    // --- 隨機位置算法 (針對樹葉區域優化) ---
+    // 水平 (Left): 5% ~ 85% 避免貼邊
+    const randomLeft = 5 + Math.random() * 80; 
+    
+    // 垂直 (Top): 10% ~ 40% (樹葉通常在上半部)
+    // 您可以調整 maxTop 數值來決定繩子最低可以掛到哪
+    const minTop = 5;
+    const maxTop = 40; 
+    const randomTop = minTop + Math.random() * (maxTop - minTop);
+
+    knotImg.style.left = randomLeft + '%';
+    knotImg.style.top = randomTop + '%';
+
+    // 隨機動畫延遲，讓擺動看起來自然不同步
+    knotImg.style.animationDelay = -(Math.random() * 3) + 's';
+
+    // --- 綁定點擊/觸摸事件 ---
+    knotImg.addEventListener('click', function() {
+      playPullAnimation(knotImg);
+    });
+
+    scene.appendChild(knotImg);
+  }
+
+  // --- 互動邏輯：拉動效果與開獎 ---
+  function playPullAnimation(element) {
+    // 1. 加上 class 觸發 CSS 的下拉動畫
+    element.classList.add('pulled');
+    
+    // 2. 暫時移除點擊事件，防止連點
+    element.style.pointerEvents = 'none';
+
+    // 3. 等待 0.6 秒動畫跑一下，然後顯示結果
+    setTimeout(() => {
+      // 隨機抽一個獎品顯示 (模擬後端回傳)
+      const randomPrize = demoPrizes[Math.floor(Math.random() * demoPrizes.length)];
+      showResult(randomPrize);
+
+      // (可選) 開完獎後，繩子縮回去
+      setTimeout(() => {
+        element.classList.remove('pulled');
+        element.style.pointerEvents = 'auto'; 
+      }, 500);
+
+    }, 600);
+  }
+
+  function showResult(prizeName) {
+    prizeText.innerText = prizeName;
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  // 啟動遊戲
+  initGame();
+
+</script>
+
+</body>
+</html>
