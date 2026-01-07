@@ -32,7 +32,7 @@
     pointer-events: none;
   }
 
-  /* --- 2. 中國結樣式 --- */
+  /* --- 2. 中國結樣式 (新增若隱若現效果) --- */
   .knot {
     position: absolute;
     width: 30vw;         
@@ -45,6 +45,12 @@
     animation: swing 3s ease-in-out infinite alternate;
     transition: transform 0.5s cubic-bezier(0.25, 1.5, 0.5, 1);
     z-index: 10;
+
+    /* [關鍵新增]：頂部漸層遮罩效果 */
+    /* 讓頂端 0% 處是透明的，到了 15% 的位置才完全顯示 */
+    /* 這樣看起來就像是繩子從樹葉陰影中慢慢浮現出來 */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
   }
 
   @keyframes swing {
@@ -151,15 +157,15 @@
     const finalLeft = centerOfSection - 15; // 減去圖片寬度的一半
     knotImg.style.left = finalLeft + '%';
 
-    // --- 2. 垂直定位 (Top) - 針對每一條獨立微調 ---
+    // --- 2. 垂直定位 (Top) - 保持上次的設定 ---
     if (index === 1) {
-      // 中間 (index 1)：維持最高
+      // 中間 (index 1)：18% (最高)
       knotImg.style.top = '18%'; 
     } else if (index === 0) {
-      // 左邊 (index 0)：從 23% 改為 20% (往上提一點)
+      // 左邊 (index 0)：20% (次高)
       knotImg.style.top = '20%'; 
     } else {
-      // 右邊 (index 2)：維持原本的 23%
+      // 右邊 (index 2)：23% (最低)
       knotImg.style.top = '23%'; 
     }
 
