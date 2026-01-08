@@ -146,16 +146,40 @@
     });
   }
 
-  // 執行 LINE 登入 (跳轉)
+  // --- 執行 LINE 登入 (除錯版) ---
   async function signInWithLine() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'line',
-      options: {
-        // 登入成功後，跳轉回「當前網頁」
-        redirectTo: window.location.href, 
-      },
-    });
-    if (error) alert("登入失敗: " + error.message);
+    console.log("嘗試執行 LINE 登入...");
+    
+    // 檢查 Supabase 是否連線
+    if (!supabase) {
+      alert("錯誤：Supabase SDK 未載入，請重新整理網頁");
+      return;
+    }
+
+    try {
+      // 執行登入
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'line',
+        options: {
+          // 這裡填入您當下的網址，確保跳得回來
+          redirectTo: window.location.href, 
+        },
+      });
+
+      // 捕捉 Supabase 回傳的錯誤
+      if (error) {
+        console.error("登入錯誤:", error);
+        alert("登入失敗:\n" + error.message + "\n(請檢查 Supabase URL Configuration 設定)");
+      } else {
+        console.log("正在跳轉 LINE...", data);
+        // 如果成功，瀏覽器應該會自動跳轉，如果沒跳轉可能是被擋
+      }
+      
+    } catch (err) {
+      // 捕捉程式執行錯誤
+      console.error("執行例外:", err);
+      alert("程式執行錯誤:\n" + err.message);
+    }
   }
 
   checkSession();
