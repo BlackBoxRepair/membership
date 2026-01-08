@@ -49,18 +49,14 @@
     100% { opacity: 0; transform: translateY(5px); }
   }
 
-  /* --- [2] 貓咪動圖 (已移除互動) --- */
+  /* --- [2] 貓咪動圖 (無互動) --- */
   .cat-gif {
     position: absolute;
     bottom: 30%; left: 15%;   
     width: 42vw; max-width: 250px; height: auto;
-    z-index: 5; 
-    /* [修改點] 改回 none，不讓點擊 */
-    pointer-events: none; 
+    z-index: 5; pointer-events: none; 
     filter: brightness(0.98); 
   }
-  
-  /* [已移除] 貓咪對話框相關 CSS */
 
   /* --- [3] 石獅子 (右下角互動按鈕) --- */
   .lion-wrapper {
@@ -160,10 +156,12 @@
     100% { transform: scale(1) translateY(0); opacity: 1; }
   }
 
+  /* 副標題 (小字提示) */
   .prize-title { 
     font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; 
-    letter-spacing: 2px; font-weight: normal;
+    letter-spacing: 1px; font-weight: normal;
   }
+  /* 主標題 */
   .prize-name { 
     font-size: 1.6rem; color: #5d4037; 
     font-weight: 600; margin-bottom: 25px; letter-spacing: 1px;
@@ -200,8 +198,6 @@
   }
   .store-btn:active { background: #efebe9; border-color: #8d6e63; transform: scale(0.98); }
 
-  /* [已移除] 密語輸入框與錯誤訊息 CSS */
-
 </style>
 </head>
 <body>
@@ -216,7 +212,9 @@
   <img src="icon.GIF" class="cat-gif">
   
   <img src="wealth_horse.png" class="wealth-horse">
+
   <div class="lion-shadow-base"></div>
+  
   <div class="lion-wrapper" id="lionBtn" onclick="openStoreModal()">
     <img src="lion.png" class="stone-lion">
   </div>
@@ -232,7 +230,9 @@
 
 <div class="modal-overlay" id="storeModal" onclick="closeModal('storeModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="prize-name" style="font-size: 1.3rem; margin-bottom: 25px;">請選擇服務門市</div>
+    <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 5px;">點石成金 祈福獅</div>
+    <div class="prize-title" style="font-size: 0.9rem; margin-bottom: 25px;">喜歡我們的服務請給我們好評</div>
+    
     <button class="store-btn" onclick="openReview('ChIJ0UjI3qs9aTQRL9j0jSyHwOk')">
       <span class="pin-icon"></span> 勤美公益店
     </button>
@@ -253,11 +253,9 @@
 <script>
   const scene = document.getElementById('scene');
   const resultModal = document.getElementById('resultModal');
-  // [已移除] secretModal 相關變數
   const storeModal = document.getElementById('storeModal');
   const pointsModal = document.getElementById('pointsModal');
   const prizeText = document.getElementById('prizeText');
-  // [已移除] secretInput, errorText, catSpeech 相關變數
   const lionBtn = document.getElementById('lionBtn');
 
   const totalKnots = 3;
@@ -368,8 +366,6 @@
     prizeText.innerText = prize;
     resultModal.style.display = 'flex';
   }
-
-  // [已移除] 密語相關的所有 JS 函式 (openSecretModal, checkSecretCode, showErrorAnim, showCatSpeechBubble)
 
   // --- 門市與評論 ---
   function openStoreModal() {
