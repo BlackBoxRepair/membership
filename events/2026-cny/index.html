@@ -410,15 +410,13 @@
     }, 20000); 
   }
 
-  // --- 門市與評論連結邏輯 (LINE 破解版) ---
+  // --- 門市與評論連結邏輯 (Place ID + LINE 參數) ---
   function openStoreModal() {
     storeModal.style.display = 'flex';
   }
 
   function openReview(placeId) {
-    // 加上 &openExternalBrowser=1 這個關鍵參數
-    // 這是告訴 LINE：「請不要用內建瀏覽器，請用外部系統瀏覽器開啟這個連結」
-    // 外部瀏覽器喚醒 App 的成功率最高
+    // 構建強制評論的連結，並加上 LINE 專用的開啟外部瀏覽器參數
     const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`;
     window.open(reviewUrl, '_blank');
   }
