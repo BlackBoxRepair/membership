@@ -95,17 +95,19 @@
   }
   .stone-lion { width: 100%; height: auto; display: block; }
 
-  /* --- [新增] 財神馬 (左下角) --- */
+  /* --- [修改] 財神馬 (放大並下移) --- */
   .wealth-horse {
     position: absolute;
-    bottom: 2%; /* 距離底部的位置 */
-    left: 3%;   /* 距離左側的位置 */
-    width: 32vw; /* 寬度設定，略小於石獅子 */
-    max-width: 200px; 
+    /* [修改點 1]: 往下移動，負值代表往下超出畫面一點點，看起來更穩 */
+    bottom: -4%; 
+    left: 3%;   
+    /* [修改點 2]: 放大尺寸，與石獅子 (58vw) 相當 */
+    width: 55vw; 
+    max-width: 350px; 
     height: auto;
-    z-index: 3; /* 與石獅子同層級 */
-    pointer-events: none; /* 純裝飾，不給點擊 */
-    filter: brightness(0.98); /* 稍微調整亮度融入背景 */
+    z-index: 3; 
+    pointer-events: none; 
+    filter: brightness(0.98);
   }
 
   .lion-shadow-base {
@@ -313,7 +315,7 @@
     checkLionStatus();
   }
 
-  // --- 狀態偵測：檢查是否剛從評論頁面回來 ---
+  // --- 狀態偵測 ---
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
       closeModal('storeModal');
