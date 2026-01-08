@@ -10,7 +10,7 @@
   /* --- 基礎設定 --- */
   html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; touch-action: manipulation; font-family: -apple-system, sans-serif; }
   
-  /* --- 登入遮罩 (未登入時顯示) --- */
+  /* --- 登入遮罩 --- */
   #loginOverlay { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); z-index: 9999; 
@@ -111,33 +111,38 @@
 </div>
 
 <script>
-  // --- 設定 ---
+  // --- Supabase 設定 ---
   const SUPABASE_URL = 'https://nszwpwimwxvjguoalrwt.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
   
-  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // [修正] 變數名稱改為 _supabase，避免跟官方 SDK 的 global supabase 衝突
+  let _supabase = null; 
+  if (typeof supabase !== 'undefined') {
+      _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+      alert("錯誤: Supabase SDK 未載入");
+  }
+
   let CURRENT_USER_ID = null;
 
   // --- 1. 登入檢查與執行 ---
   const loginOverlay = document.getElementById('loginOverlay');
 
-  // 網頁載入時，檢查是否已登入
+  // 網頁載入時檢查
   async function checkSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    if(!_supabase) return;
+    const { data: { session } } = await _supabase.auth.getSession();
 
     if (session) {
-      // 已登入 -> 進入遊戲
       console.log("已登入:", session.user);
       CURRENT_USER_ID = session.user.id;
       loginOverlay.style.display = 'none';
       initGame();
     } else {
-      // 未登入 -> 顯示登入框
       loginOverlay.style.display = 'flex';
     }
 
-    // 監聽登入狀態變化 (例如剛從 LINE 跳轉回來)
-    supabase.auth.onAuthStateChange((_event, session) => {
+    _supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         CURRENT_USER_ID = session.user.id;
         loginOverlay.style.display = 'none';
@@ -146,39 +151,32 @@
     });
   }
 
-  // --- 執行 LINE 登入 (除錯版) ---
+  // 執行 LINE 登入
   async function signInWithLine() {
-    console.log("嘗試執行 LINE 登入...");
+    alert("正在連接 LINE 登入..."); // [測試用] 確保按鈕有反應
     
-    // 檢查 Supabase 是否連線
-    if (!supabase) {
-      alert("錯誤：Supabase SDK 未載入，請重新整理網頁");
-      return;
+    if (!_supabase) {
+        alert("錯誤：Supabase 尚未初始化");
+        return;
     }
 
     try {
-      // 執行登入
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await _supabase.auth.signInWithOAuth({
         provider: 'line',
         options: {
-          // 這裡填入您當下的網址，確保跳得回來
           redirectTo: window.location.href, 
         },
       });
 
-      // 捕捉 Supabase 回傳的錯誤
       if (error) {
-        console.error("登入錯誤:", error);
-        alert("登入失敗:\n" + error.message + "\n(請檢查 Supabase URL Configuration 設定)");
+        alert("登入失敗:\n" + error.message);
       } else {
-        console.log("正在跳轉 LINE...", data);
-        // 如果成功，瀏覽器應該會自動跳轉，如果沒跳轉可能是被擋
+        // 成功的話會自動跳轉，這裡通常不會執行到
+        console.log("跳轉中...");
       }
       
     } catch (err) {
-      // 捕捉程式執行錯誤
-      console.error("執行例外:", err);
-      alert("程式執行錯誤:\n" + err.message);
+      alert("程式錯誤:\n" + err.message);
     }
   }
 
@@ -269,11 +267,11 @@
       element.classList.add('releasing');
       if (currentY > triggerThreshold) {
         element.style.transform = ''; 
-        if (supabase && CURRENT_USER_ID) {
+        if (_supabase && CURRENT_USER_ID) {
             if (isDrawing) return; 
             isDrawing = true; 
             showResult("祈福中...", "正在向神明請求好運...");
-            const { data, error } = await supabase.rpc('draw_cny_prize', { p_user_id: CURRENT_USER_ID });
+            const { data, error } = await _supabase.rpc('draw_cny_prize', { p_user_id: CURRENT_USER_ID });
             if (error) {
                 setTimeout(() => { showResult("連線失敗", error.message); isDrawing = false; }, 500);
             } else if (data.status === 'success') {
@@ -296,10 +294,10 @@
   }
 
   async function giveLionPoints() {
-    if (!supabase || !CURRENT_USER_ID) return;
-    const { data: u } = await supabase.from('profiles').select('points').eq('id', CURRENT_USER_ID).single();
+    if (!_supabase || !CURRENT_USER_ID) return;
+    const { data: u } = await _supabase.from('profiles').select('points').eq('id', CURRENT_USER_ID).single();
     if (u) {
-        await supabase.from('profiles').update({ points: (u.points || 0) + 10 }).eq('id', CURRENT_USER_ID);
+        await _supabase.from('profiles').update({ points: (u.points || 0) + 10 }).eq('id', CURRENT_USER_ID);
     }
   }
 </script>
