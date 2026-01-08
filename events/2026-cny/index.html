@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>新春好運三響砲</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-  /* --- 基礎設定 --- */
+  /* --- 基礎設定 (維持遊戲視覺) --- */
   html, body { 
     margin: 0; padding: 0; 
     width: 100%; height: 100%; 
@@ -18,20 +19,17 @@
 
   /* 遊戲場景 */
   .scene-container { 
-    position: relative; 
-    width: 100vw; height: 100vh; 
+    position: relative; width: 100vw; height: 100vh; 
     background-image: url('tree_bg.jpg'); 
-    background-size: cover; 
-    background-position: center bottom; 
+    background-size: cover; background-position: center bottom; 
     z-index: 1; 
   }
-
   .overlay { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(0,0,0,0.1); pointer-events: none; 
   }
 
-  /* --- 動物與裝飾 --- */
+  /* --- 動畫元件 --- */
   .flying-bird { 
     position: absolute; top: 7.5%; left: 50%; margin-left: 115px; 
     width: 18vw; max-width: 90px; height: auto; 
@@ -58,8 +56,7 @@
     width: 58vw; max-width: 360px; height: auto; 
     z-index: 100; pointer-events: auto; cursor: pointer; 
     display: flex; justify-content: center; 
-    transition: transform 0.1s, filter 0.5s; 
-    -webkit-tap-highlight-color: transparent; 
+    transition: transform 0.1s, filter 0.5s; -webkit-tap-highlight-color: transparent; 
   }
   .lion-wrapper:active { transform: scale(0.98); }
   .stone-lion { width: 100%; height: auto; display: block; }
@@ -76,12 +73,11 @@
     width: 45vw; max-width: 280px; height: auto; 
     z-index: 100; filter: brightness(0.98); 
     pointer-events: auto; cursor: pointer; 
-    transition: transform 0.1s; 
-    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s; -webkit-tap-highlight-color: transparent;
   }
   .wealth-horse:active { transform: scale(0.98); }
 
-  /* 中國結 (紅線) */
+  /* 紅線 */
   .knot { 
     position: absolute; width: 40vw; max-width: 400px; height: auto; 
     filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.3)); 
@@ -91,10 +87,7 @@
   }
   .knot.dragging { cursor: grabbing; transition: none !important; animation: none !important; }
   .knot.releasing { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  @keyframes swing { 
-    0% { transform: rotate(-1.5deg); } 
-    100% { transform: rotate(1.5deg); } 
-  }
+  @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
 
   .title-area { 
     position: absolute; top: 10%; width: 100%; 
@@ -102,18 +95,16 @@
   }
   .hint-text { 
     display: inline-block; color: #fff; font-size: 1rem; 
-    font-weight: 500; letter-spacing: 2px; 
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+    font-weight: 500; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
   }
 
-  /* --- 彈窗通用樣式 --- */
+  /* --- 彈窗樣式 --- */
   .modal-overlay { 
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background: rgba(255,255,255,0.4); 
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); 
     z-index: 999; justify-content: center; align-items: center; cursor: pointer;
   }
-  
   .modal-content { 
     background: #fff; width: 75%; max-width: 320px; 
     padding: 35px 25px; border-radius: 24px; text-align: center; 
@@ -160,9 +151,7 @@
   <img src="icon.GIF" class="cat-gif">
   
   <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
-
   <div class="lion-shadow-base"></div>
-  
   <div class="lion-wrapper" id="lionBtn" onclick="openStoreModal()">
     <img src="lion.png" class="stone-lion">
   </div>
@@ -206,16 +195,43 @@
 
 <script>
   // =========================================================
-  //  純前端邏輯 (無資料庫)
+  //  1. [範本設定] Supabase 初始化 (使用您範本中的Key)
   // =========================================================
+  const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+  let _supabase = null;
+  
+  if (typeof supabase !== 'undefined') {
+      _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } else {
+      alert("資料庫連線元件載入失敗");
+  }
 
-  // 預設獎品清單 (含簡單權重邏輯)
-  const prizes = [
-    { name: "9折維修券", desc: "憑此券來店維修享9折優惠", weight: 30 },
-    { name: "免費鋼化膜", desc: "需來店由服務人員代貼", weight: 20 },
-    { name: "現金折抵$100", desc: "維修滿千即可折抵", weight: 5 }, // 大獎比較少
-    { name: "快充傳輸線", desc: "Type-C / Lightning 任選", weight: 10 },
-    { name: "銘謝惠顧", desc: "再接再厲，明年好運到！", weight: 35 }
+  // =========================================================
+  //  2. [範本邏輯] 自動抓取網址上的 ?uid=XXXX
+  // =========================================================
+  function getCurrentUser() {
+      const params = new URLSearchParams(window.location.search);
+      // 範本中您是把 uid 當作 line_id 寫入資料庫，所以這裡取名為 targetLineId
+      return params.get('uid'); 
+  }
+
+  const TARGET_USER_ID = getCurrentUser(); // 網頁載入時就抓取
+  console.log("目前活動參與者 (LineID):", TARGET_USER_ID);
+
+
+  // =========================================================
+  //  3. 遊戲與獎項設定
+  // =========================================================
+  
+  // 設定獎品池 (對應資料庫欄位結構)
+  // type: 'cash' 或 'exchange' (參考您的資料庫)
+  const prizePool = [
+    { name: "9折維修券",   desc: "憑此券來店維修享9折優惠", weight: 30, type: 'exchange', amount: 0 },
+    { name: "免費鋼化膜",   desc: "需來店由服務人員代貼",    weight: 20, type: 'exchange', amount: 0 },
+    { name: "現金折抵$100", desc: "維修滿千即可折抵",       weight: 5,  type: 'cash',     amount: 100 },
+    { name: "快充傳輸線",   desc: "Type-C / Lightning 任選", weight: 10, type: 'exchange', amount: 0 },
+    { name: "銘謝惠顧",     desc: "再接再厲，明年好運到！",   weight: 35, type: 'none',     amount: 0 }
   ];
 
   const resultModal = document.getElementById('resultModal');
@@ -225,78 +241,105 @@
   const prizeText = document.getElementById('prizeText');
   const lionBtn = document.getElementById('lionBtn');
   const scene = document.getElementById('scene');
-  
   let isDrawing = false;
   const totalKnots = 3;
 
-  // 初始化
   function initGame() {
-    // 清除舊的紅線
     const oldKnots = document.querySelectorAll('.knot');
     oldKnots.forEach(k => k.remove());
-
-    // 生成新的紅線
-    for (let i = 0; i < totalKnots; i++) {
-      createKnot(i);
-    }
+    for (let i = 0; i < totalKnots; i++) { createKnot(i); }
   }
 
-  // --- 抽獎功能 (前端隨機) ---
-  function drawPrize() {
-    // 計算總權重
-    let totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
+  // --- 隨機抽獎邏輯 ---
+  function drawRandomPrize() {
+    let totalWeight = prizePool.reduce((sum, p) => sum + p.weight, 0);
     let random = Math.random() * totalWeight;
     let current = 0;
-    
-    // 隨機選出一個獎品
-    for (let prize of prizes) {
+    for (let prize of prizePool) {
       current += prize.weight;
-      if (random < current) {
-        return prize;
-      }
+      if (random < current) return prize;
     }
-    return prizes[prizes.length - 1]; // 預設最後一個
+    return prizePool[prizePool.length - 1];
   }
 
-  function showResult(prize) {
-    prizeText.innerHTML = prize.name + "<br><span style='font-size:0.8rem; color:#999; display:block; margin-top:5px; line-height:1.4'>" + prize.desc + "</span>";
-    resultModal.style.display = 'flex';
+  // --- [關鍵] 整合：抽獎並寫入 Supabase ---
+  async function handlePrizeDraw() {
+      // 1. 檢查身分
+      if (!TARGET_USER_ID) {
+          alert("無法識別會員身分 (網址缺少 uid)，請從會員中心進入活動！");
+          return;
+      }
+
+      // 2. 顯示抽獎中...
+      prizeText.innerText = "祈福中...";
+      resultModal.style.display = 'flex';
+
+      // 3. 前端計算獎品
+      const prize = drawRandomPrize();
+      console.log("抽中:", prize.name);
+
+      // 如果是銘謝惠顧，不寫資料庫，直接顯示
+      if (prize.type === 'none') {
+          setTimeout(() => {
+              showResultUI(prize.name, prize.desc);
+          }, 500);
+          return;
+      }
+
+      // 4. [範本核心] 寫入 user_coupons
+      try {
+          const { error } = await _supabase.from('user_coupons').insert({
+              line_id: TARGET_USER_ID,       // 使用網址上的 uid
+              coupon_name: prize.name,
+              description: prize.desc,
+              type: prize.type,              // cash 或 exchange
+              discount_amount: prize.amount,
+              status: 'unused',
+              valid_until: '2026-03-01'      // 設定有效期限
+          });
+
+          if (error) throw error;
+
+          // 成功寫入後，更新 UI 顯示結果
+          showResultUI(prize.name, prize.desc);
+
+      } catch (err) {
+          console.error(err);
+          alert("領取失敗，請確認網路連線或稍後再試");
+          resultModal.style.display = 'none'; // 關閉彈窗
+      }
+  }
+
+  function showResultUI(name, desc) {
+      prizeText.innerHTML = name + "<br><span style='font-size:0.8rem; color:#999; display:block; margin-top:5px; line-height:1.4'>" + desc + "</span>";
   }
 
   // --- 彈窗控制 ---
   function openStoreModal() { storeModal.style.display = 'flex'; }
   function openWealthModal() { wealthModal.style.display = 'flex'; }
   function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-
+  
   function openReview(placeId) {
-    // 標記正在評論，切換頁面回來後觸發加分動畫
     localStorage.setItem("isReviewing", "true");
     window.open(`https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`, '_blank');
   }
 
-  // 偵測網頁切換回來 (模擬獲得積分)
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
       closeModal('storeModal');
-      // 顯示獲得積分彈窗 (純視覺)
       pointsModal.style.display = 'flex';
       localStorage.removeItem("isReviewing");
     }
   });
 
-  // --- 紅線拖曳互動 ---
+  // --- 紅線互動 ---
   function createKnot(index) {
     const knotImg = document.createElement('img');
-    knotImg.src = 'knot.png'; 
-    knotImg.className = 'knot';
+    knotImg.src = 'knot.png'; knotImg.className = 'knot';
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     knotImg.style.left = (centerOfSection - 20) + '%';
-    
-    if (index === 1) knotImg.style.top = '18%'; 
-    else if (index === 0) knotImg.style.top = '25.5%'; 
-    else knotImg.style.top = '23%';
-    
+    if (index === 1) knotImg.style.top = '18%'; else if (index === 0) knotImg.style.top = '25.5%'; else knotImg.style.top = '23%';
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
     setupDragInteraction(knotImg);
     scene.appendChild(knotImg);
@@ -306,14 +349,7 @@
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
     
-    const startDrag = (y) => { 
-      if(isDrawing) return; 
-      isDragging = true; 
-      element.classList.add('dragging'); 
-      element.classList.remove('releasing'); 
-      startY = y; 
-    };
-    
+    const startDrag = (y) => { if(isDrawing) return; isDragging = true; element.classList.add('dragging'); element.classList.remove('releasing'); startY = y; };
     const moveDrag = (y) => { 
       if (!isDragging) return;
       const diff = y - startY;
@@ -324,24 +360,20 @@
       }
     };
     
-    const endDrag = () => {
+    const endDrag = async () => {
       if (!isDragging) return;
       isDragging = false;
       element.classList.remove('dragging');
       element.classList.add('releasing');
       
       if (currentY > triggerThreshold) {
-        // 觸發抽獎
         element.style.transform = ''; 
         
         if (!isDrawing) {
           isDrawing = true;
-          // 模擬一點延遲感
-          setTimeout(() => {
-            const prize = drawPrize();
-            showResult(prize);
-            isDrawing = false;
-          }, 300);
+          // 觸發我們結合好的 function
+          await handlePrizeDraw();
+          isDrawing = false;
         }
 
       } else {
@@ -358,7 +390,6 @@
     window.addEventListener('mouseup', endDrag);
   }
 
-  // 啟動遊戲
   initGame();
 
 </script>
