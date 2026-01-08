@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v8.3 樣式優化 */
+        /* v8.4 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -61,7 +61,6 @@
 
     <div id="loading-overlay" class="hidden fixed inset-0 z-[150] bg-black flex flex-col items-center justify-center">
         <video id="success-video" src="printer.mp4" muted playsinline class="w-64 h-64 object-contain"></video>
-        
         <p class="text-white/80 font-bold mt-4 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
     </div>
 
@@ -79,7 +78,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.3</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.4</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
@@ -160,7 +159,8 @@
                     <div class="flex gap-2">
                         <div class="relative flex-1">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
-                            <input id="redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="cleanInput(this); calcPreview()">
+                            <input id="redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" 
+                                   oninput="cleanInput(this); calcPreview()" onblur="roundToTen(this)">
                         </div>
                         <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-xl font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
                     </div>
@@ -266,6 +266,13 @@
         // 輸入過濾函數
         function cleanInput(el) {
             el.value = el.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+        }
+
+        // v8.4 新增：離焦自動校正為10的倍數
+        function roundToTen(el) {
+            let val = parseInt(el.value) || 0;
+            el.value = Math.floor(val / 10) * 10;
+            calcPreview();
         }
 
         // 登入邏輯
@@ -671,6 +678,7 @@
             }
         }
 
+        // --- 核心邏輯 v8.4：雙軌積分 + 10分防呆 ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -691,7 +699,8 @@
             }
 
             const redeemInputVal = document.getElementById('redeem-input').value;
-            const pointsRedeemed = redeemInputVal ? parseInt(redeemInputVal) : 0;
+            // v8.4 強制防呆：送出時再次確保是 10 的倍數
+            const pointsRedeemed = Math.floor((parseInt(redeemInputVal) || 0) / 10) * 10;
             
             let couponValue = 0;
             selectedCashCoupons.forEach(id => {
@@ -842,9 +851,12 @@
             }
         }
 
+        // v8.4 修改：全數折抵時無條件捨去至10的倍數
         function redeemAll() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
-            const maxRedeem = Math.min(amount, currentMemberPoints);
+            const rawMax = Math.min(amount, currentMemberPoints);
+            const maxRedeem = Math.floor(rawMax / 10) * 10; // 無條件捨去
+            
             document.getElementById('redeem-input').value = maxRedeem > 0 ? maxRedeem : '';
             calcPreview();
         }
