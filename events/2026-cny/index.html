@@ -84,9 +84,17 @@
     width: 58vw; max-width: 360px; height: auto;
     z-index: 3; pointer-events: auto; cursor: pointer;
     display: flex; justify-content: center;
-    transition: transform 0.1s; 
+    transition: transform 0.1s, filter 0.5s; 
   }
   .lion-wrapper:active { transform: scale(0.98); }
+  
+  /* [新增] 石獅子已完成任務的樣式 (變成灰階、不可點) */
+  .lion-wrapper.disabled {
+    cursor: default;
+    filter: grayscale(100%) brightness(0.8); /* 變灰暗 */
+    pointer-events: none; /* 禁止點擊 */
+  }
+  
   .stone-lion { width: 100%; height: auto; display: block; }
 
   .lion-shadow-base {
@@ -126,7 +134,7 @@
     text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
   }
 
-  /* --- 文青風彈窗 (點擊背景關閉) --- */
+  /* --- 文青風彈窗 --- */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(255,255,255,0.4); 
@@ -134,7 +142,6 @@
     -webkit-backdrop-filter: blur(8px);
     z-index: 999;
     justify-content: center; align-items: center;
-    /* 確保遮罩層本身可以被點擊 */
     cursor: pointer;
   }
   
@@ -149,7 +156,6 @@
     animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
     position: relative;
     color: #5d4037;
-    /* 點擊內容區域不應該關閉視窗，所以要阻擋冒泡 */
     cursor: default;
   }
   
@@ -167,7 +173,6 @@
     font-weight: 600; margin-bottom: 25px; letter-spacing: 1px;
   }
   
-  /* 按鈕 */
   .btn-confirm {
     background: #8d6e63; 
     color: white; border: none; 
@@ -178,42 +183,30 @@
   }
   .btn-confirm:active { background: #6d4c41; transform: scale(0.96); }
   
-  /* [CSS圖示] 極簡圖釘 */
   .pin-icon {
-    display: inline-block;
-    width: 12px; height: 12px;
-    background-color: #d32f2f; /* 圖釘頭顏色 (紅) */
-    border-radius: 50%;
-    position: relative;
-    margin-right: 12px; /* 與文字的距離 */
+    display: inline-block; width: 12px; height: 12px;
+    background-color: #d32f2f; border-radius: 50%;
+    position: relative; margin-right: 12px;
   }
-  /* 圖釘針 */
   .pin-icon::after {
-    content: '';
-    position: absolute;
-    top: 100%; left: 50%;
-    transform: translateX(-50%);
-    width: 2px; height: 8px;
-    background-color: #8d6e63; /* 針的顏色 (深咖) */
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%); width: 2px; height: 8px;
+    background-color: #8d6e63;
   }
   
   .store-btn {
     display: flex; align-items: center; justify-content: center;
     width: 100%; margin: 12px 0;
     padding: 14px 0; font-size: 1.05rem; 
-    color: #5d4037; 
-    background: #fff;
-    border: 1px solid #d7ccc8; 
-    border-radius: 50px; 
-    cursor: pointer; text-decoration: none; 
-    transition: all 0.2s;
+    color: #5d4037; background: #fff;
+    border: 1px solid #d7ccc8; border-radius: 50px; 
+    cursor: pointer; text-decoration: none; transition: all 0.2s;
   }
   .store-btn:active { background: #efebe9; border-color: #8d6e63; transform: scale(0.98); }
 
   .secret-input {
     width: 85%; padding: 12px; margin: 10px 0 10px 0; 
-    font-size: 1rem; 
-    border: 1px solid #eee; border-radius: 12px;
+    font-size: 1rem; border: 1px solid #eee; border-radius: 12px;
     background: #fafafa; color: #5d4037;
     text-align: center; outline: none; transition: all 0.2s;
   }
@@ -225,8 +218,6 @@
   }
   .flash-anim { animation: blinkRed 0.4s 5; }
   @keyframes blinkRed { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-  /* [已移除] .close-btn 樣式區塊已刪除 */
 
 </style>
 </head>
@@ -241,13 +232,15 @@
   <img src="icon.GIF" class="cat-gif" onclick="openSecretModal()">
   <div class="cat-speech-bubble" id="catSpeech">小燕子身上有小秘密</div>
   <div class="lion-shadow-base"></div>
-  <div class="lion-wrapper" onclick="openStoreModal()">
+  
+  <div class="lion-wrapper" id="lionBtn" onclick="openStoreModal()">
     <img src="lion.png" class="stone-lion">
   </div>
 </div>
 
 <div class="modal-overlay" id="resultModal" onclick="closeModal('resultModal')">
-  <div class="modal-content" onclick="event.stopPropagation()"> <div class="prize-title">恭喜獲得</div>
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="prize-title">恭喜獲得</div>
     <div class="prize-name" id="prizeText">...</div>
     <button class="btn-confirm" onclick="closeModal('resultModal')">收下好運</button>
   </div>
@@ -266,14 +259,20 @@
 <div class="modal-overlay" id="storeModal" onclick="closeModal('storeModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.3rem; margin-bottom: 25px;">請選擇服務門市</div>
-    
     <button class="store-btn" onclick="openReview('ChIJ0UjI3qs9aTQRL9j0jSyHwOk')">
       <span class="pin-icon"></span> 勤美公益店
     </button>
-    
     <button class="store-btn" onclick="openReview('ChIJ9yPXhuwVaTQRaMGtvE3bUDw')">
       <span class="pin-icon"></span> 沙鹿站前店
     </button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pointsModal" onclick="closeModal('pointsModal')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="prize-title">石獅賀歲</div>
+    <div class="prize-name" style="font-size: 1.5rem;">獲得10pt會籍積分</div>
+    <button class="btn-confirm" onclick="closeModal('pointsModal')">收入囊中</button>
   </div>
 </div>
 
@@ -282,17 +281,49 @@
   const resultModal = document.getElementById('resultModal');
   const secretModal = document.getElementById('secretModal');
   const storeModal = document.getElementById('storeModal');
+  const pointsModal = document.getElementById('pointsModal');
   const prizeText = document.getElementById('prizeText');
   const secretInput = document.getElementById('secretInput');
   const errorText = document.getElementById('errorText');
   const catSpeech = document.getElementById('catSpeech');
+  const lionBtn = document.getElementById('lionBtn');
 
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
+  // --- 初始化檢查 ---
   function initGame() {
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
+    }
+    // 檢查石獅子任務是否已完成
+    checkLionStatus();
+  }
+
+  // --- 狀態偵測：檢查是否剛從評論頁面回來 ---
+  document.addEventListener("visibilitychange", () => {
+    // 如果頁面變為可見 (User回來了) 且 標記為「正在評論中」
+    if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
+      
+      // 1. 關閉門市選單 (如果還開著)
+      closeModal('storeModal');
+
+      // 2. 顯示積分獎勵彈窗
+      pointsModal.style.display = 'flex';
+
+      // 3. 清除「評論中」標記，並設定「任務已完成」
+      localStorage.removeItem("isReviewing");
+      localStorage.setItem("lionRewardClaimed", "true");
+
+      // 4. 更新石獅子外觀 (變灰)
+      checkLionStatus();
+    }
+  });
+
+  // 檢查並更新石獅子狀態
+  function checkLionStatus() {
+    if (localStorage.getItem("lionRewardClaimed") === "true") {
+      lionBtn.classList.add("disabled"); // 套用灰階與禁止點擊樣式
     }
   }
 
@@ -300,16 +331,13 @@
     const knotImg = document.createElement('img');
     knotImg.src = 'knot.png'; 
     knotImg.className = 'knot';
-    
     const sectionWidth = 100 / totalKnots; 
     const centerOfSection = (index * sectionWidth) + (sectionWidth / 2); 
     const finalLeft = centerOfSection - 20; 
     knotImg.style.left = finalLeft + '%';
-
     if (index === 1) { knotImg.style.top = '18%'; } 
     else if (index === 0) { knotImg.style.top = '25.5%'; } 
     else { knotImg.style.top = '23%'; }
-
     knotImg.style.animationDelay = -(Math.random() * 2) + 's';
     setupDragInteraction(knotImg);
     scene.appendChild(knotImg);
@@ -318,7 +346,6 @@
   function setupDragInteraction(element) {
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
-
     element.addEventListener('touchstart', function(e) {
       if (e.touches.length > 1) return;
       isDragging = true;
@@ -326,7 +353,6 @@
       element.classList.remove('releasing');
       startY = e.touches[0].clientY;
     }, { passive: false });
-
     element.addEventListener('mousedown', function(e) {
       e.preventDefault();
       isDragging = true;
@@ -334,7 +360,6 @@
       element.classList.remove('releasing');
       startY = e.clientY;
     });
-
     window.addEventListener('touchmove', function(e) {
       if (!isDragging) return;
       if (e.cancelable) { e.preventDefault(); }
@@ -346,7 +371,6 @@
         currentY = pullDistance;
       }
     }, { passive: false });
-
     window.addEventListener('mousemove', function(e) {
       if (!isDragging) return;
       e.preventDefault();
@@ -358,7 +382,6 @@
         currentY = pullDistance;
       }
     });
-
     const endHandler = function() {
       if (!isDragging) return;
       isDragging = false;
@@ -375,7 +398,6 @@
       }
       currentY = 0;
     };
-
     window.addEventListener('touchend', endHandler);
     window.addEventListener('mouseup', endHandler);
   }
@@ -430,10 +452,17 @@
 
   // --- 門市與評論 ---
   function openStoreModal() {
-    storeModal.style.display = 'flex';
+    // 只有當石獅子沒有被禁用時才打開選單 (雖然 CSS 已 pointer-events: none，多一層保險)
+    if (!lionBtn.classList.contains('disabled')) {
+      storeModal.style.display = 'flex';
+    }
   }
 
   function openReview(placeId) {
+    // 1. 設定「正在評論」標記
+    localStorage.setItem("isReviewing", "true");
+
+    // 2. 開啟 Google 評論 (帶 LINE 參數)
     const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`;
     window.open(reviewUrl, '_blank');
   }
