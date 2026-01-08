@@ -51,21 +51,26 @@
     100% { opacity: 0; transform: translateY(5px); }
   }
 
-  /* --- [2] 貓咪動圖 (無互動) --- */
+  /* --- [2] 貓咪動圖 --- */
   .cat-gif {
     position: absolute;
     bottom: 30%; left: 15%;   
     width: 42vw; max-width: 250px; height: auto;
-    z-index: 5; pointer-events: none; 
+    z-index: 5; /* 它的層級較低，不會擋住馬和獅子 */
+    pointer-events: none; 
     filter: brightness(0.98); 
   }
 
-  /* --- [3] 石獅子 (右下角互動按鈕) --- */
+  /* --- [3] 石獅子 (右下角) --- */
   .lion-wrapper {
     position: absolute;
     bottom: -5%; right: -8%;   
     width: 58vw; max-width: 360px; height: auto;
-    z-index: 3; pointer-events: auto; cursor: pointer;
+    
+    /* [修改點] 層級提升到 50，確保在最上層，解決無法點擊的問題 */
+    z-index: 50; 
+    
+    pointer-events: auto; cursor: pointer;
     display: flex; justify-content: center;
     transition: transform 0.1s, filter 0.5s; 
   }
@@ -78,16 +83,19 @@
   }
   .stone-lion { width: 100%; height: auto; display: block; }
 
-  /* --- [4] 財神馬 (互動按鈕) --- */
+  /* --- [4] 財神馬 (左下角) --- */
   .wealth-horse {
     position: absolute;
-    bottom: -4%;
+    
+    /* [修改點 1] 位置上移 (從 -4% 改為 1%) */
+    bottom: 1%;
+    
     left: calc(-5% - 5px);   
-    /* [修改點] 尺寸縮小 */
-    width: 45vw; 
-    max-width: 280px; 
-    height: auto;
-    z-index: 3; 
+    width: 45vw; max-width: 280px; height: auto;
+    
+    /* [修改點 2] 層級提升到 50，確保絕對可點擊 */
+    z-index: 50; 
+    
     filter: brightness(0.98);
     pointer-events: auto; 
     cursor: pointer;
@@ -103,7 +111,7 @@
     z-index: 2; transform: scaleY(0.5); filter: blur(5px); 
   }
 
-  /* --- [5] 中國結 (抽獎互動) --- */
+  /* --- [5] 中國結 --- */
   .knot {
     position: absolute;
     width: 40vw; max-width: 400px; height: auto;
@@ -132,7 +140,7 @@
     text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
   }
 
-  /* --- 文青風彈窗共用樣式 --- */
+  /* --- 文青風彈窗 --- */
   .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(255,255,255,0.4); 
@@ -162,27 +170,14 @@
     100% { transform: scale(1) translateY(0); opacity: 1; }
   }
 
-  /* 文字樣式 */
-  .prize-title { 
-    font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; 
-    letter-spacing: 1px; font-weight: normal;
-  }
-  .prize-name { 
-    font-size: 1.6rem; color: #5d4037; 
-    font-weight: 600; margin-bottom: 25px; letter-spacing: 1px;
-  }
-  .info-text {
-    font-size: 1rem; color: #5d4037; 
-    line-height: 1.6; letter-spacing: 1px;
-    margin-bottom: 25px;
-  }
+  .prize-title { font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; letter-spacing: 1px; font-weight: normal; }
+  .prize-name { font-size: 1.6rem; color: #5d4037; font-weight: 600; margin-bottom: 25px; letter-spacing: 1px; }
+  .info-text { font-size: 1rem; color: #5d4037; line-height: 1.6; letter-spacing: 1px; margin-bottom: 25px; }
   
-  /* 按鈕樣式 */
   .btn-confirm {
-    background: #8d6e63; 
-    color: white; border: none; 
-    padding: 12px 35px; border-radius: 50px;
-    font-size: 1rem; cursor: pointer; letter-spacing: 1px;
+    background: #8d6e63; color: white; border: none; 
+    padding: 12px 35px; border-radius: 50px; font-size: 1rem; 
+    cursor: pointer; letter-spacing: 1px;
     box-shadow: 0 4px 10px rgba(141, 110, 99, 0.2);
     transition: transform 0.1s, background 0.2s;
   }
@@ -276,10 +271,8 @@
   // --- [1] Supabase 連線設定 ---
   const SUPABASE_URL = 'https://nszwpwimwxvjguoalrwt.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
-  
   const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 測試會員 ID
   const TEST_USER_ID = 'e1f98e98-f2e7-487d-a7d5-596ddfea1cce'; 
   const TABLE_NAME = 'profiles'; 
   const POINTS_COLUMN = 'points'; 
@@ -301,35 +294,27 @@
       createKnot(i);
     }
     
-    // [修改點] 測試模式：每次重新載入網頁時，清除「已領獎」狀態，方便重複測試
+    // [測試模式] 清除領獎紀錄，確保石獅子每次重整後都可點擊
     localStorage.removeItem("lionRewardClaimed");
     
     checkLionStatus();
   }
 
-  // --- [3] 核心功能：回來時發積分 ---
   document.addEventListener("visibilitychange", async () => {
-    // 當使用者切回網頁 且 狀態是「正在評論」
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
-      
       closeModal('storeModal');
-      
       await givePoints();
-
       pointsModal.style.display = 'flex';
-      
       localStorage.removeItem("isReviewing");
       
-      // [修改點] 為了測試方便，這裡雖然寫入已領獎，但上面的 initGame 會在下次重整時清除它
+      // 這裡記錄已領獎 (本次操作)，但重整網頁後會被 initGame 清除
       localStorage.setItem("lionRewardClaimed", "true");
       checkLionStatus();
     }
   });
 
-  // --- [4] Supabase 加分函式 ---
   async function givePoints() {
     console.log("開始連線資料庫發送積分...");
-    
     const { data: userData, error: readError } = await supabase
       .from(TABLE_NAME)
       .select(POINTS_COLUMN)
@@ -344,12 +329,9 @@
     const currentPoints = userData[POINTS_COLUMN] || 0;
     const newPoints = currentPoints + 10;
 
-    const updateData = {};
-    updateData[POINTS_COLUMN] = newPoints;
-
     const { error: updateError } = await supabase
       .from(TABLE_NAME)
-      .update(updateData)
+      .update({ [POINTS_COLUMN]: newPoints })
       .eq('id', TEST_USER_ID);
 
     if (updateError) {
@@ -360,9 +342,7 @@
   }
 
   function checkLionStatus() {
-    // [修改點] 測試期間暫時讓檢查失效，或者配合 initGame 的清除邏輯
     if (localStorage.getItem("lionRewardClaimed") === "true") {
-      // 這裡暫時註解掉，或者保留，因為 initGame 會清掉，所以單次流程還是會變灰，但重整後會恢復
       lionBtn.classList.add("disabled"); 
     } else {
       lionBtn.classList.remove("disabled");
