@@ -410,15 +410,16 @@
     }, 20000); 
   }
 
-  // --- 門市與評論連結邏輯 (使用 Place ID 喚醒 App) ---
+  // --- 門市與評論連結邏輯 (LINE 破解版) ---
   function openStoreModal() {
     storeModal.style.display = 'flex';
   }
 
   function openReview(placeId) {
-    // 使用 Google 官方的評論 Deep Link
-    // 這串網址會嘗試開啟 Google Maps App 的評論框
-    const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}`;
+    // 加上 &openExternalBrowser=1 這個關鍵參數
+    // 這是告訴 LINE：「請不要用內建瀏覽器，請用外部系統瀏覽器開啟這個連結」
+    // 外部瀏覽器喚醒 App 的成功率最高
+    const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`;
     window.open(reviewUrl, '_blank');
   }
 
