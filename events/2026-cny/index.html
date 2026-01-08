@@ -95,15 +95,15 @@
   }
   .stone-lion { width: 100%; height: auto; display: block; }
 
-  /* --- [修改] 財神馬 (放大並下移) --- */
+  /* --- [修改] 財神馬 (再放大並左移) --- */
   .wealth-horse {
     position: absolute;
-    /* [修改點 1]: 往下移動，負值代表往下超出畫面一點點，看起來更穩 */
-    bottom: -4%; 
-    left: 3%;   
-    /* [修改點 2]: 放大尺寸，與石獅子 (58vw) 相當 */
-    width: 55vw; 
-    max-width: 350px; 
+    bottom: -4%;
+    /* [修改點 1]: 往左移動，緊貼邊緣 */
+    left: 0%;   
+    /* [修改點 2]: 尺寸再放大 */
+    width: 65vw; 
+    max-width: 400px; 
     height: auto;
     z-index: 3; 
     pointer-events: none; 
