@@ -84,8 +84,10 @@
   /* --- [4] 財神馬 --- */
   .wealth-horse {
     position: absolute;
-    /* 位置往上調整 */
-    bottom: 8%; 
+    
+    /* [修改點] 往下移動：從 8% 改為 4% */
+    bottom: 4%; 
+    
     left: calc(-5% - 5px);   
     width: 45vw; max-width: 280px; height: auto;
     z-index: 100; /* 最高層級 */
@@ -254,14 +256,12 @@
 
 <script>
   // =========================================================
-  //  1. Supabase & 設定 (放在最前，使用 const 避免重複宣告)
+  //  1. Supabase & 設定
   // =========================================================
   const SUPABASE_URL = 'https://nszwpwimwxvjguoalrwt.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
   
-  // 為了安全起見，使用一個新的變數名稱 supabaseClient
   let supabaseClient = null;
-  
   if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } else {
@@ -286,7 +286,6 @@
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
-  // 初始化
   function initGame() {
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
@@ -296,16 +295,12 @@
     checkLionStatus();
   }
 
-  // 開啟選單
   function openStoreModal() {
     if (!lionBtn.classList.contains('disabled')) {
       storeModal.style.display = 'flex';
-    } else {
-      console.log("已領過獎");
     }
   }
 
-  // 開啟財富密馬
   function openWealthModal() {
     wealthModal.style.display = 'flex';
   }
@@ -319,25 +314,23 @@
     resultModal.style.display = 'flex';
   }
 
-  // 跳轉評論
   function openReview(placeId) {
     localStorage.setItem("isReviewing", "true");
     const reviewUrl = `https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`;
     window.open(reviewUrl, '_blank');
   }
 
-  // 偵測回來
   document.addEventListener("visibilitychange", async () => {
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
       closeModal('storeModal');
-      // 先顯示彈窗，讓用戶有感
+      // 顯示彈窗
       pointsModal.style.display = 'flex';
       
       localStorage.removeItem("isReviewing");
       localStorage.setItem("lionRewardClaimed", "true");
       checkLionStatus();
 
-      // 後台默默加分
+      // 後台加分
       await givePoints();
     }
   });
@@ -465,7 +458,6 @@
     }
   }
 
-  // 啟動遊戲
   initGame();
 
 </script>
