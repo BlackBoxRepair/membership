@@ -82,10 +82,10 @@
   .wealth-horse {
     position: absolute;
     bottom: -4%;
-    /* 緊貼左側邊緣 */
     left: calc(-5% - 5px);   
-    width: 65vw; 
-    max-width: 400px; 
+    /* [修改點] 尺寸縮小 */
+    width: 45vw; 
+    max-width: 280px; 
     height: auto;
     z-index: 3; 
     filter: brightness(0.98);
@@ -277,15 +277,11 @@
   const SUPABASE_URL = 'https://nszwpwimwxvjguoalrwt.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
   
-  // 建立連線 Client
   const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // 【重要】測試目標會員 ID (您剛剛提供的)
+  // 測試會員 ID
   const TEST_USER_ID = 'e1f98e98-f2e7-487d-a7d5-596ddfea1cce'; 
-  
-  // 資料庫表格名稱 (請確認是 profiles)
   const TABLE_NAME = 'profiles'; 
-  // 積分欄位名稱
   const POINTS_COLUMN = 'points'; 
 
   // --- [2] 遊戲介面邏輯 ---
@@ -304,6 +300,10 @@
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
     }
+    
+    // [修改點] 測試模式：每次重新載入網頁時，清除「已領獎」狀態，方便重複測試
+    localStorage.removeItem("lionRewardClaimed");
+    
     checkLionStatus();
   }
 
@@ -314,13 +314,13 @@
       
       closeModal('storeModal');
       
-      // 呼叫 Supabase 發積分 (非同步等待)
       await givePoints();
 
-      // 顯示獎勵彈窗
       pointsModal.style.display = 'flex';
       
       localStorage.removeItem("isReviewing");
+      
+      // [修改點] 為了測試方便，這裡雖然寫入已領獎，但上面的 initGame 會在下次重整時清除它
       localStorage.setItem("lionRewardClaimed", "true");
       checkLionStatus();
     }
@@ -330,7 +330,6 @@
   async function givePoints() {
     console.log("開始連線資料庫發送積分...");
     
-    // 1. 先讀取這個人目前的積分
     const { data: userData, error: readError } = await supabase
       .from(TABLE_NAME)
       .select(POINTS_COLUMN)
@@ -338,15 +337,13 @@
       .single();
 
     if (readError) {
-      console.error("讀取失敗 (請檢查ID是否正確):", readError);
-      alert("系統忙碌中，積分將稍後補發 (Error: Read Profile)");
+      console.error("讀取失敗:", readError);
       return;
     }
 
     const currentPoints = userData[POINTS_COLUMN] || 0;
     const newPoints = currentPoints + 10;
 
-    // 2. 寫入新積分
     const updateData = {};
     updateData[POINTS_COLUMN] = newPoints;
 
@@ -357,15 +354,18 @@
 
     if (updateError) {
       console.error("更新失敗:", updateError);
-      alert("系統忙碌中，積分將稍後補發 (Error: Update Profile)");
     } else {
       console.log(`積分更新成功！會員 ${TEST_USER_ID} 從 ${currentPoints} 分變為 ${newPoints} 分`);
     }
   }
 
   function checkLionStatus() {
+    // [修改點] 測試期間暫時讓檢查失效，或者配合 initGame 的清除邏輯
     if (localStorage.getItem("lionRewardClaimed") === "true") {
+      // 這裡暫時註解掉，或者保留，因為 initGame 會清掉，所以單次流程還是會變灰，但重整後會恢復
       lionBtn.classList.add("disabled"); 
+    } else {
+      lionBtn.classList.remove("disabled");
     }
   }
 
