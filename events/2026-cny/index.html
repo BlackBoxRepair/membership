@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>新春好運三響砲</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <style>
   /* --- 基礎設定 --- */
   html, body {
@@ -49,7 +51,7 @@
     100% { opacity: 0; transform: translateY(5px); }
   }
 
-  /* --- [2] 貓咪動圖 --- */
+  /* --- [2] 貓咪動圖 (無互動) --- */
   .cat-gif {
     position: absolute;
     bottom: 30%; left: 15%;   
@@ -58,7 +60,7 @@
     filter: brightness(0.98); 
   }
 
-  /* --- [3] 石獅子 --- */
+  /* --- [3] 石獅子 (右下角互動按鈕) --- */
   .lion-wrapper {
     position: absolute;
     bottom: -5%; right: -8%;   
@@ -80,20 +82,17 @@
   .wealth-horse {
     position: absolute;
     bottom: -4%;
-    /* [修改點 1] 位置往左多移 5px (calc計算) */
+    /* 緊貼左側邊緣 */
     left: calc(-5% - 5px);   
     width: 65vw; 
     max-width: 400px; 
     height: auto;
     z-index: 3; 
     filter: brightness(0.98);
-    
-    /* [修改點 2] 開啟互動點擊 */
     pointer-events: auto; 
     cursor: pointer;
     transition: transform 0.1s;
   }
-  /* 點擊時的縮放效果 */
   .wealth-horse:active { transform: scale(0.98); }
 
   .lion-shadow-base {
@@ -104,7 +103,7 @@
     z-index: 2; transform: scaleY(0.5); filter: blur(5px); 
   }
 
-  /* --- [5] 中國結 --- */
+  /* --- [5] 中國結 (抽獎互動) --- */
   .knot {
     position: absolute;
     width: 40vw; max-width: 400px; height: auto;
@@ -163,24 +162,22 @@
     100% { transform: scale(1) translateY(0); opacity: 1; }
   }
 
-  /* 一般文字 */
+  /* 文字樣式 */
   .prize-title { 
     font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; 
     letter-spacing: 1px; font-weight: normal;
   }
-  /* 標題文字 */
   .prize-name { 
     font-size: 1.6rem; color: #5d4037; 
     font-weight: 600; margin-bottom: 25px; letter-spacing: 1px;
   }
-  
-  /* 說明文字內容區 */
   .info-text {
     font-size: 1rem; color: #5d4037; 
     line-height: 1.6; letter-spacing: 1px;
     margin-bottom: 25px;
   }
   
+  /* 按鈕樣式 */
   .btn-confirm {
     background: #8d6e63; 
     color: white; border: none; 
@@ -267,29 +264,42 @@
 <div class="modal-overlay" id="wealthModal" onclick="closeModal('wealthModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 15px;">財富密馬</div>
-    
     <div class="info-text">
       活動期間：2026.02.01 - 02.28<br>
       期間來店維修任一設備零件即可獲得
     </div>
-    
     <button class="btn-confirm" onclick="closeModal('wealthModal')">我知道了</button>
   </div>
 </div>
 
 <script>
+  // --- [1] Supabase 連線設定 ---
+  const SUPABASE_URL = 'https://nszwpwimwxvjguoalrwt.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+  
+  // 建立連線 Client
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // 【重要】測試目標會員 ID (您剛剛提供的)
+  const TEST_USER_ID = 'e1f98e98-f2e7-487d-a7d5-596ddfea1cce'; 
+  
+  // 資料庫表格名稱 (請確認是 profiles)
+  const TABLE_NAME = 'profiles'; 
+  // 積分欄位名稱
+  const POINTS_COLUMN = 'points'; 
+
+  // --- [2] 遊戲介面邏輯 ---
   const scene = document.getElementById('scene');
   const resultModal = document.getElementById('resultModal');
   const storeModal = document.getElementById('storeModal');
   const pointsModal = document.getElementById('pointsModal');
-  const wealthModal = document.getElementById('wealthModal'); // [新增變數]
+  const wealthModal = document.getElementById('wealthModal');
   const prizeText = document.getElementById('prizeText');
   const lionBtn = document.getElementById('lionBtn');
 
   const totalKnots = 3;
   const demoPrizes = ["9折維修券", "免費鋼化膜", "快充傳輸線", "現金折抵$100", "銘謝惠顧"];
 
-  // --- 初始化檢查 ---
   function initGame() {
     for (let i = 0; i < totalKnots; i++) {
       createKnot(i);
@@ -297,18 +307,62 @@
     checkLionStatus();
   }
 
-  // --- 狀態偵測 ---
-  document.addEventListener("visibilitychange", () => {
+  // --- [3] 核心功能：回來時發積分 ---
+  document.addEventListener("visibilitychange", async () => {
+    // 當使用者切回網頁 且 狀態是「正在評論」
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
+      
       closeModal('storeModal');
+      
+      // 呼叫 Supabase 發積分 (非同步等待)
+      await givePoints();
+
+      // 顯示獎勵彈窗
       pointsModal.style.display = 'flex';
+      
       localStorage.removeItem("isReviewing");
       localStorage.setItem("lionRewardClaimed", "true");
       checkLionStatus();
     }
   });
 
-  // 檢查並更新石獅子狀態
+  // --- [4] Supabase 加分函式 ---
+  async function givePoints() {
+    console.log("開始連線資料庫發送積分...");
+    
+    // 1. 先讀取這個人目前的積分
+    const { data: userData, error: readError } = await supabase
+      .from(TABLE_NAME)
+      .select(POINTS_COLUMN)
+      .eq('id', TEST_USER_ID)
+      .single();
+
+    if (readError) {
+      console.error("讀取失敗 (請檢查ID是否正確):", readError);
+      alert("系統忙碌中，積分將稍後補發 (Error: Read Profile)");
+      return;
+    }
+
+    const currentPoints = userData[POINTS_COLUMN] || 0;
+    const newPoints = currentPoints + 10;
+
+    // 2. 寫入新積分
+    const updateData = {};
+    updateData[POINTS_COLUMN] = newPoints;
+
+    const { error: updateError } = await supabase
+      .from(TABLE_NAME)
+      .update(updateData)
+      .eq('id', TEST_USER_ID);
+
+    if (updateError) {
+      console.error("更新失敗:", updateError);
+      alert("系統忙碌中，積分將稍後補發 (Error: Update Profile)");
+    } else {
+      console.log(`積分更新成功！會員 ${TEST_USER_ID} 從 ${currentPoints} 分變為 ${newPoints} 分`);
+    }
+  }
+
   function checkLionStatus() {
     if (localStorage.getItem("lionRewardClaimed") === "true") {
       lionBtn.classList.add("disabled"); 
@@ -395,7 +449,6 @@
     resultModal.style.display = 'flex';
   }
 
-  // --- 門市與評論 ---
   function openStoreModal() {
     if (!lionBtn.classList.contains('disabled')) {
       storeModal.style.display = 'flex';
@@ -408,7 +461,6 @@
     window.open(reviewUrl, '_blank');
   }
 
-  // --- [新增] 開啟財富密馬彈窗函式 ---
   function openWealthModal() {
     wealthModal.style.display = 'flex';
   }
