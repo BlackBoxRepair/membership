@@ -214,7 +214,7 @@
     </div>
 
     <div id="app" class="max-w-md mx-auto relative">
-        <header id="main-header" class="px-6 pt-4 pb-2 flex justify-between items-center shrink-0">
+        <header class="px-6 pt-4 pb-2 flex justify-between items-center shrink-0">
             <div class="flex flex-col">
                 <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-1">BLACK BOX REPAIR</span>
                 <h1 id="page-title" class="text-3xl font-black text-gray-900 tracking-tight">會員中心</h1>
@@ -283,7 +283,6 @@
 
     <script>
         // --- 設定區 ---
-        // v9.3: 移除活動連結，回復到「敬請期待」狀態
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -295,6 +294,7 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
 
+        // 修改1 & 修改2：更新地區清單，包含全台縣市
         const areaList = [
             "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
             "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
@@ -306,16 +306,19 @@
         // 初始化
         window.onload = async () => {
             initSelects();
-            renderActivityTab(); 
+            renderActivityTab(); // 渲染活動頁面
             await initLiff();
-            switchTab('coupon'); 
+            switchTab('coupon'); // 預設頁面
         };
 
+        // 渲染小黑盒頁面邏輯
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                // 如果有活動網址，插入 iframe
                 container.innerHTML = `<iframe src="${ACTIVITY_URL}" class="w-full h-full border-0"></iframe>`;
             } else {
+                // 如果沒有活動網址，顯示「敬請期待」空狀態
                 container.innerHTML = `
                 <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
@@ -475,7 +478,6 @@
             switchTab('card');
         }
 
-        // v9.2 修改: 自動切換 Header 顯示狀態
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
@@ -485,14 +487,6 @@
 
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
-
-            // 判斷是否為活動頁且有活動網址 -> 隱藏 Header
-            const header = document.getElementById('main-header');
-            if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                header.style.display = 'none';
-            } else {
-                header.style.display = 'flex'; // 恢復原本的 flex 排版
-            }
 
             if(tab === 'coupon') loadUserCoupons();
         }
@@ -533,6 +527,7 @@
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
+                // 修改 2：根據類型顯示標籤
                 let typeBadge = '';
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
@@ -585,7 +580,7 @@
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
         
-        window.onload = init;
+        window.onload = init; // 這裡其實是多餘的，因為上方已經有 window.onload 了，但為了保險可以留著，或刪除這行，上方已經定義了完整的 window.onload
     </script>
 </body>
 </html>
