@@ -87,8 +87,6 @@
   }
   .knot.dragging { cursor: grabbing; transition: none !important; animation: none !important; }
   .knot.releasing { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .knot.disabled { filter: grayscale(1); opacity: 0.6; cursor: default; } /* 抽過後變灰 */
-  
   @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
 
   .title-area { 
@@ -211,12 +209,11 @@
   }
 
   // =========================================================
-  //  2. 自動抓取網址上的 ?uid=XXXX
+  //  2. 抓取網址上的 ?uid=XXXX (LineID)
   // =========================================================
   function getCurrentUser() {
       const params = new URLSearchParams(window.location.search);
-      // 因為我們資料庫 user_coupons 需要的是 Line ID，所以這裡 uid 代表 Line ID
-      return params.get('uid'); 
+      return params.get('uid'); // 這裡抓到的就是 Line ID (U開頭)
   }
 
   const TARGET_USER_ID = getCurrentUser(); 
@@ -234,47 +231,36 @@
   const lionBtn = document.getElementById('lionBtn');
   const scene = document.getElementById('scene');
   
-  let isDrawing = false; // 是否正在抽獎中 (鎖定用)
-  let hasPlayed = false; // 是否已經玩過了 (防止重複拉)
+  let isDrawing = false; 
+  let hasPlayed = false; 
   const totalKnots = 3;
 
   function initGame() {
     const oldKnots = document.querySelectorAll('.knot');
     oldKnots.forEach(k => k.remove());
-    // 建立三條紅線
     for (let i = 0; i < totalKnots; i++) { createKnot(i); }
   }
 
-  // --- 關鍵：呼叫後端抽獎 (RPC) ---
-  // 這會去呼叫資料庫的 draw_cny_prize 函數
-  // 該函數會自動：計算機率 -> 扣庫存 -> 回傳獎品 -> 如果是優惠券自動寫入 user_coupons
+  // --- 關鍵：呼叫後端抽獎 (RPC: draw_cny_prize_by_line) ---
   async function handlePrizeDraw() {
       // 1. 檢查身分
       if (!TARGET_USER_ID) {
           alert("無法識別會員身分 (網址缺少 uid)，請確認網址正確！");
           return;
       }
-      if (hasPlayed) return; // 防止重複玩
+      if (hasPlayed) return; 
 
       // 2. 鎖定互動 & 顯示抽獎中
       isDrawing = true;
-      hasPlayed = true; // 標記為已玩過
+      hasPlayed = true; 
       
       prizeText.innerText = "祈福中...";
       resultModal.style.display = 'flex';
 
-      // 3. 呼叫 Supabase
+      // 3. 呼叫 Supabase (使用新的 draw_cny_prize_by_line 函數)
       try {
-          // [重要] 這裡我們使用 UUID 還是 LineID ? 
-          // 之前的 draw_cny_prize 函數設計是接收 UUID (p_user_id)。
-          // 但如果您網址上帶的是 LineID，我們需要修改一下 RPC 或者在前端先查出 UUID。
-          // 為了方便，假設您的 draw_cny_prize 已經調整為可以接受 LineID，或者我們在這裡做一個轉換。
-          
-          // *修正方案*：為了最簡單的測試，我們假設您網址帶的是 UUID (profiles.id)。
-          // 如果您網址帶的是 LineID，那這裡可能會找不到人。
-          // 不過依照範本，我們先嘗試直接傳送。
-          
-          const { data, error } = await _supabase.rpc('draw_cny_prize', { p_user_id: TARGET_USER_ID });
+          // [修改點] 呼叫專門處理 LineID 的函數，參數名稱改為 p_line_id
+          const { data, error } = await _supabase.rpc('draw_cny_prize_by_line', { p_line_id: TARGET_USER_ID });
 
           if (error) throw error;
 
@@ -284,22 +270,20 @@
                   showResultUI(data.prize_name, data.description);
               }, 500);
           } else {
-              // 失敗 (例如發完了)
+              // 失敗 (例如發完了或找不到會員)
               prizeText.innerText = data.message;
-              isDrawing = false; // 如果失敗，或許可以允許重試？這裡先不解鎖
+              isDrawing = false; 
+              if(data.message.includes("找不到")) {
+                  alert("錯誤：" + data.message + "\n請確認網址上的 UID 是否與資料庫中的 LineID 一致");
+              }
           }
 
       } catch (err) {
           console.error(err);
-          // 判斷錯誤類型，如果是 "invalid input syntax for type uuid" 代表網址帶的不是 UUID
-          if (err.message && err.message.includes("uuid")) {
-             alert("錯誤：網址上的 uid 必須是會員的 UUID (格式: xxxxx-xxxx...)，不能是 Line ID");
-          } else {
-             alert("連線失敗，請稍後再試: " + err.message);
-          }
+          alert("抽獎發生錯誤: " + err.message);
           resultModal.style.display = 'none';
           isDrawing = false;
-          hasPlayed = false; // 失敗允許重來
+          hasPlayed = false; 
       }
   }
 
@@ -343,7 +327,7 @@
     const maxDragDistance = 250; const triggerThreshold = 100; 
     
     const startDrag = (y) => { 
-        if(isDrawing || hasPlayed) return; // 鎖定狀態不能拉
+        if(isDrawing || hasPlayed) return; 
         isDragging = true; 
         element.classList.add('dragging'); 
         element.classList.remove('releasing'); 
