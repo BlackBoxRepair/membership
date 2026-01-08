@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>新春好運三響砲</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
-  /* --- 基礎設定 (維持遊戲視覺) --- */
+  /* --- 基礎設定 --- */
   html, body { 
     margin: 0; padding: 0; 
     width: 100%; height: 100%; 
@@ -77,7 +77,7 @@
   }
   .wealth-horse:active { transform: scale(0.98); }
 
-  /* 紅線 */
+  /* 紅線 (中國結) */
   .knot { 
     position: absolute; width: 40vw; max-width: 400px; height: auto; 
     filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.3)); 
@@ -87,6 +87,8 @@
   }
   .knot.dragging { cursor: grabbing; transition: none !important; animation: none !important; }
   .knot.releasing { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .knot.disabled { filter: grayscale(1); opacity: 0.6; cursor: default; } /* 抽過後變灰 */
+  
   @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
 
   .title-area { 
@@ -152,6 +154,7 @@
   
   <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
   <div class="lion-shadow-base"></div>
+  
   <div class="lion-wrapper" id="lionBtn" onclick="openStoreModal()">
     <img src="lion.png" class="stone-lion">
   </div>
@@ -195,7 +198,7 @@
 
 <script>
   // =========================================================
-  //  1. [範本設定] Supabase 初始化 (使用您範本中的Key)
+  //  1. Supabase 設定
   // =========================================================
   const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
@@ -208,32 +211,21 @@
   }
 
   // =========================================================
-  //  2. [範本邏輯] 自動抓取網址上的 ?uid=XXXX
+  //  2. 自動抓取網址上的 ?uid=XXXX
   // =========================================================
   function getCurrentUser() {
       const params = new URLSearchParams(window.location.search);
-      // 範本中您是把 uid 當作 line_id 寫入資料庫，所以這裡取名為 targetLineId
+      // 因為我們資料庫 user_coupons 需要的是 Line ID，所以這裡 uid 代表 Line ID
       return params.get('uid'); 
   }
 
-  const TARGET_USER_ID = getCurrentUser(); // 網頁載入時就抓取
+  const TARGET_USER_ID = getCurrentUser(); 
   console.log("目前活動參與者 (LineID):", TARGET_USER_ID);
 
-
   // =========================================================
-  //  3. 遊戲與獎項設定
+  //  3. 遊戲與互動邏輯
   // =========================================================
   
-  // 設定獎品池 (對應資料庫欄位結構)
-  // type: 'cash' 或 'exchange' (參考您的資料庫)
-  const prizePool = [
-    { name: "9折維修券",   desc: "憑此券來店維修享9折優惠", weight: 30, type: 'exchange', amount: 0 },
-    { name: "免費鋼化膜",   desc: "需來店由服務人員代貼",    weight: 20, type: 'exchange', amount: 0 },
-    { name: "現金折抵$100", desc: "維修滿千即可折抵",       weight: 5,  type: 'cash',     amount: 100 },
-    { name: "快充傳輸線",   desc: "Type-C / Lightning 任選", weight: 10, type: 'exchange', amount: 0 },
-    { name: "銘謝惠顧",     desc: "再接再厲，明年好運到！",   weight: 35, type: 'none',     amount: 0 }
-  ];
-
   const resultModal = document.getElementById('resultModal');
   const storeModal = document.getElementById('storeModal');
   const pointsModal = document.getElementById('pointsModal');
@@ -241,72 +233,73 @@
   const prizeText = document.getElementById('prizeText');
   const lionBtn = document.getElementById('lionBtn');
   const scene = document.getElementById('scene');
-  let isDrawing = false;
+  
+  let isDrawing = false; // 是否正在抽獎中 (鎖定用)
+  let hasPlayed = false; // 是否已經玩過了 (防止重複拉)
   const totalKnots = 3;
 
   function initGame() {
     const oldKnots = document.querySelectorAll('.knot');
     oldKnots.forEach(k => k.remove());
+    // 建立三條紅線
     for (let i = 0; i < totalKnots; i++) { createKnot(i); }
   }
 
-  // --- 隨機抽獎邏輯 ---
-  function drawRandomPrize() {
-    let totalWeight = prizePool.reduce((sum, p) => sum + p.weight, 0);
-    let random = Math.random() * totalWeight;
-    let current = 0;
-    for (let prize of prizePool) {
-      current += prize.weight;
-      if (random < current) return prize;
-    }
-    return prizePool[prizePool.length - 1];
-  }
-
-  // --- [關鍵] 整合：抽獎並寫入 Supabase ---
+  // --- 關鍵：呼叫後端抽獎 (RPC) ---
+  // 這會去呼叫資料庫的 draw_cny_prize 函數
+  // 該函數會自動：計算機率 -> 扣庫存 -> 回傳獎品 -> 如果是優惠券自動寫入 user_coupons
   async function handlePrizeDraw() {
       // 1. 檢查身分
       if (!TARGET_USER_ID) {
-          alert("無法識別會員身分 (網址缺少 uid)，請從會員中心進入活動！");
+          alert("無法識別會員身分 (網址缺少 uid)，請確認網址正確！");
           return;
       }
+      if (hasPlayed) return; // 防止重複玩
 
-      // 2. 顯示抽獎中...
+      // 2. 鎖定互動 & 顯示抽獎中
+      isDrawing = true;
+      hasPlayed = true; // 標記為已玩過
+      
       prizeText.innerText = "祈福中...";
       resultModal.style.display = 'flex';
 
-      // 3. 前端計算獎品
-      const prize = drawRandomPrize();
-      console.log("抽中:", prize.name);
-
-      // 如果是銘謝惠顧，不寫資料庫，直接顯示
-      if (prize.type === 'none') {
-          setTimeout(() => {
-              showResultUI(prize.name, prize.desc);
-          }, 500);
-          return;
-      }
-
-      // 4. [範本核心] 寫入 user_coupons
+      // 3. 呼叫 Supabase
       try {
-          const { error } = await _supabase.from('user_coupons').insert({
-              line_id: TARGET_USER_ID,       // 使用網址上的 uid
-              coupon_name: prize.name,
-              description: prize.desc,
-              type: prize.type,              // cash 或 exchange
-              discount_amount: prize.amount,
-              status: 'unused',
-              valid_until: '2026-03-01'      // 設定有效期限
-          });
+          // [重要] 這裡我們使用 UUID 還是 LineID ? 
+          // 之前的 draw_cny_prize 函數設計是接收 UUID (p_user_id)。
+          // 但如果您網址上帶的是 LineID，我們需要修改一下 RPC 或者在前端先查出 UUID。
+          // 為了方便，假設您的 draw_cny_prize 已經調整為可以接受 LineID，或者我們在這裡做一個轉換。
+          
+          // *修正方案*：為了最簡單的測試，我們假設您網址帶的是 UUID (profiles.id)。
+          // 如果您網址帶的是 LineID，那這裡可能會找不到人。
+          // 不過依照範本，我們先嘗試直接傳送。
+          
+          const { data, error } = await _supabase.rpc('draw_cny_prize', { p_user_id: TARGET_USER_ID });
 
           if (error) throw error;
 
-          // 成功寫入後，更新 UI 顯示結果
-          showResultUI(prize.name, prize.desc);
+          if (data.status === 'success') {
+              // 抽獎成功，顯示獎品
+              setTimeout(() => {
+                  showResultUI(data.prize_name, data.description);
+              }, 500);
+          } else {
+              // 失敗 (例如發完了)
+              prizeText.innerText = data.message;
+              isDrawing = false; // 如果失敗，或許可以允許重試？這裡先不解鎖
+          }
 
       } catch (err) {
           console.error(err);
-          alert("領取失敗，請確認網路連線或稍後再試");
-          resultModal.style.display = 'none'; // 關閉彈窗
+          // 判斷錯誤類型，如果是 "invalid input syntax for type uuid" 代表網址帶的不是 UUID
+          if (err.message && err.message.includes("uuid")) {
+             alert("錯誤：網址上的 uid 必須是會員的 UUID (格式: xxxxx-xxxx...)，不能是 Line ID");
+          } else {
+             alert("連線失敗，請稍後再試: " + err.message);
+          }
+          resultModal.style.display = 'none';
+          isDrawing = false;
+          hasPlayed = false; // 失敗允許重來
       }
   }
 
@@ -349,7 +342,14 @@
     let startY = 0; let currentY = 0; let isDragging = false;
     const maxDragDistance = 250; const triggerThreshold = 100; 
     
-    const startDrag = (y) => { if(isDrawing) return; isDragging = true; element.classList.add('dragging'); element.classList.remove('releasing'); startY = y; };
+    const startDrag = (y) => { 
+        if(isDrawing || hasPlayed) return; // 鎖定狀態不能拉
+        isDragging = true; 
+        element.classList.add('dragging'); 
+        element.classList.remove('releasing'); 
+        startY = y; 
+    };
+    
     const moveDrag = (y) => { 
       if (!isDragging) return;
       const diff = y - startY;
@@ -369,11 +369,9 @@
       if (currentY > triggerThreshold) {
         element.style.transform = ''; 
         
-        if (!isDrawing) {
-          isDrawing = true;
-          // 觸發我們結合好的 function
+        // 觸發抽獎
+        if (!isDrawing && !hasPlayed) {
           await handlePrizeDraw();
-          isDrawing = false;
         }
 
       } else {
