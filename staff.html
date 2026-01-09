@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v8.5 樣式優化 */
+        /* v8.6 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -78,7 +78,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.5</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.6</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
@@ -483,6 +483,11 @@
             selectedCashCoupons = []; 
             document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
 
+            // v8.6: 狀態變數強制歸零 (Critical Fix)
+            calculatedPoints = 0;
+            calculatedRedeem = 0;
+            calculatedCashDiscount = 0;
+
             const { data: cashCoupons } = await _supabase.from('user_coupons')
                 .select('*')
                 .eq('line_id', lineId)
@@ -845,6 +850,12 @@
             currentTargetLineId = null;
             currentTargetCouponId = null;
             await startScanner('normal');
+            
+            // v8.6: 確保重置時也清空所有計算變數
+            calculatedPoints = 0;
+            calculatedRedeem = 0;
+            calculatedCashDiscount = 0;
+
             if (successMsg) {
                 handleSuccessMsg(successMsg);
             }
