@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* v8.4 樣式優化 */
+        /* v8.5 樣式優化 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -78,7 +78,7 @@
 
     <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-8 mt-4 shrink-0">
-            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.4</span></h1>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">作業中心 <span class="text-xs text-gray-400 align-middle ml-2">v8.5</span></h1>
             <p class="text-gray-400 text-sm font-bold mt-1">請選擇操作項目</p>
         </header>
         <div class="flex flex-col gap-4 flex-1 mb-8 overflow-y-auto">
@@ -678,7 +678,6 @@
             }
         }
 
-        // --- 核心邏輯 v8.4：雙軌積分 + 10分防呆 ---
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real'); 
             btn.disabled = true; 
@@ -880,7 +879,10 @@
             });
 
             const totalDue = Math.max(0, amount - redeem - calculatedCashDiscount);
-            calculatedPoints = Math.round(totalDue / 100);
+            
+            // v8.5 修正：無條件捨去點數計算 (不滿 100 不給點)
+            calculatedPoints = Math.floor(totalDue / 100);
+            
             calculatedRedeem = redeem; 
 
             document.getElementById('total-due').innerText = '$' + totalDue.toLocaleString();
