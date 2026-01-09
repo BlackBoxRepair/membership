@@ -29,8 +29,13 @@
   .flying-bird { position: absolute; top: 7.5%; left: 50%; margin-left: 115px; width: 18vw; max-width: 90px; height: auto; z-index: 20; opacity: 0; animation: appearFade 15s infinite; pointer-events: none; }
   @keyframes appearFade { 0%, 40%, 100% { opacity: 0; transform: translateY(5px); } 10%, 30% { opacity: 1; transform: translateY(0); } }
   .cat-gif { position: absolute; bottom: 30%; left: 15%; width: 42vw; max-width: 250px; z-index: 5; pointer-events: none; filter: brightness(0.98); }
-  .wealth-horse { position: absolute; bottom: 2.5%; left: -3%; width: 45vw; max-width: 280px; z-index: 100; filter: brightness(0.98); pointer-events: auto; }
-  .lion-wrapper { position: absolute; bottom: -5%; right: -8%; width: 58vw; max-width: 360px; z-index: 100; pointer-events: auto; }
+  
+  /* [修改] 財富馬：加上 touch-action 和 pointer-events 確保靈敏度 */
+  .wealth-horse { position: absolute; bottom: 2.5%; left: -3%; width: 45vw; max-width: 280px; z-index: 100; filter: brightness(0.98); pointer-events: auto; cursor: pointer; }
+  
+  /* [修改] 石獅子：加上 touch-action 和 pointer-events */
+  .lion-wrapper { position: absolute; bottom: -5%; right: -8%; width: 58vw; max-width: 360px; z-index: 100; pointer-events: auto; cursor: pointer; }
+  
   .stone-lion { width: 100%; height: auto; display: block; }
   .lion-shadow-base { position: absolute; bottom: -6%; right: -5%; width: 50vw; max-width: 300px; height: 30px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 80%); z-index: 2; transform: scaleY(0.5); filter: blur(5px); }
   
@@ -79,7 +84,7 @@
   .prize-title { font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; }
   .prize-name { font-size: 1.6rem; color: #5d4037; font-weight: 600; margin-bottom: 25px; }
   
-  /* 按鈕樣式 (增加 pointer-events 以確保可點擊) */
+  /* 按鈕樣式 */
   .btn-confirm { 
       background: #8d6e63; color: white; border: none; padding: 12px 35px; border-radius: 50px; 
       font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(141, 110, 99, 0.2); 
@@ -95,9 +100,12 @@
   <div class="overlay"></div>
   <div class="title-area"><div class="hint-text">拉動幸運的新春紅線，好運降臨！</div></div>
   <img src="icon2.GIF" class="flying-bird"><img src="icon.GIF" class="cat-gif">
-  <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
+  
+  <img src="wealth_horse.png" class="wealth-horse" ontouchend="event.preventDefault(); openWealthModal()">
+  
   <div class="lion-shadow-base"></div>
-  <div class="lion-wrapper" onclick="openStoreModal()"><img src="lion.png" class="stone-lion"></div>
+  
+  <div class="lion-wrapper" ontouchend="event.preventDefault(); openStoreModal()"><img src="lion.png" class="stone-lion"></div>
 </div>
 
 <div class="modal-overlay" id="resultModal">
@@ -154,9 +162,8 @@
   const params = new URLSearchParams(window.location.search);
   const TARGET_LINE_ID = params.get('uid'); 
 
-  // --- 全局防護：防止在 LINE 瀏覽器中下拉導致關閉/重整 ---
+  // --- 全局防護 ---
   document.addEventListener('touchmove', function(e) {
-    // 如果不是在可滾動的元素內 (modal content)，則禁止滾動
     if (!e.target.closest('.modal-content')) {
         if (e.cancelable) e.preventDefault();
     }
@@ -222,9 +229,7 @@
     };
     const moveDrag = (y) => { 
       if (!isDragging) return;
-      
       const diff = y - startY;
-      
       if (diff > 0) {
         let pullDistance = Math.min(diff, 200); 
         element.style.transform = `translateY(${pullDistance}px)`;
@@ -308,12 +313,12 @@
     }
   }
 
-  // --- 加分邏輯 ---
+  // --- 加分邏輯 (移除 Alert，靜默領取) ---
   async function claimPoints(e) {
-    if(e) e.preventDefault(); // 防止重複觸發
+    if(e) e.preventDefault();
 
     const btn = document.querySelector('#pointsModal .btn-confirm');
-    if(btn.disabled) return; // 雙重防護
+    if(btn.disabled) return;
     
     btn.disabled = true;
     btn.innerText = "領取中...";
@@ -329,8 +334,8 @@
          pointsModal.style.display = 'none';
          claimedModal.style.display = 'flex'; 
       } else {
+         // [修改] 成功領取後，直接關閉彈窗，不跳 Alert
          pointsModal.style.display = 'none';
-         alert("10點積分已入袋！");
       }
 
     } catch (err) {
@@ -345,7 +350,7 @@
   function openStoreModal() { document.getElementById('storeModal').style.display = 'flex'; }
   function openWealthModal() { document.getElementById('wealthModal').style.display = 'flex'; }
   function closeModal(id, e) { 
-      if(e) e.preventDefault(); // 防止穿透點擊
+      if(e) e.preventDefault(); 
       document.getElementById(id).style.display = 'none'; 
   }
   function openReview(placeId) {
