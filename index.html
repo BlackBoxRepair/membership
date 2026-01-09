@@ -29,7 +29,6 @@
             position: fixed;
         }
         
-        /* App 容器 */
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
         /* 內容捲動區 */
@@ -42,7 +41,7 @@
         .content-scroll::-webkit-scrollbar { display: none; }
         
         /* Tab 切換動畫 */
-        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
         /* 黑金卡片 */
@@ -135,6 +134,18 @@
         <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Loading</p>
     </div>
 
+    <div id="info-modal" class="modal-overlay" onclick="closeInfoModal()">
+        <div class="bg-white w-full max-w-xs rounded-[2rem] p-8 text-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 mb-2">會籍積分</h3>
+            <p class="text-sm text-gray-500 font-bold leading-relaxed">每10積分<br>可折抵消費金額10元</p>
+        </div>
+    </div>
+
     <div id="msg-modal" class="modal-overlay" style="z-index: 2000;">
         <div class="msg-modal-content">
             <h3 id="msg-title" class="text-xl font-black text-gray-900 mb-2">提示</h3>
@@ -214,12 +225,17 @@
     </div>
 
     <div id="app" class="max-w-md mx-auto relative">
-        <header class="px-6 pt-4 pb-2 flex justify-between items-center shrink-0">
+        <header id="main-header" class="px-6 pt-4 pb-2 flex justify-between items-center shrink-0">
             <div class="flex flex-col">
                 <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-1">BLACK BOX REPAIR</span>
                 <h1 id="page-title" class="text-3xl font-black text-gray-900 tracking-tight">會員中心</h1>
             </div>
             <div class="flex gap-3">
+                <button onclick="openInfoModal()" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-yellow-600 active:scale-90 transition shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
                 <button onclick="openEditModal()" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-gray-400 active:scale-90 transition shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
@@ -283,6 +299,8 @@
 
     <script>
         // --- 設定區 ---
+        // 填寫要嵌入的活動網址 (空字串 = 顯示敬請期待)
+        // 未來有活動時，請在此填入 URL，系統會自動切換為活動頁模式
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -294,7 +312,6 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
 
-        // 修改1 & 修改2：更新地區清單，包含全台縣市
         const areaList = [
             "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
             "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
@@ -302,6 +319,14 @@
             "台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣",
             "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
         ];
+
+        // v10.2 新增：開關積分說明彈窗
+        function openInfoModal() {
+            document.getElementById('info-modal').style.display = 'flex';
+        }
+        function closeInfoModal() {
+            document.getElementById('info-modal').style.display = 'none';
+        }
 
         // 初始化
         window.onload = async () => {
@@ -315,8 +340,12 @@
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                // 如果有活動網址，插入 iframe
-                container.innerHTML = `<iframe src="${ACTIVITY_URL}" class="w-full h-full border-0"></iframe>`;
+                // 如果有活動網址，插入 iframe 並帶上 UID
+                const targetUrl = new URL(ACTIVITY_URL);
+                if (currentUserLineId) {
+                    targetUrl.searchParams.set('uid', currentUserLineId);
+                }
+                container.innerHTML = `<iframe src="${targetUrl.toString()}" class="w-full h-full border-0"></iframe>`;
             } else {
                 // 如果沒有活動網址，顯示「敬請期待」空狀態
                 container.innerHTML = `
@@ -474,6 +503,9 @@
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
             
+            // 拿到 ID 後，才決定是否渲染活動頁
+            renderActivityTab();
+
             // 預設頁面
             switchTab('card');
         }
@@ -487,6 +519,14 @@
 
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
+
+            // 自動切換 Header 顯示 (活動頁若有連結則隱藏標題)
+            const header = document.getElementById('main-header');
+            if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                header.style.display = 'none';
+            } else {
+                header.style.display = 'flex'; 
+            }
 
             if(tab === 'coupon') loadUserCoupons();
         }
@@ -580,7 +620,7 @@
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
         
-        window.onload = init; // 這裡其實是多餘的，因為上方已經有 window.onload 了，但為了保險可以留著，或刪除這行，上方已經定義了完整的 window.onload
+        window.onload = init;
     </script>
 </body>
 </html>
