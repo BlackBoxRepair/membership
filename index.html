@@ -31,12 +31,18 @@
         
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
-        /* 內容捲動區 */
+        /* [修改] 讓活動頁籤與內容容器平起平坐，並在顯示時佔滿空間 */
+        #tab-blackbox, #main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative; /* 確保 iframe 定位 */
+        }
+
+        /* 內容捲動區 (只對 #main-content 生效) */
         .content-scroll { 
-            flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding-bottom: 90px; 
+            padding-bottom: 90px; /* 這裡的 padding 導致了留白 */
         }
         .content-scroll::-webkit-scrollbar { display: none; }
         
@@ -242,11 +248,11 @@
             </div>
         </header>
         
-        <div id="main-content" class="content-scroll hidden">
-            <main id="tab-blackbox" class="tab-content h-full">
-                <div id="activity-container" class="h-full w-full"></div>
-            </main>
+        <main id="tab-blackbox" class="tab-content h-full hidden">
+            <div id="activity-container" class="h-full w-full"></div>
+        </main>
 
+        <div id="main-content" class="content-scroll hidden">
             <main id="tab-card" class="tab-content active px-6 pt-2">
                 <div class="card-black-gold rounded-[2.2rem] p-7 mb-3 relative overflow-hidden">
                     <div class="relative z-10 flex justify-between items-start mb-12">
@@ -299,7 +305,6 @@
 
     <script>
         // --- 設定區 ---
-        // [修改] 填入新的活動網址
         const ACTIVITY_URL = 'https://blackboxrepair.github.io/membership/events/2026-cny/index.html'; 
         // --------------
 
@@ -523,8 +528,14 @@
             const header = document.getElementById('main-header');
             if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
                 header.style.display = 'none';
+                // [修改] 顯示活動頁，隱藏內容容器
+                document.getElementById('tab-blackbox').classList.remove('hidden');
+                document.getElementById('main-content').classList.add('hidden');
             } else {
                 header.style.display = 'flex'; 
+                // [修改] 隱藏活動頁，顯示內容容器
+                document.getElementById('tab-blackbox').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
             }
 
             if(tab === 'coupon') loadUserCoupons();
