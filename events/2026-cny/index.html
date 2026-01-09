@@ -94,22 +94,22 @@
 </div>
 
 <div class="modal-overlay" id="resultModal">
-  <div class="modal-content" onclick="event.stopPropagation()">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-title">恭喜獲得</div>
     <div class="prize-name" id="prizeText">...</div>
     <button class="btn-confirm" onclick="closeModal('resultModal')">收下好運</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="weeklyLimitModal" onclick="closeModal('weeklyLimitModal')" ontouchend="if(event.target === this) closeModal('weeklyLimitModal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-overlay" id="weeklyLimitModal" onclick="if(event.target === this) closeModal('weeklyLimitModal')" ontouchend="if(event.target === this) { closeModal('weeklyLimitModal'); event.preventDefault(); }">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-title">每週挑戰</div>
     <div class="prize-name" style="font-size: 1.4rem;">本週的你已經<br>足夠幸運囉</div>
   </div>
 </div>
 
-<div class="modal-overlay" id="storeModal" onclick="closeModal('storeModal')" ontouchend="if(event.target === this) closeModal('storeModal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-overlay" id="storeModal" onclick="if(event.target === this) closeModal('storeModal')" ontouchend="if(event.target === this) { closeModal('storeModal'); event.preventDefault(); }">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 5px;">點石成金 祈福獅</div>
     <button class="store-btn" onclick="openReview('ChIJ0UjI3qs9aTQRL9j0jSyHwOk')">勤美公益店</button>
     <button class="store-btn" onclick="openReview('ChIJ9yPXhuwVaTQRaMGtvE3bUDw')">沙鹿站前店</button>
@@ -117,22 +117,22 @@
 </div>
 
 <div class="modal-overlay" id="pointsModal">
-  <div class="modal-content" onclick="event.stopPropagation()">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-title">石獅賀歲</div>
     <div class="prize-name" style="font-size: 1.5rem;">獲得10pt會籍積分</div>
     <button class="btn-confirm" onclick="claimPoints()">收入囊中</button>
   </div>
 </div>
 
-<div class="modal-overlay" id="claimedModal" onclick="closeModal('claimedModal')" ontouchend="if(event.target === this) closeModal('claimedModal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-overlay" id="claimedModal" onclick="if(event.target === this) closeModal('claimedModal')" ontouchend="if(event.target === this) { closeModal('claimedModal'); event.preventDefault(); }">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-title">石獅賀歲</div>
     <div class="prize-name" style="font-size: 1.5rem;">你已經領取過囉</div>
   </div>
 </div>
 
-<div class="modal-overlay" id="wealthModal" onclick="closeModal('wealthModal')" ontouchend="if(event.target === this) closeModal('wealthModal')">
-  <div class="modal-content" onclick="event.stopPropagation()">
+<div class="modal-overlay" id="wealthModal" onclick="if(event.target === this) closeModal('wealthModal')" ontouchend="if(event.target === this) { closeModal('wealthModal'); event.preventDefault(); }">
+  <div class="modal-content" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 15px;">財富密馬</div>
     <div style="margin-bottom:20px;">活動期間：2026.02.01 - 02.28<br>期間來店維修任一設備零件即可獲得</div>
   </div>
