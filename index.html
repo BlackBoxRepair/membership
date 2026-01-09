@@ -50,49 +50,22 @@
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* [新增] 開門特效相關樣式 */
+        /* 開門特效樣式 */
         #door-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 50; /* 在 iframe 之上 */
+            z-index: 50; 
             background: url('door.png') no-repeat center center;
             background-size: cover;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 1s ease-in-out, transform 1s ease-in-out;
         }
-        /* 門開了之後的狀態 */
-        #door-overlay.open {
-            opacity: 0;
-            transform: scale(1.1); /* 稍微放大產生空間感 */
-            pointer-events: none;
-        }
-
-        #couplet-container {
-            width: 200px; height: 200px;
-            position: relative;
-            z-index: 60;
-            /* 初始陰影 */
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-        }
-        
-        #couplet-img {
-            width: 100%; height: 100%; object-fit: contain;
-            transition: transform 0.1s linear; /* 讓拖曳時順暢 */
-            touch-action: none; /* 禁止瀏覽器預設行為 */
-        }
-
+        #door-overlay.open { opacity: 0; transform: scale(1.1); pointer-events: none; }
+        #couplet-container { width: 200px; height: 200px; position: relative; z-index: 60; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
+        #couplet-img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.1s linear; touch-action: none; }
         .door-hint {
-            margin-top: 20px;
-            color: rgba(255,255,255,0.9);
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
-            pointer-events: none;
-            opacity: 1;
-            transition: opacity 0.5s;
+            margin-top: 20px; color: rgba(255,255,255,0.9); font-size: 14px; font-weight: bold; letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: rgba(0,0,0,0.3); padding: 8px 16px; border-radius: 20px;
+            pointer-events: none; opacity: 1; transition: opacity 0.5s;
         }
 
         /* 底部導航 */
@@ -113,7 +86,7 @@
         .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
         .nav-btn.active svg { stroke-width: 2.5px; }
 
-        /* 其他通用樣式保持不變 */
+        /* 通用元件 */
         .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; -webkit-appearance: none; }
         .locked-input { background-color: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; cursor: not-allowed; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
@@ -247,19 +220,16 @@
                     </svg>
                 </button>
                 <button onclick="openEditModal()" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-gray-400 active:scale-90 transition shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
             </div>
         </header>
         
         <main id="tab-blackbox" class="tab-content h-full hidden">
-            <div id="door-overlay">
-                <div id="couplet-container">
-                    <img src="couplet.png" id="couplet-img" alt="福">
-                </div>
+            <div id="door-overlay" style="display:none;">
+                <div id="couplet-container"><img src="couplet.png" id="couplet-img" alt="福"></div>
                 <p id="door-hint" class="door-hint">向下滑動將「福」倒過來</p>
             </div>
-            
             <div id="activity-container" class="h-full w-full"></div>
         </main>
 
@@ -313,7 +283,11 @@
     </div>
 
     <script>
-        const ACTIVITY_URL = 'https://blackboxrepair.github.io/membership/events/2026-cny/index.html'; 
+        // --- 設定區 ---
+        // [修改] 已清空，代表活動結束，恢復正常模式
+        const ACTIVITY_URL = ''; 
+        // --------------
+
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
@@ -330,61 +304,48 @@
         window.onload = async () => {
             initSelects();
             renderActivityTab(); 
-            initDoorInteraction(); // [新增] 初始化大門互動
+            initDoorInteraction(); 
             await initLiff();
             switchTab('coupon'); 
         };
 
-        // [新增] 大門互動邏輯：滑動旋轉福字
         function initDoorInteraction() {
+            // [新增] 如果沒有活動網址，直接隱藏大門，不初始化互動
+            if (!ACTIVITY_URL) {
+                document.getElementById('door-overlay').style.display = 'none';
+                return;
+            }
+
             const couplet = document.getElementById('couplet-img');
             const overlay = document.getElementById('door-overlay');
             const hint = document.getElementById('door-hint');
-            let startY = 0;
-            let currentRotation = 0;
-            let isDragging = false;
+            let startY = 0; let currentRotation = 0; let isDragging = false;
 
-            // 如果已經開過門，直接隱藏
             if (localStorage.getItem('hasOpenedDoor') === 'true') {
                 overlay.style.display = 'none';
                 return;
             }
 
-            const startDrag = (y) => {
-                isDragging = true;
-                startY = y;
-                hint.style.opacity = '0'; // 開始滑動時隱藏提示
-            };
-
+            const startDrag = (y) => { isDragging = true; startY = y; hint.style.opacity = '0'; };
             const moveDrag = (y) => {
                 if (!isDragging) return;
                 const deltaY = y - startY;
-                
-                // 下滑增加旋轉角度 (1px = 1deg)，限制在 0~180 度
                 if (deltaY > 0) {
                     currentRotation = Math.min(deltaY, 180);
                     couplet.style.transform = `rotate(${currentRotation}deg)`;
                 }
             };
-
             const endDrag = () => {
                 if (!isDragging) return;
                 isDragging = false;
-
-                // 如果旋轉超過 150 度，視為成功
                 if (currentRotation > 150) {
-                    // 自動補齊到 180 度
                     couplet.style.transform = `rotate(180deg)`;
-                    // 播放開門動畫
                     setTimeout(() => {
                         overlay.classList.add('open');
-                        // 記錄已開門
                         localStorage.setItem('hasOpenedDoor', 'true');
-                        // 動畫結束後移除元素
                         setTimeout(() => { overlay.style.display = 'none'; }, 1000);
                     }, 300);
                 } else {
-                    // 回彈
                     couplet.style.transform = `rotate(0deg)`;
                     currentRotation = 0;
                     hint.style.opacity = '1';
@@ -395,8 +356,6 @@
             container.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(e.touches[0].clientY); }, {passive: false});
             container.addEventListener('touchmove', (e) => { e.preventDefault(); moveDrag(e.touches[0].clientY); }, {passive: false});
             container.addEventListener('touchend', endDrag);
-            
-            // 滑鼠支援
             container.addEventListener('mousedown', (e) => { e.preventDefault(); startDrag(e.clientY); });
             window.addEventListener('mousemove', (e) => { if(isDragging) moveDrag(e.clientY); });
             window.addEventListener('mouseup', endDrag);
@@ -411,6 +370,7 @@
                 }
                 container.innerHTML = `<iframe src="${targetUrl.toString()}" class="w-full h-full border-0"></iframe>`;
             } else {
+                // [修改] 沒有活動時的預設畫面
                 container.innerHTML = `
                 <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
@@ -422,6 +382,52 @@
                     <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
                 </div>`;
             }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // 這裡不再使用 class active 控制黑盒容器，改用手動控制 hidden
+            
+            const titles = { 'blackbox': '小黑盒', 'card': '會員中心', 'coupon': '優惠券' };
+            document.getElementById('page-title').innerText = titles[tab];
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('nav-' + tab).classList.add('active');
+
+            const header = document.getElementById('main-header');
+            const navBar = document.getElementById('main-nav');
+            const closeBtn = document.getElementById('floating-close-btn');
+            const blackboxContainer = document.getElementById('tab-blackbox');
+            const mainContent = document.getElementById('main-content');
+
+            // 重置狀態：隱藏浮動按鈕，顯示標題與導航
+            closeBtn.classList.add('hidden');
+            header.style.display = 'flex';
+            navBar.style.display = 'flex';
+
+            if (tab === 'blackbox') {
+                // 顯示黑盒容器，隱藏主內容容器
+                blackboxContainer.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+
+                // [邏輯] 只有在有活動連結時，才進入「沉浸模式」
+                if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                    header.style.display = 'none';
+                    navBar.style.display = 'none';
+                    closeBtn.classList.remove('hidden');
+                }
+            } else {
+                // 顯示主內容容器，隱藏黑盒容器
+                blackboxContainer.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                
+                // 處理其他分頁的顯示
+                document.getElementById('tab-card').classList.remove('active');
+                document.getElementById('tab-coupon').classList.remove('active');
+                document.getElementById('tab-' + tab).classList.add('active');
+            }
+
+            if(tab === 'coupon') loadUserCoupons();
         }
 
         // ... (以下為其他輔助函數：showMsg, initSelects, initLiff, saveProfile, renderApp 等，均保持不變) ...
@@ -470,20 +476,6 @@
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
             document.getElementById('loading-overlay').style.display = 'none'; document.getElementById('main-content').classList.remove('hidden');
             renderActivityTab(); switchTab('card');
-        }
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('tab-' + tab).classList.add('active');
-            const titles = { 'blackbox': '小黑盒', 'card': '會員中心', 'coupon': '優惠券' }; document.getElementById('page-title').innerText = titles[tab];
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); document.getElementById('nav-' + tab).classList.add('active');
-            const header = document.getElementById('main-header'); const navBar = document.getElementById('main-nav'); const closeBtn = document.getElementById('floating-close-btn');
-            if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                header.style.display = 'none'; navBar.style.display = 'none'; closeBtn.classList.remove('hidden');
-                document.getElementById('tab-blackbox').classList.remove('hidden'); document.getElementById('main-content').classList.add('hidden');
-            } else {
-                header.style.display = 'flex'; navBar.style.display = 'flex'; closeBtn.classList.add('hidden');
-                document.getElementById('tab-blackbox').classList.add('hidden'); document.getElementById('main-content').classList.remove('hidden');
-            }
-            if(tab === 'coupon') loadUserCoupons();
         }
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list'); const today = new Date().toISOString().split('T')[0];
