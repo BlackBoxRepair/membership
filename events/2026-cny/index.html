@@ -19,8 +19,22 @@
   .lion-wrapper { position: absolute; bottom: -5%; right: -8%; width: 58vw; max-width: 360px; z-index: 100; pointer-events: auto; }
   .stone-lion { width: 100%; height: auto; display: block; }
   .lion-shadow-base { position: absolute; bottom: -6%; right: -5%; width: 50vw; max-width: 300px; height: 30px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 80%); z-index: 2; transform: scaleY(0.5); filter: blur(5px); }
+  
   .title-area { position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 15; }
-  .hint-text { display: inline-block; color: #fff; font-size: 1rem; font-weight: 500; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+  
+  /* [修改] 強化文字陰影效果 */
+  .hint-text { 
+    display: inline-block; 
+    color: #fff; 
+    font-size: 1.1rem; /* 稍微加大 */
+    font-weight: 700; 
+    letter-spacing: 2px; 
+    /* 多重陰影讓字體更立體、更亮 */
+    text-shadow: 
+        0 2px 4px rgba(0,0,0,0.8), 
+        0 0 10px rgba(255, 215, 0, 0.6),
+        0 0 20px rgba(255, 100, 0, 0.4);
+  }
 
   /* 紅線樣式 */
   .knot { 
@@ -32,12 +46,9 @@
   }
   .knot.dragging { cursor: grabbing; animation: none !important; transition: none; }
   
-  /* [修改] 已使用狀態：拿掉黑白濾鏡，只停止動畫 */
   .knot.disabled { 
-    /* filter: grayscale(100%);  <-- 這一行拿掉，保持原色 */
     cursor: default !important; 
-    animation: none !important; /* 停止搖晃 */
-    /* pointer-events: none; <-- 這一行也拿掉，這樣才能點擊觸發提示 */
+    animation: none !important; 
   } 
   
   @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
@@ -56,7 +67,8 @@
 
 <div class="scene-container" id="scene">
   <div class="overlay"></div>
-  <div class="title-area"><div class="hint-text">請選擇一條幸運紅線拉下</div></div>
+  <div class="title-area"><div class="hint-text">拉動幸運的新春紅線，好運降臨！</div></div>
+  
   <img src="icon2.GIF" class="flying-bird"><img src="icon.GIF" class="cat-gif">
   <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
   <div class="lion-shadow-base"></div>
@@ -70,6 +82,7 @@
     <button class="btn-confirm" onclick="closeModal('resultModal')">收下好運</button>
   </div>
 </div>
+
 <div class="modal-overlay" id="storeModal" onclick="closeModal('storeModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 5px;">點石成金 祈福獅</div>
@@ -77,13 +90,15 @@
     <button class="store-btn" onclick="openReview('ChIJ9yPXhuwVaTQRaMGtvE3bUDw')">沙鹿站前店</button>
   </div>
 </div>
-<div class="modal-overlay" id="pointsModal" onclick="closeModal('pointsModal')">
+
+<div class="modal-overlay" id="pointsModal">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-title">石獅賀歲</div>
     <div class="prize-name" style="font-size: 1.5rem;">獲得10pt會籍積分</div>
-    <button class="btn-confirm" onclick="closeModal('pointsModal')">收入囊中</button>
+    <button class="btn-confirm" onclick="claimPoints()">收入囊中</button>
   </div>
 </div>
+
 <div class="modal-overlay" id="wealthModal" onclick="closeModal('wealthModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 15px;">財富密馬</div>
@@ -103,6 +118,7 @@
 
   const scene = document.getElementById('scene');
   const resultModal = document.getElementById('resultModal');
+  const pointsModal = document.getElementById('pointsModal');
   const prizeText = document.getElementById('prizeText');
   let isDrawing = false; 
   let hasPlayed = false;
@@ -130,7 +146,6 @@
     let startY = 0; let currentY = 0; let isDragging = false;
     
     const startDrag = (y) => { 
-        // [新增] 如果已經玩過了，再次點擊會跳提示
         if (hasPlayed) {
             alert("你今天已經足夠幸運囉");
             return;
@@ -185,7 +200,6 @@
     isDrawing = true;
     hasPlayed = true;
     
-    // [視覺修改] 所有紅線變為禁止狀態，但保持原色 (CSS已調整)
     document.querySelectorAll('.knot').forEach(k => {
       k.classList.add('disabled');
       k.style.transform = ''; 
@@ -217,6 +231,34 @@
     }
   }
 
+  // --- 4. 點石成金：加分邏輯 ---
+  async function claimPoints() {
+    // 簡單防呆：避免按鈕被連點
+    const btn = document.querySelector('#pointsModal .btn-confirm');
+    btn.disabled = true;
+    btn.innerText = "領取中...";
+
+    try {
+      if (!TARGET_LINE_ID) throw new Error("缺少會員ID");
+
+      // 呼叫我們剛剛新增的加分函數
+      const { error } = await _supabase.rpc('add_lion_points', { p_line_id: TARGET_LINE_ID });
+      
+      if (error) throw error;
+
+      // 成功後關閉彈窗
+      pointsModal.style.display = 'none';
+      alert("10點積分已入袋！"); // 可選：給個小提示
+
+    } catch (err) {
+      console.error(err);
+      alert("領取失敗：" + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "收入囊中";
+    }
+  }
+
   function openStoreModal() { document.getElementById('storeModal').style.display = 'flex'; }
   function openWealthModal() { document.getElementById('wealthModal').style.display = 'flex'; }
   function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -228,6 +270,7 @@
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
       closeModal('storeModal');
+      // 開啟積分彈窗 (無法點背景關閉)
       pointsModal.style.display = 'flex';
       localStorage.removeItem("isReviewing");
     }
