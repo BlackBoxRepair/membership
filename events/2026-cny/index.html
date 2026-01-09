@@ -28,16 +28,16 @@
     filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.3)); 
     cursor: grab; transform-origin: top center; 
     animation: swing 3s infinite alternate; z-index: 10; 
-    touch-action: none; transition: transform 0.3s ease-out; /* 加一點回彈動畫 */
+    touch-action: none; transition: transform 0.3s ease-out; 
   }
   .knot.dragging { cursor: grabbing; animation: none !important; transition: none; }
   
-  /* [修改] 已使用狀態：變灰、停止擺動、保留在原位 */
+  /* [修改] 已使用狀態：拿掉黑白濾鏡，只停止動畫 */
   .knot.disabled { 
-    filter: grayscale(100%) opacity(0.7); 
+    /* filter: grayscale(100%);  <-- 這一行拿掉，保持原色 */
     cursor: default !important; 
-    animation: none !important; 
-    pointer-events: none; /* 禁止再次點擊 */
+    animation: none !important; /* 停止搖晃 */
+    /* pointer-events: none; <-- 這一行也拿掉，這樣才能點擊觸發提示 */
   } 
   
   @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
@@ -130,7 +130,13 @@
     let startY = 0; let currentY = 0; let isDragging = false;
     
     const startDrag = (y) => { 
-        if(isDrawing || hasPlayed) return; 
+        // [新增] 如果已經玩過了，再次點擊會跳提示
+        if (hasPlayed) {
+            alert("你今天已經足夠幸運囉");
+            return;
+        }
+        if (isDrawing) return; 
+
         isDragging = true; 
         element.classList.add('dragging'); 
         element.classList.remove('releasing'); 
@@ -152,7 +158,6 @@
       element.classList.add('releasing');
       
       if (currentY > 80) {
-        // [修改] 先把該紅線彈回去，然後鎖定所有操作
         element.style.transform = ''; 
         if (!isDrawing && !hasPlayed) {
           await playLottery(element);
@@ -180,10 +185,10 @@
     isDrawing = true;
     hasPlayed = true;
     
-    // [視覺修改] 立即將所有紅線變灰並鎖定，不讓它們消失
+    // [視覺修改] 所有紅線變為禁止狀態，但保持原色 (CSS已調整)
     document.querySelectorAll('.knot').forEach(k => {
       k.classList.add('disabled');
-      k.style.transform = ''; // 強制歸位
+      k.style.transform = ''; 
     });
 
     prizeText.innerText = "祈福中...";
@@ -208,7 +213,6 @@
       resultModal.style.display = 'none';
       isDrawing = false; 
       hasPlayed = false; 
-      // 若失敗，移除鎖定狀態讓用戶重試
       document.querySelectorAll('.knot').forEach(k => k.classList.remove('disabled'));
     }
   }
