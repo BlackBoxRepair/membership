@@ -31,18 +31,18 @@
         
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
-        /* [修改] 讓活動頁籤與內容容器平起平坐，並在顯示時佔滿空間 */
+        /* 活動頁籤與內容容器 */
         #tab-blackbox, #main-content {
             flex: 1;
             overflow: hidden;
-            position: relative; /* 確保 iframe 定位 */
+            position: relative; 
         }
 
-        /* 內容捲動區 (只對 #main-content 生效) */
+        /* 內容捲動區 (只對 #main-content 生效，保留底部空間給選單) */
         .content-scroll { 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding-bottom: 90px; /* 這裡的 padding 導致了留白 */
+            padding-bottom: 90px; 
         }
         .content-scroll::-webkit-scrollbar { display: none; }
         
@@ -83,6 +83,7 @@
             height: 50px; 
             box-sizing: content-box; 
             position: fixed; bottom: 0; width: 100%;
+            transition: transform 0.3s ease; /* 加入滑動隱藏動畫 */
         }
         .nav-btn { color: #d1d5db; transition: all 0.3s; transform: scale(0.95); }
         .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
@@ -139,6 +140,12 @@
         <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
         <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Loading</p>
     </div>
+
+    <button id="floating-close-btn" onclick="switchTab('card')" class="hidden fixed top-6 right-6 z-[60] w-10 h-10 bg-black/30 backdrop-blur-md text-white rounded-full flex items-center justify-center border border-white/20 shadow-lg active:scale-90 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
 
     <div id="info-modal" class="modal-overlay" onclick="closeInfoModal()">
         <div class="bg-white w-full max-w-xs rounded-[2rem] p-8 text-center shadow-2xl" onclick="event.stopPropagation()">
@@ -279,7 +286,7 @@
             </main>
         </div>
 
-        <nav class="nav-full-width">
+        <nav id="main-nav" class="nav-full-width">
             <button id="nav-blackbox" onclick="switchTab('blackbox')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -524,16 +531,28 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
 
-            // 自動切換 Header 顯示 (活動頁若有連結則隱藏標題)
+            // 自動切換 Header, Footer, Close Button
             const header = document.getElementById('main-header');
+            const navBar = document.getElementById('main-nav');
+            const closeBtn = document.getElementById('floating-close-btn');
+
+            // [關鍵邏輯] 如果是活動頁且有設定網址 -> 進入沉浸模式
             if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                // 1. 隱藏 Header & Footer
                 header.style.display = 'none';
-                // [修改] 顯示活動頁，隱藏內容容器
+                navBar.style.display = 'none';
+                // 2. 顯示懸浮關閉按鈕
+                closeBtn.classList.remove('hidden');
+                
+                // 3. 調整容器顯示
                 document.getElementById('tab-blackbox').classList.remove('hidden');
                 document.getElementById('main-content').classList.add('hidden');
             } else {
+                // 回到正常模式
                 header.style.display = 'flex'; 
-                // [修改] 隱藏活動頁，顯示內容容器
+                navBar.style.display = 'flex';
+                closeBtn.classList.add('hidden');
+
                 document.getElementById('tab-blackbox').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
             }
