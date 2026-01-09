@@ -22,14 +22,13 @@
   
   .title-area { position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 15; }
   
-  /* [修改] 強化文字陰影效果 */
+  /* 文字陰影效果 */
   .hint-text { 
     display: inline-block; 
     color: #fff; 
-    font-size: 1.1rem; /* 稍微加大 */
+    font-size: 1.1rem; 
     font-weight: 700; 
     letter-spacing: 2px; 
-    /* 多重陰影讓字體更立體、更亮 */
     text-shadow: 
         0 2px 4px rgba(0,0,0,0.8), 
         0 0 10px rgba(255, 215, 0, 0.6),
@@ -45,17 +44,15 @@
     touch-action: none; transition: transform 0.3s ease-out; 
   }
   .knot.dragging { cursor: grabbing; animation: none !important; transition: none; }
-  
-  .knot.disabled { 
-    cursor: default !important; 
-    animation: none !important; 
-  } 
-  
+  .knot.disabled { cursor: default !important; animation: none !important; } 
   @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
 
   /* 彈窗 */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.4); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; }
-  .modal-content { background: #fff; width: 75%; max-width: 320px; padding: 35px 25px; border-radius: 24px; text-align: center; box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15); animation: popIn 0.4s; }
+  /* 已領取視窗：允許點背景關閉 */
+  #claimedModal.modal-overlay { cursor: pointer; }
+
+  .modal-content { background: #fff; width: 75%; max-width: 320px; padding: 35px 25px; border-radius: 24px; text-align: center; box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15); animation: popIn 0.4s; position: relative; }
   @keyframes popIn { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
   .prize-title { font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; }
   .prize-name { font-size: 1.6rem; color: #5d4037; font-weight: 600; margin-bottom: 25px; }
@@ -68,7 +65,6 @@
 <div class="scene-container" id="scene">
   <div class="overlay"></div>
   <div class="title-area"><div class="hint-text">拉動幸運的新春紅線，好運降臨！</div></div>
-  
   <img src="icon2.GIF" class="flying-bird"><img src="icon.GIF" class="cat-gif">
   <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
   <div class="lion-shadow-base"></div>
@@ -99,6 +95,13 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="claimedModal" onclick="closeModal('claimedModal')">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="prize-title">石獅賀歲</div>
+    <div class="prize-name" style="font-size: 1.5rem;">你已經領取過囉</div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="wealthModal" onclick="closeModal('wealthModal')">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 15px;">財富密馬</div>
@@ -119,6 +122,7 @@
   const scene = document.getElementById('scene');
   const resultModal = document.getElementById('resultModal');
   const pointsModal = document.getElementById('pointsModal');
+  const claimedModal = document.getElementById('claimedModal');
   const prizeText = document.getElementById('prizeText');
   let isDrawing = false; 
   let hasPlayed = false;
@@ -231,9 +235,8 @@
     }
   }
 
-  // --- 4. 點石成金：加分邏輯 ---
+  // --- 加分邏輯 ---
   async function claimPoints() {
-    // 簡單防呆：避免按鈕被連點
     const btn = document.querySelector('#pointsModal .btn-confirm');
     btn.disabled = true;
     btn.innerText = "領取中...";
@@ -241,14 +244,18 @@
     try {
       if (!TARGET_LINE_ID) throw new Error("缺少會員ID");
 
-      // 呼叫我們剛剛新增的加分函數
-      const { error } = await _supabase.rpc('add_lion_points', { p_line_id: TARGET_LINE_ID });
+      // 呼叫 add_lion_points (會自動防刷)
+      const { data, error } = await _supabase.rpc('add_lion_points', { p_line_id: TARGET_LINE_ID });
       
       if (error) throw error;
 
-      // 成功後關閉彈窗
-      pointsModal.style.display = 'none';
-      alert("10點積分已入袋！"); // 可選：給個小提示
+      if (data.status === 'already_claimed') {
+         pointsModal.style.display = 'none';
+         claimedModal.style.display = 'flex'; // 已領過：改跳這個
+      } else {
+         pointsModal.style.display = 'none';
+         alert("10點積分已入袋！");
+      }
 
     } catch (err) {
       console.error(err);
@@ -267,12 +274,32 @@
     window.open(`https://search.google.com/local/writereview?placeid=${placeId}`, '_blank');
   }
 
-  document.addEventListener("visibilitychange", () => {
+  // --- 關鍵偵測邏輯 ---
+  document.addEventListener("visibilitychange", async () => {
+    // 只有當「正在評論中」且「切換回網頁」時才觸發
     if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
-      closeModal('storeModal');
-      // 開啟積分彈窗 (無法點背景關閉)
-      pointsModal.style.display = 'flex';
-      localStorage.removeItem("isReviewing");
+      
+      closeModal('storeModal'); // 關閉門市選擇窗
+      localStorage.removeItem("isReviewing"); // 清除標記
+
+      if (!TARGET_LINE_ID) return;
+
+      // 呼叫 check_lion_status 檢查領過沒 (看 cny_logs)
+      try {
+        const { data: isClaimed, error } = await _supabase.rpc('check_lion_status', { p_line_id: TARGET_LINE_ID });
+
+        if (error) throw error;
+
+        if (isClaimed === true) {
+          // 領過了 -> 跳無按鈕視窗
+          claimedModal.style.display = 'flex';
+        } else {
+          // 沒領過 -> 跳有按鈕視窗
+          pointsModal.style.display = 'flex';
+        }
+      } catch (err) {
+        console.error("檢查狀態失敗", err);
+      }
     }
   });
 
