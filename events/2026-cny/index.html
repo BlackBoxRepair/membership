@@ -22,14 +22,13 @@
   
   .title-area { position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 15; }
   
-  /* [修改] 文字樣式：參考附圖風格 */
+  /* 文字陰影效果 */
   .hint-text { 
     display: inline-block; 
     color: #fff; 
-    font-size: 1rem;     /* 字體稍微縮小 */
-    font-weight: 700;    /* 保持粗體 */
+    font-size: 1rem; 
+    font-weight: 700; 
     letter-spacing: 1.5px; 
-    /* 簡單清晰的深色投影，增加可讀性 */
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
   }
 
@@ -39,11 +38,14 @@
     filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.3)); 
     cursor: grab; transform-origin: top center; 
     animation: swing 3s infinite alternate; z-index: 10; 
-    touch-action: none; transition: transform 0.3s ease-out; 
+    touch-action: none; transition: transform 0.3s ease-out;
+    
+    /* [新增] 頂部漸層遮罩：讓紅線頂端若隱若現 */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15%);
   }
   .knot.dragging { cursor: grabbing; animation: none !important; transition: none; }
   
-  /* 已使用狀態：停止動畫 */
   .knot.disabled { 
     cursor: default !important; 
     animation: none !important; 
