@@ -29,7 +29,6 @@
             position: fixed;
         }
         
-        /* App 容器 */
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
         /* 內容捲動區 */
@@ -122,37 +121,9 @@
         }
         .ticket-stub:active .chip-icon { border-color: #ca8a04; background: #fff; transform: scale(0.9); }
 
-        /* 遊戲 CSS */
-        .scene-container { position: relative; width: 100%; height: 100%; background-image: url('tree_bg.jpg'); background-size: cover; background-position: center bottom; z-index: 1; overflow: hidden; background-color: #000; }
-        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); pointer-events: none; }
-        .flying-bird { position: absolute; top: 7.5%; left: 50%; margin-left: 115px; width: 18vw; max-width: 90px; height: auto; z-index: 20; pointer-events: none; opacity: 0; animation: appearFade 15s ease-in-out infinite; }
-        @keyframes appearFade { 0% { opacity: 0; transform: translateY(5px); } 10% { opacity: 1; transform: translateY(0); } 30% { opacity: 1; transform: translateY(0); } 40% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 0; transform: translateY(5px); } }
-        .cat-gif { position: absolute; bottom: 30%; left: 15%; width: 42vw; max-width: 250px; height: auto; z-index: 5; pointer-events: none; filter: brightness(0.98); }
-        .lion-wrapper { position: absolute; bottom: -5%; right: -8%; width: 58vw; max-width: 360px; height: auto; z-index: 100; pointer-events: auto; cursor: pointer; display: flex; justify-content: center; transition: transform 0.1s, filter 0.5s; -webkit-tap-highlight-color: transparent; }
-        .lion-wrapper:active { transform: scale(0.98); }
-        .stone-lion { width: 100%; height: auto; display: block; }
-        .lion-shadow-base { position: absolute; bottom: -6%; right: -5%; width: 50vw; max-width: 300px; height: 30px; background: radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 80%); z-index: 2; transform: scaleY(0.5); filter: blur(5px); }
-        .wealth-horse { position: absolute; bottom: 2.5%; left: -3%; width: 45vw; max-width: 280px; height: auto; z-index: 100; filter: brightness(0.98); pointer-events: auto; cursor: pointer; transition: transform 0.1s; -webkit-tap-highlight-color: transparent; }
-        .wealth-horse:active { transform: scale(0.98); }
-        .knot { position: absolute; width: 40vw; max-width: 400px; height: auto; filter: drop-shadow(0px 5px 10px rgba(0,0,0,0.3)); cursor: grab; transform-origin: top center; animation: swing 3s ease-in-out infinite alternate; z-index: 10; touch-action: none; user-select: none; }
-        .knot.dragging { cursor: grabbing; transition: none !important; animation: none !important; }
-        .knot.releasing { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes swing { 0% { transform: rotate(-1.5deg); } 100% { transform: rotate(1.5deg); } }
-        .title-area { position: absolute; top: 10%; width: 100%; text-align: center; pointer-events: none; z-index: 15; }
-        .hint-text { display: inline-block; color: #fff; font-size: 1rem; font-weight: 500; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-
-        .game-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 3000; justify-content: center; align-items: center; cursor: pointer; }
-        .game-modal-content { background: #fff; width: 75%; max-width: 320px; padding: 35px 25px; border-radius: 24px; text-align: center; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 15px 40px rgba(141, 110, 99, 0.15); animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; color: #5d4037; cursor: default; }
-        @keyframes popIn { 0% { transform: scale(0.8) translateY(20px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-        .prize-title { font-size: 0.9rem; color: #9e9e9e; margin-bottom: 8px; }
-        .prize-name { font-size: 1.6rem; color: #5d4037; font-weight: 600; margin-bottom: 25px; }
-        .info-text { font-size: 1rem; color: #5d4037; line-height: 1.6; margin-bottom: 25px; }
-        .btn-confirm { background: #8d6e63; color: white; border: none; padding: 12px 35px; border-radius: 50px; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(141, 110, 99, 0.2); }
-        .btn-confirm:active { background: #6d4c41; transform: scale(0.96); }
-        .store-btn { display: flex; align-items: center; justify-content: center; width: 100%; margin: 12px 0; padding: 14px 0; font-size: 1.05rem; color: #5d4037; background: #fff; border: 1px solid #d7ccc8; border-radius: 50px; cursor: pointer; }
-        .store-btn:active { background: #efebe9; transform: scale(0.98); }
-
+        /* iFrame 樣式 */
         iframe { border: none; width: 100%; height: 100%; display: block; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -188,46 +159,16 @@
             <button onclick="document.getElementById('coupon-qr-modal').style.display='none'" class="absolute top-5 right-5 text-gray-300 text-xl w-8 h-8 flex items-center justify-center rounded-full bg-gray-50">✕</button>
             <h3 class="text-2xl font-black text-gray-900 mb-1 tracking-tight" id="cqr-title">優惠券</h3>
             <p class="text-xs text-gray-400 mb-8 font-bold tracking-wide">請出示給店員掃描核銷</p>
-            <div class="flex justify-center mb-8"><canvas id="cqr-canvas"></canvas></div>
+            
+            <div class="flex justify-center mb-8">
+                <canvas id="cqr-canvas"></canvas>
+            </div>
+            
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">Type</p>
                 <p class="text-xs font-bold text-gray-900">One-Time Use Only</p>
             </div>
         </div>
-    </div>
-
-    <div class="game-modal-overlay" id="resultModal" onclick="closeGameModal('resultModal')">
-      <div class="game-modal-content" onclick="event.stopPropagation()">
-        <div class="prize-title">恭喜獲得</div>
-        <div class="prize-name" id="prizeText">...</div>
-        <div id="prizeLoading" class="hidden"><div class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-yellow-600"></div></div>
-        <button class="btn-confirm" onclick="closeGameModal('resultModal')">收下好運</button>
-      </div>
-    </div>
-
-    <div class="game-modal-overlay" id="storeModal" onclick="closeGameModal('storeModal')">
-      <div class="game-modal-content" onclick="event.stopPropagation()">
-        <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 5px;">點石成金 祈福獅</div>
-        <div class="prize-title" style="font-size: 0.9rem; margin-bottom: 25px;">喜歡我們的服務請給我們好評</div>
-        <button class="store-btn" onclick="openReview('ChIJ0UjI3qs9aTQRL9j0jSyHwOk')">勤美公益店</button>
-        <button class="store-btn" onclick="openReview('ChIJ9yPXhuwVaTQRaMGtvE3bUDw')">沙鹿站前店</button>
-      </div>
-    </div>
-
-    <div class="game-modal-overlay" id="pointsModal" onclick="closeGameModal('pointsModal')">
-      <div class="game-modal-content" onclick="event.stopPropagation()">
-        <div class="prize-title">石獅賀歲</div>
-        <div class="prize-name" style="font-size: 1.5rem;">獲得10pt會籍積分</div>
-        <button class="btn-confirm" onclick="closeGameModal('pointsModal')">收入囊中</button>
-      </div>
-    </div>
-
-    <div class="game-modal-overlay" id="wealthModal" onclick="closeGameModal('wealthModal')">
-      <div class="game-modal-content" onclick="event.stopPropagation()">
-        <div class="prize-name" style="font-size: 1.5rem; margin-bottom: 15px;">財富密馬</div>
-        <div class="info-text">活動期間：2026.02.01 - 02.28<br>期間來店維修任一設備零件即可獲得</div>
-        <button class="btn-confirm" onclick="closeGameModal('wealthModal')">我知道了</button>
-      </div>
     </div>
 
     <div id="profile-modal" class="modal-overlay">
@@ -236,10 +177,22 @@
             <p class="text-gray-400 text-[10px] mb-6 tracking-wider uppercase font-bold italic">MEMBER PROFILE</p>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">真實姓名 *</label><input id="input-name" type="text" class="soft-input"><p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請實名填寫以免影響會員權益</p></div>
-                    <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label><div class="select-wrapper"><select id="input-area" class="soft-input bg-white"></select></div></div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">真實姓名 *</label>
+                        <input id="input-name" type="text" class="soft-input">
+                        <p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請實名填寫以免影響會員權益</p>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">居住區域</label>
+                        <div class="select-wrapper"><select id="input-area" class="soft-input bg-white"></select></div>
+                    </div>
                 </div>
-                <div><label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 *</label><input id="input-phone" type="tel" maxlength="10" class="soft-input"><p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請填寫正確以免影響會員權益</p><p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤</p></div>
+                <div>
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">連絡電話 *</label>
+                    <input id="input-phone" type="tel" maxlength="10" class="soft-input">
+                    <p class="text-[9px] text-red-500 mt-1 px-1 font-bold">* 請填寫正確以免影響會員權益</p>
+                    <p id="phone-error" class="text-[9px] text-red-500 mt-1 hidden px-1 font-bold">格式錯誤</p>
+                </div>
                 <div>
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-1 px-1">會員生日 *</label>
                     <div class="flex gap-2">
@@ -291,17 +244,7 @@
         
         <div id="main-content" class="content-scroll hidden">
             <main id="tab-blackbox" class="tab-content h-full">
-                <div class="scene-container" id="scene">
-                  <div class="overlay"></div>
-                  <div class="title-area"><div class="hint-text">拉動幸運的新春紅線，好運降臨！</div></div>
-                  <img src="icon2.GIF" class="flying-bird">
-                  <img src="icon.GIF" class="cat-gif">
-                  <img src="wealth_horse.png" class="wealth-horse" onclick="openWealthModal()">
-                  <div class="lion-shadow-base"></div>
-                  <div class="lion-wrapper" id="lionBtn" onclick="openStoreModal()">
-                    <img src="lion.png" class="stone-lion">
-                  </div>
-                </div>
+                <div id="activity-container" class="h-full w-full"></div>
             </main>
 
             <main id="tab-card" class="tab-content active px-6 pt-2">
@@ -332,15 +275,23 @@
 
         <nav class="nav-full-width">
             <button id="nav-blackbox" onclick="switchTab('blackbox')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
                 <span class="text-[11px] font-black uppercase tracking-tighter">小黑盒</span>
             </button>
+            
             <button id="nav-card" onclick="switchTab('card')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn active">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
                 <span class="text-[11px] font-black uppercase tracking-tighter">會員卡</span>
             </button>
+            
             <button id="nav-coupon" onclick="switchTab('coupon')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
                 <span class="text-[11px] font-black uppercase tracking-tighter">優惠券</span>
             </button>
         </nav>
@@ -348,6 +299,8 @@
 
     <script>
         // --- 設定區 ---
+        // 填寫要嵌入的活動網址 (空字串 = 顯示敬請期待)
+        // 未來有活動時，請在此填入 URL，系統會自動切換為活動頁模式
         const ACTIVITY_URL = ''; 
         // --------------
 
@@ -359,20 +312,15 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
 
-        const areaList = ["西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區","台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"];
-
-        // 遊戲邏輯與變數
-        const prizes = [
-            { name: "9折維修券", desc: "憑此券來店維修享9折優惠", type: "exchange", weight: 30 },
-            { name: "免費鋼化膜", desc: "需來店由服務人員代貼", type: "exchange", weight: 20 },
-            { name: "現金折抵$100", desc: "維修滿千即可折抵", type: "cash", discount: 100, weight: 5 }, 
-            { name: "快充傳輸線", desc: "Type-C / Lightning 任選", type: "exchange", weight: 10 },
-            { name: "銘謝惠顧", desc: "再接再厲，明年好運到！", type: "none", weight: 35 }
+        const areaList = [
+            "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
+            "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
+            "潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區",
+            "台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣",
+            "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
         ];
-        let isDrawing = false;
-        const totalKnots = 3;
 
-        // v10.1 新增：開關積分說明彈窗
+        // v10.2 新增：開關積分說明彈窗
         function openInfoModal() {
             document.getElementById('info-modal').style.display = 'flex';
         }
@@ -383,180 +331,36 @@
         // 初始化
         window.onload = async () => {
             initSelects();
-            initGame(); 
+            renderActivityTab(); // 渲染活動頁面
             await initLiff();
-            switchTab('coupon'); 
+            switchTab('coupon'); // 預設頁面
         };
 
-        // 遊戲控制
-        function initGame() {
-            const scene = document.getElementById('scene');
-            const oldKnots = document.querySelectorAll('.knot');
-            oldKnots.forEach(k => k.remove());
-
-            for (let i = 0; i < totalKnots; i++) {
-                const knotImg = document.createElement('img');
-                knotImg.src = 'knot.png'; 
-                knotImg.className = 'knot';
-                const sectionWidth = 100 / totalKnots; 
-                const centerOfSection = (i * sectionWidth) + (sectionWidth / 2); 
-                knotImg.style.left = (centerOfSection - 20) + '%';
-                
-                if (i === 1) knotImg.style.top = '18%'; 
-                else if (i === 0) knotImg.style.top = '25.5%'; 
-                else knotImg.style.top = '23%';
-                
-                knotImg.style.animationDelay = -(Math.random() * 2) + 's';
-                setupDragInteraction(knotImg);
-                scene.appendChild(knotImg);
+        // 渲染小黑盒頁面邏輯
+        function renderActivityTab() {
+            const container = document.getElementById('activity-container');
+            if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                // 如果有活動網址，插入 iframe 並帶上 UID
+                const targetUrl = new URL(ACTIVITY_URL);
+                if (currentUserLineId) {
+                    targetUrl.searchParams.set('uid', currentUserLineId);
+                }
+                container.innerHTML = `<iframe src="${targetUrl.toString()}" class="w-full h-full border-0"></iframe>`;
+            } else {
+                // 如果沒有活動網址，顯示「敬請期待」空狀態
+                container.innerHTML = `
+                <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
+                    <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-900 mb-2">小黑盒驚喜</h3>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p>
+                </div>`;
             }
         }
 
-        function setupDragInteraction(element) {
-            let startY = 0; let currentY = 0; let isDragging = false;
-            const maxDragDistance = 250; const triggerThreshold = 100; 
-            
-            const startDrag = (y) => { if(isDrawing) return; isDragging = true; element.classList.add('dragging'); element.classList.remove('releasing'); startY = y; };
-            const moveDrag = (y) => { 
-                if (!isDragging) return;
-                const diff = y - startY;
-                if (diff > 0) {
-                    let pullDistance = Math.min(diff, maxDragDistance); 
-                    element.style.transform = `translateY(${pullDistance}px) scale(${1 + pullDistance/1000})`;
-                    currentY = pullDistance;
-                }
-            };
-            const endDrag = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                element.classList.remove('dragging');
-                element.classList.add('releasing');
-                
-                if (currentY > triggerThreshold) {
-                    element.style.transform = ''; 
-                    if (!isDrawing) {
-                        isDrawing = true;
-                        setTimeout(() => {
-                            const prize = drawPrize();
-                            processPrize(prize);
-                        }, 300);
-                    }
-                } else {
-                    element.style.transform = ''; 
-                }
-                currentY = 0;
-            };
-            element.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientY), {passive: false});
-            element.addEventListener('mousedown', (e) => { e.preventDefault(); startDrag(e.clientY); });
-            window.addEventListener('touchmove', (e) => { if(isDragging) e.preventDefault(); moveDrag(e.touches[0].clientY); }, {passive: false});
-            window.addEventListener('mousemove', (e) => { if(isDragging) e.preventDefault(); moveDrag(e.clientY); });
-            window.addEventListener('touchend', endDrag);
-            window.addEventListener('mouseup', endDrag);
-        }
-
-        function drawPrize() {
-            let totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
-            let random = Math.random() * totalWeight;
-            let current = 0;
-            for (let prize of prizes) {
-                current += prize.weight;
-                if (random < current) return prize;
-            }
-            return prizes[prizes.length - 1];
-        }
-
-        async function processPrize(prize) {
-            document.getElementById('prizeText').innerText = "開獎中...";
-            document.getElementById('prizeLoading').classList.remove('hidden');
-            document.getElementById('resultModal').style.display = 'flex';
-
-            try {
-                if (prize.type !== 'none' && currentUserLineId) {
-                    const expiryDate = "2026-03-31"; 
-                    
-                    const { error } = await _supabase.from('user_coupons').insert({
-                        line_id: currentUserLineId,
-                        coupon_name: prize.name,
-                        description: prize.desc,
-                        type: prize.type,
-                        discount_amount: prize.discount || 0,
-                        valid_until: expiryDate,
-                        status: 'unused'
-                    });
-                    if (error) throw error;
-                }
-                showGameResult(prize);
-            } catch (err) {
-                console.error("Prize Error", err);
-                document.getElementById('prizeText').innerText = "網路錯誤，請重試";
-            } finally {
-                document.getElementById('prizeLoading').classList.add('hidden');
-                isDrawing = false;
-            }
-        }
-
-        function showGameResult(prize) {
-            document.getElementById('prizeText').innerHTML = prize.name + "<br><span style='font-size:0.8rem; color:#999; display:block; margin-top:5px; line-height:1.4'>" + prize.desc + "</span>";
-        }
-
-        function openStoreModal() { document.getElementById('storeModal').style.display = 'flex'; }
-        function openWealthModal() { document.getElementById('wealthModal').style.display = 'flex'; }
-        function closeGameModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
-        
-        function openReview(placeId) {
-            localStorage.setItem("isReviewing", "true");
-            window.open(`https://search.google.com/local/writereview?placeid=${placeId}&openExternalBrowser=1`, '_blank');
-        }
-
-        document.addEventListener("visibilitychange", async () => {
-            if (document.visibilityState === "visible" && localStorage.getItem("isReviewing") === "true") {
-                localStorage.removeItem("isReviewing");
-                closeGameModal('storeModal');
-                
-                const today = new Date().toISOString().split('T')[0];
-                const lastClaim = localStorage.getItem("last_points_claim_" + currentUserLineId);
-                
-                if (lastClaim === today) {
-                    showMsg("明日再來", "您今天已經領取過石獅賀歲積分囉！");
-                    return;
-                }
-
-                try {
-                    const { data: profile } = await _supabase.from('profiles').select('total_points, accumulated_points').eq('line_id', currentUserLineId).single();
-                    if (profile) {
-                        const newTotal = (profile.total_points || 0) + 10;
-                        const newAcc = (profile.accumulated_points || 0) + 10;
-                        
-                        await _supabase.from('profiles').update({ 
-                            total_points: newTotal,
-                            accumulated_points: newAcc 
-                        }).eq('line_id', currentUserLineId);
-
-                        await _supabase.from('point_logs').insert({
-                            line_id: currentUserLineId,
-                            store_name: "線上活動",
-                            order_number: "CNY-LION",
-                            amount: 0,
-                            points_change: 10,
-                            points_redeemed: 0,
-                            coupon_discount: 0
-                        });
-
-                        localStorage.setItem("last_points_claim_" + currentUserLineId, today);
-                        document.getElementById('pointsModal').style.display = 'flex';
-                        
-                        if(currentUserProfile) {
-                            currentUserProfile.total_points = newTotal;
-                            document.getElementById('m-points').innerText = newTotal.toLocaleString();
-                        }
-                    }
-                } catch (e) {
-                    console.error("Points Error", e);
-                }
-            }
-        });
-
-        // --- APP 主要邏輯 ---
         function showMsg(title, msg) {
             document.getElementById('msg-title').innerText = title;
             document.getElementById('msg-body').innerText = msg;
@@ -716,6 +520,7 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
 
+            // 自動切換 Header 顯示 (活動頁若有連結則隱藏標題)
             const header = document.getElementById('main-header');
             if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
                 header.style.display = 'none';
@@ -726,6 +531,7 @@
             if(tab === 'coupon') loadUserCoupons();
         }
 
+        // --- 優惠券核心功能 (UI更新 + 獨立QR Code) ---
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -749,6 +555,7 @@
                 return;
             }
 
+            // 排序：快過期 > 有期限 > 永久
             validCoupons.sort((a, b) => {
                 if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
@@ -756,9 +563,11 @@
                 return 0;
             });
 
+            // 產生票券 HTML
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
+                // 修改 2：根據類型顯示標籤
                 let typeBadge = '';
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
