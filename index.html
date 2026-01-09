@@ -38,7 +38,7 @@
             position: relative; 
         }
 
-        /* 內容捲動區 (只對 #main-content 生效，保留底部空間給選單) */
+        /* 內容捲動區 */
         .content-scroll { 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
@@ -50,25 +50,49 @@
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* 黑金卡片 */
-        .card-black-gold { 
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); 
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); 
-            min-height: 180px; 
-            position: relative;
+        /* [新增] 開門特效相關樣式 */
+        #door-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50; /* 在 iframe 之上 */
+            background: url('door.png') no-repeat center center;
+            background-size: cover;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
         }
-        .card-black-gold::before {
-            content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(202,138,4,0.15) 0%, transparent 70%);
-            transform: rotate(45deg); pointer-events: none;
+        /* 門開了之後的狀態 */
+        #door-overlay.open {
+            opacity: 0;
+            transform: scale(1.1); /* 稍微放大產生空間感 */
+            pointer-events: none;
         }
 
-        .rank-badge { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(5px); 
-            border: 1px solid rgba(255, 215, 0, 0.2); 
-            display: flex; align-items: center; justify-content: center; 
-            min-width: 80px; height: 28px; 
+        #couplet-container {
+            width: 200px; height: 200px;
+            position: relative;
+            z-index: 60;
+            /* 初始陰影 */
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+        
+        #couplet-img {
+            width: 100%; height: 100%; object-fit: contain;
+            transition: transform 0.1s linear; /* 讓拖曳時順暢 */
+            touch-action: none; /* 禁止瀏覽器預設行為 */
+        }
+
+        .door-hint {
+            margin-top: 20px;
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.5s;
         }
 
         /* 底部導航 */
@@ -83,54 +107,31 @@
             height: 50px; 
             box-sizing: content-box; 
             position: fixed; bottom: 0; width: 100%;
-            transition: transform 0.3s ease; /* 加入滑動隱藏動畫 */
+            transition: transform 0.3s ease;
         }
         .nav-btn { color: #d1d5db; transition: all 0.3s; transform: scale(0.95); }
         .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
         .nav-btn.active svg { stroke-width: 2.5px; }
 
-        /* 輸入框 */
+        /* 其他通用樣式保持不變 */
         .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; -webkit-appearance: none; }
         .locked-input { background-color: #f3f4f6; color: #9ca3af; border-color: #e5e7eb; cursor: not-allowed; }
-
-        /* 模態視窗 */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
         .msg-modal-content { background: white; border-radius: 24px; padding: 32px 24px; text-align: center; width: 100%; max-width: 320px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-
         .select-wrapper { position: relative; width: 100%; }
         .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
-
-        /* 票券樣式 */
-        .ticket-card {
-            background: white; border-radius: 16px; overflow: hidden; display: flex;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px;
-            border: 1px solid #f3f4f6;
-        }
+        .ticket-card { background: white; border-radius: 16px; overflow: hidden; display: flex; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px; border: 1px solid #f3f4f6; }
         .ticket-main { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
         .ticket-main::after { content: ''; position: absolute; right: -8px; top: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
         .ticket-main::before { content: ''; position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
-
-        .ticket-stub {
-            width: 80px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
-        }
+        .ticket-stub { width: 80px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; }
         .ticket-stub:active { background-color: #e5e7eb; }
-        
-        .chip-icon {
-            width: 32px; height: 32px;
-            background: #e5e7eb;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 4px;
-            transition: all 0.2s;
-        }
+        .chip-icon { width: 32px; height: 32px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px; transition: all 0.2s; }
         .ticket-stub:active .chip-icon { border-color: #ca8a04; background: #fff; transform: scale(0.9); }
-
-        /* iFrame 樣式 */
+        .card-black-gold { background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%); box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; position: relative; }
+        .card-black-gold::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(202,138,4,0.15) 0%, transparent 70%); transform: rotate(45deg); pointer-events: none; }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
         iframe { border: none; width: 100%; height: 100%; display: block; }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -166,17 +167,13 @@
             <button onclick="closeMsgModal()" class="w-full bg-black text-white py-4 rounded-2xl font-bold active:scale-95 transition shadow-lg">確定</button>
         </div>
     </div>
-
+    
     <div id="coupon-qr-modal" class="modal-overlay" style="z-index: 1500;">
         <div class="bg-white w-full max-w-xs rounded-[2.5rem] p-8 text-center relative shadow-2xl">
             <button onclick="document.getElementById('coupon-qr-modal').style.display='none'" class="absolute top-5 right-5 text-gray-300 text-xl w-8 h-8 flex items-center justify-center rounded-full bg-gray-50">✕</button>
             <h3 class="text-2xl font-black text-gray-900 mb-1 tracking-tight" id="cqr-title">優惠券</h3>
             <p class="text-xs text-gray-400 mb-8 font-bold tracking-wide">請出示給店員掃描核銷</p>
-            
-            <div class="flex justify-center mb-8">
-                <canvas id="cqr-canvas"></canvas>
-            </div>
-            
+            <div class="flex justify-center mb-8"><canvas id="cqr-canvas"></canvas></div>
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                 <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-widest">Type</p>
                 <p class="text-xs font-bold text-gray-900">One-Time Use Only</p>
@@ -256,6 +253,13 @@
         </header>
         
         <main id="tab-blackbox" class="tab-content h-full hidden">
+            <div id="door-overlay">
+                <div id="couplet-container">
+                    <img src="couplet.png" id="couplet-img" alt="福">
+                </div>
+                <p id="door-hint" class="door-hint">向下滑動將「福」倒過來</p>
+            </div>
+            
             <div id="activity-container" class="h-full w-full"></div>
         </main>
 
@@ -293,14 +297,12 @@
                 </svg>
                 <span class="text-[11px] font-black uppercase tracking-tighter">小黑盒</span>
             </button>
-            
             <button id="nav-card" onclick="switchTab('card')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn active">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                 </svg>
                 <span class="text-[11px] font-black uppercase tracking-tighter">會員卡</span>
             </button>
-            
             <button id="nav-coupon" onclick="switchTab('coupon')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
@@ -311,10 +313,7 @@
     </div>
 
     <script>
-        // --- 設定區 ---
         const ACTIVITY_URL = 'https://blackboxrepair.github.io/membership/events/2026-cny/index.html'; 
-        // --------------
-
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
@@ -323,42 +322,95 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
 
-        const areaList = [
-            "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
-            "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
-            "潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區",
-            "台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣",
-            "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
-        ];
+        const areaList = ["西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區","太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區","潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區","台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣","雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"];
 
-        // v10.2 新增：開關積分說明彈窗
-        function openInfoModal() {
-            document.getElementById('info-modal').style.display = 'flex';
-        }
-        function closeInfoModal() {
-            document.getElementById('info-modal').style.display = 'none';
-        }
+        function openInfoModal() { document.getElementById('info-modal').style.display = 'flex'; }
+        function closeInfoModal() { document.getElementById('info-modal').style.display = 'none'; }
 
-        // 初始化
         window.onload = async () => {
             initSelects();
-            renderActivityTab(); // 渲染活動頁面
+            renderActivityTab(); 
+            initDoorInteraction(); // [新增] 初始化大門互動
             await initLiff();
-            switchTab('coupon'); // 預設頁面
+            switchTab('coupon'); 
         };
 
-        // 渲染小黑盒頁面邏輯
+        // [新增] 大門互動邏輯：滑動旋轉福字
+        function initDoorInteraction() {
+            const couplet = document.getElementById('couplet-img');
+            const overlay = document.getElementById('door-overlay');
+            const hint = document.getElementById('door-hint');
+            let startY = 0;
+            let currentRotation = 0;
+            let isDragging = false;
+
+            // 如果已經開過門，直接隱藏
+            if (localStorage.getItem('hasOpenedDoor') === 'true') {
+                overlay.style.display = 'none';
+                return;
+            }
+
+            const startDrag = (y) => {
+                isDragging = true;
+                startY = y;
+                hint.style.opacity = '0'; // 開始滑動時隱藏提示
+            };
+
+            const moveDrag = (y) => {
+                if (!isDragging) return;
+                const deltaY = y - startY;
+                
+                // 下滑增加旋轉角度 (1px = 1deg)，限制在 0~180 度
+                if (deltaY > 0) {
+                    currentRotation = Math.min(deltaY, 180);
+                    couplet.style.transform = `rotate(${currentRotation}deg)`;
+                }
+            };
+
+            const endDrag = () => {
+                if (!isDragging) return;
+                isDragging = false;
+
+                // 如果旋轉超過 150 度，視為成功
+                if (currentRotation > 150) {
+                    // 自動補齊到 180 度
+                    couplet.style.transform = `rotate(180deg)`;
+                    // 播放開門動畫
+                    setTimeout(() => {
+                        overlay.classList.add('open');
+                        // 記錄已開門
+                        localStorage.setItem('hasOpenedDoor', 'true');
+                        // 動畫結束後移除元素
+                        setTimeout(() => { overlay.style.display = 'none'; }, 1000);
+                    }, 300);
+                } else {
+                    // 回彈
+                    couplet.style.transform = `rotate(0deg)`;
+                    currentRotation = 0;
+                    hint.style.opacity = '1';
+                }
+            };
+
+            const container = document.getElementById('couplet-container');
+            container.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(e.touches[0].clientY); }, {passive: false});
+            container.addEventListener('touchmove', (e) => { e.preventDefault(); moveDrag(e.touches[0].clientY); }, {passive: false});
+            container.addEventListener('touchend', endDrag);
+            
+            // 滑鼠支援
+            container.addEventListener('mousedown', (e) => { e.preventDefault(); startDrag(e.clientY); });
+            window.addEventListener('mousemove', (e) => { if(isDragging) moveDrag(e.clientY); });
+            window.addEventListener('mouseup', endDrag);
+        }
+
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                // 如果有活動網址，插入 iframe 並帶上 UID
                 const targetUrl = new URL(ACTIVITY_URL);
                 if (currentUserLineId) {
                     targetUrl.searchParams.set('uid', currentUserLineId);
                 }
                 container.innerHTML = `<iframe src="${targetUrl.toString()}" class="w-full h-full border-0"></iframe>`;
             } else {
-                // 如果沒有活動網址，顯示「敬請期待」空狀態
                 container.innerHTML = `
                 <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
                     <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
@@ -372,282 +424,81 @@
             }
         }
 
-        function showMsg(title, msg) {
-            document.getElementById('msg-title').innerText = title;
-            document.getElementById('msg-body').innerText = msg;
-            document.getElementById('msg-modal').style.display = 'flex';
-        }
-        function closeMsgModal() {
-            document.getElementById('msg-modal').style.display = 'none';
-        }
-
+        // ... (以下為其他輔助函數：showMsg, initSelects, initLiff, saveProfile, renderApp 等，均保持不變) ...
+        function showMsg(title, msg) { document.getElementById('msg-title').innerText = title; document.getElementById('msg-body').innerText = msg; document.getElementById('msg-modal').style.display = 'flex'; }
+        function closeMsgModal() { document.getElementById('msg-modal').style.display = 'none'; }
         function initSelects() {
             const areaOpts = '<option value="">選擇區域</option>' + areaList.map(a => `<option value="${a}">${a}</option>`).join('');
-            document.getElementById('input-area').innerHTML = areaOpts;
-            document.getElementById('edit-area').innerHTML = areaOpts;
-
-            const yearSelect = document.getElementById('birth-year');
-            const monthSelect = document.getElementById('birth-month');
-            const currentYear = new Date().getFullYear();
+            document.getElementById('input-area').innerHTML = areaOpts; document.getElementById('edit-area').innerHTML = areaOpts;
+            const yearSelect = document.getElementById('birth-year'); const monthSelect = document.getElementById('birth-month'); const currentYear = new Date().getFullYear();
             for (let i = currentYear; i >= 1940; i--) yearSelect.options.add(new Option(i + '年', i));
             for (let i = 1; i <= 12; i++) monthSelect.options.add(new Option(i + '月', i));
             updateDays();
         }
-
         function updateDays() {
-            const year = parseInt(document.getElementById('birth-year').value);
-            const month = parseInt(document.getElementById('birth-month').value);
-            const daySelect = document.getElementById('birth-day');
-            const selectedDay = daySelect.value;
+            const year = parseInt(document.getElementById('birth-year').value); const month = parseInt(document.getElementById('birth-month').value); const daySelect = document.getElementById('birth-day'); const selectedDay = daySelect.value;
             daySelect.innerHTML = '<option value="">日</option>';
-            if (year && month) {
-                const daysInMonth = new Date(year, month, 0).getDate();
-                for (let i = 1; i <= daysInMonth; i++) daySelect.options.add(new Option(i + '日', i));
-                if (selectedDay && selectedDay <= daysInMonth) daySelect.value = selectedDay;
-            }
+            if (year && month) { const daysInMonth = new Date(year, month, 0).getDate(); for (let i = 1; i <= daysInMonth; i++) daySelect.options.add(new Option(i + '日', i)); if (selectedDay && selectedDay <= daysInMonth) daySelect.value = selectedDay; }
         }
-
-        async function initLiff() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) { liff.login(); } 
-                else {
-                    const profile = await liff.getProfile();
-                    currentUserLineId = profile.userId;
-                    checkMemberStatus(profile);
-                }
-            } catch (err) { console.error('Init Fail', err); }
-        }
-
-        async function checkMemberStatus(lineProfile) {
-            let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
-            if (!data || !data.phone || !data.birthday) {
-                document.getElementById('profile-modal').style.display = 'flex';
-                document.getElementById('input-name').value = lineProfile.displayName || "";
-                document.getElementById('loading-overlay').style.display = 'none';
-            } else {
-                currentUserProfile = data;
-                renderApp(data, lineProfile.userId);
-            }
-        }
-
-        document.getElementById('input-phone').addEventListener('input', function(e) {
-            const regex = /^09\d{8}$/;
-            const errorEl = document.getElementById('phone-error');
-            if (e.target.value.length > 0 && !regex.test(e.target.value)) errorEl.classList.remove('hidden');
-            else errorEl.classList.add('hidden');
-        });
-
+        async function initLiff() { try { await liff.init({ liffId: LIFF_ID }); if (!liff.isLoggedIn()) { liff.login(); } else { const profile = await liff.getProfile(); currentUserLineId = profile.userId; checkMemberStatus(profile); } } catch (err) { console.error('Init Fail', err); } }
+        async function checkMemberStatus(lineProfile) { let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single(); if (!data || !data.phone || !data.birthday) { document.getElementById('profile-modal').style.display = 'flex'; document.getElementById('input-name').value = lineProfile.displayName || ""; document.getElementById('loading-overlay').style.display = 'none'; } else { currentUserProfile = data; renderApp(data, lineProfile.userId); } }
+        document.getElementById('input-phone').addEventListener('input', function(e) { const regex = /^09\d{8}$/; const errorEl = document.getElementById('phone-error'); if (e.target.value.length > 0 && !regex.test(e.target.value)) errorEl.classList.remove('hidden'); else errorEl.classList.add('hidden'); });
         async function saveProfile() {
-            const btn = document.getElementById('btn-save');
-            const name = document.getElementById('input-name').value;
-            const phone = document.getElementById('input-phone').value;
-            const year = document.getElementById('birth-year').value;
-            const month = document.getElementById('birth-month').value.padStart(2, '0');
-            const day = document.getElementById('birth-day').value.padStart(2, '0');
-            const email = document.getElementById('input-email').value;
-            const area = document.getElementById('input-area').value;
-
+            const btn = document.getElementById('btn-save'); const name = document.getElementById('input-name').value; const phone = document.getElementById('input-phone').value; const year = document.getElementById('birth-year').value; const month = document.getElementById('birth-month').value.padStart(2, '0'); const day = document.getElementById('birth-day').value.padStart(2, '0'); const email = document.getElementById('input-email').value; const area = document.getElementById('input-area').value;
             if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { showMsg('提醒', '請正確填寫所有必填欄位'); return; }
             if (!currentUserLineId) { showMsg('系統錯誤', '無法取得 LINE ID'); return; }
-
             btn.disabled = true; btn.innerText = "檢查中...";
-
             try {
                 const { data: existingUser, error: checkError } = await _supabase.from('profiles').select('line_id').eq('phone', phone).maybeSingle();
                 if (checkError) throw checkError;
-                if (existingUser && existingUser.line_id !== currentUserLineId) {
-                    showMsg('註冊失敗', '此電話號碼已被註冊。');
-                    btn.disabled = false; btn.innerText = "確認加入";
-                    return; 
-                }
-
+                if (existingUser && existingUser.line_id !== currentUserLineId) { showMsg('註冊失敗', '此電話號碼已被註冊。'); btn.disabled = false; btn.innerText = "確認加入"; return; }
                 btn.innerText = "處理中...";
                 const birthday = `${year}-${month}-${day}`;
-                const { data, error } = await _supabase.from('profiles').upsert({
-                    line_id: currentUserLineId, full_name: name, phone: phone, 
-                    birthday: birthday, email: email, area: area, total_points: 0
-                }, { onConflict: 'line_id' }).select().single();
-
+                const { data, error } = await _supabase.from('profiles').upsert({ line_id: currentUserLineId, full_name: name, phone: phone, birthday: birthday, email: email, area: area, total_points: 0 }, { onConflict: 'line_id' }).select().single();
                 if (error) throw error;
-                document.getElementById('profile-modal').style.display = 'none';
-                currentUserProfile = data;
-                renderApp(data, currentUserLineId);
-
-            } catch (err) {
-                showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}`);
-                btn.disabled = false; btn.innerText = "確認加入";
-            }
+                document.getElementById('profile-modal').style.display = 'none'; currentUserProfile = data; renderApp(data, currentUserLineId);
+            } catch (err) { showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}`); btn.disabled = false; btn.innerText = "確認加入"; }
         }
-
-        function openEditModal() {
-            if (!currentUserProfile) return;
-            document.getElementById('edit-name').value = currentUserProfile.full_name;
-            document.getElementById('edit-phone').value = currentUserProfile.phone;
-            document.getElementById('edit-birthday').value = currentUserProfile.birthday;
-            document.getElementById('edit-area').value = currentUserProfile.area || "";
-            document.getElementById('edit-email').value = currentUserProfile.email || "";
-            document.getElementById('edit-modal').style.display = 'flex';
-        }
-
+        function openEditModal() { if (!currentUserProfile) return; document.getElementById('edit-name').value = currentUserProfile.full_name; document.getElementById('edit-phone').value = currentUserProfile.phone; document.getElementById('edit-birthday').value = currentUserProfile.birthday; document.getElementById('edit-area').value = currentUserProfile.area || ""; document.getElementById('edit-email').value = currentUserProfile.email || ""; document.getElementById('edit-modal').style.display = 'flex'; }
         async function updateProfile() {
-            const btn = document.getElementById('btn-update');
-            const newArea = document.getElementById('edit-area').value;
-            const newEmail = document.getElementById('edit-email').value;
+            const btn = document.getElementById('btn-update'); const newArea = document.getElementById('edit-area').value; const newEmail = document.getElementById('edit-email').value;
             btn.disabled = true; btn.innerText = "更新中...";
-
-            try {
-                const { data, error } = await _supabase.from('profiles').update({ area: newArea, email: newEmail }).eq('line_id', currentUserLineId).select().single();
-                if (error) throw error;
-                currentUserProfile = data;
-                showMsg('成功', '資料已更新');
-                document.getElementById('edit-modal').style.display = 'none';
-            } catch (err) { showMsg('更新失敗', '請稍後再試'); } 
-            finally { btn.disabled = false; btn.innerText = "儲存變更"; }
+            try { const { data, error } = await _supabase.from('profiles').update({ area: newArea, email: newEmail }).eq('line_id', currentUserLineId).select().single(); if (error) throw error; currentUserProfile = data; showMsg('成功', '資料已更新'); document.getElementById('edit-modal').style.display = 'none'; } catch (err) { showMsg('更新失敗', '請稍後再試'); } finally { btn.disabled = false; btn.innerText = "儲存變更"; }
         }
-
         function renderApp(data, lineId) {
-            document.getElementById('m-name').innerText = data.full_name;
-            document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
-            document.getElementById('m-phone').innerText = data.phone;
+            document.getElementById('m-name').innerText = data.full_name; document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString(); document.getElementById('m-phone').innerText = data.phone;
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
-            document.getElementById('loading-overlay').style.display = 'none';
-            document.getElementById('main-content').classList.remove('hidden');
-            
-            // 拿到 ID 後，才決定是否渲染活動頁
-            renderActivityTab();
-
-            // 預設頁面
-            switchTab('card');
+            document.getElementById('loading-overlay').style.display = 'none'; document.getElementById('main-content').classList.remove('hidden');
+            renderActivityTab(); switchTab('card');
         }
-
         function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            
-            const titles = { 'blackbox': '小黑盒', 'card': '會員中心', 'coupon': '優惠券' };
-            document.getElementById('page-title').innerText = titles[tab];
-
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('nav-' + tab).classList.add('active');
-
-            // 自動切換 Header, Footer, Close Button
-            const header = document.getElementById('main-header');
-            const navBar = document.getElementById('main-nav');
-            const closeBtn = document.getElementById('floating-close-btn');
-
-            // [關鍵邏輯] 如果是活動頁且有設定網址 -> 進入沉浸模式
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('tab-' + tab).classList.add('active');
+            const titles = { 'blackbox': '小黑盒', 'card': '會員中心', 'coupon': '優惠券' }; document.getElementById('page-title').innerText = titles[tab];
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active')); document.getElementById('nav-' + tab).classList.add('active');
+            const header = document.getElementById('main-header'); const navBar = document.getElementById('main-nav'); const closeBtn = document.getElementById('floating-close-btn');
             if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
-                // 1. 隱藏 Header & Footer
-                header.style.display = 'none';
-                navBar.style.display = 'none';
-                // 2. 顯示懸浮關閉按鈕
-                closeBtn.classList.remove('hidden');
-                
-                // 3. 調整容器顯示
-                document.getElementById('tab-blackbox').classList.remove('hidden');
-                document.getElementById('main-content').classList.add('hidden');
+                header.style.display = 'none'; navBar.style.display = 'none'; closeBtn.classList.remove('hidden');
+                document.getElementById('tab-blackbox').classList.remove('hidden'); document.getElementById('main-content').classList.add('hidden');
             } else {
-                // 回到正常模式
-                header.style.display = 'flex'; 
-                navBar.style.display = 'flex';
-                closeBtn.classList.add('hidden');
-
-                document.getElementById('tab-blackbox').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
+                header.style.display = 'flex'; navBar.style.display = 'flex'; closeBtn.classList.add('hidden');
+                document.getElementById('tab-blackbox').classList.add('hidden'); document.getElementById('main-content').classList.remove('hidden');
             }
-
             if(tab === 'coupon') loadUserCoupons();
         }
-
-        // --- 優惠券核心功能 (UI更新 + 獨立QR Code) ---
         async function loadUserCoupons() {
-            const list = document.getElementById('coupon-list');
-            const today = new Date().toISOString().split('T')[0];
-
-            const { data, error } = await _supabase
-                .from('user_coupons')
-                .select('*')
-                .eq('line_id', currentUserLineId)
-                .eq('status', 'unused')
-                .order('created_at', { ascending: false });
-
-            if (error || !data || data.length === 0) {
-                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`;
-                return;
-            }
-
+            const list = document.getElementById('coupon-list'); const today = new Date().toISOString().split('T')[0];
+            const { data, error } = await _supabase.from('user_coupons').select('*').eq('line_id', currentUserLineId).eq('status', 'unused').order('created_at', { ascending: false });
+            if (error || !data || data.length === 0) { list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`; return; }
             const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today);
-
-            if (validCoupons.length === 0) {
-                 list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`;
-                return;
-            }
-
-            // 排序：快過期 > 有期限 > 永久
-            validCoupons.sort((a, b) => {
-                if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
-                if (a.valid_until && !b.valid_until) return -1;
-                if (!a.valid_until && b.valid_until) return 1;
-                return 0;
-            });
-
-            // 產生票券 HTML
+            if (validCoupons.length === 0) { list.innerHTML = `<div class="bg-white rounded-[2rem] p-8 shadow-sm text-center"><p class="text-gray-400 font-bold text-sm tracking-wider">目前沒有可用的優惠券</p></div>`; return; }
+            validCoupons.sort((a, b) => { if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until); if (a.valid_until && !b.valid_until) return -1; if (!a.valid_until && b.valid_until) return 1; return 0; });
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
-                
-                // 修改 2：根據類型顯示標籤
-                let typeBadge = '';
-                if (coupon.type === 'cash') {
-                    typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>`;
-                } else {
-                    typeBadge = `<span class="absolute top-4 right-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
-                }
-
-                return `
-                <div class="ticket-card">
-                    <div class="ticket-main">
-                        ${typeBadge}
-                        <h4 class="text-lg font-black text-gray-900 mb-1 pr-12">${coupon.coupon_name}</h4>
-                        <p class="text-xs text-gray-400 mb-2">${coupon.description || '店員專屬優惠'}</p>
-                        <p class="text-[10px] text-gray-500 font-mono tracking-wide">${dateText}</p>
-                    </div>
-                    <div class="ticket-stub" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
-                        <div class="chip-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <rect x="4" y="4" width="16" height="16" rx="2" />
-                                <path d="M2 8H4" />
-                                <path d="M2 12H4" />
-                                <path d="M2 16H4" />
-                                <path d="M20 8H22" />
-                                <path d="M20 12H22" />
-                                <path d="M20 16H22" />
-                                <path d="M8 2V4" />
-                                <path d="M12 2V4" />
-                                <path d="M16 2V4" />
-                                <path d="M8 20V22" />
-                                <path d="M12 20V22" />
-                                <path d="M16 20V22" />
-                                <rect x="8" y="8" width="8" height="8" rx="1" stroke-opacity="0.6" />
-                            </svg>
-                        </div>
-                        <span class="text-[10px] font-bold text-gray-500 writing-vertical-lr tracking-widest">使用</span>
-                    </div>
-                </div>
-                `;
+                let typeBadge = (coupon.type === 'cash') ? `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>` : `<span class="absolute top-4 right-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
+                return `<div class="ticket-card"><div class="ticket-main">${typeBadge}<h4 class="text-lg font-black text-gray-900 mb-1 pr-12">${coupon.coupon_name}</h4><p class="text-xs text-gray-400 mb-2">${coupon.description || '店員專屬優惠'}</p><p class="text-[10px] text-gray-500 font-mono tracking-wide">${dateText}</p></div><div class="ticket-stub" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')"><div class="chip-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500"><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M2 8H4" /><path d="M2 12H4" /><path d="M2 16H4" /><path d="M20 8H22" /><path d="M20 12H22" /><path d="M20 16H22" /><path d="M8 2V4" /><path d="M12 2V4" /><path d="M16 2V4" /><path d="M8 20V22" /><path d="M12 20V22" /><path d="M16 20V22" /><rect x="8" y="8" width="8" height="8" rx="1" stroke-opacity="0.6" /></svg></div><span class="text-[10px] font-bold text-gray-500 writing-vertical-lr tracking-widest">使用</span></div></div>`;
             }).join('');
         }
-
-        function openCouponQR(couponId, couponName) {
-            document.getElementById('cqr-title').innerText = couponName;
-            new QRious({
-                element: document.getElementById('cqr-canvas'),
-                value: "CPN-" + couponId,
-                size: 180,
-                level: 'H'
-            });
-            document.getElementById('coupon-qr-modal').style.display = 'flex';
-        }
+        function openCouponQR(couponId, couponName) { document.getElementById('cqr-title').innerText = couponName; new QRious({ element: document.getElementById('cqr-canvas'), value: "CPN-" + couponId, size: 180, level: 'H' }); document.getElementById('coupon-qr-modal').style.display = 'flex'; }
     </script>
 </body>
 </html>
