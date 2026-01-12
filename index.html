@@ -31,12 +31,12 @@
         
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
-        /* 內容捲動區 - 修改處：增加底部間距以防擋住 */
+        /* 內容捲動區 - 增加底部間距以防擋住 */
         .content-scroll { 
             flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding-bottom: 130px; /* 原本 90px 改為 130px */
+            padding-bottom: 130px; 
         }
         .content-scroll::-webkit-scrollbar { display: none; }
         
@@ -224,6 +224,8 @@
                 <div><label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">居住區域</label><div class="select-wrapper"><select id="edit-area" class="soft-input bg-white"></select></div></div>
                 <div><label class="text-[10px] font-bold text-yellow-600 uppercase tracking-widest block mb-1 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input bg-white"></div>
                 <button id="btn-update" onclick="updateProfile()" class="w-full bg-black text-white py-4 rounded-2xl font-black shadow-xl active:scale-95 transition mt-2">儲存變更</button>
+                
+                <p class="text-[10px] text-gray-400 mt-3 text-center font-bold">（本系統目前僅適用於勤美公益門市、沙鹿站前門市）</p>
             </div>
         </div>
     </div>
