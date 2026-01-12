@@ -31,12 +31,12 @@
         
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
-        /* 內容捲動區 */
+        /* 內容捲動區 - 修改處：增加底部間距以防擋住 */
         .content-scroll { 
             flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding-bottom: 90px; 
+            padding-bottom: 130px; /* 原本 90px 改為 130px */
         }
         .content-scroll::-webkit-scrollbar { display: none; }
         
@@ -142,7 +142,11 @@
                 </svg>
             </div>
             <h3 class="text-xl font-black text-gray-900 mb-2">會籍積分</h3>
-            <p class="text-sm text-gray-500 font-bold leading-relaxed">每10積分<br>可折抵消費金額10元</p>
+            <p class="text-sm text-gray-500 font-bold leading-relaxed">
+                每10積分<br>可折抵消費金額10元
+                <br><br>
+                <span class="text-[10px] text-gray-400 font-normal">（若有違法使用或消費退款，系統會追回已發放之積分）</span>
+            </p>
         </div>
     </div>
 
