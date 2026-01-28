@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BLACKBOX | 測試中心</title>
+    
+    <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 基礎設定 */
+        html, body { 
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6;
+            color: #111827;
+            overscroll-behavior: none;
+            touch-action: pan-y;
+            height: 100dvh; width: 100%;
+            overflow: hidden; 
+            position: fixed;
+        }
+        
+        #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
+        
+        /* 內容捲動區 */
+        .content-scroll { 
+            flex: 1; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+            padding-bottom: 130px; 
+        }
+        
+        /* Tab 切換動畫 */
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
+        .tab-content.active { display: block; opacity: 1; }
+        
+        /* 修改 1：使用上傳的黑金圖卡作為卡面背景 */
+        .card-black-gold { 
+            background-image: url('https://raw.githubusercontent.com/blackboxrepair/membership/main/Card.jpg'); 
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); 
+            min-height: 180px; 
+            position: relative;
+        }
+
+        .rank-badge { 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(5px); 
+            border: 1px solid rgba(255, 215, 0, 0.2); 
+            display: flex; align-items: center; justify-content: center; 
+            min-width: 80px; height: 28px; 
+        }
+
+        /* 底部導航 */
+        .nav-full-width { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(12px); 
+            border-top: 1px solid rgba(0, 0, 0, 0.05); 
+            display: flex; justify-content: space-around; align-items: center; 
+            z-index: 50; 
+            padding-bottom: env(safe-area-inset-bottom); 
+            padding-top: 6px;
+            height: 50px; 
+            box-sizing: content-box; 
+            position: fixed; bottom: 0; width: 100%;
+        }
+        .nav-btn { color: #d1d5db; transition: all 0.3s; transform: scale(0.95); }
+        .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
+
+        /* 模態視窗 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
+        
+        .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px 14px; font-size: 16px; width: 100%; outline: none; }
+
+        /* 票券樣式 */
+        .ticket-card {
+            background: white; border-radius: 16px; overflow: hidden; display: flex;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px;
+            border: 1px solid #f3f4f6;
+        }
+        .ticket-main { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .ticket-stub {
+            width: 80px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
+        <div class="w-10 h-10 border-2 border-gray-100 border-t-black rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-bold text-gray-400 tracking-[0.3em] uppercase">Testing Mode</p>
+    </div>
+
+    <div id="msg-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="bg-white rounded-3xl p-8 text-center w-full max-w-xs">
+            <h3 id="msg-title" class="text-xl font-black mb-2">提示</h3>
+            <p id="msg-body" class="text-sm text-gray-500 mb-8 leading-relaxed">---</p>
+            <button onclick="closeMsgModal()" class="w-full bg-black text-white py-4 rounded-2xl font-bold">確定</button>
+        </div>
+    </div>
+
+    <div id="app" class="max-w-md mx-auto relative">
+        <header id="main-header" class="px-6 pt-4 pb-2 flex justify-between items-center shrink-0">
+            <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase mb-1">BLACK BOX REPAIR</span>
+                <h1 id="page-title" class="text-3xl font-black text-gray-900 tracking-tight">會員中心</h1>
+            </div>
+        </header>
+        
+        <div id="main-content" class="content-scroll hidden">
+            <main id="tab-blackbox" class="tab-content h-full">
+                <div id="activity-container" class="h-full w-full"></div>
+            </main>
+
+            <main id="tab-card" class="tab-content active px-6 pt-2">
+                <div class="card-black-gold rounded-[2.2rem] p-7 mb-3 relative overflow-hidden">
+                    <div class="relative z-10 flex justify-between items-start mb-12">
+                        <div><p class="text-[10px] text-yellow-500/70 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="m-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
+                        <div class="text-right"><p class="text-[10px] text-yellow-500/70 uppercase tracking-[0.2em] mb-1 font-bold">Points</p><p id="m-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p></div>
+                    </div>
+                    <div class="relative z-10 flex justify-between items-end">
+                        <div class="flex flex-col"><span class="text-[8px] text-white/50 uppercase tracking-widest mb-1 font-bold">Phone Number</span><p id="m-phone" class="text-xs text-white/90 font-mono tracking-widest font-bold">---</p></div>
+                        <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-[2.5rem] p-6 shadow-sm border border-gray-100 text-center">
+                    <div class="inline-block bg-white p-2 rounded-xl mb-2"><canvas id="qr-code"></canvas></div>
+                    <p class="text-[10px] font-bold text-gray-300 tracking-[0.2em] uppercase">Scan to collect points</p>
+                </div>
+            </main>
+
+            <main id="tab-coupon" class="tab-content p-6">
+                 <div id="coupon-list" class="space-y-4"></div>
+            </main>
+        </div>
+
+        <nav class="nav-full-width">
+            <button id="nav-blackbox" onclick="switchTab('blackbox')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span class="text-[11px] font-black uppercase tracking-tighter">神秘盒</span>
+            </button>
+            
+            <button id="nav-card" onclick="switchTab('card')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                </svg>
+                <span class="text-[11px] font-black uppercase tracking-tighter">會員卡</span>
+            </button>
+            
+            <button id="nav-coupon" onclick="switchTab('coupon')" class="flex-1 py-1 flex flex-col items-center gap-0.5 nav-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+                <span class="text-[11px] font-black uppercase tracking-tighter">優惠券</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const ACTIVITY_URL = ''; 
+        const LIFF_ID = '2008733642-8wMmnKuw'; 
+        const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentUserLineId = null;
+
+        window.onload = async () => {
+            renderActivityTab();
+            await initLiff();
+        };
+
+        function renderActivityTab() {
+            const container = document.getElementById('activity-container');
+            container.innerHTML = `
+                <div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
+                    <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-gray-900 mb-2">神秘盒驚喜</h3>
+                    <p class="text-gray-400 text-sm font-medium leading-relaxed">更多專屬活動即將登場...</p>
+                </div>`;
+        }
+
+        async function initLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); } 
+                else {
+                    const profile = await liff.getProfile();
+                    currentUserLineId = profile.userId;
+                    let { data } = await _supabase.from('profiles').select('*').eq('line_id', profile.userId).single();
+                    if(data) renderApp(data, profile.userId);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function renderApp(data, lineId) {
+            document.getElementById('m-name').innerText = data.full_name;
+            document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
+            document.getElementById('m-phone').innerText = data.phone;
+            new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('main-content').classList.remove('hidden');
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            // 修改 2：Tab 切換標題同步更名
+            const titles = { 'blackbox': '神秘盒', 'card': '會員中心', 'coupon': '優惠券' };
+            document.getElementById('page-title').innerText = titles[tab];
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('nav-' + tab).classList.add('active');
+        }
+        
+        function closeMsgModal() { document.getElementById('msg-modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
