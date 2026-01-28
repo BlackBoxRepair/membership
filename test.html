@@ -13,36 +13,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        html, body { font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; overscroll-behavior: none; touch-action: pan-y; height: 100dvh; width: 100%; overflow: hidden; position: fixed; }
+        html, body { 
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f3f4f6; color: #111827;
+            overscroll-behavior: none; touch-action: pan-y;
+            height: 100dvh; width: 100%; overflow: hidden; position: fixed;
+        }
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         .content-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 130px; }
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* 測試版黑金圖卡背景 */
-        .card-black-gold { background-image: url('Card.jpg'); background-size: cover; background-position: center; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; position: relative; }
-        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
-
-        /* 票券核心樣式修復 */
-        .ticket-card { background: white; border-radius: 16px; overflow: hidden; display: flex; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px; border: 1px solid #f3f4f6; position: relative; }
-        .ticket-main { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
-        .ticket-main::after { content: ''; position: absolute; right: -8px; top: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
-        .ticket-main::before { content: ''; position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
-
-        /* 修正：右側按鈕區塊，確保垂直排列且文字橫排 */
-        .ticket-stub {
-            width: 85px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+        /* 測試版底圖 */
+        .card-black-gold { 
+            background-image: url('Card.jpg'); background-size: cover; background-position: center;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); min-height: 180px; position: relative;
         }
-        .ticket-stub:active { background-color: #f3f4f6; }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; }
         
-        .chip-icon { width: 32px; height: 32px; background: #e5e7eb; border: 1px solid #d1d5db; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
-
         .nav-full-width { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-top: 1px solid rgba(0, 0, 0, 0.05); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom); padding-top: 6px; height: 50px; box-sizing: content-box; position: fixed; bottom: 0; width: 100%; }
         .nav-btn { color: #d1d5db; transition: all 0.3s; transform: scale(0.95); }
         .nav-btn.active { color: #ca8a04; transform: scale(1.05); }
+
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
+
+        /* 🛠️ 視覺修復：還原票券結構 */
+        .ticket-card {
+            background: white; border-radius: 16px; overflow: hidden; display: flex;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px; border: 1px solid #f3f4f6;
+        }
+        .ticket-main { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .ticket-main::after { content: ''; position: absolute; right: -8px; top: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
+        .ticket-main::before { content: ''; position: absolute; right: -8px; bottom: -8px; width: 16px; height: 16px; background: #f3f4f6; border-radius: 50%; }
+        
+        .ticket-stub {
+            width: 80px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;
+        }
+        .ticket-stub:active { background-color: #e5e7eb; }
+        
+        /* 修復：晶片圖示大小與間距 */
+        .chip-icon {
+            width: 32px; height: 32px; background: #e5e7eb; border: 1px solid #d1d5db;
+            border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
@@ -58,7 +72,7 @@
             <h3 class="text-2xl font-black text-gray-900 mb-1 tracking-tight" id="cqr-title">優惠券</h3>
             <p class="text-xs text-gray-400 mb-8 font-bold tracking-wide">請出示給店員掃描核銷</p>
             <div class="flex justify-center mb-8"><canvas id="cqr-canvas"></canvas></div>
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100"><p class="text-xs font-bold text-gray-900">One-Time Use Only</p></div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100"><p class="text-xs font-bold text-gray-900 uppercase">One-Time Use Only</p></div>
         </div>
     </div>
 
@@ -83,8 +97,8 @@
                 <button onclick="openInfoModal()" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-yellow-600 active:scale-90 transition shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </button>
-                <button onclick="alert('測試模式：修改功能已鎖定')" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-gray-400 active:scale-90 transition shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37" /></svg>
+                <button onclick="alert('測試模式：修改功能鎖定')" class="w-10 h-10 flex items-center justify-center bg-white border border-gray-100 rounded-full text-gray-400 active:scale-90 transition shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
             </div>
         </header>
@@ -98,7 +112,7 @@
                         <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase mb-1 font-bold">Points</p><p id="m-points" class="text-4xl font-black text-yellow-400">0</p></div>
                     </div>
                     <div class="relative z-10 flex justify-between items-end">
-                        <div class="flex flex-col"><span class="text-[8px] text-white/30 uppercase mb-1 font-bold">Phone Number</span><p id="m-phone" class="text-xs text-white/70 font-mono font-bold">---</p></div>
+                        <div class="flex flex-col"><span class="text-[8px] text-white/30 uppercase mb-1 font-bold">Phone Number</span><p id="m-phone" class="text-xs text-white/70 font-mono tracking-widest font-bold">---</p></div>
                         <div class="rank-badge px-3 rounded-xl"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase">MEMBER</span></div>
                     </div>
                 </div>
@@ -135,13 +149,6 @@
 
         function openInfoModal() { document.getElementById('info-modal').style.display = 'flex'; }
         function closeInfoModal() { document.getElementById('info-modal').style.display = 'none'; }
-        
-        // 核銷條碼彈窗
-        function openCouponQR(couponId, couponName) {
-            document.getElementById('cqr-title').innerText = couponName;
-            new QRious({ element: document.getElementById('cqr-canvas'), value: "CPN-" + couponId, size: 180, level: 'H' });
-            document.getElementById('coupon-qr-modal').style.display = 'flex';
-        }
 
         async function initLiff() {
             try {
@@ -156,6 +163,14 @@
             } catch (err) { console.error(err); }
         }
 
+        // 核銷條碼彈窗功能
+        function openCouponQR(couponId, couponName) {
+            document.getElementById('cqr-title').innerText = couponName;
+            new QRious({ element: document.getElementById('cqr-canvas'), value: "CPN-" + couponId, size: 180, level: 'H' });
+            document.getElementById('coupon-qr-modal').style.display = 'flex';
+        }
+
+        // 修復：優惠券渲染邏輯與 100% 還原視覺
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const { data, error } = await _supabase.from('user_coupons').select('*').eq('line_id', currentUserLineId).eq('status', 'unused');
@@ -167,23 +182,27 @@
 
             list.innerHTML = data.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
-                const typeLabel = coupon.type === 'cash' ? '現金' : '兌換';
-                
+                const typeBadge = coupon.type === 'cash' ? 
+                    `<span class="absolute top-4 right-4 text-[10px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${coupon.discount_amount || 0}</span>` : 
+                    `<span class="absolute top-4 right-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
+
                 return `
                 <div class="ticket-card">
                     <div class="ticket-main">
-                        <span class="absolute top-4 right-4 text-[10px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">${typeLabel}</span>
+                        ${typeBadge}
                         <h4 class="text-lg font-black text-gray-900 mb-1 pr-12">${coupon.coupon_name}</h4>
-                        <p class="text-xs text-gray-400 mb-2">${coupon.description || '店員專屬優惠'}</p>
-                        <p class="text-[10px] text-gray-500 font-mono">${dateText}</p>
+                        <p class="text-xs text-gray-400 mb-2">${coupon.description || '使用規範依現場告示為主'}</p>
+                        <p class="text-[10px] text-gray-500 font-mono tracking-wide">${dateText}</p>
                     </div>
                     <div class="ticket-stub" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
                         <div class="chip-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <rect x="4" y="4" width="16" height="16" rx="2" /><path d="M2 8H4M2 12H4M2 16H4M20 8H22M20 12H22M20 16H22M8 2V4M12 2V4M16 2V4M8 20V22M12 20V22M16 20V22" /><rect x="8" y="8" width="8" height="8" rx="1" stroke-opacity="0.6" />
+                                <rect x="4" y="4" width="16" height="16" rx="2" />
+                                <path d="M2 8H4M2 12H4M2 16H4M20 8H22M20 12H22M20 16H22M8 2V4M12 2V4M16 2V4M8 20V22M12 20V22M16 20V22" />
+                                <rect x="8" y="8" width="8" height="8" rx="1" stroke-opacity="0.6" />
                             </svg>
                         </div>
-                        <span class="text-[10px] font-bold text-gray-500">使用</span>
+                        <span class="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase">使用</span>
                     </div>
                 </div>`;
             }).join('');
@@ -196,7 +215,18 @@
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'H' });
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
-            switchTab('card');
+            renderActivityTab();
+        }
+
+        function renderActivityTab() {
+            const container = document.getElementById('activity-container');
+            container.innerHTML = `<div class="h-[60vh] flex flex-col items-center justify-center text-center p-6">
+                <div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4" /></svg>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">神秘盒驚喜</h3>
+                <p class="text-gray-400 text-sm font-medium leading-relaxed">即將在此登場，敬請期待！</p>
+            </div>`;
         }
 
         function switchTab(tab) {
