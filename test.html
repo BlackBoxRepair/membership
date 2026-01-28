@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>BLACKBOX | 測試中心</title>
+    <title>BLACKBOX | 測試中心 (最終修正版)</title>
     
     <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -37,7 +37,7 @@
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
 
-        /* 🛠️ 視覺修復：還原票券結構 */
+        /* 票券視覺還原 */
         .ticket-card {
             background: white; border-radius: 16px; overflow: hidden; display: flex;
             box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 16px; min-height: 110px; border: 1px solid #f3f4f6;
@@ -50,9 +50,6 @@
             width: 80px; background-color: #f9fafb; border-left: 2px dashed #e5e7eb;
             display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;
         }
-        .ticket-stub:active { background-color: #e5e7eb; }
-        
-        /* 修復：晶片圖示大小與間距 */
         .chip-icon {
             width: 32px; height: 32px; background: #e5e7eb; border: 1px solid #d1d5db;
             border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-bottom: 4px;
@@ -78,12 +75,19 @@
 
     <div id="info-modal" class="modal-overlay" onclick="closeInfoModal()">
         <div class="bg-white w-full max-w-xs rounded-[2rem] p-8 text-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
             <h3 class="text-xl font-black text-gray-900 mb-2">會籍積分</h3>
-            <p class="text-sm text-gray-500 font-bold leading-relaxed">
-                每10積分<br>可折抵消費金額10元<br><br>
-                <span class="text-[10px] text-gray-400 font-normal">（若有違法使用或消費退款，系統會追回已發放之積分）</span><br>
-                <span class="text-[10px] text-gray-400 font-normal">（本系統目前僅適用於勤美公益門市、沙鹿站前門市）</span>
+            <p class="text-sm text-gray-500 font-bold leading-relaxed mb-6">
+                每10積分<br>可折抵消費金額10元
             </p>
+            <div class="space-y-1">
+                <p class="text-[10px] text-gray-400 font-normal">（若有違法使用或消費退款，系統會追回已發放之積分）</p>
+                <p class="text-[10px] text-gray-400 font-normal">（本系統目前僅適用於勤美公益門市、沙鹿站前門市）</p>
+            </div>
         </div>
     </div>
 
@@ -163,14 +167,12 @@
             } catch (err) { console.error(err); }
         }
 
-        // 核銷條碼彈窗功能
         function openCouponQR(couponId, couponName) {
             document.getElementById('cqr-title').innerText = couponName;
             new QRious({ element: document.getElementById('cqr-canvas'), value: "CPN-" + couponId, size: 180, level: 'H' });
             document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
 
-        // 修復：優惠券渲染邏輯與 100% 還原視覺
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const { data, error } = await _supabase.from('user_coupons').select('*').eq('line_id', currentUserLineId).eq('status', 'unused');
@@ -202,7 +204,7 @@
                                 <rect x="8" y="8" width="8" height="8" rx="1" stroke-opacity="0.6" />
                             </svg>
                         </div>
-                        <span class="text-[10px] font-bold text-gray-500 tracking-[0.2em] uppercase">使用</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">使用</span>
                     </div>
                 </div>`;
             }).join('');
