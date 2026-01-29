@@ -25,21 +25,22 @@
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* 🛠️ 強化後的 3D 翻轉 CSS */
+        /* 🛠️ 調整後的向左 3D 翻轉 CSS */
         .card-perspective { perspective: 1000px; }
         .card-inner {
             position: relative; width: 100%; min-height: 180px;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
-        .card-inner.is-flipped { transform: rotateY(180deg); }
+        /* 改為 -180deg 達成向左翻轉效果 */
+        .card-inner.is-flipped { transform: rotateY(-180deg); }
         
         .card-face {
             position: absolute; inset: 0; width: 100%; height: 100%;
-            -webkit-backface-visibility: hidden; /* 關鍵：禁止透視背面內容 */
+            -webkit-backface-visibility: hidden;
             backface-visibility: hidden;
             border-radius: 2.2rem; overflow: hidden;
-            pointer-events: none; /* 防止干擾點擊 */
+            pointer-events: none;
         }
 
         .card-front { 
@@ -50,7 +51,8 @@
 
         .card-back { 
             background-size: cover; background-position: center;
-            transform: rotateY(180deg); background-color: #1a1a1a;
+            /* 同步改為 -180deg 確保背面圖片銜接正確 */
+            transform: rotateY(-180deg); background-color: #1a1a1a;
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
             z-index: 1;
         }
@@ -230,7 +232,7 @@
 
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
-            container.innerHTML = `<div class="h-[60vh] flex flex-col items-center justify-center text-center p-6"><div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4" /></svg></div><h3 class="text-2xl font-black text-gray-900 mb-2">神秘盒驚喜</h3><p class="text-gray-400 text-sm font-medium">即將在此登場，敬請期待！</p></div>`;
+            container.innerHTML = `<div class="h-[60vh] flex flex-col items-center justify-center text-center p-6"><div class="w-20 h-20 bg-gray-900 rounded-3xl flex items-center justify-center mb-6 shadow-2xl rotate-6"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h3 class="text-2xl font-black text-gray-900 mb-2">神秘盒驚喜</h3><p class="text-gray-400 text-sm font-medium">即將在此登場，敬請期待！</p></div>`;
         }
 
         function switchTab(tab) {
