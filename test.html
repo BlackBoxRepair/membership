@@ -31,12 +31,12 @@
         
         #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
         
-        /* 內容捲動區 */
+        /* 內容捲動區 - 修改：增加底部空間 (從 130px 增加到 160px) */
         .content-scroll { 
             flex: 1; 
             overflow-y: auto; 
             -webkit-overflow-scrolling: touch; 
-            padding-bottom: 130px; 
+            padding-bottom: 160px; 
             padding-top: 8px;
         }
         .content-scroll::-webkit-scrollbar { display: none; }
@@ -45,11 +45,11 @@
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* Toss 風格黑卡 (極簡大圓角) */
+        /* 修改：會員卡黑卡弧度減小 (從 28px 減小到 14px) */
         .card-black-gold { 
             background: linear-gradient(135deg, #2D3035 0%, #17181A 100%); 
             box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15); 
-            border-radius: 28px;
+            border-radius: 14px;
             min-height: 180px; 
             position: relative;
             padding: 28px;
@@ -64,10 +64,10 @@
             border-radius: 12px;
         }
 
-        /* Toss 風格純白卡片 */
+        /* 修改：Toss 風格白卡弧度減小 (從 28px 減小到 14px) */
         .toss-card {
             background: #ffffff;
-            border-radius: 28px;
+            border-radius: 14px;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
             padding: 24px;
         }
@@ -86,7 +86,7 @@
             position: fixed; bottom: 0; width: 100%;
         }
         .nav-btn { color: #B0B8C1; transition: all 0.2s ease; transform: scale(0.95); }
-        .nav-btn.active { color: #F7B500; transform: scale(1.02); } /* 修改：啟用時變為主視覺色 */
+        .nav-btn.active { color: #F7B500; transform: scale(1.02); } /* 品牌色 */
         .nav-btn.active svg { stroke-width: 2.5px; }
 
         /* 輸入框 (Toss 無邊框淺灰底) */
@@ -117,6 +117,9 @@
         /* iFrame 樣式 */
         iframe { border: none; width: 100%; height: 100%; display: block; }
 
+        /* 修改：積分金黃色樣式 */
+        .text-gold { color: #FFD700; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -139,7 +142,7 @@
                 每 10 積分<br>可折抵消費金額 10 元
             </p>
             <div class="bg-[#F2F4F6] p-4 rounded-2xl text-left">
-                <p class="text-[11px] text-[#8B95A1] font-medium mb-1">・若有違法使用或消費退款，系統會追回已發放之積分。</p>
+                <p class="text-[11px] text-[#8B95A1] font-medium mb-1">・若若有違法使用或消費退款，系統會追回已發放之積分。</p>
                 <p class="text-[11px] text-[#8B95A1] font-medium">・本系統目前僅適用於勤美公益門市、沙鹿站前門市。</p>
             </div>
         </div>
@@ -257,7 +260,7 @@
                         </div>
                         <div class="text-right">
                             <p class="text-[11px] text-[#8B95A1] uppercase tracking-widest mb-1 font-bold">Points</p>
-                            <p id="m-points" class="text-[36px] font-bold text-white tracking-tighter leading-none">0</p>
+                            <p id="m-points" class="text-[36px] font-bold text-gold tracking-tighter leading-none">0</p>
                         </div>
                     </div>
                     <div class="relative z-10 flex justify-between items-end">
@@ -273,7 +276,7 @@
 
                 <div class="toss-card text-center flex flex-col items-center">
                     <p class="text-[14px] font-bold text-[#191F28] mb-4">出示條碼累積積分</p>
-                    <div class="inline-block bg-[#F2F4F6] p-3 rounded-2xl mb-1">
+                    <div class="inline-block bg-[#F2F4F6] p-2 rounded-lg mb-6">
                         <canvas id="qr-code" class="rounded-lg mix-blend-multiply"></canvas>
                     </div>
                 </div>
@@ -507,7 +510,8 @@
             document.getElementById('m-name').innerText = data.full_name;
             document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
-            new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
+            // 修改：QR碼尺寸 size 改為 160，使其縮小
+            new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 160, level: 'M' });
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
             
@@ -582,7 +586,6 @@
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="text-[12px] font-bold text-[#F04438] bg-[#FEE4E2] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">-$${coupon.discount_amount || 0}</span>`;
                 } else {
-                    /* 修改：兌換按鈕背景與文字改為符合主視覺的黃色系 */
                     typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
                 }
 
