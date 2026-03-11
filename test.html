@@ -86,7 +86,7 @@
             position: fixed; bottom: 0; width: 100%;
         }
         .nav-btn { color: #B0B8C1; transition: all 0.2s ease; transform: scale(0.95); }
-        .nav-btn.active { color: #191F28; transform: scale(1.02); }
+        .nav-btn.active { color: #F7B500; transform: scale(1.02); } /* 修改：啟用時變為主視覺色 */
         .nav-btn.active svg { stroke-width: 2.5px; }
 
         /* 輸入框 (Toss 無邊框淺灰底) */
@@ -123,7 +123,7 @@
 <body>
 
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
-        <div class="w-10 h-10 border-4 border-[#F2F4F6] border-t-[#3182F6] rounded-full animate-spin mb-4"></div>
+        <div class="w-10 h-10 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin mb-4"></div>
         <p class="text-[11px] font-bold text-[#8B95A1] tracking-widest uppercase">Loading</p>
     </div>
 
@@ -149,7 +149,7 @@
         <div class="msg-modal-content">
             <h3 id="msg-title" class="text-[22px] font-bold text-[#191F28] mb-3">提示</h3>
             <p id="msg-body" class="text-[15px] text-[#4E5968] mb-8 leading-relaxed font-medium">---</p>
-            <button onclick="closeMsgModal()" class="w-full bg-[#191F28] text-white py-[16px] rounded-[16px] font-bold active:scale-95 transition">確定</button>
+            <button onclick="closeMsgModal()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold active:scale-95 transition">確定</button>
         </div>
     </div>
 
@@ -203,7 +203,7 @@
                 <div><label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">電子信箱</label><input id="input-email" type="email" class="soft-input"></div>
                 
                 <p class="text-[11px] text-[#8B95A1] text-center mb-2 mt-4 font-medium">* 請填寫正確實名資料以免影響權益</p>
-                <button id="btn-save" onclick="saveProfile()" class="w-full bg-[#3182F6] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(49,130,246,0.2)] active:scale-95 transition mt-2">確認加入</button>
+                <button id="btn-save" onclick="saveProfile()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition mt-2">確認加入</button>
             </div>
         </div>
     </div>
@@ -220,9 +220,9 @@
                 
                 <div class="py-2"><div class="h-[1px] bg-[#F2F4F6] w-full"></div></div>
                 
-                <div><label class="text-[12px] font-bold text-[#3182F6] block mb-1.5 px-1">居住區域</label><div class="select-wrapper"><select id="edit-area" class="soft-input"></select></div></div>
-                <div><label class="text-[12px] font-bold text-[#3182F6] block mb-1.5 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input"></div>
-                <button id="btn-update" onclick="updateProfile()" class="w-full bg-[#191F28] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(0,0,0,0.1)] active:scale-95 transition mt-4">儲存變更</button>
+                <div><label class="text-[12px] font-bold text-[#F7B500] block mb-1.5 px-1">居住區域</label><div class="select-wrapper"><select id="edit-area" class="soft-input"></select></div></div>
+                <div><label class="text-[12px] font-bold text-[#F7B500] block mb-1.5 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input"></div>
+                <button id="btn-update" onclick="updateProfile()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition mt-4">儲存變更</button>
             </div>
         </div>
     </div>
@@ -230,11 +230,11 @@
     <div id="app" class="max-w-md mx-auto relative">
         <header id="main-header" class="px-6 pt-6 pb-2 flex justify-between items-center shrink-0">
             <div class="flex flex-col">
-                <span class="text-[12px] font-bold text-[#3182F6] tracking-widest uppercase mb-0.5">BLACKBOX</span>
+                <span class="text-[12px] font-bold text-[#F7B500] tracking-widest uppercase mb-0.5">BLACKBOX</span>
                 <h1 id="page-title" class="text-[26px] font-bold text-[#191F28] tracking-tight">會員中心</h1>
             </div>
             <div class="flex gap-2.5">
-                <button onclick="openInfoModal()" class="w-[42px] h-[42px] flex items-center justify-center bg-white rounded-full text-[#3182F6] active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                <button onclick="openInfoModal()" class="w-[42px] h-[42px] flex items-center justify-center bg-white rounded-full text-[#F7B500] active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </button>
                 <button onclick="openEditModal()" class="w-[42px] h-[42px] flex items-center justify-center bg-white rounded-full text-[#8B95A1] active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
@@ -282,7 +282,7 @@
             <main id="tab-coupon" class="tab-content px-6 pt-2">
                  <div id="coupon-list" class="space-y-0">
                      <div class="py-12 text-center">
-                        <div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#3182F6] rounded-full animate-spin"></div>
+                        <div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div>
                     </div>
                  </div>
             </main>
@@ -582,7 +582,8 @@
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="text-[12px] font-bold text-[#F04438] bg-[#FEE4E2] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">-$${coupon.discount_amount || 0}</span>`;
                 } else {
-                    typeBadge = `<span class="text-[12px] font-bold text-[#3182F6] bg-[#E8F3FF] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
+                    /* 修改：兌換按鈕背景與文字改為符合主視覺的黃色系 */
+                    typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
                 }
 
                 return `
