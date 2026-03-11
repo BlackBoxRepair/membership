@@ -45,7 +45,10 @@
         .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
         .tab-content.active { display: block; opacity: 1; }
         
-        /* 卡面樣式套用 Card.png */
+        /* ==========================================
+         * 【優化：解決手機版點擊卡頓問題】 
+         * ==========================================
+         */
         .card-black-gold { 
             background-image: url('Card.png'); 
             background-size: cover;          
@@ -57,11 +60,16 @@
             position: relative;
             padding: 28px;
             overflow: hidden;
-            /* 加入可點擊的視覺提示屬性 */
+            
+            /* 行動裝置點擊優化屬性 */
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            touch-action: manipulation; /* 消除 300ms 點擊延遲 */
+            -webkit-tap-highlight-color: transparent; /* 移除原生點擊高光 */
+            user-select: none; /* 防止誤觸文字反白 */
+            -webkit-user-select: none;
+            
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        /* 點擊時的微縮放動畫 */
         .card-black-gold:active {
             transform: scale(0.97);
             box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.1); 
@@ -114,9 +122,7 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
         .msg-modal-content { background: white; border-radius: 32px; padding: 32px 24px; text-align: center; width: 100%; max-width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 
-        /* ==========================================
-         * 【新增：深色底部條碼彈窗專屬樣式】 
-         * ========================================== */
+        /* 深色底部條碼彈窗專屬樣式 */
         .bottom-sheet-overlay {
             display: none;
             position: fixed;
@@ -125,15 +131,15 @@
             backdrop-filter: blur(4px);
             z-index: 2500;
             flex-direction: column;
-            justify-content: flex-end; /* 讓內容靠下對齊 */
+            justify-content: flex-end; 
             animation: fadeIn 0.3s ease-out;
         }
 
         .bottom-sheet-content {
-            background-color: #242426; /* Apple Wallet 風格的深灰背景 */
+            background-color: #242426; 
             width: 100%;
             border-radius: 28px 28px 0 0;
-            padding: 16px 24px calc(32px + env(safe-area-inset-bottom)); /* 適配 iPhone 底部安全區 */
+            padding: 16px 24px calc(32px + env(safe-area-inset-bottom)); 
             box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
             transform: translateY(100%);
             animation: slideUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1);
@@ -372,7 +378,7 @@
                         </div>
                     </div>
                 </div>
-                </main>
+            </main>
 
             <main id="tab-coupon" class="tab-content px-6 pt-2">
                  <div id="coupon-list" class="space-y-0">
@@ -428,7 +434,6 @@
             "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
         ];
 
-        // --- 新增：開啟與關閉深色底部條碼彈窗 ---
         function openQrSheet() {
             document.getElementById('qr-bottom-sheet').style.display = 'flex';
         }
@@ -611,7 +616,6 @@
             document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
             
-            // 將 QR Code 的大小稍微調大到 200，在深色彈窗中更好掃描
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
             
             document.getElementById('loading-overlay').style.display = 'none';
