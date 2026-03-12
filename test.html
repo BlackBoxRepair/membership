@@ -12,7 +12,10 @@
 
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
@@ -119,7 +122,7 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
         .msg-modal-content { background: white; border-radius: 32px; padding: 32px 24px; text-align: center; width: 100%; max-width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 
-        /* 深色底部條碼彈窗 */
+        /* 深色底部條碼彈窗 (會員卡 QR Code) */
         .bottom-sheet-overlay {
             display: none;
             position: fixed;
@@ -141,6 +144,10 @@
             overflow-y: auto;
             transform: translateY(100%);
         }
+
+        /* 票券頁面全螢幕滑動動畫 */
+        .modal-slide-in { transform: translateY(0%); pointer-events: auto; }
+        .modal-slide-out { transform: translateY(100%); pointer-events: none; }
 
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes slideDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
@@ -217,23 +224,6 @@
         </div>
     </div>
 
-    <div id="coupon-qr-modal" class="modal-overlay" style="z-index: 1500;">
-        <div class="bg-white w-full max-w-xs rounded-[32px] p-8 text-center relative shadow-2xl">
-            <button onclick="document.getElementById('coupon-qr-modal').style.display='none'" class="absolute top-5 right-5 text-[#8B95A1] text-xl w-10 h-10 flex items-center justify-center rounded-full bg-[#F2F4F6] active:scale-95 transition">✕</button>
-            <h3 class="text-[22px] font-bold text-[#191F28] mb-1 tracking-tight" id="cqr-title">優惠券</h3>
-            <p class="text-[13px] text-[#8B95A1] mb-8 font-medium">請出示給店員掃描核銷</p>
-            <div class="flex justify-center mb-8">
-                <div class="bg-white p-3 rounded-2xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] border border-gray-50">
-                    <canvas id="cqr-canvas"></canvas>
-                </div>
-            </div>
-            <div class="bg-[#F2F4F6] p-4 rounded-[16px]">
-                <p class="text-[11px] text-[#8B95A1] font-bold mb-1 uppercase tracking-widest">Type</p>
-                <p class="text-[14px] font-bold text-[#191F28]">One-Time Use Only</p>
-            </div>
-        </div>
-    </div>
-
     <div id="profile-modal" class="modal-overlay">
         <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl relative">
             <h3 class="text-[24px] font-bold mb-1 text-[#191F28]">加入會員</h3>
@@ -273,6 +263,61 @@
                 <div><label class="text-[12px] font-bold text-[#F7B500] block mb-1.5 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input"></div>
                 <button id="btn-update" onclick="updateProfile()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition mt-4">儲存變更</button>
             </div>
+        </div>
+    </div>
+
+    <div id="coupon-detail-modal" class="fixed inset-0 bg-[#F2F4F6] z-[3000] flex flex-col transition-transform duration-300 ease-in-out modal-slide-out will-change-transform">
+        <div class="flex items-center justify-between px-4 py-4 bg-white shrink-0 shadow-sm relative z-10">
+            <button onclick="closeCouponDetail()" class="p-2 text-[#191F28] active:scale-95 transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h2 class="text-[17px] font-bold text-[#191F28] tracking-wide">點數兌換券</h2>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 pb-8">
+            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative">
+                
+                <div class="px-6 pt-8 pb-6 text-center">
+                    <div class="w-[100px] h-[100px] bg-[#F2F4F6] rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-inner">
+                        <svg class="w-10 h-10 text-[#B0B8C1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <h3 id="cd-title" class="text-[18px] font-bold text-[#191F28] mb-2 leading-snug">---</h3>
+                    <p id="cd-date" class="text-[14px] text-[#2BA769] font-bold tracking-wide">---</p>
+                </div>
+
+                <div class="relative h-6 flex items-center overflow-hidden">
+                    <div class="absolute left-[-12px] w-6 h-6 bg-[#F2F4F6] rounded-full shadow-inner"></div>
+                    <div class="w-full border-t-[2px] border-dashed border-[#E5E8EB] mx-5"></div>
+                    <div class="absolute right-[-12px] w-6 h-6 bg-[#F2F4F6] rounded-full shadow-inner"></div>
+                </div>
+
+                <div class="px-6 pt-6 pb-8">
+                    <div class="flex flex-col items-center mb-8">
+                        <canvas id="cd-barcode" class="w-full max-w-[280px] h-[70px] mb-2 object-contain"></canvas>
+                        <p id="cd-id" class="text-[14px] text-[#4E5968] font-mono tracking-widest">---</p>
+                    </div>
+
+                    <div class="space-y-6 text-left">
+                        <div>
+                            <h4 class="text-[14px] font-bold text-[#191F28] mb-2">交易序號</h4>
+                            <p id="cd-sn" class="text-[15px] text-[#4E5968] font-mono break-all">---</p>
+                        </div>
+                        <div>
+                            <h4 class="text-[14px] font-bold text-[#191F28] mb-2">活動說明</h4>
+                            <p id="cd-desc" class="text-[14px] text-[#4E5968] leading-relaxed">---</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white shrink-0 pb-[calc(16px+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] relative z-10">
+            <button onclick="closeCouponDetail()" class="w-full bg-[#2BA769] text-white py-[16px] rounded-[12px] font-bold text-[17px] active:scale-95 transition tracking-wide">關閉票券</button>
         </div>
     </div>
 
@@ -386,6 +431,9 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
         let currentUserProfile = null;
+        
+        // 新增全域變數：用來暫存已載入的優惠券，供點擊時提取資料
+        let currentCoupons = []; 
 
         const areaList = [
             "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
@@ -400,6 +448,48 @@
             renderActivityTab(); 
             await initLiff();
         };
+
+        // --- 票券詳細頁面 (Barcode) 開關邏輯 ---
+        function openCouponDetail(couponId) {
+            const coupon = currentCoupons.find(c => c.id === couponId);
+            if (!coupon) return;
+
+            document.getElementById('cd-title').innerText = coupon.coupon_name;
+            document.getElementById('cd-date').innerText = coupon.valid_until ? `使用期間：即日起 ~ ${coupon.valid_until}` : '使用期間：永久有效';
+            
+            // 擷取前16碼作為展示用的乾淨序號，避免 UUID 過長破版
+            const displayId = coupon.id.replace(/-/g, '').substring(0, 16).toUpperCase();
+            document.getElementById('cd-id').innerText = displayId;
+            document.getElementById('cd-sn').innerText = displayId;
+            document.getElementById('cd-desc').innerText = coupon.description || '請於實體店家出示條碼兌換即可，並需於兌換後三個月內使用完畢。';
+
+            // 產生一維條碼
+            try {
+                JsBarcode("#cd-barcode", displayId, {
+                    format: "CODE128",
+                    lineColor: "#191F28",
+                    width: 2,
+                    height: 70,
+                    displayValue: false,
+                    margin: 0,
+                    background: "transparent"
+                });
+            } catch(e) {
+                console.error("條碼生成失敗", e);
+            }
+
+            // 滑入顯示全螢幕票券
+            const modal = document.getElementById('coupon-detail-modal');
+            modal.classList.remove('modal-slide-out');
+            modal.classList.add('modal-slide-in');
+        }
+
+        function closeCouponDetail() {
+            const modal = document.getElementById('coupon-detail-modal');
+            modal.classList.remove('modal-slide-in');
+            modal.classList.add('modal-slide-out');
+        }
+        // ----------------------------------------
 
         function openQrSheet() {
             const sheet = document.getElementById('qr-bottom-sheet');
@@ -554,6 +644,7 @@
             document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
             
+            // 首頁的會員專屬二維碼依然保留使用 QRious
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
             
             document.getElementById('loading-overlay').style.display = 'none';
@@ -664,6 +755,9 @@
                 return 0;
             });
 
+            // 儲存到全域變數，供開啟全螢幕票券時讀取
+            currentCoupons = validCoupons;
+
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 let typeBadge = '';
@@ -673,9 +767,9 @@
                     typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
                 }
 
-                // 【修正：拔掉 mb-4，直接讓外層容器的 gap-4 來均勻控制卡片間距】
+                // 將點擊事件修改為觸發全螢幕的 openCouponDetail 函式
                 return `
-                <div class="bg-white rounded-[24px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
+                <div class="bg-white rounded-[24px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponDetail('${coupon.id}')">
                     <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
                         ${typeBadge}
                         <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight w-full break-words">${coupon.coupon_name}</h4>
@@ -690,17 +784,6 @@
                 </div>
                 `;
             }).join('');
-        }
-
-        function openCouponQR(couponId, couponName) {
-            document.getElementById('cqr-title').innerText = couponName;
-            new QRious({
-                element: document.getElementById('cqr-canvas'),
-                value: "CPN-" + couponId,
-                size: 180,
-                level: 'H'
-            });
-            document.getElementById('coupon-qr-modal').style.display = 'flex';
         }
     </script>
 </body>
