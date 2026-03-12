@@ -122,7 +122,7 @@
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
         .msg-modal-content { background: white; border-radius: 32px; padding: 32px 24px; text-align: center; width: 100%; max-width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
 
-        /* 深色底部條碼彈窗 (會員卡 QR Code) */
+        /* 深色底部條碼彈窗 */
         .bottom-sheet-overlay {
             display: none;
             position: fixed;
@@ -273,19 +273,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
-            <h2 class="text-[17px] font-bold text-[#191F28] tracking-wide">點數兌換券</h2>
+            <h2 class="text-[17px] font-bold text-[#191F28] tracking-wide">我的票券</h2>
             <div class="w-10"></div>
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 pb-8">
             <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative">
-                
                 <div class="px-6 pt-8 pb-6 text-center">
-                    <div class="w-[100px] h-[100px] bg-[#F2F4F6] rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-inner">
-                        <svg class="w-10 h-10 text-[#B0B8C1]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                    </div>
+                    <div id="cd-icon-container" class="w-[100px] h-[100px] mx-auto mb-5 flex items-center justify-center shadow-inner rounded-2xl">
+                        </div>
+                    
                     <h3 id="cd-title" class="text-[18px] font-bold text-[#191F28] mb-2 leading-snug">---</h3>
                     <p id="cd-date" class="text-[14px] text-[#2BA769] font-bold tracking-wide">---</p>
                 </div>
@@ -431,8 +428,6 @@
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
         let currentUserProfile = null;
-        
-        // 新增全域變數：用來暫存已載入的優惠券，供點擊時提取資料
         let currentCoupons = []; 
 
         const areaList = [
@@ -449,21 +444,33 @@
             await initLiff();
         };
 
-        // --- 票券詳細頁面 (Barcode) 開關邏輯 ---
+        // --- 票券詳細頁面邏輯 ---
         function openCouponDetail(couponId) {
             const coupon = currentCoupons.find(c => c.id === couponId);
             if (!coupon) return;
 
+            // 1. 設定文字內容
             document.getElementById('cd-title').innerText = coupon.coupon_name;
             document.getElementById('cd-date').innerText = coupon.valid_until ? `使用期間：即日起 ~ ${coupon.valid_until}` : '使用期間：永久有效';
             
-            // 擷取前16碼作為展示用的乾淨序號，避免 UUID 過長破版
             const displayId = coupon.id.replace(/-/g, '').substring(0, 16).toUpperCase();
             document.getElementById('cd-id').innerText = displayId;
             document.getElementById('cd-sn').innerText = displayId;
             document.getElementById('cd-desc').innerText = coupon.description || '請於實體店家出示條碼兌換即可，並需於兌換後三個月內使用完畢。';
 
-            // 產生一維條碼
+            // 2. 動態更換 SVG 圖示與背景色
+            const iconContainer = document.getElementById('cd-icon-container');
+            if (coupon.type === 'cash') {
+                // 折扣現金券：淡紅背景 + 金幣圖示
+                iconContainer.className = "w-[100px] h-[100px] bg-[#FEE4E2] rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-inner";
+                iconContainer.innerHTML = `<svg class="w-12 h-12 text-[#F04438]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else {
+                // 兌換券：淡黃背景 + 禮物盒圖示
+                iconContainer.className = "w-[100px] h-[100px] bg-[#FFF9E6] rounded-2xl mx-auto mb-5 flex items-center justify-center shadow-inner";
+                iconContainer.innerHTML = `<svg class="w-12 h-12 text-[#F7B500]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>`;
+            }
+
+            // 3. 產生一維條碼
             try {
                 JsBarcode("#cd-barcode", displayId, {
                     format: "CODE128",
@@ -478,7 +485,7 @@
                 console.error("條碼生成失敗", e);
             }
 
-            // 滑入顯示全螢幕票券
+            // 4. 滑入顯示
             const modal = document.getElementById('coupon-detail-modal');
             modal.classList.remove('modal-slide-out');
             modal.classList.add('modal-slide-in');
@@ -644,7 +651,6 @@
             document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
             
-            // 首頁的會員專屬二維碼依然保留使用 QRious
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
             
             document.getElementById('loading-overlay').style.display = 'none';
@@ -755,7 +761,6 @@
                 return 0;
             });
 
-            // 儲存到全域變數，供開啟全螢幕票券時讀取
             currentCoupons = validCoupons;
 
             list.innerHTML = validCoupons.map(coupon => {
@@ -767,7 +772,6 @@
                     typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
                 }
 
-                // 將點擊事件修改為觸發全螢幕的 openCouponDetail 函式
                 return `
                 <div class="bg-white rounded-[24px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponDetail('${coupon.id}')">
                     <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
