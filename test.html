@@ -395,14 +395,12 @@
             "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
         ];
 
-        // 頁面載入初始化
         window.onload = async () => {
             initSelects();
             renderActivityTab(); 
             await initLiff();
         };
 
-        // 開關深色條碼彈窗
         function openQrSheet() {
             const sheet = document.getElementById('qr-bottom-sheet');
             const content = document.getElementById('qr-sheet-content');
@@ -419,7 +417,6 @@
             setTimeout(() => { sheet.style.display = 'none'; }, 300); 
         }
 
-        // 開關其他 Modal
         function openInfoModal() { document.getElementById('info-modal').style.display = 'flex'; }
         function closeInfoModal() { document.getElementById('info-modal').style.display = 'none'; }
         function showMsg(title, msg) { 
@@ -429,7 +426,6 @@
         }
         function closeMsgModal() { document.getElementById('msg-modal').style.display = 'none'; }
 
-        // 表單下拉選單初始化
         function initSelects() {
             const areaOpts = '<option value="">選擇區域</option>' + areaList.map(a => `<option value="${a}">${a}</option>`).join('');
             document.getElementById('input-area').innerHTML = areaOpts;
@@ -456,7 +452,6 @@
             }
         }
 
-        // 初始化 LIFF
         async function initLiff() {
             try {
                 await liff.init({ liffId: LIFF_ID });
@@ -469,7 +464,6 @@
             } catch (err) { console.error('Init Fail', err); }
         }
 
-        // 檢查會員狀態
         async function checkMemberStatus(lineProfile) {
             let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
             if (!data || !data.phone || !data.birthday) {
@@ -482,7 +476,6 @@
             }
         }
 
-        // 電話格式驗證
         document.getElementById('input-phone').addEventListener('input', function(e) {
             const regex = /^09\d{8}$/;
             const errorEl = document.getElementById('phone-error');
@@ -490,7 +483,6 @@
             else errorEl.classList.add('hidden');
         });
 
-        // 儲存新會員資料
         async function saveProfile() {
             const btn = document.getElementById('btn-save');
             const name = document.getElementById('input-name').value;
@@ -531,7 +523,6 @@
             }
         }
 
-        // 開啟編輯資料彈窗
         function openEditModal() {
             if (!currentUserProfile) return;
             document.getElementById('edit-name').value = currentUserProfile.full_name;
@@ -542,7 +533,6 @@
             document.getElementById('edit-modal').style.display = 'flex';
         }
 
-        // 更新資料
         async function updateProfile() {
             const btn = document.getElementById('btn-update');
             const newArea = document.getElementById('edit-area').value;
@@ -559,24 +549,20 @@
             finally { btn.disabled = false; btn.innerText = "儲存變更"; }
         }
 
-        // 渲染主要畫面
         function renderApp(data, lineId) {
             document.getElementById('m-name').innerText = data.full_name;
             document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
             document.getElementById('m-phone').innerText = data.phone;
             
-            // 產生 QR Code
             new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
             
             document.getElementById('loading-overlay').style.display = 'none';
             document.getElementById('main-content').classList.remove('hidden');
             
-            // 預設切換至會員卡頁面並載入進度條
             switchTab('card');
             loadYearlyConsumption();
         }
 
-        // 小黑盒活動頁面載入
         function renderActivityTab() {
             const container = document.getElementById('activity-container');
             if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
@@ -588,7 +574,6 @@
             }
         }
 
-        // 載入年度消費次數 (進度條)
         async function loadYearlyConsumption() {
             const currentYear = new Date().getFullYear();
             const startDate = `${currentYear}-01-01T00:00:00.000Z`;
@@ -619,23 +604,16 @@
             } catch (err) { console.error('載入失敗', err); }
         }
 
-        // ==========================================
-        // 【復原】：底部分頁切換邏輯
-        // ==========================================
         function switchTab(tab) {
-            // 切換主內容顯示
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
             
-            // 改變標題
             const titles = { 'blackbox': '小黑盒', 'card': '會員中心', 'coupon': '優惠券' };
             document.getElementById('page-title').innerText = titles[tab];
 
-            // 切換底部按鈕狀態 (顏色)
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + tab).classList.add('active');
 
-            // 小黑盒若有外部網址則隱藏標頭
             const header = document.getElementById('main-header');
             if (tab === 'blackbox' && ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
                 header.style.display = 'none';
@@ -643,14 +621,13 @@
                 header.style.display = 'flex'; 
             }
 
-            // 如果切換到優惠券，執行載入優惠券程式
             if(tab === 'coupon') {
                 loadUserCoupons();
             }
         }
 
         // ==========================================
-        // 【復原】：載入與顯示優惠券邏輯
+        // 重點修正：卡片排版偏離與對齊問題
         // ==========================================
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
@@ -699,12 +676,13 @@
                     typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
                 }
 
+                // 修正：將內部容器改為 flex-1 搭配 min-w-0，防止長文字撐破導致右側箭頭對齊歪掉
                 return `
-                <div class="bg-white rounded-[24px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.03)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
-                    <div class="flex flex-col pr-4 items-start w-full">
+                <div class="bg-white rounded-[24px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponQR('${coupon.id}', '${coupon.coupon_name}')">
+                    <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
                         ${typeBadge}
-                        <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight">${coupon.coupon_name}</h4>
-                        <p class="text-[14px] text-[#8B95A1] mb-2 font-medium">${coupon.description || '店員專屬優惠'}</p>
+                        <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight w-full break-words">${coupon.coupon_name}</h4>
+                        <p class="text-[14px] text-[#8B95A1] mb-2 font-medium w-full break-words">${coupon.description || '店員專屬優惠'}</p>
                         <p class="text-[12px] text-[#B0B8C1] font-medium">${dateText}</p>
                     </div>
                     <div class="shrink-0 w-11 h-11 bg-[#F2F4F6] rounded-full flex items-center justify-center shadow-sm">
@@ -717,7 +695,6 @@
             }).join('');
         }
 
-        // 開啟優惠券 QR 碼彈窗
         function openCouponQR(couponId, couponName) {
             document.getElementById('cqr-title').innerText = couponName;
             new QRious({
