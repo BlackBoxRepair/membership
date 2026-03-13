@@ -210,6 +210,17 @@
         </div>
     </div>
 
+    <div id="coming-soon-modal" class="modal-overlay" onclick="closeComingSoonModal()" style="z-index: 2000;">
+        <div class="bg-white w-full max-w-[240px] rounded-[24px] p-6 text-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-[#8B95A1]">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <p class="text-[15px] font-bold text-[#191F28]">盒芯禮遇暫未開啟</p>
+        </div>
+    </div>
+
     <div id="profile-modal" class="modal-overlay">
         <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl relative">
             <h3 class="text-[24px] font-bold mb-1 text-[#191F28]">加入會員</h3>
@@ -367,11 +378,11 @@
                 </div>
 
                 <div class="flex justify-between gap-3 mb-5">
-                    <button onclick="switchTab('blackbox')" class="flex-1 bg-white rounded-[18px] py-4 flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-95 transition-transform">
+                    <button onclick="openComingSoonModal()" class="flex-1 bg-white rounded-[18px] py-4 flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-95 transition-transform">
                         <svg class="w-9 h-9 mb-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 3l1.8 4.2h4.7l-3.8 2.8 1.4 4.5-4.1-3.1-4.1 3.1 1.4-4.5-3.8-2.8h4.7L12 3z" fill="#F7B500"/>
-                            <path d="M4 11c-.6 0-1 .4-1 1v4c0 3.3 2.7 6 6 6h2v-4.5c0-1.5-1-2.5-2-3.5L7 12c-.5-.6-1-1-3-1z" fill="#8B95A1"/>
-                            <path d="M20 11c.6 0 1 .4 1 1v4c0 3.3-2.7 6-6 6h-2v-4.5c0-1.5 1-2.5 2-3.5l2-2c.5-.6 1-1 3-1z" fill="#8B95A1"/>
+                            <path d="M7 16c0-1.5 1.5-2 3-1.5l2 1v4c0 1.5-1 2.5-2.5 2.5H6.5c-1.5 0-2.5-1-2.5-2.5v-3.5" fill="#8B95A1"/>
+                            <path d="M17 16c0-1.5-1.5-2-3-1.5l-2 1v4c0 1.5 1 2.5 2.5 2.5h3c1.5 0 2.5-1 2.5-2.5v-3.5" fill="#8B95A1"/>
+                            <path d="M 12 3 L 13.5 6.5 H 17.5 L 14.3 8.8 L 15.5 12.5 L 12 10.2 L 8.5 12.5 L 9.7 8.8 L 6.5 6.5 H 10.5 Z" fill="#F7B500"/>
                         </svg>
                         <span class="text-[13px] font-bold text-[#191F28]">盒芯禮遇</span>
                     </button>
@@ -393,7 +404,7 @@
                             <rect x="15.5" y="4" width="2.5" height="5" rx="1.25" fill="#D1D6DB"/>
                             <circle cx="12" cy="15" r="4.5" fill="#F7B500"/>
                         </svg>
-                        <span class="text-[13px] font-bold text-[#191F28]">我的預約</span>
+                        <span class="text-[13px] font-bold text-[#191F28]">快速預約</span>
                     </button>
                 </div>
 
@@ -521,6 +532,13 @@
 
         function openInfoModal() { document.getElementById('info-modal').style.display = 'flex'; }
         function closeInfoModal() { document.getElementById('info-modal').style.display = 'none'; }
+        
+        // ==========================================
+        // 新增區塊：盒芯禮遇暫未開啟的控制函數
+        // ==========================================
+        function openComingSoonModal() { document.getElementById('coming-soon-modal').style.display = 'flex'; }
+        function closeComingSoonModal() { document.getElementById('coming-soon-modal').style.display = 'none'; }
+
         function showMsg(title, msg) { 
             document.getElementById('msg-title').innerText = title; 
             document.getElementById('msg-body').innerText = msg; 
@@ -758,7 +776,7 @@
             const emptyStateHTML = `
                 <div class="toss-card text-center py-10 mt-4">
                     <div class="w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#8B95A1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#8B95A1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
                     </div>
                     <p class="text-[#4E5968] font-bold text-[16px]">目前沒有可用的優惠券</p>
                 </div>`;
