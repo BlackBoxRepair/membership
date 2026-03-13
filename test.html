@@ -419,7 +419,7 @@
         const ACTIVITY_URL = ''; 
         const LIFF_ID = '2008733642-8wMmnKuw'; 
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFsZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentUserLineId = null;
@@ -703,9 +703,6 @@
             }
         }
 
-        // ==========================================
-        // 修改列表頁的副標題邏輯
-        // ==========================================
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -749,8 +746,9 @@
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
                 
-                let typeBadge = '';
-                let actionText = ''; // 動態產生副標題
+                // 雖然 typeBadge 在列表頁不再顯示，但保留邏輯供未來可能的詳情頁使用
+                let typeBadge = ''; 
+                let actionText = ''; 
 
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="text-[12px] font-bold text-[#F04438] bg-[#FEE4E2] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">-$${coupon.discount_amount || 0}</span>`;
@@ -760,10 +758,12 @@
                     actionText = '憑券到門市進行兌換';
                 }
 
+                // ==========================================
+                //重點修改：從 HTML 結構中移除了 ${typeBadge}
+                // ==========================================
                 return `
                 <div class="bg-white rounded-[24px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponDetail('${coupon.id}')">
                     <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
-                        ${typeBadge}
                         <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight w-full break-words">${coupon.coupon_name}</h4>
                         <p class="text-[14px] text-[#8B95A1] mb-2 font-medium w-full break-words">${actionText}</p>
                         <p class="text-[12px] text-[#B0B8C1] font-medium">${dateText}</p>
