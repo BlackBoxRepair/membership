@@ -440,12 +440,10 @@
             await initLiff();
         };
 
-        // --- 票券詳細頁面邏輯 ---
         function openCouponDetail(couponId) {
             const coupon = currentCoupons.find(c => c.id === couponId);
             if (!coupon) return;
 
-            // 1. 設定文字內容
             document.getElementById('cd-title').innerText = coupon.coupon_name;
             document.getElementById('cd-date').innerText = coupon.valid_until ? `使用期間：即日起 ~ ${coupon.valid_until}` : '使用期間：永久有效';
             
@@ -453,19 +451,15 @@
             document.getElementById('cd-id').innerText = displayId;
             document.getElementById('cd-desc').innerText = coupon.description || '請於實體店家出示條碼兌換即可，並需於兌換後三個月內使用完畢。';
 
-            // 2. 動態更換 SVG 圖示，統一成無背景框、顏色皆為 #F7B500
             const iconContainer = document.getElementById('cd-icon-container');
             iconContainer.className = "mx-auto mb-4 flex items-center justify-center";
             
             if (coupon.type === 'cash') {
-                // 金幣圖示
                 iconContainer.innerHTML = `<svg class="w-16 h-16 text-[#F7B500]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
             } else {
-                // 禮物圖示
                 iconContainer.innerHTML = `<svg class="w-16 h-16 text-[#F7B500]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>`;
             }
 
-            // 3. 產生方形 QR Code
             new QRious({
                 element: document.getElementById('cd-qrcode'),
                 value: "CPN-" + coupon.id,
@@ -473,7 +467,6 @@
                 level: 'H'
             });
 
-            // 4. 滑入顯示
             const modal = document.getElementById('coupon-detail-modal');
             modal.classList.remove('modal-slide-out');
             modal.classList.add('modal-slide-in');
@@ -484,7 +477,6 @@
             modal.classList.remove('modal-slide-in');
             modal.classList.add('modal-slide-out');
         }
-        // ----------------------------------------
 
         function openQrSheet() {
             const sheet = document.getElementById('qr-bottom-sheet');
@@ -711,6 +703,9 @@
             }
         }
 
+        // ==========================================
+        // 修改列表頁的副標題邏輯
+        // ==========================================
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -753,11 +748,16 @@
 
             list.innerHTML = validCoupons.map(coupon => {
                 const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
+                
                 let typeBadge = '';
+                let actionText = ''; // 動態產生副標題
+
                 if (coupon.type === 'cash') {
                     typeBadge = `<span class="text-[12px] font-bold text-[#F04438] bg-[#FEE4E2] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">-$${coupon.discount_amount || 0}</span>`;
+                    actionText = `該票券可折抵 ${coupon.discount_amount || 0} 元`;
                 } else {
                     typeBadge = `<span class="text-[12px] font-bold text-[#F7B500] bg-[#FFF9E6] px-2 py-1 rounded-lg tracking-wide mb-2 inline-block">兌換</span>`;
+                    actionText = '憑券到門市進行兌換';
                 }
 
                 return `
@@ -765,7 +765,7 @@
                     <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
                         ${typeBadge}
                         <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight w-full break-words">${coupon.coupon_name}</h4>
-                        <p class="text-[14px] text-[#8B95A1] mb-2 font-medium w-full break-words">${coupon.description || '店員專屬優惠'}</p>
+                        <p class="text-[14px] text-[#8B95A1] mb-2 font-medium w-full break-words">${actionText}</p>
                         <p class="text-[12px] text-[#B0B8C1] font-medium">${dateText}</p>
                     </div>
                     <div class="shrink-0 w-11 h-11 bg-[#F2F4F6] rounded-full flex items-center justify-center shadow-sm">
