@@ -14,6 +14,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
@@ -202,10 +204,10 @@
 
     <div id="info-modal" class="modal-overlay" onclick="closeInfoModal()">
         <div class="bg-white w-full max-w-xs rounded-[32px] p-8 text-center shadow-2xl" onclick="event.stopPropagation()">
-            <div class="w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-5">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="h-6 w-6">
-                    <circle cx="12" cy="12" r="10" stroke="#191F28" stroke-width="1.5" />
-                    <path fill="#191F28" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" />
+            <div class="relative w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-5">
+                <div class="absolute inset-[4px] rounded-full border-[1.5px] border-[#191F28]"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[26px] h-[26px] text-[#191F28] z-10">
+                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
                 </svg>
             </div>
             <h3 class="text-[22px] font-bold text-[#191F28] mb-3">會籍積分</h3>
@@ -325,10 +327,10 @@
             </div>
             
             <div class="flex gap-2.5">
-                <button onclick="openInfoModal()" class="w-[42px] h-[42px] flex items-center justify-center bg-[#F7B500] rounded-full active:scale-95 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="w-5 h-5">
-                        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5" />
-                        <path fill="white" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" />
+                <button onclick="openInfoModal()" class="relative w-[42px] h-[42px] flex items-center justify-center bg-[#F7B500] rounded-full active:scale-95 transition">
+                    <div class="absolute inset-[3px] rounded-full border-[1.5px] border-white"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[20px] h-[20px] text-white z-10">
+                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
                     </svg>
                 </button>
                 
