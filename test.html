@@ -128,7 +128,7 @@
             transform: translateY(100%);
         }
 
-        /* 票券頁面全螢幕滑動動畫 */
+        /* 票券/預約頁面全螢幕滑動動畫 */
         .modal-slide-in { transform: translateY(0%); pointer-events: auto; }
         .modal-slide-out { transform: translateY(100%); pointer-events: none; }
 
@@ -319,6 +319,24 @@
         </div>
     </div>
 
+    <div id="booking-modal" class="fixed inset-0 bg-[#F2F4F6] z-[3000] flex flex-col transition-transform duration-300 ease-in-out modal-slide-out will-change-transform">
+        <div class="flex items-center justify-between px-4 py-4 bg-white shrink-0 shadow-sm relative z-10">
+            <button onclick="closeBookingModal()" class="p-2 text-[#191F28] active:scale-95 transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h2 class="text-[17px] font-bold text-[#191F28] tracking-wide">我的預約</h2>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 pb-8" id="booking-list">
+            <div class="py-12 text-center">
+                <div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="app" class="max-w-md mx-auto relative h-full flex flex-col">
         <header id="main-header" class="px-6 pt-7 pb-4 flex justify-between items-center shrink-0 min-h-[80px] transition-all duration-300">
             <div class="flex items-center gap-2">
@@ -398,7 +416,7 @@
                         <span class="text-[13px] font-bold text-[#191F28]">票券錢包</span>
                     </button>
 
-                    <button onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'" class="flex-1 bg-white rounded-[18px] py-4 flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-[0.96] transition-transform duration-200 ease-out">
+                    <button onclick="openBookingModal()" class="flex-1 bg-white rounded-[18px] py-4 flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.03)] active:scale-[0.96] transition-transform duration-200 ease-out">
                         <svg class="w-9 h-9 mb-1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect x="3" y="7" width="18" height="14" rx="2" fill="#D1D6DB"/>
                             <path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3V9z" fill="#8B95A1"/>
@@ -406,7 +424,7 @@
                             <rect x="15.5" y="4" width="2.5" height="5" rx="1.25" fill="#D1D6DB"/>
                             <circle cx="12" cy="15" r="4.5" fill="#F7B500"/>
                         </svg>
-                        <span class="text-[13px] font-bold text-[#191F28]">快速預約</span>
+                        <span class="text-[13px] font-bold text-[#191F28]">我的預約</span>
                     </button>
                 </div>
 
@@ -515,6 +533,68 @@
             modal.classList.remove('modal-slide-in');
             modal.classList.add('modal-slide-out');
         }
+
+        /* --- 預約紀錄視窗邏輯 --- */
+        function openBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('modal-slide-out');
+            modal.classList.add('modal-slide-in');
+            loadUserBookings(); // 開啟時自動抓資料
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('modal-slide-in');
+            modal.classList.add('modal-slide-out');
+        }
+
+        async function loadUserBookings() {
+            const list = document.getElementById('booking-list');
+            list.innerHTML = `<div class="py-12 text-center"><div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div></div>`;
+            
+            try {
+                // 使用 currentUserProfile.phone 來比對 booking 資料表中的 phone 欄位
+                const { data, error } = await _supabase
+                    .from('booking')
+                    .select('*')
+                    .eq('phone', currentUserProfile.phone)
+                    .order('created_at', { ascending: false });
+
+                const emptyStateHTML = `
+                    <div class="bg-white rounded-[24px] text-center py-10 mt-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <p class="text-[#8B95A1] font-bold text-[15px]">目前沒有預約紀錄</p>
+                    </div>`;
+
+                if (error || !data || data.length === 0) {
+                     list.innerHTML = emptyStateHTML;
+                    return;
+                }
+
+                list.innerHTML = data.map(b => {
+                    const dateText = `${b.booking_date} ${b.booking_time}`;
+                    const storeText = b.store;
+                    const statusText = b.status || '待處理';
+
+                    return `
+                    <div class="bg-white rounded-[24px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)] w-full box-border">
+                        <div class="flex justify-between items-start mb-3">
+                            <h4 class="text-[17px] font-bold text-[#191F28]">${storeText}</h4>
+                            <span class="text-[12px] font-bold text-[#3182F6] bg-[#E8F3FF] px-2 py-1 rounded-lg tracking-wide">${statusText}</span>
+                        </div>
+                        <div class="space-y-1.5">
+                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">設備</span>${b.device}</p>
+                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">狀況</span>${b.issue}</p>
+                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">時間</span>${dateText}</p>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("預約紀錄載入失敗", err);
+                list.innerHTML = `<div class="text-center py-8"><p class="text-[#F04438] font-bold text-[14px]">載入失敗，請稍後再試</p></div>`;
+            }
+        }
+        /* ------------------------------------------------ */
 
         function openQrSheet() {
             const sheet = document.getElementById('qr-bottom-sheet');
@@ -771,9 +851,6 @@
             }
         }
 
-        // ==========================================
-        // 修改區塊：移除票券錢包空狀態的虛線圖示
-        // ==========================================
         async function loadUserCoupons() {
             const list = document.getElementById('coupon-list');
             const today = new Date().toISOString().split('T')[0];
@@ -785,7 +862,6 @@
                 .eq('status', 'unused')
                 .order('created_at', { ascending: false });
 
-            // 乾淨的空狀態 HTML (已移除 icon div)
             const emptyStateHTML = `
                 <div class="toss-card text-center py-8 mt-4">
                     <p class="text-[#4E5968] font-bold text-[16px]">目前沒有可用的優惠券</p>
