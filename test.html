@@ -572,19 +572,31 @@
 
                 list.innerHTML = data.map(b => {
                     const dateText = `${b.booking_date} ${b.booking_time}`;
-                    const storeText = b.store;
-                    const statusText = b.status || '待處理';
+                    const storeText = b.store || '黑盒子維修中心';
 
+                    // 這裡改用深色主題卡片、移除右上角狀態、使用 Flex 列表排版 (一行一資訊)
                     return `
-                    <div class="bg-white rounded-[24px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)] w-full box-border">
-                        <div class="flex justify-between items-start mb-3">
-                            <h4 class="text-[17px] font-bold text-[#191F28]">${storeText}</h4>
-                            <span class="text-[12px] font-bold text-[#3182F6] bg-[#E8F3FF] px-2 py-1 rounded-lg tracking-wide">${statusText}</span>
+                    <div class="bg-[#1C1C1E] border border-[#2C2C2E] rounded-[16px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] w-full box-border">
+                        <h4 class="text-[18px] font-bold text-white mb-2">預約資訊</h4>
+                        
+                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">門市</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${storeText}</span>
                         </div>
-                        <div class="space-y-1.5">
-                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">設備</span>${b.device}</p>
-                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">狀況</span>${b.issue}</p>
-                            <p class="text-[14px] text-[#4E5968] font-medium"><span class="text-[#8B95A1] mr-2">時間</span>${dateText}</p>
+                        
+                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">設備</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${b.device}</span>
+                        </div>
+                        
+                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">狀況</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${b.issue}</span>
+                        </div>
+                        
+                        <div class="flex pt-3.5">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">時間</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${dateText}</span>
                         </div>
                     </div>
                     `;
