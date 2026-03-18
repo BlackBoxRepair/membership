@@ -534,12 +534,11 @@
             modal.classList.add('modal-slide-out');
         }
 
-        /* --- 預約紀錄視窗邏輯 --- */
         function openBookingModal() {
             const modal = document.getElementById('booking-modal');
             modal.classList.remove('modal-slide-out');
             modal.classList.add('modal-slide-in');
-            loadUserBookings(); // 開啟時自動抓資料
+            loadUserBookings();
         }
 
         function closeBookingModal() {
@@ -553,7 +552,6 @@
             list.innerHTML = `<div class="py-12 text-center"><div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div></div>`;
             
             try {
-                // 使用 currentUserProfile.phone 來比對 booking 資料表中的 phone 欄位
                 const { data, error } = await _supabase
                     .from('booking')
                     .select('*')
@@ -574,22 +572,22 @@
                     const dateText = `${b.booking_date} ${b.booking_time}`;
                     const storeText = b.store || '黑盒子維修中心';
 
-                    // 這裡改用深色主題卡片、移除右上角狀態、使用 Flex 列表排版 (一行一資訊)
+                    // 卡片背景調亮至 #2C2C2E，邊框同步調整，移除了右上角狀態標記，並將門市內容變為 #2BA769
                     return `
-                    <div class="bg-[#1C1C1E] border border-[#2C2C2E] rounded-[16px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] w-full box-border">
+                    <div class="bg-[#2C2C2E] border border-[#3A3A3D] rounded-[16px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] w-full box-border">
                         <h4 class="text-[18px] font-bold text-white mb-2">預約資訊</h4>
                         
-                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
                             <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">門市</span>
-                            <span class="text-[15px] text-white font-medium flex-1">${storeText}</span>
+                            <span class="text-[15px] text-[#2BA769] font-bold flex-1">${storeText}</span>
                         </div>
                         
-                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
                             <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">設備</span>
                             <span class="text-[15px] text-white font-medium flex-1">${b.device}</span>
                         </div>
                         
-                        <div class="flex py-3.5 border-b border-[#2C2C2E]">
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
                             <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">狀況</span>
                             <span class="text-[15px] text-white font-medium flex-1">${b.issue}</span>
                         </div>
@@ -606,7 +604,6 @@
                 list.innerHTML = `<div class="text-center py-8"><p class="text-[#F04438] font-bold text-[14px]">載入失敗，請稍後再試</p></div>`;
             }
         }
-        /* ------------------------------------------------ */
 
         function openQrSheet() {
             const sheet = document.getElementById('qr-bottom-sheet');
