@@ -73,9 +73,11 @@
         .rank-badge { 
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px); /* Safari 支援 */
             display: flex; align-items: center; justify-content: center; 
             padding: 6px 14px;
             border-radius: 12px;
+            transform: translateZ(0); /* 修復 iOS 初次渲染變黑的 Bug */
         }
 
         .toss-card {
@@ -395,8 +397,7 @@
                                 <span class="text-[10px] text-[#8B95A1] uppercase tracking-widest mb-1 font-bold">Phone Number</span>
                                 <p id="m-phone" class="text-[14px] text-[#D1D6DB] font-mono tracking-widest font-medium">---</p>
                             </div>
-                            <div class="rank-badge flex items-center gap-1.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h4v16H4V4zm6 0h2v16h-2V4zm4 0h2v16h-2V4zm4 0h2v16h-2V4z" /></svg>
+                            <div class="rank-badge">
                                 <span class="text-[11px] text-white font-bold tracking-widest uppercase leading-none">MEMBER</span>
                             </div>
                         </div>
@@ -565,7 +566,6 @@
 
                 if (error) throw error;
 
-                // 篩選出未來的預約 (大於或等於現在時間)
                 const now = new Date();
                 const futureBookings = (data || []).filter(b => {
                     if (!b.booking_date) return false;
@@ -574,7 +574,6 @@
                     return bookingDateTime >= now;
                 });
 
-                // 依照日期時間由近到遠排序 (升冪)
                 futureBookings.sort((a, b) => {
                     const timeA = new Date(`${a.booking_date}T${a.booking_time || '00:00'}:00`).getTime();
                     const timeB = new Date(`${b.booking_date}T${b.booking_time || '00:00'}:00`).getTime();
@@ -595,7 +594,6 @@
                     const dateText = `${b.booking_date} ${b.booking_time}`;
                     const storeText = b.store || '黑盒子維修中心';
 
-                    // 使用較亮的深色卡片背景 (#2C2C2E)，門市名稱使用綠色 (#2BA769)
                     return `
                     <div class="bg-[#2C2C2E] border border-[#3A3A3D] rounded-[16px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] w-full box-border">
                         <h4 class="text-[18px] font-bold text-white mb-2">預約資訊</h4>
@@ -623,7 +621,6 @@
                     `;
                 }).join('');
 
-                // 在列表最下方加入不可修改預約的提醒
                 listHTML += `<p class="text-[12px] text-[#8B95A1] text-center mt-6 mb-4 font-medium">若欲變更預約時段請聯繫客服人員，會員無法自行修改預約。</p>`;
 
                 list.innerHTML = listHTML;
