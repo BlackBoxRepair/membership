@@ -73,11 +73,16 @@
         .rank-badge { 
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(8px); 
-            -webkit-backdrop-filter: blur(8px); /* Safari 支援 */
+            -webkit-backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center; 
             padding: 6px 14px;
             border-radius: 12px;
-            transform: translateZ(0); /* 修復 iOS 初次渲染變黑的 Bug */
+            /* iOS 毛玻璃 Bug 終極修復 */
+            transform: translateZ(0); 
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform, backdrop-filter;
         }
 
         .toss-card {
@@ -353,9 +358,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
-                <div class="flex flex-col">
-                    <span id="header-subtitle" class="text-[10px] font-bold text-[#F7B500] tracking-widest uppercase leading-none mb-1">BLACKBOX</span>
-                    <h1 id="page-title" class="text-[22px] font-bold text-[#191F28] tracking-tight leading-none">會員中心</h1>
+                <div class="flex flex-col justify-center">
+                    <img id="header-logo" src="site logo.png" alt="Blackbox Logo" class="h-5 object-contain">
+                    <h1 id="page-title" class="hidden text-[22px] font-bold text-[#191F28] tracking-tight leading-none"></h1>
                 </div>
             </div>
             
@@ -843,14 +848,14 @@
             
             const header = document.getElementById('main-header');
             const pageTitle = document.getElementById('page-title');
-            const subtitle = document.getElementById('header-subtitle');
+            const headerLogo = document.getElementById('header-logo');
             const btnBack = document.getElementById('btn-back');
             const actions = document.getElementById('header-actions');
 
             if (tab === 'card') {
-                pageTitle.innerText = '會員中心';
+                pageTitle.style.display = 'none';
+                headerLogo.style.display = 'block';
                 btnBack.classList.add('hidden');
-                subtitle.style.display = 'block';
                 actions.style.display = 'flex';
                 header.style.display = 'flex';
                 
@@ -859,8 +864,9 @@
             } 
             else if (tab === 'coupon') {
                 pageTitle.innerText = '票券錢包';
+                pageTitle.style.display = 'block';
+                headerLogo.style.display = 'none';
                 btnBack.classList.remove('hidden');
-                subtitle.style.display = 'none';
                 actions.style.display = 'none';
                 header.style.display = 'flex';
                 
@@ -874,8 +880,9 @@
                     header.style.display = 'none';
                 } else {
                     pageTitle.innerText = '小黑盒';
+                    pageTitle.style.display = 'block';
+                    headerLogo.style.display = 'none';
                     btnBack.classList.remove('hidden');
-                    subtitle.style.display = 'none';
                     actions.style.display = 'none';
                     header.style.display = 'flex';
                     
