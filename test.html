@@ -77,6 +77,9 @@
             display: flex; align-items: center; justify-content: center; 
             padding: 6px 14px;
             border-radius: 12px;
+            /* 圓角 Bug 修正 */
+            overflow: hidden; /* 新增：強迫圓角裁切更精確 */
+            /* iOS 毛玻璃 Bug 終極修復 */
             transform: translateZ(0); 
             -webkit-transform: translateZ(0);
             backface-visibility: hidden;
