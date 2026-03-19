@@ -77,9 +77,7 @@
             display: flex; align-items: center; justify-content: center; 
             padding: 6px 14px;
             border-radius: 12px;
-            /* 圓角 Bug 修正 */
-            overflow: hidden; /* 新增：強迫圓角裁切更精確 */
-            /* iOS 毛玻璃 Bug 終極修復 */
+            overflow: hidden; 
             transform: translateZ(0); 
             -webkit-transform: translateZ(0);
             backface-visibility: hidden;
@@ -137,7 +135,6 @@
             transform: translateY(100%);
         }
 
-        /* 票券/預約頁面全螢幕滑動動畫 */
         .modal-slide-in { transform: translateY(0%); pointer-events: auto; }
         .modal-slide-out { transform: translateY(100%); pointer-events: none; }
 
@@ -152,6 +149,31 @@
         .select-wrapper::after { content: '▼'; font-size: 10px; color: #8B95A1; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
         iframe { border: none; width: 100%; height: 100%; display: block; }
         .text-gold { color: #FFD700; }
+
+        /* --- 驚喜盒動畫設定 --- */
+        @keyframes boxGlow {
+            0% { filter: drop-shadow(0 0 0px rgba(247,181,0,0)) brightness(1); }
+            50% { filter: drop-shadow(0 0 25px rgba(247,181,0,0.8)) brightness(1.2); transform: scale(1.05); }
+            100% { filter: drop-shadow(0 0 50px rgba(247,181,0,1)) brightness(1.3); transform: scale(1.1); }
+        }
+        .box-animating {
+            animation: boxGlow 1.8s forwards ease-in-out;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(247,181,0,0.6));
+            box-shadow: 0 0 10px rgba(247,181,0,0.5);
+            animation: floatUp 1.5s ease-in forwards;
+            opacity: 0;
+            z-index: 5;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-90px) scale(1.8); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -159,6 +181,42 @@
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
         <div class="w-10 h-10 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin mb-4"></div>
         <p class="text-[11px] font-bold text-[#8B95A1] tracking-widest uppercase">Loading</p>
+    </div>
+
+    <div id="milestone-locked-modal" class="modal-overlay" style="z-index: 4000;">
+        <div class="bg-white w-full max-w-[280px] rounded-[28px] p-8 text-center shadow-2xl">
+            <div class="w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-[#8B95A1]">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+            </div>
+            <h3 class="text-[18px] font-bold text-[#191F28] mb-2">成就尚未達成</h3>
+            <p class="text-[13px] text-[#8B95A1] font-medium leading-relaxed mb-6">透過取得配件或玻璃貼更換服務加速取得年度達成禮</p>
+            <button onclick="document.getElementById('milestone-locked-modal').style.display='none'" class="w-full bg-[#191F28] text-white py-[14px] rounded-2xl font-bold active:scale-95 transition">我知道了</button>
+        </div>
+    </div>
+
+    <div id="surprise-box-modal" class="modal-overlay" style="z-index: 4000;">
+        <div class="bg-white w-full max-w-[320px] rounded-[32px] p-8 text-center shadow-2xl flex flex-col items-center relative overflow-hidden" id="sp-box-modal-content">
+            <button onclick="closeSurpriseBoxModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#F2F4F6] rounded-full flex items-center justify-center text-[#8B95A1] font-bold active:scale-95">✕</button>
+            
+            <h3 class="text-[22px] font-bold text-[#191F28] mb-1">年度達成禮</h3>
+            <p class="text-[10px] text-[#8B95A1] font-bold uppercase tracking-widest mb-6">MILESTONE REWARD</p>
+            
+            <div id="sp-box-container" class="relative w-full flex justify-center mb-6 h-48 items-center">
+                <img id="sp-box-img" src="SP BOX.png" alt="Surprise Box" class="w-40 h-40 object-contain cursor-pointer transition-transform active:scale-95 drop-shadow-xl z-10" onclick="triggerBoxAnimation()">
+            </div>
+            
+            <p id="sp-box-instruction" class="text-[15px] text-[#F7B500] font-bold animate-pulse">點擊開啟驚喜盒！</p>
+            
+            <div id="sp-box-reward-info" class="hidden w-full">
+                <div class="bg-[#F2F4F6] rounded-[20px] py-4 mb-4 border border-[#E5E8EB]">
+                    <p class="text-[11px] text-[#8B95A1] font-bold mb-1">恭喜獲得</p>
+                    <p id="sp-reward-title" class="text-[20px] font-black text-[#191F28] tracking-wide">---</p>
+                </div>
+                <button id="sp-claim-btn" onclick="claimYearlyReward()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition">領取獎勵</button>
+            </div>
+        </div>
     </div>
 
     <div id="qr-bottom-sheet" class="bottom-sheet-overlay" onclick="closeQrSheet()">
@@ -213,7 +271,7 @@
         </div>
     </div>
 
-    <div id="msg-modal" class="modal-overlay" style="z-index: 2000;">
+    <div id="msg-modal" class="modal-overlay" style="z-index: 5000;">
         <div class="msg-modal-content">
             <h3 id="msg-title" class="text-[22px] font-bold text-[#191F28] mb-3">提示</h3>
             <p id="msg-body" class="text-[15px] text-[#4E5968] mb-8 leading-relaxed font-medium">---</p>
@@ -454,20 +512,32 @@
                             <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#F2F4F6" stroke-width="12" stroke-linecap="round"/>
                             <path id="progress-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#arcGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1);"/>
 
-                            <circle cx="35" cy="53" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-1" style="transition: stroke 0.5s 1s ease;"/>
-                            <text x="22" y="53" font-size="10" fill="#8B95A1" font-weight="bold">3</text>
+                            <g onclick="handleMilestoneClick(3)" class="cursor-pointer" style="pointer-events: bounding-box; outline: none;">
+                                <circle cx="35" cy="53" r="16" fill="transparent" />
+                                <circle cx="35" cy="53" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-1" style="transition: stroke 0.5s 1s ease;"/>
+                                <text x="22" y="53" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">3</text>
+                            </g>
                             
-                            <circle cx="75" cy="24" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-2" style="transition: stroke 0.5s 1s ease;"/>
-                            <text x="70" y="14" text-anchor="middle" font-size="10" fill="#8B95A1" font-weight="bold">6</text>
+                            <g onclick="handleMilestoneClick(6)" class="cursor-pointer" style="pointer-events: bounding-box; outline: none;">
+                                <circle cx="75" cy="24" r="16" fill="transparent" />
+                                <circle cx="75" cy="24" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-2" style="transition: stroke 0.5s 1s ease;"/>
+                                <text x="70" y="14" text-anchor="middle" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">6</text>
+                            </g>
                             
-                            <circle cx="140" cy="31" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-3" style="transition: stroke 0.5s 1s ease;"/>
-                            <text x="145" y="21" font-size="10" fill="#8B95A1" font-weight="bold">10</text>
+                            <g onclick="handleMilestoneClick(10)" class="cursor-pointer" style="pointer-events: bounding-box; outline: none;">
+                                <circle cx="140" cy="31" r="16" fill="transparent" />
+                                <circle cx="140" cy="31" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-3" style="transition: stroke 0.5s 1s ease;"/>
+                                <text x="145" y="21" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">10</text>
+                            </g>
 
-                            <circle cx="180" cy="100" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-4" style="transition: stroke 0.5s 1s ease;"/>
-                            <text x="195" y="103" font-size="10" fill="#8B95A1" font-weight="bold">15</text>
+                            <g onclick="handleMilestoneClick(15)" class="cursor-pointer" style="pointer-events: bounding-box; outline: none;">
+                                <circle cx="180" cy="100" r="16" fill="transparent" />
+                                <circle cx="180" cy="100" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-4" style="transition: stroke 0.5s 1s ease;"/>
+                                <text x="195" y="103" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">15</text>
+                            </g>
                         </svg>
                         
-                        <div class="absolute inset-0 flex flex-col items-center justify-end pb-[6px]">
+                        <div class="absolute inset-0 flex flex-col items-center justify-end pb-[6px] pointer-events-none">
                             <span id="yearly-count" class="text-[56px] font-black text-[#191F28] leading-none mb-1 tracking-tighter">0</span>
                             <div class="flex items-center text-[#8B95A1] text-[12px] font-bold">本年度消費次數 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg></div>
                         </div>
@@ -495,6 +565,8 @@
         let currentUserLineId = null;
         let currentUserProfile = null;
         let currentCoupons = []; 
+        let currentYearlyConsumption = 0;
+        let currentClaimingMilestone = 0;
 
         const areaList = [
             "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
@@ -510,6 +582,172 @@
             await initLiff();
         };
 
+        /* --- 驚喜盒控制邏輯 --- */
+        async function handleMilestoneClick(milestone) {
+            if (currentYearlyConsumption < milestone) {
+                document.getElementById('milestone-locked-modal').style.display = 'flex';
+                return;
+            }
+
+            const currentYear = new Date().getFullYear();
+            const rewardKey = `YR_${currentYear}_${milestone}`;
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            try {
+                const { data, error } = await _supabase.from('point_logs')
+                    .select('id')
+                    .eq('line_id', currentUserLineId)
+                    .eq('order_number', rewardKey);
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (data && data.length > 0) {
+                    showMsg('提示', '您今年已經領取過此階段的達成禮囉！');
+                    return;
+                }
+
+                currentClaimingMilestone = milestone;
+                
+                const boxImg = document.getElementById('sp-box-img');
+                boxImg.classList.remove('box-animating');
+                boxImg.style.transform = 'scale(1)';
+                boxImg.style.filter = 'drop-shadow(0 0 0px rgba(247,181,0,0))';
+                boxImg.src = 'SP BOX.png';
+                boxImg.onclick = triggerBoxAnimation;
+                
+                document.querySelectorAll('.bubble').forEach(e => e.remove());
+                
+                document.getElementById('sp-box-instruction').style.display = 'block';
+                document.getElementById('sp-box-reward-info').style.display = 'none';
+                document.getElementById('surprise-box-modal').style.display = 'flex';
+
+            } catch (err) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                showMsg('錯誤', '系統忙線中，請稍後再試');
+            }
+        }
+
+        function triggerBoxAnimation() {
+            const boxImg = document.getElementById('sp-box-img');
+            boxImg.onclick = null; 
+            boxImg.classList.add('box-animating');
+            document.getElementById('sp-box-instruction').style.display = 'none';
+
+            const container = document.getElementById('sp-box-container');
+            
+            for(let i = 0; i < 20; i++) {
+                let b = document.createElement('div');
+                b.className = 'bubble';
+                const size = Math.random() * 15 + 10;
+                b.style.width = size + 'px';
+                b.style.height = size + 'px';
+                b.style.left = (Math.random() * 80 + 10) + '%';
+                b.style.top = (Math.random() * 80 + 10) + '%';
+                b.style.animationDelay = (Math.random() * 0.8) + 's';
+                container.appendChild(b);
+            }
+
+            setTimeout(() => {
+                boxImg.classList.remove('box-animating');
+                boxImg.style.transform = 'scale(1.1)';
+                boxImg.style.filter = 'drop-shadow(0 0 30px rgba(247,181,0,0.6))';
+                // 更換為 .png 檔
+                boxImg.src = 'SP BOX２.png'; 
+                
+                showRewardInfo(currentClaimingMilestone);
+            }, 1800);
+        }
+
+        function showRewardInfo(milestone) {
+            const rewardInfo = document.getElementById('sp-box-reward-info');
+            const title = document.getElementById('sp-reward-title');
+            
+            if (milestone === 3) title.innerText = '會籍積分 +25';
+            if (milestone === 6) title.innerText = '會籍積分 +50';
+            if (milestone === 10) title.innerText = '會籍積分 +100';
+            if (milestone === 15) title.innerText = '保貼兌換券 x1';
+
+            rewardInfo.style.display = 'block';
+        }
+
+        async function claimYearlyReward() {
+            const btn = document.getElementById('sp-claim-btn');
+            btn.disabled = true;
+            btn.innerText = '處理中...';
+
+            const milestone = currentClaimingMilestone;
+            const currentYear = new Date().getFullYear();
+            const rewardKey = `YR_${currentYear}_${milestone}`;
+
+            try {
+                let pointsToAdd = 0;
+                let couponIdToIssue = null;
+
+                if (milestone === 3) pointsToAdd = 25;
+                if (milestone === 6) pointsToAdd = 50;
+                if (milestone === 10) pointsToAdd = 100;
+                if (milestone === 15) couponIdToIssue = '531aae11-184f-4f86-bf53-41e35974d5ae';
+
+                if (pointsToAdd > 0) {
+                    const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentUserLineId).single();
+                    const newPoints = (profile.total_points || 0) + pointsToAdd;
+                    await _supabase.from('profiles').update({ total_points: newPoints }).eq('line_id', currentUserLineId);
+                }
+
+                if (couponIdToIssue) {
+                    const { data: couponTemp } = await _supabase.from('coupons').select('*').eq('id', couponIdToIssue).single();
+                    if (couponTemp) {
+                        let expiryDate = null;
+                        if (couponTemp.validity_days && couponTemp.validity_days > 0) {
+                            const d = new Date(); d.setDate(d.getDate() + couponTemp.validity_days);
+                            expiryDate = d.toISOString().split('T')[0];
+                        } else {
+                            expiryDate = couponTemp.valid_until;
+                        }
+                        
+                        await _supabase.from('user_coupons').insert({
+                            line_id: currentUserLineId,
+                            coupon_name: couponTemp.name,
+                            description: couponTemp.description || '',
+                            valid_until: expiryDate,
+                            status: 'unused',
+                            type: couponTemp.type || 'exchange',
+                            discount_amount: couponTemp.discount_amount || 0
+                        });
+                    }
+                }
+
+                await _supabase.from('point_logs').insert({
+                    line_id: currentUserLineId,
+                    staff_name: '系統發送',
+                    store_name: '年度達成禮',
+                    order_number: rewardKey,
+                    amount: 0,
+                    points_change: pointsToAdd,
+                    points_redeemed: 0,
+                    coupon_discount: 0
+                });
+
+                closeSurpriseBoxModal();
+                showMsg('恭喜', '獎勵已成功發放至您的帳戶！\n若為票券請至「票券錢包」查看。');
+                
+                checkMemberStatus({ userId: currentUserLineId });
+                
+            } catch (e) {
+                console.error(e);
+                showMsg('錯誤', '領取失敗，請聯繫客服');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '領取獎勵';
+            }
+        }
+
+        function closeSurpriseBoxModal() {
+            document.getElementById('surprise-box-modal').style.display = 'none';
+        }
+
+        /* --- 原有功能 --- */
         function openCouponDetail(couponId) {
             const coupon = currentCoupons.find(c => c.id === couponId);
             if (!coupon) return;
@@ -828,6 +1066,7 @@
                 if (error) throw error;
                 
                 const times = count || 0;
+                currentYearlyConsumption = times; // 儲存至全域變數供點擊判斷
                 document.getElementById('yearly-count').innerText = times;
                 
                 const MAX_TIMES = 15;
