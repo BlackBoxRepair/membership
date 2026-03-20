@@ -498,7 +498,7 @@
                     </button>
                 </div>
 
-                <div class="toss-card mb-5 relative flex flex-col items-center py-8 cursor-pointer active:scale-[0.98] transition-transform select-none" onclick="handleYearlyCardClick()">
+                <div id="yearly-card" class="toss-card mb-5 relative flex flex-col items-center py-8 cursor-pointer active:scale-[0.98] transition-transform select-none" onclick="handleYearlyCardClick()">
                     <div class="w-full max-w-[260px] relative pointer-events-none">
                         <svg viewBox="0 0 200 120" class="w-full h-auto overflow-visible">
                             <defs>
@@ -620,7 +620,7 @@
                     const boxImg = document.getElementById('sp-box-img');
                     boxImg.classList.remove('box-animating');
                     boxImg.style.transform = 'scale(1)';
-                    boxImg.style.filter = 'none'; // 確保初始無發光效果
+                    boxImg.style.filter = 'none'; 
                     boxImg.src = 'SP BOX.png';
                     boxImg.onclick = triggerBoxAnimation;
                     
@@ -630,7 +630,11 @@
                     document.getElementById('sp-box-reward-info').style.display = 'none';
                     document.getElementById('surprise-box-modal').style.display = 'flex';
                 } else {
-                    // 沒有獎勵可領 (未達標，或該區段已全領完)
+                    // 如果判斷已達 15 次而且全領完，就什麼事都不做 (防禦性程式碼，通常按鈕會直接失效)
+                    if (currentYearlyConsumption >= 15 && claimedMilestones.includes(15)) {
+                        return;
+                    }
+                    // 沒有獎勵可領且未全通關，顯示鎖定提示
                     document.getElementById('milestone-locked-modal').style.display = 'flex';
                 }
 
@@ -664,7 +668,7 @@
             setTimeout(() => {
                 boxImg.classList.remove('box-animating');
                 boxImg.style.transform = 'scale(1.1)';
-                boxImg.style.filter = 'none'; // 移除開啟後的發光陰影效果
+                boxImg.style.filter = 'none'; 
                 boxImg.src = 'SP BOX２.png'; 
                 
                 showRewardInfo(currentClaimingMilestone);
@@ -1093,6 +1097,31 @@
                     if(times >= 10) document.getElementById('node-3').style.stroke = '#F7B500';
                     if(times >= 15) document.getElementById('node-4').style.stroke = '#F7B500';
                 }, 300);
+
+                // 【新增邏輯】當消費次數大於等於 15 次時，檢查是否全部領取完畢
+                if (times >= 15) {
+                    const { data: claimedData } = await _supabase.from('point_logs')
+                        .select('order_number')
+                        .eq('line_id', currentUserLineId)
+                        .like('order_number', `YR_${currentYear}_%`);
+
+                    const claimedMilestones = (claimedData || []).map(row => {
+                        const parts = row.order_number.split('_');
+                        return parseInt(parts[2]);
+                    });
+
+                    // 檢查是否 3, 6, 10, 15 四個節點都已領取
+                    if (claimedMilestones.includes(3) && claimedMilestones.includes(6) && 
+                        claimedMilestones.includes(10) && claimedMilestones.includes(15)) {
+                        
+                        const card = document.getElementById('yearly-card');
+                        if (card) {
+                            // 拔除點擊事件與手指圖示特效，使其不再可被點擊
+                            card.removeAttribute('onclick');
+                            card.classList.remove('cursor-pointer', 'active:scale-[0.98]', 'transition-transform');
+                        }
+                    }
+                }
             } catch (err) { console.error('載入失敗', err); }
         }
 
