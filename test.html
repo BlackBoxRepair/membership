@@ -152,9 +152,9 @@
 
         /* --- 驚喜盒動畫設定 --- */
         @keyframes boxGlow {
-            0% { filter: drop-shadow(0 0 0px rgba(247,181,0,0)) brightness(1); }
-            50% { filter: drop-shadow(0 0 25px rgba(247,181,0,0.8)) brightness(1.2); transform: scale(1.05); }
-            100% { filter: drop-shadow(0 0 50px rgba(247,181,0,1)) brightness(1.3); transform: scale(1.1); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.1); }
         }
         .box-animating {
             animation: boxGlow 1.8s forwards ease-in-out;
@@ -198,13 +198,11 @@
 
     <div id="surprise-box-modal" class="modal-overlay" style="z-index: 4000;">
         <div class="bg-white w-full max-w-[320px] rounded-[32px] p-8 text-center shadow-2xl flex flex-col items-center relative overflow-hidden" id="sp-box-modal-content">
-            <button onclick="closeSurpriseBoxModal()" class="absolute top-4 right-4 w-8 h-8 bg-[#F2F4F6] rounded-full flex items-center justify-center text-[#8B95A1] font-bold active:scale-95">✕</button>
-            
             <h3 class="text-[22px] font-bold text-[#191F28] mb-1">年度達成禮</h3>
             <p class="text-[10px] text-[#8B95A1] font-bold uppercase tracking-widest mb-6">MILESTONE REWARD</p>
             
             <div id="sp-box-container" class="relative w-full flex justify-center mb-6 h-48 items-center">
-                <img id="sp-box-img" src="SP BOX.png" alt="Surprise Box" class="w-40 h-40 object-contain cursor-pointer transition-transform active:scale-95 drop-shadow-xl z-10" onclick="triggerBoxAnimation()">
+                <img id="sp-box-img" src="SP BOX.png" alt="Surprise Box" class="w-40 h-40 object-contain cursor-pointer transition-transform active:scale-95 z-10" onclick="triggerBoxAnimation()">
             </div>
             
             <p id="sp-box-instruction" class="text-[15px] text-[#F7B500] font-bold animate-pulse">點擊開啟驚喜盒！</p>
@@ -622,7 +620,7 @@
                     const boxImg = document.getElementById('sp-box-img');
                     boxImg.classList.remove('box-animating');
                     boxImg.style.transform = 'scale(1)';
-                    boxImg.style.filter = 'drop-shadow(0 0 0px rgba(247,181,0,0))';
+                    boxImg.style.filter = 'none'; // 確保初始無發光效果
                     boxImg.src = 'SP BOX.png';
                     boxImg.onclick = triggerBoxAnimation;
                     
@@ -666,7 +664,7 @@
             setTimeout(() => {
                 boxImg.classList.remove('box-animating');
                 boxImg.style.transform = 'scale(1.1)';
-                boxImg.style.filter = 'drop-shadow(0 0 30px rgba(247,181,0,0.6))';
+                boxImg.style.filter = 'none'; // 移除開啟後的發光陰影效果
                 boxImg.src = 'SP BOX２.png'; 
                 
                 showRewardInfo(currentClaimingMilestone);
@@ -1066,7 +1064,6 @@
             }
         }
 
-        /* --- 重大修正：排除店名為「年度達成禮」的發放紀錄，避免造成次數無限增生 --- */
         async function loadYearlyConsumption() {
             const currentYear = new Date().getFullYear();
             const startDate = `${currentYear}-01-01T00:00:00.000Z`;
@@ -1077,7 +1074,7 @@
                     .select('*', { count: 'exact', head: true })
                     .eq('line_id', currentUserLineId)
                     .gte('created_at', startDate)
-                    .neq('store_name', '年度達成禮'); // <--- 排除系統自動發放的紀錄
+                    .neq('store_name', '年度達成禮');
                     
                 if (error) throw error;
                 
