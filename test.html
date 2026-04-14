@@ -458,13 +458,15 @@
                     couponsList.innerHTML = coupons.map(c => {
                         const statusColor = c.status === 'used' ? 'text-gray-400 bg-gray-100' : 'text-green-600 bg-green-50';
                         const statusText = c.status === 'used' ? `已使用 (${c.used_at ? c.used_at.split('T')[0] : ''})` : '未使用';
+                        const acquiredDate = c.created_at ? c.created_at.split('T')[0] : '未知';
+                        
                         return `
                         <div class="p-3 border border-gray-100 rounded-xl flex justify-between items-center">
                             <div>
                                 <p class="font-bold text-sm text-gray-800">${c.coupon_name}</p>
-                                <p class="text-[10px] text-gray-400 mt-1">效期：${c.valid_until || '永久'}</p>
+                                <p class="text-[10px] text-gray-400 mt-1">取得：${acquiredDate} | 效期：${c.valid_until || '永久'}</p>
                             </div>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded-md ${statusColor}">${statusText}</span>
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-md flex-shrink-0 ml-2 ${statusColor}">${statusText}</span>
                         </div>`;
                     }).join('');
                 } else {
@@ -482,14 +484,24 @@
                 if (logs && logs.length > 0) {
                     pointsList.innerHTML = logs.map(l => {
                         const date = new Date(l.created_at).toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-                        const changeText = l.points_change > 0 ? `+${l.points_change}` : (l.points_change < 0 ? l.points_change : (l.points_redeemed > 0 ? `-${l.points_redeemed}` : '0'));
-                        const changeColor = (l.points_change > 0) ? 'text-green-500' : ((l.points_change < 0 || l.points_redeemed > 0) ? 'text-red-500' : 'text-gray-400');
+                        
+                        let changeHtml = '';
+                        if (l.points_change > 0) {
+                            changeHtml += `<span class="text-green-500">+${l.points_change}</span>`;
+                        }
+                        if (l.points_redeemed > 0) {
+                            if (changeHtml !== '') changeHtml += `<span class="text-gray-300 mx-1 text-xs font-normal">|</span>`;
+                            changeHtml += `<span class="text-red-500">-${l.points_redeemed}</span>`;
+                        }
+                        if (changeHtml === '') {
+                            changeHtml = `<span class="text-gray-400">0</span>`;
+                        }
                         
                         return `
                         <div class="p-3 border border-gray-100 rounded-xl flex flex-col gap-1">
                             <div class="flex justify-between items-center">
                                 <p class="font-bold text-sm text-gray-800">${l.store_name || '系統操作'}</p>
-                                <p class="font-black ${changeColor}">${changeText}</p>
+                                <p class="font-black flex items-center">${changeHtml}</p>
                             </div>
                             <div class="flex justify-between items-center text-[10px] text-gray-400">
                                 <span>${date} | ${l.staff_name || '系統'}</span>
@@ -1038,7 +1050,7 @@
         function redeemAll() {
             const amount = parseInt(document.getElementById('amount-input').value) || 0;
             const rawMax = Math.min(amount, currentMemberPoints);
-            const maxRedeem = Math.floor(rawMax / 10) * 10;
+            const maxRedeem = Math.floor(rawMax / 10) * 10; 
             
             document.getElementById('redeem-input').value = maxRedeem > 0 ? maxRedeem : '';
             calcPreview();
@@ -1080,7 +1092,7 @@
             
             const validCoupons = data.filter(c => 
                 (!c.valid_until || c.valid_until >= today) && 
-                (c.is_show_on_staff !== false)
+                (c.is_show_on_staff !== false) 
             ).sort((a, b) => {
                 if (a.valid_until && b.valid_until) return a.valid_until.localeCompare(b.valid_until);
                 if (a.valid_until && !b.valid_until) return -1;
