@@ -618,13 +618,20 @@
                     couponsList.innerHTML = coupons.map(c => {
                         const statusColor = c.status === 'used' ? 'text-gray-400 bg-gray-100' : 'text-green-600 bg-green-50';
                         const statusText = c.status === 'used' ? `已使用` : '未使用';
-                        const acquiredDate = c.created_at ? c.created_at.substring(0, 10) : '未知';
+                        
+                        let dateLabel = '取得';
+                        let displayDate = c.created_at ? c.created_at.substring(0, 10) : '未知';
+                        
+                        if (c.status === 'used') {
+                            dateLabel = '使用';
+                            displayDate = c.used_at ? c.used_at.substring(0, 10) : '未知';
+                        }
                         
                         return `
                         <div class="p-3 border border-gray-100 rounded-lg flex justify-between items-center">
                             <div>
                                 <p class="font-bold text-sm text-gray-800">${c.coupon_name}</p>
-                                <p class="text-[10px] text-gray-400 mt-1">取得：${acquiredDate} | 效期：${c.valid_until || '永久'}</p>
+                                <p class="text-[10px] text-gray-400 mt-1">${dateLabel}：${displayDate} | 效期：${c.valid_until || '永久'}</p>
                             </div>
                             <span class="text-[10px] font-bold px-2 py-1 rounded-md flex-shrink-0 ml-2 ${statusColor}">${statusText}</span>
                         </div>`;
