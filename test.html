@@ -458,8 +458,9 @@
                     couponsList.innerHTML = coupons.map(c => {
                         const statusColor = c.status === 'used' ? 'text-gray-400 bg-gray-100' : 'text-green-600 bg-green-50';
                         const statusText = c.status === 'used' ? `已使用` : '未使用';
-                        // 強制轉換為台灣時區顯示取得日期
-                        const acquiredDate = c.created_at ? new Date(c.created_at).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-') : '未知';
+                        
+                        // 直接擷取資料庫的字串 (避免時區轉換) YYYY-MM-DD
+                        const acquiredDate = c.created_at ? c.created_at.substring(0, 10) : '未知';
                         
                         return `
                         <div class="p-3 border border-gray-100 rounded-xl flex justify-between items-center">
@@ -484,8 +485,13 @@
                 const pointsList = document.getElementById('lookup-points-list');
                 if (logs && logs.length > 0) {
                     pointsList.innerHTML = logs.map(l => {
-                        // 強制轉換為台灣時區顯示
-                        const date = new Date(l.created_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '/');
+                        // 直接擷取資料庫的字串 (避免時區轉換) MM/DD HH:mm
+                        let date = '未知';
+                        if (l.created_at && l.created_at.length >= 16) {
+                            const mmdd = l.created_at.substring(5, 10).replace('-', '/');
+                            const hhmm = l.created_at.substring(11, 16);
+                            date = `${mmdd} ${hhmm}`;
+                        }
                         
                         let changeHtml = '';
                         if (l.points_change > 0) {
@@ -500,7 +506,6 @@
                         }
                         
                         const storeName = l.store_name || '系統操作';
-                        // 加入單號標註
                         const orderNoText = (l.order_number && l.order_number !== '無單號') ? `<span class="text-[10px] text-gray-400 font-normal ml-2">#${l.order_number}</span>` : '';
 
                         return `
