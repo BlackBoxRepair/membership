@@ -16,7 +16,6 @@
     <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     
     <style>
-        /* 樣式優化：全面調小圓角弧度 */
         html, body { 
             font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
@@ -308,7 +307,7 @@
                         <input type="checkbox" id="activity-double-check" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500" onchange="calcActivityPreview()">
                         <label for="activity-double-check" class="ml-2 text-xs font-bold text-gray-600">小星運｜積分加倍折抵</label>
                     </div>
-
+                    
                     <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
                         <span class="text-xs text-gray-400 font-bold">本次應收費總額</span>
                         <span id="activity-total-due" class="text-xl font-black text-gray-900">$0</span>
@@ -405,11 +404,11 @@
             <div id="cfm-content-activity" class="space-y-2 mb-8 bg-purple-50 p-6 rounded-xl border border-purple-100 hidden">
                 <div class="confirm-row"><span class="confirm-label text-purple-400">會員姓名</span><span id="cfm-act-name" class="confirm-value text-purple-900">---</span></div>
                 <div class="confirm-row"><span class="confirm-label text-purple-400">消費金額</span><span id="cfm-act-amount" class="confirm-value text-xl font-black text-purple-900">$0</span></div>
-                <div class="confirm-row"><span class="confirm-label text-red-500">系統換算折抵</span><span id="cfm-act-redeem" class="confirm-value text-red-500 font-bold">-0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-purple-400">實際扣除帳戶積分</span><span id="cfm-act-raw-redeem" class="confirm-value text-red-500 font-mono">-0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-red-500">活動加碼</span><span id="cfm-act-bonus" class="confirm-value text-red-500 font-bold">-0</span></div>
                 <div class="confirm-row border-t border-purple-200 pt-2 mt-2"><span class="confirm-label text-purple-600">實收金額</span><span id="cfm-act-total-due" class="confirm-value text-2xl font-black text-purple-900">$0</span></div>
                 <div class="confirm-row mt-2"><span class="confirm-label text-purple-400">獲取積分</span><span id="cfm-act-points" class="confirm-value text-green-600 font-black">+0</span></div>
                 <div class="confirm-row items-start"><span class="confirm-label mt-1 text-purple-400">發送優惠券</span><span id="cfm-act-coupon" class="confirm-value text-purple-600 font-bold text-right leading-tight">無</span></div>
-                <div class="confirm-row mt-2 pt-2 border-t border-purple-200"><span class="confirm-label text-purple-400">實際扣除帳戶積分</span><span id="cfm-act-raw-redeem" class="confirm-value text-gray-500 font-mono">-0</span></div>
             </div>
 
             <div id="cfm-content-redeem" class="space-y-2 mb-8 bg-green-50 p-6 rounded-xl border border-green-100 hidden">
@@ -457,6 +456,7 @@
         let calculatedActivityPoints = 0;
         let calculatedActivityRedeem = 0; // 原始扣除點數
         let calculatedActivityDeductionValue = 0; // 換算後的折抵金額
+        let currentActivityCode = null; // 儲存活動授權碼
 
         function cleanInput(el) {
             el.value = el.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
@@ -529,6 +529,7 @@
                 if (error || !data) throw new Error('Query failed');
 
                 if (data.avatar_url && data.avatar_url === codeInput) {
+                    currentActivityCode = codeInput; // 紀錄授權碼
                     closeActivityLock();
                     enterMode('activity');
                 } else {
@@ -562,6 +563,7 @@
                     titleEl.innerText = "會員作業";
                     badgeEl.innerText = "MEMBERSHIP"; 
                     badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
+                    currentActivityCode = null; // 確保一般作業時清除授權碼
                 } else {
                     titleEl.innerText = "活動通道";
                     badgeEl.innerText = "EVENT CHANNEL"; 
@@ -572,11 +574,13 @@
                 titleEl.innerText = "票券核銷";
                 badgeEl.innerText = "REDEEM MODE";
                 badgeEl.className = "text-[10px] font-bold text-green-600 tracking-widest uppercase";
+                currentActivityCode = null;
                 resetScan();
             } else if (mode === 'lookup') {
                 titleEl.innerText = "資料調閱";
                 badgeEl.innerText = "DATA LOOKUP";
                 badgeEl.className = "text-[10px] font-bold text-blue-600 tracking-widest uppercase";
+                currentActivityCode = null;
                 cleanupScanner();
                 document.getElementById('action-view-lookup').classList.remove('hidden');
                 document.getElementById('lookup-results').classList.add('hidden');
@@ -1057,12 +1061,13 @@
                 
                 let rawAmount = parseInt(document.getElementById('activity-amount-input').value) || 0;
                 let actualDue = rawAmount - calculatedActivityDeductionValue; 
+                let bonusValue = calculatedActivityDeductionValue - calculatedActivityRedeem;
                 
-                document.getElementById('cfm-act-redeem').innerText = '-$' + calculatedActivityDeductionValue;
+                document.getElementById('cfm-act-raw-redeem').innerText = '-' + calculatedActivityRedeem;
+                document.getElementById('cfm-act-bonus').innerText = '-$' + bonusValue;
                 document.getElementById('cfm-act-total-due').innerText = '$' + Math.max(0, actualDue).toLocaleString();
                 document.getElementById('cfm-act-points').innerText = (calculatedActivityPoints >= 0 ? '+' : '') + calculatedActivityPoints;
                 document.getElementById('cfm-act-coupon').innerText = selectedActivityCoupons.length > 0 ? selectedActivityCoupons.join('、') : '無';
-                document.getElementById('cfm-act-raw-redeem').innerText = '-' + calculatedActivityRedeem;
                 
             } else {
                 document.getElementById('cfm-title').innerText = "核銷確認";
@@ -1144,7 +1149,6 @@
                     
                 if (updateError) throw new Error("更新積分失敗: " + updateError.message);
 
-                // 在活動通道中，加倍折抵的「額外補貼價值」算在 coupon_discount 欄位中，保持帳務平衡
                 const extraDiscount = calculatedActivityDeductionValue - calculatedActivityRedeem;
 
                 const { error: logError } = await _supabase.from('point_logs').insert({
@@ -1153,7 +1157,8 @@
                     amount: finalCashCollected, 
                     points_change: calculatedActivityPoints,        
                     points_redeemed: calculatedActivityRedeem,    
-                    coupon_discount: extraDiscount > 0 ? extraDiscount : 0        
+                    coupon_discount: extraDiscount > 0 ? extraDiscount : 0,
+                    activity_code: currentActivityCode // 寫入活動辨識代碼
                 });
                 if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
                 
@@ -1174,7 +1179,8 @@
                             line_id: currentTargetLineId, coupon_name: name,
                             description: org.description || '', valid_until: expiryDate,
                             status: 'unused', type: org.type || 'exchange',
-                            discount_amount: org.discount_amount || 0
+                            discount_amount: org.discount_amount || 0,
+                            activity_code: currentActivityCode // 寫入活動辨識代碼
                         };
                     }).filter(c => c !== null);
 
