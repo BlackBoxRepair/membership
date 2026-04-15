@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小星運 - 黑盒子手機維修</title>
+    <title>小星運 - 黑盒子手機維修中心</title>
     <style>
         :root { 
-            /* 1. 放大卡牌尺寸 */
             --w: 220px; 
             --h: 330px; 
-            /* 2. 拉開間距，適配放大後的尺寸 */
+            /* 調整這個數值可以改變卡牌之間的左右間距 */
             --gap: 240px; 
         }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        /* 下載動畫 */
+        /* 載入動畫 */
         #loading {
             position: fixed; inset: 0; background: #000; z-index: 999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -36,18 +35,23 @@
             display: none; 
         }
         
-        .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 15px; box-shadow: 0 15px 45px rgba(0,0,0,0.6); }
+        .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .card-front { background: url('Taro Front.png') center/100% 100% no-repeat; }
         .card-back { background: url('Taro Back.png') center/100% 100% no-repeat; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
-        
-        /* 運勢文字顯示在黃框範圍 */
-        .fortune { color: #432a0a; font-size: 1.8rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -20px; }
+        .fortune { color: #432a0a; font-size: 1.8rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -15px; }
 
-        /* 翻牌動畫 */
-        .card.is-flipped { transform: translateZ(500px) rotateY(180deg) translateY(-80px) !important; z-index: 100 !important; display: block !important; }
+        /* --- 核心修正區：翻牌動畫垂直置中 --- */
+        .card.is-flipped { 
+            /* 微調垂直位移，確保大尺寸卡牌也能置中呈現 */
+            transform: translateZ(500px) rotateY(180deg) translateY(-50px) !important; 
+            z-index: 100 !important; 
+            display: block !important; 
+        }
+        /* ---------------------------------- */
+
         .card.is-flipped .fortune { opacity: 1; transition: 0.5s 0.3s; }
 
-        .hint { position: fixed; bottom: 25px; width: 100%; text-align: center; color: rgba(255,255,255,0.9); font-size: 1rem; z-index: 20; text-shadow: 0 2px 5px #000; letter-spacing: 1px; }
+        .hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; z-index: 20; text-shadow: 0 2px 4px #000; letter-spacing: 1px;}
     </style>
 </head>
 <body>
@@ -58,7 +62,7 @@
     </div>
 
     <div class="game-bg"></div>
-    <div class="hint">左右滑動挑選 ・ 向上滑動翻開卡牌</div>
+    <div class="hint">左右滑動挑選，向上滑動開啟卡牌</div>
     <div class="stage" id="main">
         <div class="carousel" id="box"></div>
     </div>
