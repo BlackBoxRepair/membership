@@ -3,40 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小星運 - 黑盒子手機維修中心</title>
+    <title>小星運 - 黑盒子</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --card-w: 200px;
-            --card-h: 300px;
+            --card-w: 180px;
+            --card-h: 270px;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #000;
+            background-color: #1a1a1a; /* 預設深色背景防止全黑 */
         }
 
-        /* 遊戲背景層 */
+        /* 遊戲背景 */
         .game-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            /* 確保檔名與上傳檔案完全一致 */
             background: url('game desk.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1;
         }
 
-        /* 舞台容器 */
         .stage {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            perspective: 1200px;
-            overflow: hidden;
+            width: 100%; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 1000px;
+            position: relative;
         }
 
         .carousel {
@@ -46,109 +39,81 @@
             transform-style: preserve-3d;
         }
 
-        /* 卡牌基礎樣式 */
         .card {
             position: absolute;
-            width: var(--card-w);
-            height: var(--card-h);
+            width: var(--card-w); height: var(--card-h);
             left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             opacity: 0;
             pointer-events: none;
-            display: block !important; /* 強制顯示 */
         }
 
-        /* 中間：完整呈現並放大 */
-        .card.active {
-            opacity: 1;
-            z-index: 10;
-            transform: translateZ(200px);
-            pointer-events: auto;
-        }
-
-        /* 左邊：露出約 1/3，傾斜 35 度 */
-        .card.prev {
-            opacity: 0.8;
-            z-index: 5;
-            transform: translateX(-160px) translateZ(0px) rotateY(35deg);
-        }
-
-        /* 右邊：露出約 1/3，傾斜 -35 度 */
-        .card.next {
-            opacity: 0.8;
-            z-index: 5;
-            transform: translateX(160px) translateZ(0px) rotateY(-35deg);
-        }
+        /* 顯示邏輯 */
+        .card.active { opacity: 1; z-index: 10; transform: translateZ(180px); pointer-events: auto; }
+        .card.prev { opacity: 0.8; z-index: 5; transform: translateX(-150px) rotateY(35deg) translateZ(0px); }
+        .card.next { opacity: 0.8; z-index: 5; transform: translateX(150px) rotateY(-35deg) translateZ(0px); }
 
         .card-face {
             position: absolute;
             width: 100%; height: 100%;
             backface-visibility: hidden;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            background-color: #333; /* 圖片沒出來時顯示灰色 */
         }
 
         .card-front {
-            background-image: url('Taro Front.jpg');
+            background: url('Taro Front.jpg') no-repeat center center;
             background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
         }
 
         .card-back {
-            background-image: url('Taro Back.jpg');
+            background: url('Taro Back.jpg') no-repeat center center;
             background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             transform: rotateY(180deg);
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 運勢文字：定位在黃框位置 */
         .fortune-text {
-            color: #432a0a;
-            font-size: 1.6rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 0 20px;
-            margin-top: -15px;
-            opacity: 0;
+            color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center;
+            padding: 0 20px; opacity: 0;
         }
 
-        /* 向上滑動翻開效果 */
         .card.is-flipped {
-            transform: translateZ(400px) rotateY(180deg) translateY(-150px) !important;
+            transform: translateZ(350px) rotateY(180deg) translateY(-100px) !important;
             z-index: 100 !important;
         }
-        .card.is-flipped .fortune-text { opacity: 1; transition: 0.6s 0.3s; }
+        .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
 
+        .hint {
+            position: absolute; bottom: 8%; color: rgba(255,255,255,0.7);
+            font-size: 0.8rem; text-align: center; width: 100%;
+        }
     </style>
 </head>
 <body>
 
 <div class="game-bg"></div>
-
 <div class="stage" id="touchArea">
-    <div class="carousel" id="carousel">
-        </div>
+    <div class="carousel" id="carousel"></div>
+    <div class="hint">左右滑動切換卡牌，向上滑動翻開</div>
 </div>
 
 <script>
-    // 請填入你的 Supabase Anon Key
-    const ANON_KEY = 'YOUR_ANON_KEY';
-    const _supabase = supabase.createClient('https://nszwpwimtwxvjguolzwt.supabase.co', ANON_KEY);
+    // ⚠️ 請務必填入你的 ANON KEY
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg";
+    const _supabase = supabase.createClient('https://nszwpwimtwxvjguolzwt.supabase.co', SUPABASE_KEY);
 
     const fortunes = ["財運亨通", "心想事成", "小星運降臨", "貴人相助", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "萬事如意", "好運相隨"];
     let currentIndex = 0;
-    let startX = 0;
-    let startY = 0;
-    let isFlipped = false;
-    const totalCards = 10;
+    let startX = 0, startY = 0, isFlipped = false;
 
-    function renderCards() {
+    function init() {
         const carousel = document.getElementById('carousel');
-        for (let i = 0; i < totalCards; i++) {
+        if (!carousel) return;
+        
+        for (let i = 0; i < 10; i++) {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -159,70 +124,61 @@
             `;
             carousel.appendChild(card);
         }
-        updateCardPositions();
+        update();
+        setupTouch();
     }
 
-    function updateCardPositions() {
+    function update() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, i) => {
             card.classList.remove('active', 'prev', 'next');
-            
+            card.style.opacity = "0";
             if (i === currentIndex) {
                 card.classList.add('active');
-            } else if (i === (currentIndex - 1 + totalCards) % totalCards) {
+            } else if (i === (currentIndex - 1 + 10) % 10) {
                 card.classList.add('prev');
-            } else if (i === (currentIndex + 1) % totalCards) {
+                card.style.opacity = "1";
+            } else if (i === (currentIndex + 1) % 10) {
                 card.classList.add('next');
-            } else {
-                card.style.opacity = "0";
-                card.style.transform = "translateZ(-1000px)"; // 移到極遠處隱藏
+                card.style.opacity = "1";
             }
         });
     }
 
-    const touchArea = document.getElementById('touchArea');
-    touchArea.addEventListener('touchstart', e => {
-        startX = e.touches[0].pageX;
-        startY = e.touches[0].pageY;
-    });
+    function setupTouch() {
+        const area = document.getElementById('touchArea');
+        area.addEventListener('touchstart', e => {
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+        });
 
-    touchArea.addEventListener('touchend', e => {
-        if (isFlipped) return;
-        const endX = e.changedTouches[0].pageX;
-        const endY = e.changedTouches[0].pageY;
-        const dx = startX - endX;
-        const dy = startY - endY;
+        area.addEventListener('touchend', e => {
+            if (isFlipped) return;
+            const dx = startX - e.changedTouches[0].pageX;
+            const dy = startY - e.changedTouches[0].pageY;
 
-        if (Math.abs(dx) > Math.abs(dy)) {
-            // 左右滑動切換
-            if (Math.abs(dx) > 30) {
-                currentIndex = (dx > 0) ? (currentIndex + 1) % totalCards : (currentIndex - 1 + totalCards) % totalCards;
-                updateCardPositions();
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (Math.abs(dx) > 40) {
+                    currentIndex = dx > 0 ? (currentIndex + 1) % 10 : (currentIndex - 1 + 10) % 10;
+                    update();
+                }
+            } else if (dy > 60) {
+                const active = document.querySelector('.card.active');
+                if (active) flip(active);
             }
-        } else {
-            // 向上滑動抽獎
-            if (dy > 50) {
-                const activeCard = document.querySelector('.card.active');
-                if (activeCard) flipCard(activeCard);
-            }
-        }
-    });
-
-    async function flipCard(card) {
-        isFlipped = true;
-        card.classList.add('is-flipped');
-        
-        const result = card.querySelector('.fortune-text').innerText;
-        
-        // 寫入資料庫
-        await _supabase.from('cny_logs').insert([{ 
-            prize_name: result, 
-            prize_type: 'STAR_EVENT',
-            created_at: new Date().toISOString()
-        }]);
+        });
     }
 
-    renderCards();
+    async function flip(card) {
+        isFlipped = true;
+        card.classList.add('is-flipped');
+        const prize = card.querySelector('.fortune-text').innerText;
+        // 背景寫入資料庫，不影響畫面呈現
+        _supabase.from('cny_logs').insert([{ prize_name: prize, prize_type: 'STAR_EVENT' }]);
+    }
+
+    // 確保頁面載入後才執行
+    window.onload = init;
 </script>
 </body>
 </html>
