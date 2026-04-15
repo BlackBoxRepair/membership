@@ -14,7 +14,7 @@
             background-color: #000; overflow: hidden; 
         }
 
-        /* 網站背景圖 */
+        /* 網站背景 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('game desk.png') no-repeat center center;
@@ -33,40 +33,15 @@
             transform-style: preserve-3d;
         }
 
-        /* 卡牌基礎設定：預設完全隱藏 (0) */
+        /* 基礎卡牌樣式：完全透明，不設預設樣式避免衝突 */
         .card {
             position: absolute; width: 100%; height: 100%;
             left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0; 
+            opacity: 0;
             pointer-events: none;
         }
-
-        /* --- 透明度控制區 --- */
-
-        /* 正中央卡片：100% 透明度 */
-        .card.active { 
-            opacity: 1 !important; 
-            z-index: 20; 
-            transform: translateZ(200px); 
-            pointer-events: auto; 
-        }
-
-        /* 左右兩側卡片：一率 40% 低透明度 */
-        .card.prev { 
-            opacity: 0.4 !important; 
-            z-index: 15; 
-            transform: translateX(-150px) rotateY(30deg) translateZ(0px); 
-        }
-
-        .card.next { 
-            opacity: 0.4 !important; 
-            z-index: 15; 
-            transform: translateX(150px) rotateY(-30deg) translateZ(0px); 
-        }
-
-        /* ------------------ */
 
         .card-face {
             position: absolute; width: 100%; height: 100%;
@@ -75,131 +50,95 @@
             background-color: transparent;
         }
 
-        .card-front {
-            background: url('Taro Front.png') no-repeat center center;
-            background-size: 100% 100%;
-        }
+        .card-front { background: url('Taro Front.png') no-repeat center center; background-size: 100% 100%; }
+        .card-back { background: url('Taro Back.png') no-repeat center center; background-size: 100% 100%; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
 
-        .card-back {
-            background: url('Taro Back.png') no-repeat center center;
-            background-size: 100% 100%;
-            transform: rotateY(180deg);
-            display: flex; align-items: center; justify-content: center;
-        }
+        .fortune-text { color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center; padding: 0 20px; opacity: 0; margin-top: -15px; }
 
-        /* 運勢文字顯示在黃色框框內 */
-        .fortune-text {
-            color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center;
-            padding: 0 20px; opacity: 0; margin-top: -15px;
-        }
-
+        /* 翻牌動畫 */
         .card.is-flipped {
-            transform: translateZ(400px) rotateY(180deg) translateY(-120px) !important;
+            transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important;
-            opacity: 1 !important; /* 翻牌後強制 100% */
+            opacity: 1 !important;
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
 
-        /* 已參加過的提示畫面 */
-        #already-played {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 999;
-            display: none; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: white; text-align: center;
-        }
+        #mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; color: white; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
-
-    <div id="already-played">
-        <h2>您已參與過「小星運」活動</h2>
-        <p>請前往會員中心查看中獎獎項</p>
-    </div>
-
+    <div id="mask"><h2>您已參加過活動</h2></div>
     <div class="game-bg"></div>
-
     <div class="stage" id="touchArea">
-        <div class="carousel" id="cardContainer"></div>
+        <div class="carousel" id="cardBox"></div>
     </div>
 
 <script>
-    // Supabase 配置 [cite: 67]
-    const config = {
-        url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
-        fortunes: ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"]
-    };
+    const SUPABASE_URL = 'https://nszwpwimtwxvjguolzwt.supabase.co';
+    const SUPABASE_KEY = '[cite: 67]';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentIndex = 0;
-    let startX = 0, startY = 0, isFlipped = false;
-    let _supabase = null;
+    const fortunes = ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"];
+    let currentIndex = 0, startX = 0, startY = 0, isFlipped = false;
 
-    // 核心修正：強制清空所有 Class 重新分配
+    // 核心優化：JS 強制控制每一張牌的屬性
     function update() {
         const cards = document.querySelectorAll('.card');
         const total = cards.length;
 
         cards.forEach((card, i) => {
-            // 強制重設 class，確保沒有殘留 [cite: 1]
-            card.className = 'card'; 
-            
+            // 預設全部隱藏
+            card.style.opacity = "0";
+            card.style.zIndex = "1";
+            card.style.pointerEvents = "none";
+
             if (i === currentIndex) {
-                card.classList.add('active'); // 只有這張是 100%
+                // 正中央：100% 透明度 [cite: 1]
+                card.style.opacity = "1";
+                card.style.zIndex = "20";
+                card.style.transform = "translateZ(200px)";
+                card.style.pointerEvents = "auto";
             } else if (i === (currentIndex - 1 + total) % total) {
-                card.classList.add('prev');   // 側邊卡牌 CSS 設定為 0.4
+                // 左側：40% 透明度 [cite: 1]
+                card.style.opacity = "0.4";
+                card.style.zIndex = "10";
+                card.style.transform = "translateX(-150px) rotateY(30deg) translateZ(0px)";
             } else if (i === (currentIndex + 1) % total) {
-                card.classList.add('next');   // 側邊卡牌 CSS 設定為 0.4
+                // 右側：40% 透明度 [cite: 1]
+                card.style.opacity = "0.4";
+                card.style.zIndex = "10";
+                card.style.transform = "translateX(150px) rotateY(-30deg) translateZ(0px)";
+            } else {
+                // 其他牌徹底移出視野防止干擾
+                card.style.transform = "translateZ(-1000px)";
             }
         });
     }
 
-    async function checkParticipation(lineId) {
-        if (!lineId) return;
-        
-        // 1. 根據 line_id 找出 user_id [cite: 1]
-        const { data: profile } = await _supabase.from('profiles').select('id').eq('line_id', lineId).single();
-        if (!profile) return;
-
-        // 2. 檢查 cny_logs 是否已有參與紀錄 [cite: 1]
-        const { data: logs } = await _supabase.from('cny_logs')
-            .select('*')
-            .eq('user_id', profile.id)
-            .eq('prize_type', 'STAR_EVENT');
-
-        if (logs && logs.length > 0) {
-            document.getElementById('already-played').style.display = 'flex';
+    async function checkAuth(lineId) {
+        const { data: profile } = await _supabase.from('profiles').select('id').eq('line_id', lineId).single(); [cite: 1, 2]
+        if (profile) {
+            const { data: logs } = await _supabase.from('cny_logs').select('*').eq('user_id', profile.id).eq('prize_type', 'STAR_EVENT'); [cite: 1, 15]
+            if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
         }
     }
 
-    window.onload = function() {
-        _supabase = supabase.createClient(config.url, config.key);
-        
-        // 這裡填入實際的 LINE ID 獲取邏輯
-        const mockLineId = "USER_LINE_ID"; 
-        checkParticipation(mockLineId);
-
-        const container = document.getElementById('cardContainer');
+    window.onload = () => {
+        const box = document.getElementById('cardBox');
         for (let i = 0; i < 10; i++) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-face card-front"></div>
-                <div class="card-back card-face">
-                    <div class="fortune-text">${config.fortunes[i]}</div>
-                </div>
-            `;
-            container.appendChild(card);
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.innerHTML = `<div class="card-face card-front"></div><div class="card-back card-face"><div class="fortune-text">${fortunes[i]}</div></div>`;
+            box.appendChild(el);
         }
         
-        update(); 
+        update(); // 初始化渲染
+        
+        // 模擬 Line Login 後檢查
+        checkAuth('USER_LINE_ID');
 
         const area = document.getElementById('touchArea');
-        area.addEventListener('touchstart', e => {
-            startX = e.touches[0].pageX;
-            startY = e.touches[0].pageY;
-        });
-
+        area.addEventListener('touchstart', e => { startX = e.touches[0].pageX; startY = e.touches[0].pageY; });
         area.addEventListener('touchend', e => {
             if (isFlipped) return;
             const dx = startX - e.changedTouches[0].pageX;
@@ -211,27 +150,18 @@
                     update();
                 }
             } else if (dy > 60) {
-                const activeCard = document.querySelector('.card.active');
-                if (activeCard) flip(activeCard, mockLineId);
+                const active = document.querySelectorAll('.card')[currentIndex];
+                if (active) flip(active);
             }
         });
     };
 
-    async function flip(card, lineId) {
+    async function flip(card) {
         isFlipped = true;
         card.classList.add('is-flipped');
         const prize = card.querySelector('.fortune-text').innerText;
-        
-        // 寫入資料庫邏輯 [cite: 1]
-        const { data: profile } = await _supabase.from('profiles').select('id').eq('line_id', lineId).single();
-        if (profile) {
-            await _supabase.from('cny_logs').insert([{ 
-                user_id: profile.id,
-                prize_name: prize, 
-                prize_type: 'STAR_EVENT', 
-                created_at: new Date().toISOString()
-            }]);
-        }
+        // 這裡建議串接 add_lion_points 或類似 Function [cite: 3]
+        console.log("抽到：", prize);
     }
 </script>
 </body>
