@@ -6,14 +6,15 @@
     <title>小星運 - 黑盒子手機維修</title>
     <style>
         :root { 
-            --w: 180px; 
-            --h: 270px; 
-            /* 調整這個數值可以改變卡牌之間的左右間距 */
-            --gap: 200px; 
+            /* 1. 放大卡牌尺寸 */
+            --w: 220px; 
+            --h: 330px; 
+            /* 2. 拉開間距，適配放大後的尺寸 */
+            --gap: 240px; 
         }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        /* 1. 下載動畫 */
+        /* 下載動畫 */
         #loading {
             position: fixed; inset: 0; background: #000; z-index: 999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -22,40 +23,42 @@
         .lds-ring { display: inline-block; width: 40px; height: 40px; border: 4px solid #fff; border-color: #fff transparent #fff transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 2. 遊戲場景 */
+        /* 遊戲場景 */
         .game-bg { position: fixed; inset: 0; background: url('game desk.png') center/cover; z-index: 1; }
         .stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1200px; z-index: 10; }
         .carousel { position: relative; width: var(--w); height: var(--h); transform-style: preserve-3d; }
         
-        /* 3. 卡牌樣式：移除透明度設定，預設為不顯示 */
+        /* 卡牌樣式 */
         .card { 
             position: absolute; inset: 0; 
             transform-style: preserve-3d; 
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
-            display: none; /* 非目前的卡牌直接不渲染 */
+            display: none; 
         }
         
-        .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 15px; box-shadow: 0 15px 45px rgba(0,0,0,0.6); }
         .card-front { background: url('Taro Front.png') center/100% 100% no-repeat; }
         .card-back { background: url('Taro Back.png') center/100% 100% no-repeat; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
-        .fortune { color: #432a0a; font-size: 1.6rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -15px; }
+        
+        /* 運勢文字顯示在黃框範圍 */
+        .fortune { color: #432a0a; font-size: 1.8rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -20px; }
 
         /* 翻牌動畫 */
-        .card.is-flipped { transform: translateZ(400px) rotateY(180deg) translateY(-100px) !important; z-index: 100 !important; display: block !important; }
+        .card.is-flipped { transform: translateZ(500px) rotateY(180deg) translateY(-80px) !important; z-index: 100 !important; display: block !important; }
         .card.is-flipped .fortune { opacity: 1; transition: 0.5s 0.3s; }
 
-        .hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; z-index: 20; text-shadow: 0 2px 4px #000; }
+        .hint { position: fixed; bottom: 25px; width: 100%; text-align: center; color: rgba(255,255,255,0.9); font-size: 1rem; z-index: 20; text-shadow: 0 2px 5px #000; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
     <div id="loading">
         <div class="lds-ring"></div>
-        <p style="color:white; margin-top:15px;">載入中...</p>
+        <p style="color:white; margin-top:15px; font-weight: bold;">召喚星運中...</p>
     </div>
 
     <div class="game-bg"></div>
-    <div class="hint">左右滑動切換卡牌 ・ 向上滑動翻牌</div>
+    <div class="hint">左右滑動挑選 ・ 向上滑動翻開卡牌</div>
     <div class="stage" id="main">
         <div class="carousel" id="box"></div>
     </div>
@@ -69,25 +72,23 @@
         const total = cards.length;
         
         cards.forEach((c, i) => {
-            // 先全部隱藏
             c.style.display = "none";
             
-            // 只針對「中、左、右」三張進行位置計算
             if (i === idx) {
-                // 正中間
+                // 正中間：最靠近會員
                 c.style.display = "block";
                 c.style.zIndex = "20";
-                c.style.transform = "translateZ(200px)";
+                c.style.transform = "translateZ(250px)";
             } else if (i === (idx - 1 + total) % total) {
-                // 左側
+                // 左側：拉開距離並稍微傾斜
                 c.style.display = "block";
                 c.style.zIndex = "10";
-                c.style.transform = "translateX(calc(var(--gap) * -1)) rotateY(20deg) translateZ(0px)";
+                c.style.transform = "translateX(calc(var(--gap) * -1)) rotateY(25deg) translateZ(0px)";
             } else if (i === (idx + 1) % total) {
-                // 右側
+                // 右側：拉開距離並稍微傾斜
                 c.style.display = "block";
                 c.style.zIndex = "10";
-                c.style.transform = "translateX(var(--gap)) rotateY(-20deg) translateZ(0px)";
+                c.style.transform = "translateX(var(--gap)) rotateY(-25deg) translateZ(0px)";
             }
         });
     }
@@ -106,7 +107,6 @@
         }
         render();
 
-        // 縮短 Loading 時間，確保快速進入
         setTimeout(() => {
             const ld = document.getElementById('loading');
             if(ld) {
@@ -123,12 +123,12 @@
             const dy = sy - e.changedTouches[0].pageY;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 30) {
+                if (Math.abs(dx) > 35) {
                     idx = dx > 0 ? (idx + 1) % 10 : (idx - 1 + 10) % 10;
                     render();
                 }
             } else {
-                if (dy > 60) {
+                if (dy > 65) {
                     const ac = document.querySelectorAll('.card')[idx];
                     if (ac) {
                         isFlip = true;
