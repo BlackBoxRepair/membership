@@ -14,15 +14,15 @@
             background-color: #000; overflow: hidden; 
         }
 
-        /* 載入動畫層 */
+        /* 載入動畫 */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.5s ease;
         }
         .loader {
-            width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1);
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
             border-top: 3px solid #7d48ff; border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -31,7 +31,7 @@
         /* 背景與舞台 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('game%20desk.png') no-repeat center center;
+            background: url('game desk.png') no-repeat center center;
             background-size: cover; z-index: 1;
         }
         .stage {
@@ -44,21 +44,21 @@
             transform-style: preserve-3d;
         }
 
-        /* 卡牌樣式 */
+        /* 卡牌：核心透明度控制 */
         .card {
             position: absolute; width: 100%; height: 100%;
             left: 0; top: 0; transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0; pointer-events: none;
+            opacity: 0; pointer-events: none; /* 預設全部隱藏 */
         }
         .card-face {
             position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden; border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
-        .card-front { background: url('Taro%20Front.png') no-repeat center center; background-size: 100% 100%; }
+        .card-front { background: url('Taro Front.png') no-repeat center center; background-size: 100% 100%; }
         .card-back { 
-            background: url('Taro%20Back.png') no-repeat center center; 
+            background: url('Taro Back.png') no-repeat center center; 
             background-size: 100% 100%; transform: rotateY(180deg);
             display: flex; align-items: center; justify-content: center; 
         }
@@ -67,6 +67,7 @@
             padding: 0 20px; opacity: 0; margin-top: -15px; 
         }
 
+        /* 翻牌動畫 */
         .card.is-flipped {
             transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important; opacity: 1 !important;
@@ -82,54 +83,40 @@
     </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div class="loader"></div>
-        <p style="color:#7d48ff; margin-top:20px; letter-spacing: 2px;">召喚星運中...</p>
-    </div>
-
-    <div id="mask"><h2>您已參加過活動</h2><p>請前往會員中心查看結果</p></div>
+    <div id="loading-screen"><div class="loader"></div><p style="color:#7d48ff; margin-top:15px;">載入中...</p></div>
+    <div id="mask"><h2>您已參加過活動</h2><p>請回會員中心查看</p></div>
     <div class="game-bg"></div>
-    <div class="stage" id="touchArea">
-        <div class="carousel" id="cardBox"></div>
-    </div>
+    <div class="stage" id="touchArea"><div class="carousel" id="cardBox"></div></div>
 
 <script>
-    const CONFIG = {
+    // 專用配置空間
+    const ST_CONFIG = {
         url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg', // [cite: 67]
         fortunes: ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"]
     };
 
-    let _sb = null;
-    let currIdx = 0, startX = 0, startY = 0, flipped = false;
+    let _st_sb = null;
+    let _st_idx = 0, _st_sx = 0, _st_sy = 0, _st_flip = false;
 
-    // 關閉 Loading 畫面
-    function hideLoading() {
-        const ls = document.getElementById('loading-screen');
-        if (ls) {
-            ls.style.opacity = '0';
-            setTimeout(() => { ls.style.display = 'none'; }, 800);
-        }
-    }
-
-    // 核心渲染：強制鎖死透明度
-    function updateCards() {
+    // 核心渲染：JS 直接控制透明度
+    function updateLayout() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, i) => {
             card.style.opacity = "0";
-            card.style.pointerEvents = "none";
             card.style.zIndex = "1";
+            card.style.pointerEvents = "none";
 
-            if (i === currIdx) {
+            if (i === _st_idx) {
                 card.style.opacity = "1";
                 card.style.zIndex = "20";
                 card.style.transform = "translateZ(200px)";
                 card.style.pointerEvents = "auto";
-            } else if (i === (currIdx - 1 + 10) % 10) {
-                card.style.opacity = "0.4";
+            } else if (i === (_st_idx - 1 + 10) % 10) {
+                card.style.opacity = "0.4"; // 左側低透明度
                 card.style.transform = "translateX(-150px) rotateY(30deg) translateZ(0px)";
-            } else if (i === (currIdx + 1) % 10) {
-                card.style.opacity = "0.4";
+            } else if (i === (_st_idx + 1) % 10) {
+                card.style.opacity = "0.4"; // 右側低透明度
                 card.style.transform = "translateX(150px) rotateY(-30deg) translateZ(0px)";
             } else {
                 card.style.transform = "translateZ(-1000px)";
@@ -137,55 +124,63 @@
         });
     }
 
-    window.onload = async () => {
-        // 1. 生成卡牌
+    // 關閉載入畫面
+    function closeLoader() {
+        const ls = document.getElementById('loading-screen');
+        if (ls) {
+            ls.style.opacity = '0';
+            setTimeout(() => { ls.style.display = 'none'; }, 500);
+        }
+    }
+
+    window.onload = () => {
         const box = document.getElementById('cardBox');
         for (let i = 0; i < 10; i++) {
             const el = document.createElement('div');
             el.className = 'card';
-            el.innerHTML = `<div class="card-face card-front"></div><div class="card-back card-face"><div class="fortune-text">${CONFIG.fortunes[i]}</div></div>`;
+            el.innerHTML = `<div class="card-face card-front"></div><div class="card-back card-face"><div class="fortune-text">${ST_CONFIG.fortunes[i]}</div></div>`;
             box.appendChild(el);
         }
-        updateCards();
+        updateLayout();
 
-        // 2. 初始化資料庫並檢查 (安全模式)
+        // 非同步初始化資料庫
         try {
-            _sb = supabase.createClient(CONFIG.url, CONFIG.key);
-            // 延遲檢查，確保不卡死 Loading
-            const lineId = new URLSearchParams(window.location.search).get('line_id');
-            if (lineId) {
-                const { data: profile } = await _sb.from('profiles').select('id').eq('line_id', lineId).single(); [cite: 1]
-                if (profile) {
-                    const { data: logs } = await _sb.from('cny_logs').select('*').eq('user_id', profile.id).eq('prize_type', 'STAR_EVENT'); [cite: 1]
-                    if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
+            if (typeof supabase !== 'undefined') {
+                _st_sb = supabase.createClient(ST_CONFIG.url, ST_CONFIG.key); [cite: 67]
+                // 檢查是否參與過 [cite: 7, 13]
+                const lid = new URLSearchParams(window.location.search).get('line_id');
+                if (lid) {
+                    _st_sb.from('profiles').select('id').eq('line_id', lid).single().then(({data}) => { [cite: 1, 14]
+                        if (data) _st_sb.from('cny_logs').select('*').eq('user_id', data.id).eq('prize_type', 'STAR_EVENT').then(({data:logs}) => { [cite: 1, 11]
+                            if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
+                        });
+                    });
                 }
             }
-        } catch (e) { console.error("DB init error"); }
+        } catch (e) { console.error("DB Init Error"); }
 
-        // 3. 強制關閉載入畫面 (避免卡死)
-        setTimeout(hideLoading, 500);
-        
-        // 備援方案：如果 3 秒後還在載入中，強制關閉
-        setTimeout(hideLoading, 3000);
+        // 無論如何 1 秒後關閉 Loading [cite: 12]
+        setTimeout(closeLoader, 1000);
 
-        // 4. 事件綁定
+        // 觸控事件
         const area = document.getElementById('touchArea');
-        area.addEventListener('touchstart', e => { startX = e.touches[0].pageX; startY = e.touches[0].pageY; });
+        area.addEventListener('touchstart', e => { _st_sx = e.touches[0].pageX; _st_sy = e.touches[0].pageY; });
         area.addEventListener('touchend', e => {
-            if (flipped) return;
-            const dx = startX - e.changedTouches[0].pageX;
-            const dy = startY - e.changedTouches[0].pageY;
+            if (_st_flip) return;
+            const dx = _st_sx - e.changedTouches[0].pageX;
+            const dy = _st_sy - e.changedTouches[0].pageY;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 35) {
-                    currIdx = dx > 0 ? (currIdx + 1) % 10 : (currIdx - 1 + 10) % 10;
-                    updateCards();
+                if (Math.abs(dx) > 30) {
+                    _st_idx = dx > 0 ? (_st_idx + 1) % 10 : (_st_idx - 1 + 10) % 10;
+                    updateLayout();
                 }
             } else if (dy > 60) {
-                const activeCard = document.querySelectorAll('.card')[currIdx];
-                if (activeCard && !flipped) {
-                    flipped = true;
-                    activeCard.classList.add('is-flipped');
+                const active = document.querySelectorAll('.card')[_st_idx];
+                if (active) {
+                    _st_flip = true;
+                    active.classList.add('is-flipped');
+                    // 呼叫中獎紀錄 [cite: 24, 40, 59]
                 }
             }
         });
