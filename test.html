@@ -9,110 +9,92 @@
         :root { --card-w: 180px; --card-h: 270px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        /* 基礎畫布設定 */
         body, html { 
-            margin: 0; padding: 0; 
-            width: 100vw; height: 100vh; 
-            overflow: hidden; 
-            background-color: #000; 
+            margin: 0; padding: 0; width: 100vw; height: 100vh; 
+            background-color: #000; overflow: hidden; 
         }
 
-        /* 修正：背景圖容器 */
+        /* 網站背景圖 */
         .game-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('game desk.png');
-            background-repeat: no-repeat;
-            background-position: center center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('game desk.png') no-repeat center center;
             background-size: cover;
-            z-index: 1; /* 確保在最底層但高於 body */
+            z-index: 1;
         }
 
-        /* 互動舞台 */
         .stage {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            perspective: 1200px;
-            z-index: 10; /* 確保在背景之上 */
+            position: relative; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            perspective: 1200px; z-index: 10;
         }
 
         .carousel {
-            position: relative;
-            width: var(--card-w);
-            height: var(--card-h);
+            position: relative; width: var(--card-w); height: var(--card-h);
             transform-style: preserve-3d;
         }
 
-        /* 卡牌樣式：移除所有灰框與邊界 */
         .card {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            left: 0;
-            top: 0;
+            position: absolute; width: 100%; height: 100%;
+            left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             opacity: 0; 
-            background: transparent;
+            pointer-events: none;
         }
 
-        /* 扇形排列與強制顯示邏輯 */
-        .card.active { opacity: 1 !important; z-index: 20; transform: translateZ(200px); }
-        .card.prev { opacity: 0.8 !important; z-index: 15; transform: translateX(-150px) rotateY(30deg); }
-        .card.next { opacity: 0.8 !important; z-index: 15; transform: translateX(150px) rotateY(-30deg); }
+        /* --- 視覺重點調整區 --- */
+        
+        /* 正中央卡片：完全不透明，並稍微往前移動 (translateZ) */
+        .card.active { 
+            opacity: 1 !important; 
+            z-index: 20; 
+            transform: translateZ(220px); 
+            pointer-events: auto; 
+        }
+
+        /* 兩側卡片：透明度調低至 0.4，使其變暗/變淡 */
+        .card.prev { 
+            opacity: 0.4 !important; 
+            z-index: 15; 
+            transform: translateX(-150px) rotateY(30deg) translateZ(0px); 
+        }
+
+        .card.next { 
+            opacity: 0.4 !important; 
+            z-index: 15; 
+            transform: translateX(150px) rotateY(-30deg) translateZ(0px); 
+        }
+
+        /* -------------------- */
 
         .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            background-color: transparent;
-            border: none;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            background-color: transparent; border: none;
         }
 
-        /* 抽取前 */
         .card-front {
-            background-image: url('Taro Front.png');
+            background: url('Taro Front.png') no-repeat center center;
             background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
         }
 
-        /* 抽取後 */
         .card-back {
-            background-image: url('Taro Back.png');
+            background: url('Taro Back.png') no-repeat center center;
             background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
             transform: rotateY(180deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .fortune-text {
-            color: #432a0a;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 0 20px;
-            opacity: 0;
-            margin-top: -10px;
+            color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center;
+            padding: 0 20px; opacity: 0; margin-top: -10px;
         }
 
-        /* 翻牌動畫 */
         .card.is-flipped {
-            transform: translateZ(400px) rotateY(180deg) translateY(-120px) !important;
+            transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important;
+            opacity: 1 !important; /* 翻開時強制不透明 */
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
     </style>
@@ -136,33 +118,25 @@
     let startX = 0, startY = 0, isFlipped = false;
     let _supabase = null;
 
-    // 更新顯示狀態
     function update() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, i) => {
-            // 先清除所有狀態
             card.classList.remove('active', 'prev', 'next');
             card.style.opacity = "0";
             card.style.pointerEvents = "none";
             
             if (i === currentIndex) {
                 card.classList.add('active');
-                card.style.opacity = "1";
-                card.style.pointerEvents = "auto";
             } else if (i === (currentIndex - 1 + 10) % 10) {
                 card.classList.add('prev');
-                card.style.opacity = "1";
             } else if (i === (currentIndex + 1) % 10) {
                 card.classList.add('next');
-                card.style.opacity = "1";
             }
         });
     }
 
     window.onload = function() {
         const container = document.getElementById('cardContainer');
-        
-        // 生成 10 張牌
         for (let i = 0; i < 10; i++) {
             const card = document.createElement('div');
             card.className = 'card';
@@ -175,12 +149,11 @@
             container.appendChild(card);
         }
         
-        // 強制立即渲染第一次
-        setTimeout(update, 50);
+        update(); // 立即渲染
 
         try {
             _supabase = supabase.createClient(config.url, config.key);
-        } catch (e) { console.error("Supabase 連線失敗"); }
+        } catch (e) {}
 
         const area = document.getElementById('touchArea');
         area.addEventListener('touchstart', e => {
@@ -211,9 +184,7 @@
         const prize = card.querySelector('.fortune-text').innerText;
         if (_supabase) {
             await _supabase.from('cny_logs').insert([{ 
-                prize_name: prize, 
-                prize_type: 'STAR_EVENT',
-                created_at: new Date().toISOString()
+                prize_name: prize, prize_type: 'STAR_EVENT', created_at: new Date().toISOString()
             }]);
         }
     }
