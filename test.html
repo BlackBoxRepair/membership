@@ -7,18 +7,19 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --card-w: 180px; --card-h: 270px; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; }
         
+        /* 防全黑設定：給定基礎色 */
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background-color: #111; /* 預設深色，避免全黑感 */
+            background-color: #1a1a1a; 
             overflow: hidden; 
         }
 
-        /* 遊戲背景：加入編碼處理空格 */
+        /* 遊戲背景：如果圖片沒出來，至少有深灰色背景 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('game%20desk.jpg') no-repeat center center;
+            background: #1a1a1a url('game desk.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1;
         }
@@ -35,45 +36,47 @@
             transform-style: preserve-3d;
         }
 
+        /* 卡牌樣式：先給灰色背景，確保一定看得到方塊 */
         .card {
             position: absolute; width: 100%; height: 100%;
             left: 0; top: 0;
             transform-style: preserve-3d;
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0; pointer-events: none;
+            transition: all 0.5s ease;
+            opacity: 0;
         }
 
-        /* 狀態控制 */
-        .card.active { opacity: 1; z-index: 10; transform: translateZ(200px); pointer-events: auto; }
+        .card.active { opacity: 1; z-index: 10; transform: translateZ(180px); }
         .card.prev { opacity: 0.8; z-index: 5; transform: translateX(-150px) rotateY(30deg); }
         .card.next { opacity: 0.8; z-index: 5; transform: translateX(150px) rotateY(-30deg); }
 
         .card-face {
             position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #333; /* 圖片出不來時顯示這個顏色 */
+            border: 1px solid #444;
         }
 
+        /* 強制指定圖片路徑 */
         .card-front {
-            background: #222 url('Taro%20Front.jpg') no-repeat center center;
-            background-size: cover;
+            background-image: url('Taro Front.jpg');
+            background-size: cover; background-position: center;
         }
 
         .card-back {
-            background: #222 url('Taro%20Back.jpg') no-repeat center center;
-            background-size: cover;
+            background-image: url('Taro Back.jpg');
+            background-size: cover; background-position: center;
             transform: rotateY(180deg);
             display: flex; align-items: center; justify-content: center;
         }
 
         .fortune-text {
-            color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center;
-            padding: 0 20px; opacity: 0; margin-top: -10px;
+            color: #432a0a; font-size: 1.4rem; font-weight: bold; text-align: center;
+            opacity: 0; pointer-events: none;
         }
 
         .card.is-flipped {
-            transform: translateZ(400px) rotateY(180deg) translateY(-120px) !important;
+            transform: translateZ(350px) rotateY(180deg) translateY(-100px) !important;
             z-index: 100 !important;
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
@@ -82,82 +85,82 @@
 <body>
 
     <div class="game-bg"></div>
-    <div class="stage" id="touchArea">
-        <div class="carousel" id="carousel">
-            </div>
+    <div class="stage" id="mainStage">
+        <div class="carousel" id="cardBox"></div>
     </div>
 
 <script>
-    // 1. 立即執行的配置
+    // 參數設定
     const config = {
         url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
-        fortunes: ["財運大吉", "心想事成", "小星運降臨", "貴人相助", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "萬事如意", "好運相隨"]
+        fortunes: ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"]
     };
 
-    let supabaseClient = null;
     let currentIndex = 0;
     let startX = 0, startY = 0, isFlipped = false;
+    let _sb = null;
 
-    // 2. 安全啟動函式
-    window.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM Loaded, starting init...");
+    // 啟動函式
+    window.onload = function() {
+        console.log("頁面載入成功");
         
-        // 嘗試初始化 Supabase
+        // 1. 先把卡牌做出來 (這步絕對不能失敗)
         try {
-            supabaseClient = supabase.createClient(config.url, config.key);
+            const box = document.getElementById('cardBox');
+            for (let i = 0; i < 10; i++) {
+                const el = document.createElement('div');
+                el.className = 'card';
+                el.innerHTML = `
+                    <div class="card-face card-front"></div>
+                    <div class="card-back card-face"><div class="fortune-text">${config.fortunes[i]}</div></div>
+                `;
+                box.appendChild(el);
+            }
+            update();
+            console.log("卡牌渲染完畢");
+        } catch (err) {
+            console.error("渲染失敗:", err);
+        }
+
+        // 2. 初始化 Supabase (失敗也不影響畫面)
+        try {
+            if (typeof supabase !== 'undefined') {
+                _sb = supabase.createClient(config.url, config.key);
+                console.log("Supabase 已就緒");
+            }
         } catch (e) {
-            console.error("Supabase failed:", e);
+            console.warn("Supabase 沒跑起來，但沒關係");
         }
 
-        renderCards();
-        setupTouch();
-    });
+        bindEvents();
+    };
 
-    function renderCards() {
-        const carousel = document.getElementById('carousel');
-        if (!carousel) return;
-
-        for (let i = 0; i < 10; i++) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="card-face card-front"></div>
-                <div class="card-back card-face">
-                    <div class="fortune-text">${config.fortunes[i]}</div>
-                </div>
-            `;
-            carousel.appendChild(card);
-        }
-        updatePositions();
-    }
-
-    function updatePositions() {
-        const cards = document.querySelectorAll('.card');
-        cards.forEach((card, i) => {
-            card.classList.remove('active', 'prev', 'next');
-            card.style.opacity = "0";
-            
+    function update() {
+        const list = document.querySelectorAll('.card');
+        list.forEach((c, i) => {
+            c.classList.remove('active', 'prev', 'next');
+            c.style.opacity = "0";
             if (i === currentIndex) {
-                card.classList.add('active');
+                c.classList.add('active');
             } else if (i === (currentIndex - 1 + 10) % 10) {
-                card.classList.add('prev');
-                card.style.opacity = "1";
+                c.classList.add('prev');
+                c.style.opacity = "1";
             } else if (i === (currentIndex + 1) % 10) {
-                card.classList.add('next');
-                card.style.opacity = "1";
+                c.classList.add('next');
+                c.style.opacity = "1";
             }
         });
     }
 
-    function setupTouch() {
-        const area = document.getElementById('touchArea');
-        area.addEventListener('touchstart', e => {
+    function bindEvents() {
+        const stage = document.getElementById('mainStage');
+        stage.addEventListener('touchstart', e => {
             startX = e.touches[0].pageX;
             startY = e.touches[0].pageY;
         });
 
-        area.addEventListener('touchend', e => {
+        stage.addEventListener('touchend', e => {
             if (isFlipped) return;
             const dx = startX - e.changedTouches[0].pageX;
             const dy = startY - e.changedTouches[0].pageY;
@@ -165,11 +168,11 @@
             if (Math.abs(dx) > Math.abs(dy)) {
                 if (Math.abs(dx) > 30) {
                     currentIndex = dx > 0 ? (currentIndex + 1) % 10 : (currentIndex - 1 + 10) % 10;
-                    updatePositions();
+                    update();
                 }
-            } else if (dy > 50) {
-                const activeCard = document.querySelector('.card.active');
-                if (activeCard) flip(activeCard);
+            } else if (dy > 60) {
+                const active = document.querySelector('.card.active');
+                if (active) flip(active);
             }
         });
     }
@@ -179,16 +182,12 @@
         card.classList.add('is-flipped');
         const prize = card.querySelector('.fortune-text').innerText;
         
-        console.log("抽到獎項:", prize);
-
-        // 如果 Supabase 可用才寫入
-        if (supabaseClient) {
-            const { error } = await supabaseClient.from('cny_logs').insert([{ 
+        if (_sb) {
+            await _sb.from('cny_logs').insert([{ 
                 prize_name: prize, 
                 prize_type: 'STAR_EVENT',
                 created_at: new Date().toISOString()
             }]);
-            if (error) console.error("Database error:", error);
         }
     }
 </script>
