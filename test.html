@@ -14,7 +14,6 @@
             background-color: #000; overflow: hidden; 
         }
 
-        /* 網站背景圖 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('game desk.png') no-repeat center center;
@@ -42,9 +41,7 @@
             pointer-events: none;
         }
 
-        /* --- 視覺重點調整區 --- */
-        
-        /* 正中央卡片：完全不透明，並稍微往前移動 (translateZ) */
+        /* 中央卡片樣式 */
         .card.active { 
             opacity: 1 !important; 
             z-index: 20; 
@@ -52,7 +49,7 @@
             pointer-events: auto; 
         }
 
-        /* 兩側卡片：透明度調低至 0.4，使其變暗/變淡 */
+        /* 兩側卡片樣式 */
         .card.prev { 
             opacity: 0.4 !important; 
             z-index: 15; 
@@ -64,8 +61,6 @@
             z-index: 15; 
             transform: translateX(150px) rotateY(-30deg) translateZ(0px); 
         }
-
-        /* -------------------- */
 
         .card-face {
             position: absolute; width: 100%; height: 100%;
@@ -94,7 +89,7 @@
         .card.is-flipped {
             transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important;
-            opacity: 1 !important; /* 翻開時強制不透明 */
+            opacity: 1 !important;
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
     </style>
@@ -118,19 +113,24 @@
     let startX = 0, startY = 0, isFlipped = false;
     let _supabase = null;
 
+    // 核心修正：確保所有卡牌在每次 update 時都有明確的透明度設定
     function update() {
         const cards = document.querySelectorAll('.card');
+        const total = cards.length;
+
         cards.forEach((card, i) => {
+            // 1. 先清除所有自定義狀態
             card.classList.remove('active', 'prev', 'next');
-            card.style.opacity = "0";
+            card.style.opacity = "0"; // 非顯示範圍的卡牌完全隱藏
             card.style.pointerEvents = "none";
-            
+
+            // 2. 判斷是否為「中央、左側、右側」
             if (i === currentIndex) {
-                card.classList.add('active');
-            } else if (i === (currentIndex - 1 + 10) % 10) {
-                card.classList.add('prev');
-            } else if (i === (currentIndex + 1) % 10) {
-                card.classList.add('next');
+                card.classList.add('active'); // CSS 會給予 opacity: 1
+            } else if (i === (currentIndex - 1 + total) % total) {
+                card.classList.add('prev');   // CSS 會給予 opacity: 0.4
+            } else if (i === (currentIndex + 1) % total) {
+                card.classList.add('next');   // CSS 會給予 opacity: 0.4
             }
         });
     }
@@ -149,7 +149,7 @@
             container.appendChild(card);
         }
         
-        update(); // 立即渲染
+        update(); 
 
         try {
             _supabase = supabase.createClient(config.url, config.key);
