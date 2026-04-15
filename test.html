@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>小星運 - 黑盒子手機維修</title>
     <style>
-        :root { --w: 180px; --h: 270px; }
+        :root { 
+            --w: 180px; 
+            --h: 270px; 
+            /* 調整這個數值可以改變卡牌之間的左右間距 */
+            --gap: 200px; 
+        }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; }
         
         /* 1. 下載動畫 */
         #loading {
             position: fixed; inset: 0; background: #000; z-index: 999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease;
         }
-        .lds-ring { display: inline-block; width: 40px; height: 40px; border: 4px solid #fff; border-color: #fff transparent #fff transparent; border-radius: 50%; animation: spin 1.2s linear infinite; }
+        .lds-ring { display: inline-block; width: 40px; height: 40px; border: 4px solid #fff; border-color: #fff transparent #fff transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 2. 遊戲場景 */
@@ -22,35 +27,35 @@
         .stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1200px; z-index: 10; }
         .carousel { position: relative; width: var(--w); height: var(--h); transform-style: preserve-3d; }
         
-        /* 3. 卡牌樣式 */
-        .card { position: absolute; inset: 0; transform-style: preserve-3d; transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; pointer-events: none; }
+        /* 3. 卡牌樣式：移除透明度設定，預設為不顯示 */
+        .card { 
+            position: absolute; inset: 0; 
+            transform-style: preserve-3d; 
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+            display: none; /* 非目前的卡牌直接不渲染 */
+        }
+        
         .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
-        /* 抽取前：Taro Front.png */
         .card-front { background: url('Taro Front.png') center/100% 100% no-repeat; }
-        
-        /* 抽取後：Taro Back.png */
         .card-back { background: url('Taro Back.png') center/100% 100% no-repeat; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
-        
-        /* 運勢文字 */
         .fortune { color: #432a0a; font-size: 1.6rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -15px; }
 
         /* 翻牌動畫 */
-        .card.is-flipped { transform: translateZ(400px) rotateY(180deg) translateY(-100px) !important; z-index: 100 !important; opacity: 1 !important; }
+        .card.is-flipped { transform: translateZ(400px) rotateY(180deg) translateY(-100px) !important; z-index: 100 !important; display: block !important; }
         .card.is-flipped .fortune { opacity: 1; transition: 0.5s 0.3s; }
 
-        .hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.6); font-size: 0.8rem; z-index: 20; }
+        .hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; z-index: 20; text-shadow: 0 2px 4px #000; }
     </style>
 </head>
 <body>
 
     <div id="loading">
         <div class="lds-ring"></div>
-        <p style="color:white; margin-top:15px; font-size:14px; letter-spacing:1px;">載入星運中...</p>
+        <p style="color:white; margin-top:15px;">載入中...</p>
     </div>
 
     <div class="game-bg"></div>
-    <div class="hint">左右滑動切換，向上滑動選定</div>
+    <div class="hint">左右滑動切換卡牌 ・ 向上滑動翻牌</div>
     <div class="stage" id="main">
         <div class="carousel" id="box"></div>
     </div>
@@ -59,27 +64,34 @@
     const FORTUNES = ["財運大吉", "心想事成", "萬事如意", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "福氣滿門", "貴人相助", "吉星高照"];
     let idx = 0, sx = 0, sy = 0, isFlip = false;
 
-    // 強制用 JS 直接鎖定每一張牌的透明度
     function render() {
         const cards = document.querySelectorAll('.card');
+        const total = cards.length;
+        
         cards.forEach((c, i) => {
-            let css = "opacity: 0; pointer-events: none; z-index: 1; transform: translateZ(-1000px);"; 
+            // 先全部隱藏
+            c.style.display = "none";
             
+            // 只針對「中、左、右」三張進行位置計算
             if (i === idx) {
-                // 正中間：完全不透明 (1.0)
-                css = "opacity: 1; pointer-events: auto; z-index: 20; transform: translateZ(200px);";
-            } else if (i === (idx - 1 + 10) % 10) {
-                // 左側：低透明度 (0.4)
-                css = "opacity: 0.4; z-index: 10; transform: translateX(-150px) rotateY(30deg) translateZ(0px);";
-            } else if (i === (idx + 1) % 10) {
-                // 右側：低透明度 (0.4)
-                css = "opacity: 0.4; z-index: 10; transform: translateX(150px) rotateY(-30deg) translateZ(0px);";
+                // 正中間
+                c.style.display = "block";
+                c.style.zIndex = "20";
+                c.style.transform = "translateZ(200px)";
+            } else if (i === (idx - 1 + total) % total) {
+                // 左側
+                c.style.display = "block";
+                c.style.zIndex = "10";
+                c.style.transform = "translateX(calc(var(--gap) * -1)) rotateY(20deg) translateZ(0px)";
+            } else if (i === (idx + 1) % total) {
+                // 右側
+                c.style.display = "block";
+                c.style.zIndex = "10";
+                c.style.transform = "translateX(var(--gap)) rotateY(-20deg) translateZ(0px)";
             }
-            c.style.cssText = css;
         });
     }
 
-    // 初始化與事件
     window.onload = () => {
         const b = document.getElementById('box');
         for (let i = 0; i < 10; i++) {
@@ -94,14 +106,14 @@
         }
         render();
 
-        // 確保畫面渲染好後才關閉 Loading (延遲 1 秒)
+        // 縮短 Loading 時間，確保快速進入
         setTimeout(() => {
             const ld = document.getElementById('loading');
             if(ld) {
                 ld.style.opacity = '0';
-                setTimeout(() => ld.remove(), 500);
+                setTimeout(() => ld.remove(), 400);
             }
-        }, 1000);
+        }, 800);
 
         const m = document.getElementById('main');
         m.ontouchstart = e => { sx = e.touches[0].pageX; sy = e.touches[0].pageY; };
@@ -111,13 +123,11 @@
             const dy = sy - e.changedTouches[0].pageY;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                // 左右滑動切換
                 if (Math.abs(dx) > 30) {
                     idx = dx > 0 ? (idx + 1) % 10 : (idx - 1 + 10) % 10;
                     render();
                 }
             } else {
-                // 向上滑動翻牌
                 if (dy > 60) {
                     const ac = document.querySelectorAll('.card')[idx];
                     if (ac) {
