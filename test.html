@@ -14,7 +14,6 @@
             background-color: #000; overflow: hidden; 
         }
 
-        /* 網站背景 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: url('game%20desk.png') no-repeat center center;
@@ -38,7 +37,7 @@
             left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0;
+            opacity: 0; /* 預設全部隱藏 */
             pointer-events: none;
         }
 
@@ -88,10 +87,9 @@
     </div>
 
 <script>
-    // 統一配置，避免變數衝突 [cite: 67]
     const STAR_CONFIG = {
         url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg', // [cite: 67]
         fortunes: ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"]
     };
 
@@ -101,50 +99,42 @@
     let star_startY = 0;
     let star_isFlipped = false;
 
-    // 強制更新所有卡牌透明度與位置
     function updateStarCards() {
         const cards = document.querySelectorAll('.card');
         const total = cards.length;
         if (total === 0) return;
 
         cards.forEach((card, i) => {
+            // 一率初始化為不可見與低層級
             card.style.opacity = "0";
             card.style.zIndex = "1";
             card.style.pointerEvents = "none";
 
             if (i === star_currentIndex) {
+                // 正中間：100% 透明度
                 card.style.opacity = "1";
                 card.style.zIndex = "20";
                 card.style.transform = "translateZ(200px)";
                 card.style.pointerEvents = "auto";
             } else if (i === (star_currentIndex - 1 + total) % total) {
+                // 左側：40% 透明度
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(-150px) rotateY(30deg) translateZ(0px)";
             } else if (i === (star_currentIndex + 1) % total) {
+                // 右側：40% 透明度
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(150px) rotateY(-30deg) translateZ(0px)";
             } else {
+                // 遠離視線避免干擾
                 card.style.transform = "translateZ(-1000px)";
             }
         });
     }
 
-    async function checkAuthStatus() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const lineId = urlParams.get('line_id') || "USER_LINE_ID"; 
-
-        try {
-            const { data: profile } = await star_supabase.from('profiles').select('id').eq('line_id', lineId).single(); [cite: 1]
-            if (profile) {
-                const { data: logs } = await star_supabase.from('cny_logs').select('*').eq('user_id', profile.id).eq('prize_type', 'STAR_EVENT'); [cite: 1]
-                if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
-            }
-        } catch (e) { console.warn("Check failed"); }
-    }
-
-    window.addEventListener('load', () => {
+    // 確保頁面資源（包括 SDK）載入完畢
+    window.onload = function() {
         const box = document.getElementById('cardBox');
         for (let i = 0; i < 10; i++) {
             const el = document.createElement('div');
@@ -156,13 +146,14 @@
                 </div>`;
             box.appendChild(el);
         }
-        
-        try {
-            star_supabase = supabase.createClient(STAR_CONFIG.url, STAR_CONFIG.key); [cite: 67]
-            checkAuthStatus();
-        } catch (e) { console.error("Supabase init error"); }
 
-        setTimeout(updateStarCards, 100); 
+        // 初始化 Supabase [cite: 67]
+        if (typeof supabase !== 'undefined') {
+            star_supabase = supabase.createClient(STAR_CONFIG.url, STAR_CONFIG.key);
+        }
+
+        // 立即顯示第一張卡牌
+        updateStarCards();
 
         const area = document.getElementById('touchArea');
         area.addEventListener('touchstart', e => { 
@@ -181,15 +172,15 @@
                     updateStarCards();
                 }
             } else if (dy > 60) {
-                const cards = document.querySelectorAll('.card');
-                if (cards[star_currentIndex]) {
+                const activeCard = document.querySelectorAll('.card')[star_currentIndex];
+                if (activeCard && !star_isFlipped) {
                     star_isFlipped = true;
-                    cards[star_currentIndex].classList.add('is-flipped');
-                    // 抽獎紀錄邏輯... [cite: 24, 60]
+                    activeCard.classList.add('is-flipped');
+                    // 這裡可以呼叫後端 Function 寫入紀錄 [cite: 24, 59]
                 }
             }
         });
-    });
+    };
 </script>
 </body>
 </html>
