@@ -14,26 +14,19 @@
             background-color: #000; overflow: hidden; 
         }
 
-        /* --- 新增：載入動畫樣式 --- */
+        /* 載入動畫 */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
+            transition: opacity 0.6s ease;
         }
         .loader {
-            width: 50px; height: 50px; border: 3px solid transparent;
-            border-top: 3px solid #7d48ff; border-radius: 50%;
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #fff; border-radius: 50%;
             animation: spin 1s linear infinite;
-            box-shadow: 0 0 15px rgba(125, 72, 255, 0.5);
-        }
-        .loading-text {
-            color: #7d48ff; margin-top: 20px; font-size: 0.9rem;
-            letter-spacing: 2px; animation: pulse 1.5s infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        /* ----------------------- */
 
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -56,13 +49,14 @@
             position: absolute; width: 100%; height: 100%;
             left: 0; top: 0; transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0; pointer-events: none;
+            opacity: 0; /* 預設完全隱藏 */
+            pointer-events: none;
         }
 
         .card-face {
             position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden; border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
         .card-front { background: url('Taro%20Front.png') no-repeat center center; background-size: 100% 100%; }
@@ -77,33 +71,29 @@
             padding: 0 20px; opacity: 0; margin-top: -15px; 
         }
 
+        /* 翻牌動畫：僅針對 active 的那張 */
         .card.is-flipped {
             transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important; opacity: 1 !important;
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
-
-        #mask { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.85); z-index: 1000; 
-            display: none; color: white; flex-direction: column; 
-            align-items: center; justify-content: center; 
-        }
     </style>
 </head>
 <body>
+
     <div id="loading-screen">
         <div class="loader"></div>
-        <div class="loading-text">黑盒子「小星運」整備中...</div>
+        <p style="color:white; margin-top:20px;">載入中...</p>
     </div>
 
-    <div id="mask"><h2>您已參加過活動</h2></div>
     <div class="game-bg"></div>
+
     <div class="stage" id="touchArea">
-        <div class="carousel" id="cardBox"></div>
+        <div class="carousel" id="cardContainer"></div>
     </div>
 
 <script>
+    // 配置資訊 [cite: 67]
     const STAR_CONFIG = {
         url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
         key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
@@ -113,37 +103,44 @@
     let star_supabase = null;
     let star_currentIndex = 0, star_startX = 0, star_startY = 0, star_isFlipped = false;
 
+    // 核心邏輯：用 JS 強制命令每一張牌的透明度
     function updateStarCards() {
         const cards = document.querySelectorAll('.card');
         const total = cards.length;
         if (total === 0) return;
 
         cards.forEach((card, i) => {
+            // 預設全隱藏且移到遠處
             card.style.opacity = "0";
             card.style.zIndex = "1";
             card.style.pointerEvents = "none";
+            card.style.transform = "translateZ(-1000px)";
 
             if (i === star_currentIndex) {
+                // 中間：亮 100% [cite: 10, 11]
                 card.style.opacity = "1";
                 card.style.zIndex = "20";
                 card.style.transform = "translateZ(200px)";
                 card.style.pointerEvents = "auto";
+                card.className = "card active"; // 標記為 active 方便翻牌判斷
             } else if (i === (star_currentIndex - 1 + total) % total) {
+                // 左側：暗 40% [cite: 10, 11]
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(-150px) rotateY(30deg) translateZ(0px)";
+                card.className = "card prev";
             } else if (i === (star_currentIndex + 1) % total) {
+                // 右側：暗 40% [cite: 10, 11]
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(150px) rotateY(-30deg) translateZ(0px)";
-            } else {
-                card.style.transform = "translateZ(-1000px)";
+                card.className = "card next";
             }
         });
     }
 
     window.onload = function() {
-        const box = document.getElementById('cardBox');
+        const container = document.getElementById('cardContainer');
         for (let i = 0; i < 10; i++) {
             const el = document.createElement('div');
             el.className = 'card';
@@ -152,21 +149,22 @@
                 <div class="card-back card-face">
                     <div class="fortune-text">${STAR_CONFIG.fortunes[i]}</div>
                 </div>`;
-            box.appendChild(el);
+            container.appendChild(el);
         }
 
         if (typeof supabase !== 'undefined') {
-            star_supabase = supabase.createClient(STAR_CONFIG.url, STAR_CONFIG.key);
+            star_supabase = supabase.createClient(STAR_CONFIG.url, STAR_CONFIG.key); [cite: 67]
         }
 
+        // 強制渲染第一次
         updateStarCards();
 
-        // 所有資源整備好後，延遲 0.5 秒淡出載入畫面，讓動畫更順暢
+        // 延遲關閉 Loading 畫面，確保背景圖片完全展開
         setTimeout(() => {
-            const ls = document.getElementById('loading-screen');
-            ls.style.opacity = '0';
-            setTimeout(() => { ls.style.display = 'none'; }, 800);
-        }, 500);
+            const loader = document.getElementById('loading-screen');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 600);
+        }, 800);
 
         const area = document.getElementById('touchArea');
         area.addEventListener('touchstart', e => { 
@@ -185,11 +183,10 @@
                     updateStarCards();
                 }
             } else if (dy > 60) {
-                const activeCard = document.querySelectorAll('.card')[star_currentIndex];
-                if (activeCard && !star_isFlipped) {
+                const activeCard = document.querySelector('.card.active');
+                if (activeCard) {
                     star_isFlipped = true;
                     activeCard.classList.add('is-flipped');
-                    // 這裡可以呼叫後端 Function 寫入紀錄 [cite: 59, 63]
                 }
             }
         });
