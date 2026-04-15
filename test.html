@@ -8,12 +8,10 @@
         :root { 
             --w: 220px; 
             --h: 330px; 
-            /* 調整這個數值可以改變卡牌之間的左右間距 */
             --gap: 240px; 
         }
         body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; }
         
-        /* 載入動畫 */
         #loading {
             position: fixed; inset: 0; background: #000; z-index: 999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -22,12 +20,22 @@
         .lds-ring { display: inline-block; width: 40px; height: 40px; border: 4px solid #fff; border-color: #fff transparent #fff transparent; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 遊戲場景 */
         .game-bg { position: fixed; inset: 0; background: url('game desk.png') center/cover; z-index: 1; }
-        .stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; perspective: 1200px; z-index: 10; }
+        
+        /* 舞台：使用 Flex 並確保垂直水平皆居中 */
+        .stage { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            perspective: 1200px; 
+            z-index: 10; 
+        }
+        
         .carousel { position: relative; width: var(--w); height: var(--h); transform-style: preserve-3d; }
         
-        /* 卡牌樣式 */
         .card { 
             position: absolute; inset: 0; 
             transform-style: preserve-3d; 
@@ -40,14 +48,14 @@
         .card-back { background: url('Taro Back.png') center/100% 100% no-repeat; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
         .fortune { color: #432a0a; font-size: 1.8rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -15px; }
 
-        /* --- 核心修正區：翻牌動畫垂直置中 --- */
+        /* --- 核心修正區：移除 translateY 偏移，達成 X 與 Y 軸絕對置中 --- */
         .card.is-flipped { 
-            /* 微調垂直位移，確保大尺寸卡牌也能置中呈現 */
-            transform: translateZ(500px) rotateY(180deg) translateY(-50px) !important; 
+            /* 將 translateY 設為 0，並增加 translateZ 讓卡牌放大靠近 */
+            transform: translateZ(500px) rotateY(180deg) translateY(0) !important; 
             z-index: 100 !important; 
             display: block !important; 
         }
-        /* ---------------------------------- */
+        /* --------------------------------------------------------- */
 
         .card.is-flipped .fortune { opacity: 1; transition: 0.5s 0.3s; }
 
@@ -58,11 +66,11 @@
 
     <div id="loading">
         <div class="lds-ring"></div>
-        <p style="color:white; margin-top:15px; font-weight: bold;">召喚星運中...</p>
+        <p style="color:white; margin-top:15px; font-weight: bold;">正在載入星運...</p>
     </div>
 
     <div class="game-bg"></div>
-    <div class="hint">左右滑動挑選，向上滑動開啟卡牌</div>
+    <div class="hint">左右滑動切換，向上滑動選定</div>
     <div class="stage" id="main">
         <div class="carousel" id="box"></div>
     </div>
@@ -79,17 +87,17 @@
             c.style.display = "none";
             
             if (i === idx) {
-                // 正中間：最靠近會員
+                // 正中間
                 c.style.display = "block";
                 c.style.zIndex = "20";
                 c.style.transform = "translateZ(250px)";
             } else if (i === (idx - 1 + total) % total) {
-                // 左側：拉開距離並稍微傾斜
+                // 左側
                 c.style.display = "block";
                 c.style.zIndex = "10";
                 c.style.transform = "translateX(calc(var(--gap) * -1)) rotateY(25deg) translateZ(0px)";
             } else if (i === (idx + 1) % total) {
-                // 右側：拉開距離並稍微傾斜
+                // 右側
                 c.style.display = "block";
                 c.style.zIndex = "10";
                 c.style.transform = "translateX(var(--gap)) rotateY(-25deg) translateZ(0px)";
@@ -132,6 +140,7 @@
                     render();
                 }
             } else {
+                // 向上滑動觸發翻牌
                 if (dy > 65) {
                     const ac = document.querySelectorAll('.card')[idx];
                     if (ac) {
