@@ -7,27 +7,28 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --card-w: 180px;
-            --card-h: 270px;
+            --card-w: 200px;
+            --card-h: 300px;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background: #000; /* 防止背景閃爍 */
+            background-color: #000;
         }
 
         /* 遊戲背景層 */
         .game-bg {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
+            /* 確保檔名與上傳檔案完全一致 */
             background: url('game desk.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1;
         }
 
-        /* 舞台容器，限制只能看到中間區域 */
+        /* 舞台容器 */
         .stage {
             width: 100%;
             height: 100vh;
@@ -35,7 +36,7 @@
             align-items: center;
             justify-content: center;
             perspective: 1200px;
-            overflow: hidden; /* 隱藏超出邊界的卡牌 */
+            overflow: hidden;
         }
 
         .carousel {
@@ -43,41 +44,41 @@
             width: var(--card-w);
             height: var(--card-h);
             transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
-        /* 卡牌樣式 */
+        /* 卡牌基礎樣式 */
         .card {
             position: absolute;
             width: var(--card-w);
             height: var(--card-h);
             left: 0; top: 0;
             transform-style: preserve-3d;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
             opacity: 0;
             pointer-events: none;
+            display: block !important; /* 強制顯示 */
         }
 
-        /* 中間那張牌 */
+        /* 中間：完整呈現並放大 */
         .card.active {
             opacity: 1;
             z-index: 10;
-            transform: translateZ(150px) translateY(-20px);
+            transform: translateZ(200px);
             pointer-events: auto;
         }
 
-        /* 左邊那張（露出約 1/3） */
+        /* 左邊：露出約 1/3，傾斜 35 度 */
         .card.prev {
             opacity: 0.8;
             z-index: 5;
-            transform: translateX(-140px) translateZ(-100px) rotateY(35deg);
+            transform: translateX(-160px) translateZ(0px) rotateY(35deg);
         }
 
-        /* 右邊那張（露出約 1/3） */
+        /* 右邊：露出約 1/3，傾斜 -35 度 */
         .card.next {
             opacity: 0.8;
             z-index: 5;
-            transform: translateX(140px) translateZ(-100px) rotateY(-35deg);
+            transform: translateX(160px) translateZ(0px) rotateY(-35deg);
         }
 
         .card-face {
@@ -85,45 +86,43 @@
             width: 100%; height: 100%;
             backface-visibility: hidden;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            border: 2px solid rgba(255, 215, 0, 0.3); /* 淡淡的金邊感 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        /* 直接使用你的檔名，請確保圖片在同目錄 */
         .card-front {
-            background: url('Taro Front.jpg') no-repeat center center;
+            background-image: url('Taro Front.jpg');
             background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .card-back {
-            background: url('Taro Back.jpg') no-repeat center center;
+            background-image: url('Taro Back.jpg');
             background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             transform: rotateY(180deg);
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 運勢文字 */
+        /* 運勢文字：定位在黃框位置 */
         .fortune-text {
-            color: #3e2723;
-            font-size: 1.4rem; font-weight: bold; text-align: center;
+            color: #432a0a;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-align: center;
             padding: 0 20px;
-            margin-top: -10px; /* 根據黃色框框位置微調 */
+            margin-top: -15px;
             opacity: 0;
         }
 
-        /* 向上滑動翻牌動畫 */
+        /* 向上滑動翻開效果 */
         .card.is-flipped {
-            transform: translateZ(300px) rotateY(180deg) translateY(-120px) !important;
+            transform: translateZ(400px) rotateY(180deg) translateY(-150px) !important;
             z-index: 100 !important;
         }
-        .card.is-flipped .fortune-text { opacity: 1; transition: 0.6s 0.4s; }
+        .card.is-flipped .fortune-text { opacity: 1; transition: 0.6s 0.3s; }
 
-        /* 滑動提示 */
-        .hint {
-            position: absolute; bottom: 10%; color: #fff; font-size: 0.9rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            letter-spacing: 1px;
-        }
     </style>
 </head>
 <body>
@@ -131,15 +130,16 @@
 <div class="game-bg"></div>
 
 <div class="stage" id="touchArea">
-    <div class="carousel" id="carousel"></div>
-    <div class="hint">← 左右滑動切換卡牌，向上滑動開啟好運 →</div>
+    <div class="carousel" id="carousel">
+        </div>
 </div>
 
 <script>
-    // 配置 Supabase (請填入你的 Anon Key)
-    const _supabase = supabase.createClient('https://nszwpwimtwxvjguolzwt.supabase.co', 'YOUR_ANON_KEY');
+    // 請填入你的 Supabase Anon Key
+    const ANON_KEY = 'YOUR_ANON_KEY';
+    const _supabase = supabase.createClient('https://nszwpwimtwxvjguolzwt.supabase.co', ANON_KEY);
 
-    const fortunes = ["財運亨通", "心想事成", "萬事順利", "驚喜連連", "美夢成真", "元氣滿滿", "好運相隨", "步步高升", "福氣滿門", "貴人相助"];
+    const fortunes = ["財運亨通", "心想事成", "小星運降臨", "貴人相助", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "萬事如意", "好運相隨"];
     let currentIndex = 0;
     let startX = 0;
     let startY = 0;
@@ -154,7 +154,7 @@
             card.innerHTML = `
                 <div class="card-face card-front"></div>
                 <div class="card-back card-face">
-                    <div class="fortune-text">${fortunes[i % fortunes.length]}</div>
+                    <div class="fortune-text">${fortunes[i]}</div>
                 </div>
             `;
             carousel.appendChild(card);
@@ -175,72 +175,54 @@
                 card.classList.add('next');
             } else {
                 card.style.opacity = "0";
-                card.style.transform = "translateZ(-500px)";
+                card.style.transform = "translateZ(-1000px)"; // 移到極遠處隱藏
             }
         });
     }
 
-    // 觸控交互邏輯
     const touchArea = document.getElementById('touchArea');
     touchArea.addEventListener('touchstart', e => {
         startX = e.touches[0].pageX;
         startY = e.touches[0].pageY;
-    }, {passive: true});
+    });
 
     touchArea.addEventListener('touchend', e => {
         if (isFlipped) return;
         const endX = e.changedTouches[0].pageX;
         const endY = e.changedTouches[0].pageY;
-        const diffX = startX - endX;
-        const diffY = startY - endY;
+        const dx = startX - endX;
+        const dy = startY - endY;
 
-        // 判斷滑動方向
-        if (Math.abs(diffX) > Math.abs(diffY)) {
-            // 左右滑動
-            if (Math.abs(diffX) > 40) {
-                if (diffX > 0) {
-                    currentIndex = (currentIndex + 1) % totalCards;
-                } else {
-                    currentIndex = (currentIndex - 1 + totalCards) % totalCards;
-                }
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // 左右滑動切換
+            if (Math.abs(dx) > 30) {
+                currentIndex = (dx > 0) ? (currentIndex + 1) % totalCards : (currentIndex - 1 + totalCards) % totalCards;
                 updateCardPositions();
             }
         } else {
-            // 向上滑動：翻開中間那張牌
-            if (diffY > 60) {
+            // 向上滑動抽獎
+            if (dy > 50) {
                 const activeCard = document.querySelector('.card.active');
-                if (activeCard) handleFlip(activeCard);
+                if (activeCard) flipCard(activeCard);
             }
         }
-    }, {passive: true});
+    });
 
-    async function handleFlip(card) {
+    async function flipCard(card) {
         isFlipped = true;
         card.classList.add('is-flipped');
         
-        const resultText = card.querySelector('.fortune-text').innerText;
+        const result = card.querySelector('.fortune-text').innerText;
         
-        // 寫入 Supabase 紀錄
-        // 注意：這裡假設你已經有 line_id 的邏輯，這裡先用 mock 代替
-        const mockLineId = 'user_line_id_here'; 
-        const { error } = await _supabase.from('cny_logs').insert([
-            { 
-                prize_name: resultText, 
-                prize_type: 'STAR_EVENT',
-                created_at: new Date().toISOString()
-            }
-        ]);
-        
-        if(error) console.log('Database error:', error);
+        // 寫入資料庫
+        await _supabase.from('cny_logs').insert([{ 
+            prize_name: result, 
+            prize_type: 'STAR_EVENT',
+            created_at: new Date().toISOString()
+        }]);
     }
 
-    // 啟動邏輯
-    async function init() {
-        // 你可以加入檢查是否參與過的邏輯 checkUser();
-        renderCards();
-    }
-
-    init();
+    renderCards();
 </script>
 </body>
 </html>
