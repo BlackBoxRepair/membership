@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小星運 - 黑盒子</title>
+    <title>小星運 - 黑盒子手機維修中心</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --card-w: 180px;
-            --card-h: 270px;
+        :root { --card-w: 180px; --card-h: 270px; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: #111; /* 預設深色，避免全黑感 */
+            overflow: hidden; 
         }
 
-        body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #1a1a1a; /* 預設深色背景防止全黑 */
-        }
-
-        /* 遊戲背景 */
+        /* 遊戲背景：加入編碼處理空格 */
         .game-bg {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('game desk.jpg') no-repeat center center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('game%20desk.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1;
         }
@@ -28,48 +26,42 @@
         .stage {
             width: 100%; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            perspective: 1000px;
-            position: relative;
+            perspective: 1200px;
         }
 
         .carousel {
             position: relative;
-            width: var(--card-w);
-            height: var(--card-h);
+            width: var(--card-w); height: var(--card-h);
             transform-style: preserve-3d;
         }
 
         .card {
-            position: absolute;
-            width: var(--card-w); height: var(--card-h);
+            position: absolute; width: 100%; height: 100%;
             left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0; pointer-events: none;
         }
 
-        /* 顯示邏輯 */
-        .card.active { opacity: 1; z-index: 10; transform: translateZ(180px); pointer-events: auto; }
-        .card.prev { opacity: 0.8; z-index: 5; transform: translateX(-150px) rotateY(35deg) translateZ(0px); }
-        .card.next { opacity: 0.8; z-index: 5; transform: translateX(150px) rotateY(-35deg) translateZ(0px); }
+        /* 狀態控制 */
+        .card.active { opacity: 1; z-index: 10; transform: translateZ(200px); pointer-events: auto; }
+        .card.prev { opacity: 0.8; z-index: 5; transform: translateX(-150px) rotateY(30deg); }
+        .card.next { opacity: 0.8; z-index: 5; transform: translateX(150px) rotateY(-30deg); }
 
         .card-face {
-            position: absolute;
-            width: 100%; height: 100%;
-            backface-visibility: hidden;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
-            background-color: #333; /* 圖片沒出來時顯示灰色 */
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .card-front {
-            background: url('Taro Front.jpg') no-repeat center center;
+            background: #222 url('Taro%20Front.jpg') no-repeat center center;
             background-size: cover;
         }
 
         .card-back {
-            background: url('Taro Back.jpg') no-repeat center center;
+            background: #222 url('Taro%20Back.jpg') no-repeat center center;
             background-size: cover;
             transform: rotateY(180deg);
             display: flex; align-items: center; justify-content: center;
@@ -77,62 +69,75 @@
 
         .fortune-text {
             color: #432a0a; font-size: 1.5rem; font-weight: bold; text-align: center;
-            padding: 0 20px; opacity: 0;
+            padding: 0 20px; opacity: 0; margin-top: -10px;
         }
 
         .card.is-flipped {
-            transform: translateZ(350px) rotateY(180deg) translateY(-100px) !important;
+            transform: translateZ(400px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important;
         }
         .card.is-flipped .fortune-text { opacity: 1; transition: 0.5s 0.3s; }
-
-        .hint {
-            position: absolute; bottom: 8%; color: rgba(255,255,255,0.7);
-            font-size: 0.8rem; text-align: center; width: 100%;
-        }
     </style>
 </head>
 <body>
 
-<div class="game-bg"></div>
-<div class="stage" id="touchArea">
-    <div class="carousel" id="carousel"></div>
-    <div class="hint">左右滑動切換卡牌，向上滑動翻開</div>
-</div>
+    <div class="game-bg"></div>
+    <div class="stage" id="touchArea">
+        <div class="carousel" id="carousel">
+            </div>
+    </div>
 
 <script>
-    // ⚠️ 請務必填入你的 ANON KEY
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg";
-    const _supabase = supabase.createClient('https://nszwpwimtwxvjguolzwt.supabase.co', SUPABASE_KEY);
+    // 1. 立即執行的配置
+    const config = {
+        url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
+        fortunes: ["財運大吉", "心想事成", "小星運降臨", "貴人相助", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "萬事如意", "好運相隨"]
+    };
 
-    const fortunes = ["財運亨通", "心想事成", "小星運降臨", "貴人相助", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "萬事如意", "好運相隨"];
+    let supabaseClient = null;
     let currentIndex = 0;
     let startX = 0, startY = 0, isFlipped = false;
 
-    function init() {
+    // 2. 安全啟動函式
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log("DOM Loaded, starting init...");
+        
+        // 嘗試初始化 Supabase
+        try {
+            supabaseClient = supabase.createClient(config.url, config.key);
+        } catch (e) {
+            console.error("Supabase failed:", e);
+        }
+
+        renderCards();
+        setupTouch();
+    });
+
+    function renderCards() {
         const carousel = document.getElementById('carousel');
         if (!carousel) return;
-        
+
         for (let i = 0; i < 10; i++) {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
                 <div class="card-face card-front"></div>
                 <div class="card-back card-face">
-                    <div class="fortune-text">${fortunes[i]}</div>
+                    <div class="fortune-text">${config.fortunes[i]}</div>
                 </div>
             `;
             carousel.appendChild(card);
         }
-        update();
-        setupTouch();
+        updatePositions();
     }
 
-    function update() {
+    function updatePositions() {
         const cards = document.querySelectorAll('.card');
         cards.forEach((card, i) => {
             card.classList.remove('active', 'prev', 'next');
             card.style.opacity = "0";
+            
             if (i === currentIndex) {
                 card.classList.add('active');
             } else if (i === (currentIndex - 1 + 10) % 10) {
@@ -158,13 +163,13 @@
             const dy = startY - e.changedTouches[0].pageY;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 40) {
+                if (Math.abs(dx) > 30) {
                     currentIndex = dx > 0 ? (currentIndex + 1) % 10 : (currentIndex - 1 + 10) % 10;
-                    update();
+                    updatePositions();
                 }
-            } else if (dy > 60) {
-                const active = document.querySelector('.card.active');
-                if (active) flip(active);
+            } else if (dy > 50) {
+                const activeCard = document.querySelector('.card.active');
+                if (activeCard) flip(activeCard);
             }
         });
     }
@@ -173,12 +178,19 @@
         isFlipped = true;
         card.classList.add('is-flipped');
         const prize = card.querySelector('.fortune-text').innerText;
-        // 背景寫入資料庫，不影響畫面呈現
-        _supabase.from('cny_logs').insert([{ prize_name: prize, prize_type: 'STAR_EVENT' }]);
-    }
+        
+        console.log("抽到獎項:", prize);
 
-    // 確保頁面載入後才執行
-    window.onload = init;
+        // 如果 Supabase 可用才寫入
+        if (supabaseClient) {
+            const { error } = await supabaseClient.from('cny_logs').insert([{ 
+                prize_name: prize, 
+                prize_type: 'STAR_EVENT',
+                created_at: new Date().toISOString()
+            }]);
+            if (error) console.error("Database error:", error);
+        }
+    }
 </script>
 </body>
 </html>
