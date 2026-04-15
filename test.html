@@ -17,7 +17,7 @@
         /* 網站背景 */
         .game-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('game desk.png') no-repeat center center;
+            background: url('game%20desk.png') no-repeat center center;
             background-size: cover;
             z-index: 1;
         }
@@ -33,14 +33,12 @@
             transform-style: preserve-3d;
         }
 
-        /* 基礎卡牌樣式 */
         .card {
             position: absolute; width: 100%; height: 100%;
             left: 0; top: 0;
             transform-style: preserve-3d;
             transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            /* 初始狀態設為隱藏 */
-            opacity: 0; 
+            opacity: 0;
             pointer-events: none;
         }
 
@@ -48,18 +46,15 @@
             position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden; border-radius: 12px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            background-color: transparent;
         }
 
-        /* 抽取前：Taro Front.png */
         .card-front { 
-            background: url('Taro Front.png') no-repeat center center; 
+            background: url('Taro%20Front.png') no-repeat center center; 
             background-size: 100% 100%; 
         }
 
-        /* 抽取後：Taro Back.png */
         .card-back { 
-            background: url('Taro Back.png') no-repeat center center; 
+            background: url('Taro%20Back.png') no-repeat center center; 
             background-size: 100% 100%; 
             transform: rotateY(180deg); 
             display: flex; align-items: center; justify-content: center; 
@@ -70,7 +65,6 @@
             padding: 0 20px; opacity: 0; margin-top: -15px; 
         }
 
-        /* 翻牌動畫 */
         .card.is-flipped {
             transform: translateZ(450px) rotateY(180deg) translateY(-120px) !important;
             z-index: 100 !important;
@@ -94,60 +88,63 @@
     </div>
 
 <script>
-    // 從你提供的資料中提取的連線資訊 
-    const SUPABASE_URL = 'https://nszwpwimtwxvjguolzwt.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // 統一配置，避免變數衝突 [cite: 67]
+    const STAR_CONFIG = {
+        url: 'https://nszwpwimtwxvjguolzwt.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg',
+        fortunes: ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"]
+    };
 
-    const fortunes = ["財運大吉", "心想事成", "驚喜連連", "貴人相助", "元氣滿滿", "萬事如意", "美夢成真", "步步高升", "福氣滿滿", "吉星高照"];
-    let currentIndex = 0, startX = 0, startY = 0, isFlipped = false;
+    let star_supabase = null;
+    let star_currentIndex = 0;
+    let star_startX = 0;
+    let star_startY = 0;
+    let star_isFlipped = false;
 
-    // 核心優化：JS 強制控制每一張牌的屬性，確保不跑位
-    function update() {
+    // 強制更新所有卡牌透明度與位置
+    function updateStarCards() {
         const cards = document.querySelectorAll('.card');
         const total = cards.length;
         if (total === 0) return;
 
         cards.forEach((card, i) => {
-            // 預設全隱藏
             card.style.opacity = "0";
             card.style.zIndex = "1";
             card.style.pointerEvents = "none";
 
-            if (i === currentIndex) {
-                // 正中央：100% 透明度
+            if (i === star_currentIndex) {
                 card.style.opacity = "1";
                 card.style.zIndex = "20";
                 card.style.transform = "translateZ(200px)";
                 card.style.pointerEvents = "auto";
-            } else if (i === (currentIndex - 1 + total) % total) {
-                // 左側：40% 透明度
+            } else if (i === (star_currentIndex - 1 + total) % total) {
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(-150px) rotateY(30deg) translateZ(0px)";
-            } else if (i === (currentIndex + 1) % total) {
-                // 右側：40% 透明度
+            } else if (i === (star_currentIndex + 1) % total) {
                 card.style.opacity = "0.4";
                 card.style.zIndex = "10";
                 card.style.transform = "translateX(150px) rotateY(-30deg) translateZ(0px)";
             } else {
-                // 徹底移開，避免遮擋
                 card.style.transform = "translateZ(-1000px)";
             }
         });
     }
 
-    async function checkAuth() {
-        // 實際發布時請替換為 LINE 的 line_id
-        const testLineId = "USER_LINE_ID"; 
-        const { data: profile } = await _supabase.from('profiles').select('id').eq('line_id', testLineId).single();
-        if (profile) {
-            const { data: logs } = await _supabase.from('cny_logs').select('*').eq('user_id', profile.id).eq('prize_type', 'STAR_EVENT');
-            if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
-        }
+    async function checkAuthStatus() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const lineId = urlParams.get('line_id') || "USER_LINE_ID"; 
+
+        try {
+            const { data: profile } = await star_supabase.from('profiles').select('id').eq('line_id', lineId).single(); [cite: 1]
+            if (profile) {
+                const { data: logs } = await star_supabase.from('cny_logs').select('*').eq('user_id', profile.id).eq('prize_type', 'STAR_EVENT'); [cite: 1]
+                if (logs && logs.length > 0) document.getElementById('mask').style.display = 'flex';
+            }
+        } catch (e) { console.warn("Check failed"); }
     }
 
-    window.onload = () => {
+    window.addEventListener('load', () => {
         const box = document.getElementById('cardBox');
         for (let i = 0; i < 10; i++) {
             const el = document.createElement('div');
@@ -155,47 +152,44 @@
             el.innerHTML = `
                 <div class="card-face card-front"></div>
                 <div class="card-back card-face">
-                    <div class="fortune-text">${fortunes[i]}</div>
+                    <div class="fortune-text">${STAR_CONFIG.fortunes[i]}</div>
                 </div>`;
             box.appendChild(el);
         }
         
-        // 確保 DOM 渲染完畢後執行
-        setTimeout(update, 100); 
-        checkAuth();
+        try {
+            star_supabase = supabase.createClient(STAR_CONFIG.url, STAR_CONFIG.key); [cite: 67]
+            checkAuthStatus();
+        } catch (e) { console.error("Supabase init error"); }
+
+        setTimeout(updateStarCards, 100); 
 
         const area = document.getElementById('touchArea');
         area.addEventListener('touchstart', e => { 
-            startX = e.touches[0].pageX; 
-            startY = e.touches[0].pageY; 
+            star_startX = e.touches[0].pageX; 
+            star_startY = e.touches[0].pageY; 
         });
 
         area.addEventListener('touchend', e => {
-            if (isFlipped) return;
-            const dx = startX - e.changedTouches[0].pageX;
-            const dy = startY - e.changedTouches[0].pageY;
+            if (star_isFlipped) return;
+            const dx = star_startX - e.changedTouches[0].pageX;
+            const dy = star_startY - e.changedTouches[0].pageY;
 
             if (Math.abs(dx) > Math.abs(dy)) {
                 if (Math.abs(dx) > 30) {
-                    currentIndex = dx > 0 ? (currentIndex + 1) % 10 : (currentIndex - 1 + 10) % 10;
-                    update();
+                    star_currentIndex = dx > 0 ? (star_currentIndex + 1) % 10 : (star_currentIndex - 1 + 10) % 10;
+                    updateStarCards();
                 }
             } else if (dy > 60) {
                 const cards = document.querySelectorAll('.card');
-                if (cards[currentIndex]) flip(cards[currentIndex]);
+                if (cards[star_currentIndex]) {
+                    star_isFlipped = true;
+                    cards[star_currentIndex].classList.add('is-flipped');
+                    // 抽獎紀錄邏輯... [cite: 24, 60]
+                }
             }
         });
-    };
-
-    async function flip(card) {
-        if (isFlipped) return;
-        isFlipped = true;
-        card.classList.add('is-flipped');
-        const prize = card.querySelector('.fortune-text').innerText;
-        
-        // 寫入紀錄 (需配合實際 user_id)
-        console.log("中獎獎項：", prize);
-    }
+    });
 </script>
 </body>
 </html>
