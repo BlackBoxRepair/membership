@@ -56,13 +56,14 @@
         .battery-btn { 
             border: 1px solid #444; background: rgba(30, 30, 30, 0.8); color: #fff; 
             padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
+            position: relative;
         }
         .battery-btn:hover { border-color: #ff9f0a; background: rgba(50, 50, 50, 0.9); }
         
-        /* 調整後：標題字更大且加粗 */
         .btn-title { display: block; font-size: 18px; font-weight: bold; margin-bottom: 8px; }
         .price-tag { display: block; font-size: 22px; font-weight: bold; color: #ff9f0a; }
         
+        /* 統一綠色小字說明樣式 */
         .bsmi-note { font-size: 12px; color: #00e676; margin-top: 5px; display: block; }
         
         .cta-box { 
@@ -122,8 +123,10 @@
         if (!id) return;
 
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
+        
+        // 更新標籤內容：原廠電池增加系統查詢備註
         const options = [
-            { key: 'original_battery', label: '蘋果原廠電池' }, 
+            { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
         ];
 
@@ -131,7 +134,7 @@
             if (data[opt.key]) {
                 const btn = document.createElement('button');
                 btn.className = 'battery-btn';
-                btn.innerHTML = `<span class="btn-title">${opt.label}</span> <span class="price-tag">$${data[opt.key]}</span> ${opt.note ? `<span class="bsmi-note">${opt.note}</span>` : ''}`;
+                btn.innerHTML = `<span class="btn-title">${opt.label}</span> <span class="price-tag">$${data[opt.key]}</span> <span class="bsmi-note">${opt.note}</span>`;
                 btn.onclick = () => {
                     document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#ff9f0a; font-weight:bold;">$${data[opt.key]} 元</span>`;
                     ctaBox.style.display = 'block';
