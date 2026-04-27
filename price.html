@@ -2,30 +2,42 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>黑盒子報價查詢</title>
+    <title>iPhone 電池限時優惠 | 黑盒子手機維修</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #1c1c1e; color: #fff; font-family: sans-serif; padding: 20px; margin: 0; }
+        body { background-color: #000; color: #fff; font-family: -apple-system, sans-serif; padding: 20px; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; }
-        select { width: 100%; padding: 15px; border-radius: 12px; background: #2c2c2e; color: white; border: 1px solid #444; margin-bottom: 20px; }
-        .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .part-btn { border: 1px solid #333; background: #1c1c1e; color: #a1a1a6; padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; }
-        .part-btn:hover { border-color: #007aff; background: #2c2c2e; color: white; }
-        .display-box { margin-top: 30px; padding: 25px; text-align: center; background: #2c2c2e; border-radius: 16px; }
+        h2 { text-align: center; color: #f5f5f7; margin-bottom: 10px; }
+        p { text-align: center; color: #a1a1a6; margin-bottom: 25px; }
+        
+        select { width: 100%; padding: 15px; border-radius: 12px; background: #1c1c1e; color: white; border: 1px solid #333; font-size: 16px; margin-bottom: 20px; }
+        
+        .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .battery-btn { border: 2px solid #333; background: transparent; color: white; padding: 20px 10px; border-radius: 16px; cursor: pointer; transition: 0.3s; }
+        .battery-btn:hover { border-color: #ff9f0a; background: #1c1c1e; }
+        .price-tag { display: block; font-size: 20px; font-weight: bold; color: #ff9f0a; margin-top: 5px; }
+        
+        .cta-box { margin-top: 40px; text-align: center; background: #1c1c1e; padding: 20px; border-radius: 16px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <select id="modelSelect"><option value="">讀取中...</option></select>
-    <div id="partsGrid" class="parts-grid"></div>
-    <div class="display-box">
-        <div id="finalPrice">請選擇機型與零件</div>
+    <h2>iPhone 電池限時優惠</h2>
+    <p>現場 30 分鐘快速更換，品質保證</p>
+    
+    <select id="modelSelect"><option value="">請先選擇您的 iPhone 機型</option></select>
+    
+    <div class="battery-grid" id="batteryGrid">
+        </div>
+
+    <div class="cta-box" id="ctaBox" style="display:none;">
+        <div id="finalPriceText" style="font-size: 18px; margin-bottom: 15px;"></div>
+        <a href="https://blackboxrepair.github.io/bookingonline/" style="display:block; background:#ff9f0a; color:black; padding:15px; border-radius:12px; text-decoration:none; font-weight:bold;">立即預約享優惠</a>
     </div>
 </div>
 
 <script>
-    // 使用 var 以強制覆蓋任何可能存在的重複宣告，並確保只有這一次初始化
     var supabase = supabase.createClient(
         'https://hkygeqtxtvnslyrmfiux.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ'
@@ -33,45 +45,34 @@
 
     async function init() {
         const select = document.getElementById('modelSelect');
-        const { data, error } = await supabase.from('iphone_prices').select('id, model_name');
-        
-        if (error) {
-            select.innerHTML = '<option value="">連線錯誤，請檢查 Console</option>';
-            console.error(error);
-            return;
-        }
-        
-        select.innerHTML = '<option value="">請選擇 iPhone 機型</option>';
-        data.forEach(m => {
-            select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`;
-        });
+        const { data } = await supabase.from('iphone_prices').select('id, model_name');
+        data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
     }
 
     document.getElementById('modelSelect').addEventListener('change', async (e) => {
         const id = e.target.value;
-        const grid = document.getElementById('partsGrid');
+        const grid = document.getElementById('batteryGrid');
+        document.getElementById('ctaBox').style.display = 'none';
         grid.innerHTML = '';
         if (!id) return;
 
         const { data } = await supabase.from('iphone_prices').select('*').eq('id', id).single();
-        const mapping = [
-            { key: 'third_party_battery', label: '副廠電池' },
-            { key: 'original_battery', label: '原廠電池' },
-            { key: 'third_party_screen', label: '副廠螢幕' },
-            { key: 'screen_defect_repair', label: '螢幕通病維修' },
-            { key: 'original_screen', label: '原廠螢幕' },
-            { key: 'charging_port', label: '充電孔' },
-            { key: 'earpiece', label: '聽筒' },
-            { key: 'camera', label: '相機' },
-            { key: 'face_id', label: 'Face ID' }
+        
+        // 生成按鈕
+        const options = [
+            { key: 'original_battery', label: '原廠品質電池' },
+            { key: 'third_party_battery', label: '高品質副廠電池' }
         ];
 
-        mapping.forEach(p => {
-            if (data[p.key]) {
+        options.forEach(opt => {
+            if (data[opt.key]) {
                 const btn = document.createElement('button');
-                btn.className = 'part-btn';
-                btn.innerText = p.label;
-                btn.onclick = () => document.getElementById('finalPrice').innerText = `${p.label}：$${data[p.key]} 元`;
+                btn.className = 'battery-btn';
+                btn.innerHTML = `${opt.label}<span class="price-tag">$${data[opt.key]}</span>`;
+                btn.onclick = () => {
+                    document.getElementById('finalPriceText').innerText = `您選擇了：${opt.label}，優惠價 $${data[opt.key]} 元`;
+                    document.getElementById('ctaBox').style.display = 'block';
+                };
                 grid.appendChild(btn);
             }
         });
