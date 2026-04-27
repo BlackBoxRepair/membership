@@ -78,21 +78,21 @@
         }
         .booking-btn:active { transform: scale(0.98); }
 
-        /* === 門市資訊調整：上下排列 === */
         .store-section { margin-top: 40px; text-align: left; }
         .store-card { 
             background: rgba(255, 255, 255, 0.05);
             padding: 20px 130px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; 
-            margin-bottom: 20px; /* 卡片間距 */
+            margin-bottom: 20px; 
             position: relative;
         }
         
+        /* === 認證標示調整：向右靠 (right: 5px)，縮小為 104.5px === */
         .license-icon {
             position: absolute; 
             top: 50%; 
-            right: 15px; 
-            width: 110px; 
+            right: 5px; /* 更往右靠 */
+            width: 104.5px; /* 約原本 95% */
             height: auto;
             transform: translateY(-50%);
             z-index: 5;
