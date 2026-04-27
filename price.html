@@ -63,24 +63,29 @@
         .price-tag { display: block; font-size: 22px; font-weight: bold; color: #F7B500; }
         .bsmi-note { font-size: 12px; color: #00e676; margin-top: 5px; display: block; }
         
-        /* 修改後的預約按鈕樣式 */
+        /* === 立即預約按鈕調整 === */
         .booking-btn { 
             display: none; /* 預設隱藏 */
+            width: 100%; /* 與上方選單等寬 */
+            box-sizing: border-box; /* 確保 padding 不超出寬度 */
             background: #F7B500; color: #000; 
             padding: 18px; border-radius: 12px; text-decoration: none; 
-            font-weight: bold; font-size: 18px; margin-top: 10px; width: 100%; border: none; cursor: pointer;
+            font-weight: bold; font-size: 18px; margin-top: 10px; 
+            border: none; cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
         }
+        .booking-btn:hover { background: #e0a300; transform: scale(1.02); }
 
         /* 門市資訊區塊 */
         .store-section { margin-top: 40px; text-align: left; }
         .store-card { 
             background: rgba(255, 255, 255, 0.05);
-            padding: 20px 130px 20px 20px; 
+            padding: 20px 120px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; 
             margin-bottom: 20px; position: relative;
         }
         .license-icon {
-            position: absolute; top: 50%; right: 10px; width: 100px; height: auto;
+            position: absolute; top: 50%; right: 2px; width: 100px; height: auto;
             transform: translateY(-50%); z-index: 5;
         }
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
@@ -106,7 +111,8 @@
     <select id="modelSelect"><option value="">👉 選擇機型，立即查詢價格</option></select>
     
     <div class="battery-grid" id="batteryGrid"></div>
-    <a href="https://blackboxrepair.github.io/bookingonline/" id="bookingBtn" class="booking-btn">立即預約，現場免等候</a>
+    
+    <a href="https://blackboxrepair.github.io/bookingonline/" id="bookingBtn" class="booking-btn">立即預約，現場免等候 ➔</a>
 
     <div class="store-section">
         <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px; color: #F7B500;">門市據點</h2>
@@ -147,7 +153,7 @@
         const bookingBtn = document.getElementById('bookingBtn');
         
         grid.innerHTML = '';
-        bookingBtn.style.display = 'none'; // 預設隱藏按鈕
+        bookingBtn.style.display = 'none';
 
         if (!id) return;
 
@@ -166,7 +172,6 @@
             }
         });
 
-        // 只要有選型號，就顯示預約按鈕
         bookingBtn.style.display = 'block';
     });
     init();
