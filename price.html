@@ -53,7 +53,7 @@
 </div>
 
 <script>
-    // 1. 初始化 Supabase
+    // 1. 初始化 Supabase (確保整個檔案只有這一處 const supabase 初始化)
     const supabaseUrl = 'https://hkygeqtxtvnslyrmfiux.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -73,10 +73,17 @@
 
     // 3. 載入機型選單
     async function init() {
-        const { data, error } = await supabase.from('iphone_prices').select('id, model_name');
-        if (error) { console.error("讀取錯誤:", error); return; }
-        const select = document.getElementById('modelSelect');
-        data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
+        try {
+            const { data, error } = await supabase.from('iphone_prices').select('id, model_name');
+            if (error) throw error;
+            
+            const select = document.getElementById('modelSelect');
+            data.forEach(m => {
+                select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`;
+            });
+        } catch (err) {
+            console.error("資料載入錯誤:", err);
+        }
     }
 
     // 4. 當機型選定，動態產生按鈕
@@ -87,10 +94,13 @@
         
         if (!id) { grid.innerHTML = ''; return; }
         
-        const { data } = await supabase.from('iphone_prices').select('*').eq('id', id).single();
+        const { data, error } = await supabase.from('iphone_prices').select('*').eq('id', id).single();
+        if (error) { console.error("查詢錯誤:", error); return; }
         
         grid.innerHTML = partMapping.map(p => {
-            return data[p.key] ? `<button class="part-btn" onclick="showPrice(${data[p.key]}, '${p.label}')">${p.label}</button>` : '';
+            return (data[p.key] !== null && data[p.key] !== undefined) 
+                ? `<button class="part-btn" onclick="showPrice(${data[p.key]}, '${p.label}')">${p.label}</button>` 
+                : '';
         }).join('');
     });
 
@@ -99,6 +109,7 @@
         document.getElementById('finalPrice').innerText = `$${price} 元`;
     }
 
+    // 啟動程式
     init();
 </script>
 </body>
