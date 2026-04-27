@@ -55,7 +55,7 @@
         
         .battery-btn { 
             border: 1px solid #444; background: rgba(30, 30, 30, 0.8); color: #fff; 
-            padding: 15px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
+            padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
         }
         .battery-btn:hover { border-color: #F7B500; background: rgba(50, 50, 50, 0.9); }
         
@@ -66,34 +66,34 @@
         .cta-box { 
             margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
             border-radius: 15px; border: 1px solid #F7B500; display: none; 
-            box-shadow: 0 0 15px rgba(247, 181, 0, 0.2);
         }
 
         .booking-btn { 
             display: block; background: #F7B500; color: #000; 
             padding: 16px; border-radius: 10px; text-decoration: none; 
             font-weight: bold; font-size: 18px; margin-top: 15px;
-            transition: transform 0.2s;
         }
-        .booking-btn:active { transform: scale(0.98); }
 
-        /* 門市資訊调整 */
+        /* 門市資訊調整 */
         .store-section { margin-top: 40px; text-align: left; }
-        .store-grid { 
-            display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;
-        }
+        .store-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; }
         .store-card { 
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
-            border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(50% - 10px);
+            border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(45%);
+            position: relative;
         }
+        /* 認證標章樣式 */
+        .license-icon {
+            position: absolute; top: 10px; right: 10px; width: 40px; height: 40px;
+            filter: sepia(1) hue-rotate(10deg) saturate(3); /* 將圖片轉為黃金色調 */
+        }
+        
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
-        .store-info { font-size: 14px; color: #ccc; margin-bottom: 8px; }
+        .store-info { font-size: 13px; color: #ccc; margin-bottom: 8px; }
         .map-link { 
             display: inline-block; background: #333; color: white; 
-            padding: 6px 12px; /* 減小內邊距，使按鈕變小 */
-            border-radius: 6px; text-decoration: none; 
-            font-size: 12px; /* 減小字體大小 */
-            border: 1px solid #F7B500;
+            padding: 5px 10px; border-radius: 6px; text-decoration: none; 
+            font-size: 12px; border: 1px solid #F7B500;
         }
         .map-link:hover { background: #F7B500; color: #000; }
     </style>
@@ -119,20 +119,20 @@
 
     <div class="store-section">
         <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px;">門市據點</h2>
-        
         <div class="store-grid">
             <div class="store-card">
-                <div class="store-name">黑盒子維修 - 公益門市</div>
+                <img src="lisense.png" class="license-icon" alt="認證">
+                <div class="store-name">黑盒子 - 公益門市</div>
                 <div class="store-info">地址：台中市西區公益路145號</div>
                 <div class="store-info">營業時間：11:00-20:00</div>
-                <a href="https://maps.app.goo.gl/SBgcEZbhB2pguB4T6" class="map-link">Google Maps 導航</a>
+                <a href="https://maps.app.goo.gl/SBgcEZbhB2pguB4T6" class="map-link">Google Maps</a>
             </div>
-
             <div class="store-card">
-                <div class="store-name">黑盒子維修 - 沙鹿門市</div>
+                <img src="lisense.png" class="license-icon" alt="認證">
+                <div class="store-name">黑盒子 - 沙鹿門市</div>
                 <div class="store-info">地址：台中市沙鹿區沙田路149號</div>
                 <div class="store-info">營業時間：12:00-21:00</div>
-                <a href="https://maps.app.goo.gl/qBY5HAx8Hy7rcPHx7" class="map-link">Google Maps 導航</a>
+                <a href="https://maps.app.goo.gl/qBY5HAx8Hy7rcPHx7" class="map-link">Google Maps</a>
             </div>
         </div>
     </div>
@@ -160,7 +160,6 @@
         if (!id) return;
 
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
-        
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
@@ -179,7 +178,6 @@
             }
         });
     });
-
     init();
 </script>
 </body>
