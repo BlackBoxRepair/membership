@@ -8,9 +8,8 @@
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%;
-            font-family: -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: #ffffff;
-            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
         .bg-image {
@@ -23,52 +22,61 @@
 
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); 
+            background-color: rgba(0, 0, 0, 0.6);
             z-index: -1;
         }
 
         .container {
-            max-width: 500px; margin: 0 auto; padding: 40px 20px;
+            max-width: 500px; margin: 0 auto; padding: 30px 20px;
             text-align: center; z-index: 1; position: relative;
         }
 
-        /* 促銷標語區塊 */
+        /* 1. 白色標語，無陰影 */
         .promo-banner {
-            background: rgba(255, 159, 10, 0.9);
-            color: #000;
-            padding: 10px;
-            border-radius: 12px;
+            background: rgba(255, 159, 10, 0.2);
+            border: 1px solid #ff9f0a;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
             font-weight: bold;
             margin-bottom: 20px;
             font-size: 15px;
+            text-shadow: none;
         }
 
-        h1 { font-size: 30px; margin-bottom: 5px; }
-        .subtitle { color: #e0e0e0; font-size: 16px; margin-bottom: 25px; }
+        h1 { font-size: 28px; margin-bottom: 5px; letter-spacing: 1px; }
+        .subtitle { color: #aaaaaa; font-size: 15px; margin-bottom: 25px; }
 
         select { 
-            width: 100%; padding: 18px; border-radius: 20px; 
-            background: rgba(0, 0, 0, 0.7); color: white; border: 2px solid #fff; 
-            font-size: 16px; margin-bottom: 20px; cursor: pointer;
+            width: 100%; padding: 18px; border-radius: 12px; 
+            background: rgba(0, 0, 0, 0.5); color: white; border: 1px solid #555; 
+            font-size: 16px; margin-bottom: 20px; outline: none;
         }
 
         .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* 科技感按鈕特效 */
         .battery-btn { 
-            border: 2px solid #fff; background: rgba(0, 0, 0, 0.7); color: #fff; 
-            padding: 20px 10px; border-radius: 20px; cursor: pointer; transition: 0.3s; 
+            border: 1px solid #444; background: rgba(30, 30, 30, 0.8); color: #fff; 
+            padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
+            position: relative; overflow: hidden;
         }
-        .battery-btn:hover { border-color: #ff9f0a; background: rgba(255, 159, 10, 0.2); }
-        .price-tag { display: block; font-size: 24px; font-weight: bold; color: #ff9f0a; margin-top: 5px; }
+        .battery-btn:hover { border-color: #ff9f0a; background: rgba(50, 50, 50, 0.9); }
+        .price-tag { display: block; font-size: 22px; font-weight: bold; color: #ff9f0a; margin-top: 5px; }
         
         .cta-box { 
-            margin-top: 30px; padding: 25px; 
-            background: rgba(0, 0, 0, 0.8); border-radius: 20px; border: 2px solid #ff9f0a; display: none; 
+            margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
+            border-radius: 15px; border: 1px solid #ff9f0a; display: none; 
+            box-shadow: 0 0 15px rgba(255, 159, 10, 0.2);
         }
+
         .booking-btn { 
-            display: block; background: linear-gradient(135deg, #ff9f0a, #ffb340); 
-            color: #000; padding: 16px; border-radius: 15px; text-decoration: none; 
+            display: block; background: #ff9f0a; color: #000; 
+            padding: 16px; border-radius: 10px; text-decoration: none; 
             font-weight: bold; font-size: 18px; margin-top: 15px;
+            transition: transform 0.2s;
         }
+        .booking-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -80,10 +88,11 @@
     <div class="promo-banner">🔥 本月限定：電池維修現折優惠，名額有限！</div>
     
     <h1>iPhone 電池限時優惠</h1>
-    <p class="subtitle">現場 30 分鐘快速更換，原廠品質、數據不流失</p>
+    <p class="subtitle">現場維修快速更換，原廠品質、數據不流失</p>
     
-    <select id="modelSelect"><option value="">👉 選擇您的機型，立即查詢價格</option></select>
+    <select id="modelSelect"><option value="">👉 選擇機型，立即查詢價格</option></select>
     <div class="battery-grid" id="batteryGrid"></div>
+    
     <div class="cta-box" id="ctaBox">
         <div id="finalPriceText" style="font-size: 18px;"></div>
         <a href="https://blackboxrepair.github.io/bookingonline/" class="booking-btn">立即預約，現場免等候</a>
