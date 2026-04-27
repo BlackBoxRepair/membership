@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑盒子手機維修報價中心</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: #1c1c1e; color: #fff; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        select { width: 100%; padding: 15px; border-radius: 10px; background: #2c2c2e; color: white; border: 1px solid #444; margin-bottom: 20px; }
+        
+        .parts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .part-btn { border: 1px solid #333; background: #1c1c1e; color: white; padding: 15px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .part-btn:hover { border-color: #007aff; background: #2c2c2e; }
+        
+        .price-box { margin-top: 30px; padding: 20px; text-align: center; font-size: 20px; background: #2c2c2e; border-radius: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <select id="modelSelect"><option value="">請選擇機型</option></select>
+    <div id="partsGrid" class="parts-grid"></div>
+    <div id="priceDisplay" class="price-box">請選擇零件以查看報價</div>
+</div>
+
+<script>
+    const supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
+    
+    const partMapping = [
+        { key: 'third_party_battery', label: '副廠電池' },
+        { key: 'original_battery', label: '原廠電池' },
+        { key: 'third_party_screen', label: '副廠螢幕' },
+        { key: 'screen_defect_repair', label: '螢幕通病維修' },
+        { key: 'original_screen', label: '原廠螢幕' },
+        { key: 'charging_port', label: '充電孔' },
+        { key: 'earpiece', label: '聽筒' },
+        { key: 'camera', label: '相機' },
+        { key: 'face_id', label: 'Face ID' }
+    ];
+
+    async function init() {
+        const { data } = await supabase.from('iphone_prices').select('id, model_name');
+        const select = document.getElementById('modelSelect');
+        data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
+    }
+
+    document.getElementById('modelSelect').addEventListener('change', async (e) => {
+        const id = e.target.value;
+        if (!id) return;
+        const { data } = await supabase.from('iphone_prices').select('*').eq('id', id).single();
+        
+        const grid = document.getElementById('partsGrid');
+        grid.innerHTML = partMapping.map(p => {
+            return data[p.key] ? `<button class="part-btn" onclick="showPrice(${data[p.key]}, '${p.label}')">${p.label}</button>` : '';
+        }).join('');
+    });
+
+    function showPrice(price, name) {
+        document.getElementById('priceDisplay').innerText = `${name}：$${price} 元`;
+    }
+
+    init();
+</script>
+</body>
+</html>
