@@ -66,7 +66,6 @@
         .cta-box { 
             margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
             border-radius: 15px; border: 1px solid #F7B500; display: none; 
-            box-shadow: 0 0 15px rgba(247, 181, 0, 0.2);
         }
 
         .booking-btn { 
@@ -83,23 +82,23 @@
         .store-card { 
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
             border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(45%);
-            position: relative; /* 用於定位標章 */
-            overflow: visible; /* 允許標章超出範圍，防止被切掉 */
+            position: relative; /* 用於絕對定位 */
+            padding-right: 100px; /* 留出右側空間給標章 */
         }
         
-        /* === 認證標章樣式 (移除濾鏡，原本顏色，並放大) === */
+        /* === 認證標章樣式：Y軸居中，放大，位於右側 === */
         .license-icon {
             position: absolute; 
-            top: 5px; /* 微調定位，配合放大 */
-            right: 5px; 
-            width: 70px; /* 大小從 45px 放大至 70px */
-            height: auto; /* 高度等比例縮放 */
-            filter: none; /* === 關鍵修改：徹底移除濾鏡 === */
-            z-index: 10; /* 確保標章在最上層 */
-            opacity: 1; /* 確保不透明度為 1 */
+            top: 50%; /* 垂直起點 */
+            right: 10px; /* 距離右側邊緣 */
+            width: 85px; /* 放大至 85px */
+            height: auto;
+            transform: translateY(-50%); /* 向上偏移自身高度的50%，精準垂直置中 */
+            filter: none;
+            z-index: 10;
         }
         
-        .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; padding-right: 75px; /* 防止店名被標章擋住 */}
+        .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
         .store-info { font-size: 13px; color: #ccc; margin-bottom: 8px; }
         .map-link { 
             display: inline-block; background: #333; color: white; 
@@ -159,18 +158,8 @@
 
     async function init() {
         const select = document.getElementById('modelSelect');
-        const { data, error } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
-        
-        if (error) {
-            console.error("初始化連線錯誤:", error);
-            return;
-        }
-        
-        if (data) {
-            data.forEach(m => {
-                select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`;
-            });
-        }
+        const { data } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
+        if (data) data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
     }
 
     document.getElementById('modelSelect').addEventListener('change', async (e) => {
@@ -180,13 +169,7 @@
         grid.innerHTML = ''; ctaBox.style.display = 'none';
         if (!id) return;
 
-        const { data, error } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
-        
-        if (error || !data) {
-            console.error("抓取價格錯誤:", error);
-            return;
-        }
-
+        const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
@@ -200,13 +183,11 @@
                 btn.onclick = () => {
                     document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
                     ctaBox.style.display = 'block';
-                    ctaBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 };
                 grid.appendChild(btn);
             }
         });
     });
-
     init();
 </script>
 </body>
