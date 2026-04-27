@@ -25,30 +25,19 @@
 </div>
 
 <script>
-    const supabase = supabase.createClient(
+    // 使用 var 以強制覆蓋任何可能存在的重複宣告，並確保只有這一次初始化
+    var supabase = supabase.createClient(
         'https://hkygeqtxtvnslyrmfiux.supabase.co',
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ'
     );
-
-    const partMapping = [
-        { key: 'third_party_battery', label: '副廠電池' },
-        { key: 'original_battery', label: '原廠電池' },
-        { key: 'third_party_screen', label: '副廠螢幕' },
-        { key: 'screen_defect_repair', label: '螢幕通病維修' },
-        { key: 'original_screen', label: '原廠螢幕' },
-        { key: 'charging_port', label: '充電孔' },
-        { key: 'earpiece', label: '聽筒' },
-        { key: 'camera', label: '相機' },
-        { key: 'face_id', label: 'Face ID' }
-    ];
 
     async function init() {
         const select = document.getElementById('modelSelect');
         const { data, error } = await supabase.from('iphone_prices').select('id, model_name');
         
         if (error) {
-            console.error("讀取失敗:", error);
-            select.innerHTML = '<option value="">讀取失敗，請確認權限</option>';
+            select.innerHTML = '<option value="">連線錯誤，請檢查 Console</option>';
+            console.error(error);
             return;
         }
         
@@ -65,7 +54,19 @@
         if (!id) return;
 
         const { data } = await supabase.from('iphone_prices').select('*').eq('id', id).single();
-        partMapping.forEach(p => {
+        const mapping = [
+            { key: 'third_party_battery', label: '副廠電池' },
+            { key: 'original_battery', label: '原廠電池' },
+            { key: 'third_party_screen', label: '副廠螢幕' },
+            { key: 'screen_defect_repair', label: '螢幕通病維修' },
+            { key: 'original_screen', label: '原廠螢幕' },
+            { key: 'charging_port', label: '充電孔' },
+            { key: 'earpiece', label: '聽筒' },
+            { key: 'camera', label: '相機' },
+            { key: 'face_id', label: 'Face ID' }
+        ];
+
+        mapping.forEach(p => {
             if (data[p.key]) {
                 const btn = document.createElement('button');
                 btn.className = 'part-btn';
