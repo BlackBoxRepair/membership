@@ -66,13 +66,16 @@
         .cta-box { 
             margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
             border-radius: 15px; border: 1px solid #F7B500; display: none; 
+            box-shadow: 0 0 15px rgba(247, 181, 0, 0.2);
         }
 
         .booking-btn { 
             display: block; background: #F7B500; color: #000; 
             padding: 16px; border-radius: 10px; text-decoration: none; 
             font-weight: bold; font-size: 18px; margin-top: 15px;
+            transition: transform 0.2s;
         }
+        .booking-btn:active { transform: scale(0.98); }
 
         /* 門市資訊與標章調整 */
         .store-section { margin-top: 40px; text-align: left; }
@@ -80,13 +83,13 @@
         .store-card { 
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
             border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(45%);
-            position: relative; /* 用於定位標章 */
+            position: relative; /* 用於絕對定位標章 */
         }
         
         /* 認證標章樣式 (與按鈕顏色一致) */
         .license-icon {
             position: absolute; top: 10px; right: 10px; width: 45px; height: 45px;
-            filter: sepia(1) hue-rotate(10deg) saturate(3);
+            filter: sepia(1) hue-rotate(10deg) saturate(3); /* 將圖片轉為黃金色調 */
         }
         
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
@@ -122,14 +125,14 @@
         <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px;">門市據點</h2>
         <div class="store-grid">
             <div class="store-card">
-                <img src="lisense.png" class="license-icon" alt="認證">
+                <img src="lisense.png" class="license-icon" alt="認證標章">
                 <div class="store-name">黑盒子 - 公益門市</div>
                 <div class="store-info">地址：台中市西區公益路145號</div>
                 <div class="store-info">營業時間：11:00-20:00</div>
                 <a href="https://maps.app.goo.gl/SBgcEZbhB2pguB4T6" class="map-link">Google Maps</a>
             </div>
             <div class="store-card">
-                <img src="lisense.png" class="license-icon" alt="認證">
+                <img src="lisense.png" class="license-icon" alt="認證標章">
                 <div class="store-name">黑盒子 - 沙鹿門市</div>
                 <div class="store-info">地址：台中市沙鹿區沙田路149號</div>
                 <div class="store-info">營業時間：12:00-21:00</div>
@@ -140,6 +143,7 @@
 </div>
 
 <script>
+    // Supabase 初始化 (確保 window 物件只有這一次初始化)
     if (!window.mySupabase) {
         window.mySupabase = supabase.createClient(
             'https://hkygeqtxtvnslyrmfiux.supabase.co',
@@ -149,18 +153,38 @@
 
     async function init() {
         const select = document.getElementById('modelSelect');
-        const { data } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
-        if (data) data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
+        const { data, error } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
+        
+        if (error) {
+            console.error("Supabase 讀取錯誤:", error);
+            select.innerHTML = '<option value="">資料載入失敗</option>';
+            return;
+        }
+        
+        if (data) {
+            data.forEach(m => {
+                select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`;
+            });
+        }
     }
 
     document.getElementById('modelSelect').addEventListener('change', async (e) => {
         const id = e.target.value;
         const grid = document.getElementById('batteryGrid');
         const ctaBox = document.getElementById('ctaBox');
-        grid.innerHTML = ''; ctaBox.style.display = 'none';
+        
+        grid.innerHTML = '';
+        ctaBox.style.display = 'none';
+
         if (!id) return;
 
-        const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
+        const { data, error } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
+        
+        if (error || !data) {
+            console.error("抓取機型資料錯誤:", error);
+            return;
+        }
+
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
@@ -174,11 +198,15 @@
                 btn.onclick = () => {
                     document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
                     ctaBox.style.display = 'block';
+                    
+                    // 滾動到預約區塊 (手機體驗優化)
+                    ctaBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 };
                 grid.appendChild(btn);
             }
         });
     });
+
     init();
 </script>
 </body>
