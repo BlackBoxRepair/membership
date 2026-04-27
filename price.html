@@ -31,9 +31,10 @@
             text-align: center; z-index: 1; position: relative;
         }
 
+        /* 改用 #F7B500 的促銷區塊 */
         .promo-banner {
-            background: rgba(255, 159, 10, 0.2);
-            border: 1px solid #ff9f0a;
+            background: rgba(247, 181, 0, 0.2);
+            border: 1px solid #F7B500;
             color: #ffffff;
             padding: 12px;
             border-radius: 8px;
@@ -58,22 +59,21 @@
             padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
             position: relative;
         }
-        .battery-btn:hover { border-color: #ff9f0a; background: rgba(50, 50, 50, 0.9); }
+        .battery-btn:hover { border-color: #F7B500; background: rgba(50, 50, 50, 0.9); }
         
         .btn-title { display: block; font-size: 18px; font-weight: bold; margin-bottom: 8px; }
-        .price-tag { display: block; font-size: 22px; font-weight: bold; color: #ff9f0a; }
+        .price-tag { display: block; font-size: 22px; font-weight: bold; color: #F7B500; }
         
-        /* 統一綠色小字說明樣式 */
         .bsmi-note { font-size: 12px; color: #00e676; margin-top: 5px; display: block; }
         
         .cta-box { 
             margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
-            border-radius: 15px; border: 1px solid #ff9f0a; display: none; 
-            box-shadow: 0 0 15px rgba(255, 159, 10, 0.2);
+            border-radius: 15px; border: 1px solid #F7B500; display: none; 
+            box-shadow: 0 0 15px rgba(247, 181, 0, 0.2);
         }
 
         .booking-btn { 
-            display: block; background: #ff9f0a; color: #000; 
+            display: block; background: #F7B500; color: #000; 
             padding: 16px; border-radius: 10px; text-decoration: none; 
             font-weight: bold; font-size: 18px; margin-top: 15px;
             transition: transform 0.2s;
@@ -124,7 +124,6 @@
 
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
         
-        // 更新標籤內容：原廠電池增加系統查詢備註
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
@@ -136,7 +135,7 @@
                 btn.className = 'battery-btn';
                 btn.innerHTML = `<span class="btn-title">${opt.label}</span> <span class="price-tag">$${data[opt.key]}</span> <span class="bsmi-note">${opt.note}</span>`;
                 btn.onclick = () => {
-                    document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#ff9f0a; font-weight:bold;">$${data[opt.key]} 元</span>`;
+                    document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
                     ctaBox.style.display = 'block';
                 };
                 grid.appendChild(btn);
