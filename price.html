@@ -10,6 +10,7 @@
             margin: 0; padding: 0; height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             color: #ffffff;
+            overflow-x: hidden;
         }
 
         .bg-image {
@@ -22,12 +23,12 @@
 
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.65);
             z-index: -1;
         }
 
         .container {
-            max-width: 500px; margin: 0 auto; padding: 30px 20px;
+            max-width: 550px; margin: 0 auto; padding: 30px 20px;
             text-align: center; z-index: 1; position: relative;
         }
 
@@ -66,6 +67,7 @@
         .cta-box { 
             margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
             border-radius: 15px; border: 1px solid #F7B500; display: none; 
+            box-shadow: 0 0 20px rgba(247, 181, 0, 0.2);
         }
 
         .booking-btn { 
@@ -76,26 +78,28 @@
         }
         .booking-btn:active { transform: scale(0.98); }
 
-        /* 門市資訊調整 */
+        /* === 門市資訊區塊 === */
         .store-section { margin-top: 40px; text-align: left; }
         .store-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; }
+        
         .store-card { 
-            background: rgba(255, 255, 255, 0.05); padding: 15px; 
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px 130px 20px 20px; /* 關鍵：增加右側邊距，騰出空間給認證標示 */
             border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(45%);
-            position: relative; /* 用於絕對定位 */
-            padding-right: 100px; /* 留出右側空間給標章 */
+            position: relative; /* 認證標示的定位依據 */
+            box-sizing: border-box; /* 確保內邊距不影響寬度 */
         }
         
-        /* === 認證標章樣式：Y軸居中，放大，位於右側 === */
+        /* === 認證標示圖片 (大幅放大並置中靠右) === */
         .license-icon {
             position: absolute; 
-            top: 50%; /* 垂直起點 */
-            right: 10px; /* 距離右側邊緣 */
-            width: 85px; /* 放大至 85px */
+            top: 50%; /* Y軸置中 */
+            right: 15px; /* 靠右對齊 */
+            width: 110px; /* === 大幅放大從 85px 增加到 110px === */
             height: auto;
             transform: translateY(-50%); /* 向上偏移自身高度的50%，精準垂直置中 */
-            filter: none;
-            z-index: 10;
+            filter: none; /* 去除任何可能存在的濾鏡 */
+            z-index: 5; /* 確保在內容下方 */
         }
         
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
@@ -128,17 +132,17 @@
     </div>
 
     <div class="store-section">
-        <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px;">門市據點</h2>
+        <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px; color: #F7B500;">門市據點</h2>
         <div class="store-grid">
             <div class="store-card">
-                <img src="lisense.png" class="license-icon" alt="認證">
+                <img src="lisense.png" class="license-icon" alt="認證標示">
                 <div class="store-name">黑盒子 - 公益門市</div>
                 <div class="store-info">地址：台中市西區公益路145號</div>
                 <div class="store-info">營業時間：11:00-20:00</div>
                 <a href="https://maps.app.goo.gl/SBgcEZbhB2pguB4T6" class="map-link">Google Maps</a>
             </div>
             <div class="store-card">
-                <img src="lisense.png" class="license-icon" alt="認證">
+                <img src="lisense.png" class="license-icon" alt="認證標示">
                 <div class="store-name">黑盒子 - 沙鹿門市</div>
                 <div class="store-info">地址：台中市沙鹿區沙田路149號</div>
                 <div class="store-info">營業時間：12:00-21:00</div>
@@ -158,7 +162,14 @@
 
     async function init() {
         const select = document.getElementById('modelSelect');
-        const { data } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
+        const { data, error } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
+        
+        if (error) {
+            console.error("初始化載入機型資料錯誤:", error);
+            select.innerHTML = `<option value="">👉 載入機型失敗</option>`;
+            return;
+        }
+        
         if (data) data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
     }
 
@@ -169,7 +180,14 @@
         grid.innerHTML = ''; ctaBox.style.display = 'none';
         if (!id) return;
 
-        const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
+        const { data, error } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
+        
+        if (error || !data) {
+            console.error("抓取價格資料錯誤:", error);
+            grid.innerHTML = `<p style="color: #FF6A00;">查詢不到此機型的價格，請與門市聯絡。</p>`;
+            return;
+        }
+
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
@@ -181,8 +199,9 @@
                 btn.className = 'battery-btn';
                 btn.innerHTML = `<span class="btn-title">${opt.label}</span> <span class="price-tag">$${data[opt.key]}</span> <span class="bsmi-note">${opt.note}</span>`;
                 btn.onclick = () => {
-                    document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
+                    document.getElementById('finalPriceText').innerHTML = `您選擇了：<strong>${opt.label}</strong><br>優惠活動價：<span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
                     ctaBox.style.display = 'block';
+                    ctaBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 };
                 grid.appendChild(btn);
             }
