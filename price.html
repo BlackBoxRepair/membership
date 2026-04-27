@@ -74,18 +74,19 @@
             font-weight: bold; font-size: 18px; margin-top: 15px;
         }
 
-        /* 門市資訊調整 */
+        /* 門市資訊與標章調整 */
         .store-section { margin-top: 40px; text-align: left; }
         .store-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; }
         .store-card { 
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
             border-radius: 12px; border: 1px solid #333; flex: 1; min-width: calc(45%);
-            position: relative;
+            position: relative; /* 用於定位標章 */
         }
-        /* 認證標章樣式 */
+        
+        /* 認證標章樣式 (與按鈕顏色一致) */
         .license-icon {
-            position: absolute; top: 10px; right: 10px; width: 40px; height: 40px;
-            filter: sepia(1) hue-rotate(10deg) saturate(3); /* 將圖片轉為黃金色調 */
+            position: absolute; top: 10px; right: 10px; width: 45px; height: 45px;
+            filter: sepia(1) hue-rotate(10deg) saturate(3);
         }
         
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
