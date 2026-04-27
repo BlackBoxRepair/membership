@@ -8,26 +8,21 @@
     <style>
         body, html {
             margin: 0; padding: 0; height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, sans-serif;
             color: #ffffff;
-            /* 加入文字陰影，確保在清楚的背景上依然好讀 */
             text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
-        /* 背景圖片層：使用您提供的 batrepair.png，確保設定為清楚顯示 */
         .bg-image {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('batrepair.png');
             background-size: cover;
             background-position: center;
             z-index: -2;
-            /* 確保圖片本身沒有被濾鏡模糊 */
-            filter: none;
         }
 
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* === 關鍵修改：將透明度從 0.85 降低為 0.5，讓背景圖變清楚 === */
             background-color: rgba(0, 0, 0, 0.5); 
             z-index: -1;
         }
@@ -37,55 +32,42 @@
             text-align: center; z-index: 1; position: relative;
         }
 
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            /* 強化標題陰影 */
-            text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.9);
+        /* 促銷標語區塊 */
+        .promo-banner {
+            background: rgba(255, 159, 10, 0.9);
+            color: #000;
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 15px;
         }
 
-        .subtitle {
-            color: #e0e0e0; /* 稍微調亮副標題顏色 */
-            font-size: 16px;
-            margin-bottom: 30px;
-            font-weight: 500;
-        }
+        h1 { font-size: 30px; margin-bottom: 5px; }
+        .subtitle { color: #e0e0e0; font-size: 16px; margin-bottom: 25px; }
 
-        /* 選單區域加上半透明背景，確保文字不會被背景圖干擾 */
-        #modelSelect { 
+        select { 
             width: 100%; padding: 18px; border-radius: 20px; 
-            background: rgba(0, 0, 0, 0.7); /* 深色半透明背景 */
-            color: white; border: 2px solid #fff; /* 白色邊框 */
-            font-size: 16px; margin-bottom: 25px; outline: none;
-            cursor: pointer;
-            text-shadow: none; /* 選單內文字不需陰影 */
+            background: rgba(0, 0, 0, 0.7); color: white; border: 2px solid #fff; 
+            font-size: 16px; margin-bottom: 20px; cursor: pointer;
         }
 
-        .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
+        .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .battery-btn { 
-            border: 2px solid #fff; /* 白色邊框 */
-            background: rgba(0, 0, 0, 0.7); /* 深色半透明背景 */
-            color: #fff; 
-            padding: 25px 15px; border-radius: 25px; cursor: pointer; transition: 0.3s; 
-            text-shadow: none; /* 按鈕內文字不需陰影 */
+            border: 2px solid #fff; background: rgba(0, 0, 0, 0.7); color: #fff; 
+            padding: 20px 10px; border-radius: 20px; cursor: pointer; transition: 0.3s; 
         }
         .battery-btn:hover { border-color: #ff9f0a; background: rgba(255, 159, 10, 0.2); }
-        
-        .price-tag { display: block; font-size: 28px; font-weight: bold; color: #ff9f0a; margin-top: 5px; }
+        .price-tag { display: block; font-size: 24px; font-weight: bold; color: #ff9f0a; margin-top: 5px; }
         
         .cta-box { 
-            margin-top: 40px; padding: 30px; 
-            background: rgba(0, 0, 0, 0.8); /* 更深的半透明背景 */
-            border-radius: 25px; border: 2px solid #ff9f0a; display: none; 
-            text-shadow: none;
+            margin-top: 30px; padding: 25px; 
+            background: rgba(0, 0, 0, 0.8); border-radius: 20px; border: 2px solid #ff9f0a; display: none; 
         }
-        
         .booking-btn { 
             display: block; background: linear-gradient(135deg, #ff9f0a, #ffb340); 
-            color: #000; padding: 18px; border-radius: 20px; text-decoration: none; 
+            color: #000; padding: 16px; border-radius: 15px; text-decoration: none; 
             font-weight: bold; font-size: 18px; margin-top: 15px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -95,19 +77,20 @@
 <div class="bg-overlay"></div>
 
 <div class="container">
-    <h1>iPhone 電池限時優惠</h1>
-    <p class="subtitle">現場 30 分鐘快速更換，專業品質保證</p>
+    <div class="promo-banner">🔥 本月限定：電池維修現折優惠，名額有限！</div>
     
-    <select id="modelSelect"><option value="">👉 請選擇 iPhone 機型</option></select>
+    <h1>iPhone 電池限時優惠</h1>
+    <p class="subtitle">現場 30 分鐘快速更換，原廠品質、數據不流失</p>
+    
+    <select id="modelSelect"><option value="">👉 選擇您的機型，立即查詢價格</option></select>
     <div class="battery-grid" id="batteryGrid"></div>
     <div class="cta-box" id="ctaBox">
-        <div id="finalPriceText" style="color:#fff; font-size: 18px;"></div>
-        <a href="https://blackboxrepair.github.io/bookingonline/" class="booking-btn">立即預約享優惠</a>
+        <div id="finalPriceText" style="font-size: 18px;"></div>
+        <a href="https://blackboxrepair.github.io/bookingonline/" class="booking-btn">立即預約，現場免等候</a>
     </div>
 </div>
 
 <script>
-    // 確保 supabase 變數在整個生命週期中只被定義一次
     if (!window.mySupabase) {
         window.mySupabase = supabase.createClient(
             'https://hkygeqtxtvnslyrmfiux.supabase.co',
@@ -117,7 +100,7 @@
 
     async function init() {
         const select = document.getElementById('modelSelect');
-        const { data, error } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
+        const { data } = await window.mySupabase.from('iphone_prices').select('id, model_name').order('model_name');
         if (data) data.forEach(m => select.innerHTML += `<option value="${m.id}">${m.model_name}</option>`);
     }
 
