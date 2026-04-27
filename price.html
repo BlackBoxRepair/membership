@@ -23,7 +23,7 @@
 
         .bg-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.65);
+            background-color: rgba(0, 0, 0, 0.7);
             z-index: -1;
         }
 
@@ -52,62 +52,44 @@
             font-size: 16px; margin-bottom: 20px; outline: none;
         }
 
-        .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         
         .battery-btn { 
             border: 1px solid #444; background: rgba(30, 30, 30, 0.8); color: #fff; 
             padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
         }
-        .battery-btn:hover { border-color: #F7B500; background: rgba(50, 50, 50, 0.9); }
         
         .btn-title { display: block; font-size: 18px; font-weight: bold; margin-bottom: 8px; }
         .price-tag { display: block; font-size: 22px; font-weight: bold; color: #F7B500; }
         .bsmi-note { font-size: 12px; color: #00e676; margin-top: 5px; display: block; }
         
-        .cta-box { 
-            margin-top: 25px; padding: 25px; background: rgba(0, 0, 0, 0.7); 
-            border-radius: 15px; border: 1px solid #F7B500; display: none; 
-            box-shadow: 0 0 20px rgba(247, 181, 0, 0.2);
-        }
-
+        /* 修改後的預約按鈕樣式 */
         .booking-btn { 
-            display: block; background: #F7B500; color: #000; 
-            padding: 16px; border-radius: 10px; text-decoration: none; 
-            font-weight: bold; font-size: 18px; margin-top: 15px;
-            transition: transform 0.2s;
+            display: none; /* 預設隱藏 */
+            background: #F7B500; color: #000; 
+            padding: 18px; border-radius: 12px; text-decoration: none; 
+            font-weight: bold; font-size: 18px; margin-top: 10px; width: 100%; border: none; cursor: pointer;
         }
-        .booking-btn:active { transform: scale(0.98); }
 
-        /* === 門市資訊調整 === */
+        /* 門市資訊區塊 */
         .store-section { margin-top: 40px; text-align: left; }
         .store-card { 
             background: rgba(255, 255, 255, 0.05);
-            padding: 20px 120px 20px 20px; 
+            padding: 20px 130px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; 
-            margin-bottom: 20px; 
-            position: relative;
-            white-space: nowrap; /* 確保內容不自動換行 */
+            margin-bottom: 20px; position: relative;
         }
-        
-        /* === 認證標示微調：往右靠、縮小至 100px === */
         .license-icon {
-            position: absolute; 
-            top: 50%; 
-            right: 2px; /* 往右更靠 */
-            width: 100px; /* 約縮小至 95% */
-            height: auto;
-            transform: translateY(-50%);
-            z-index: 5;
+            position: absolute; top: 50%; right: 10px; width: 100px; height: auto;
+            transform: translateY(-50%); z-index: 5;
         }
-        
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
-        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; }
+        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .map-link { 
             display: inline-block; background: #333; color: white; 
             padding: 6px 12px; border-radius: 6px; text-decoration: none; 
             font-size: 13px; border: 1px solid #F7B500;
         }
-        .map-link:hover { background: #F7B500; color: #000; }
     </style>
 </head>
 <body>
@@ -122,16 +104,12 @@
     <p class="subtitle">現場維修快速更換，原廠品質、數據不流失</p>
     
     <select id="modelSelect"><option value="">👉 選擇機型，立即查詢價格</option></select>
-    <div class="battery-grid" id="batteryGrid"></div>
     
-    <div class="cta-box" id="ctaBox">
-        <div id="finalPriceText" style="font-size: 18px;"></div>
-        <a href="https://blackboxrepair.github.io/bookingonline/" class="booking-btn">立即預約，現場免等候</a>
-    </div>
+    <div class="battery-grid" id="batteryGrid"></div>
+    <a href="https://blackboxrepair.github.io/bookingonline/" id="bookingBtn" class="booking-btn">立即預約，現場免等候</a>
 
     <div class="store-section">
         <h2 style="text-align: center; font-size: 20px; margin-bottom: 20px; color: #F7B500;">門市據點</h2>
-        
         <div class="store-card">
             <img src="lisense.png" class="license-icon" alt="認證標示">
             <div class="store-name">黑盒子 - 公益門市</div>
@@ -139,7 +117,6 @@
             <div class="store-info">營業時間：11:00-20:00</div>
             <a href="https://maps.app.goo.gl/SBgcEZbhB2pguB4T6" class="map-link">Google Maps</a>
         </div>
-
         <div class="store-card">
             <img src="lisense.png" class="license-icon" alt="認證標示">
             <div class="store-name">黑盒子 - 沙鹿門市</div>
@@ -167,8 +144,11 @@
     document.getElementById('modelSelect').addEventListener('change', async (e) => {
         const id = e.target.value;
         const grid = document.getElementById('batteryGrid');
-        const ctaBox = document.getElementById('ctaBox');
-        grid.innerHTML = ''; ctaBox.style.display = 'none';
+        const bookingBtn = document.getElementById('bookingBtn');
+        
+        grid.innerHTML = '';
+        bookingBtn.style.display = 'none'; // 預設隱藏按鈕
+
         if (!id) return;
 
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
@@ -182,14 +162,12 @@
                 const btn = document.createElement('button');
                 btn.className = 'battery-btn';
                 btn.innerHTML = `<span class="btn-title">${opt.label}</span> <span class="price-tag">$${data[opt.key]}</span> <span class="bsmi-note">${opt.note}</span>`;
-                btn.onclick = () => {
-                    document.getElementById('finalPriceText').innerHTML = `選擇：<strong>${opt.label}</strong><br><span style="font-size:26px; color:#F7B500; font-weight:bold;">$${data[opt.key]} 元</span>`;
-                    ctaBox.style.display = 'block';
-                    ctaBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                };
                 grid.appendChild(btn);
             }
         });
+
+        // 只要有選型號，就顯示預約按鈕
+        bookingBtn.style.display = 'block';
     });
     init();
 </script>
