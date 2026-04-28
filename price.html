@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iPhone 電池限時優惠 | 黑盒子專業維修</title>
+    
+    <link rel="icon" href="icon.jpg" type="image/jpeg">
+    
+    <meta property="og:image" content="ads.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:title" content="iPhone 電池限時優惠 | 黑盒子專業維修">
+    <meta property="og:description" content="現場維修快速更換，原廠品質、數據不流失，立即線上預約！">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body, html {
@@ -80,13 +90,14 @@
             padding: 20px 120px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; 
             margin-bottom: 20px; position: relative;
+            white-space: nowrap;
         }
         .license-icon {
             position: absolute; top: 50%; right: 2px; width: 100px; height: auto;
             transform: translateY(-50%); z-index: 5;
         }
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
-        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; }
         .map-link { 
             display: inline-block; background: #333; color: white; 
             padding: 6px 12px; border-radius: 6px; text-decoration: none; 
