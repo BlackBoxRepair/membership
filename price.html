@@ -62,19 +62,16 @@
             font-size: 16px; margin-bottom: 20px; outline: none;
         }
 
-        /* === 電池報價按鈕特效 === */
         .battery-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         
         .battery-btn { 
             border: 1px solid #444; background: rgba(30, 30, 30, 0.8); color: #fff; 
             padding: 15px 10px; border-radius: 12px; cursor: pointer; 
-            transition: all 0.3s ease; /* 特效過場 */
+            transition: all 0.3s ease;
         }
         .battery-btn:hover { 
-            border-color: #F7B500; 
-            background: rgba(40, 40, 40, 0.9); 
-            transform: scale(1.03); /* 滑鼠懸停放大 */
-            box-shadow: 0 0 10px rgba(247, 181, 0, 0.4); /* 光暈效果 */
+            border-color: #F7B500; background: rgba(40, 40, 40, 0.9); 
+            transform: scale(1.03); box-shadow: 0 0 10px rgba(247, 181, 0, 0.4);
         }
         
         .btn-title { display: block; font-size: 15px; font-weight: bold; margin-bottom: 5px; }
@@ -93,7 +90,7 @@
             background: rgba(255, 255, 255, 0.05); padding: 20px 120px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; position: relative;
         }
-        .license-icon { position: absolute; top: 50%; right: 2px; width: 100px; transform: translateY(-50%); }
+        .license-icon { position: absolute; top: 50%; right: 2px; width: 100px; transform: translateY(-50%); z-index: 5; }
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
         .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; }
         .map-link { display: inline-block; background: #333; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; border: 1px solid #F7B500; }
@@ -104,7 +101,7 @@
             border: 1px solid #444; font-size: 13px; color: #bbb; line-height: 1.6;
         }
         .warranty-title { color: #F7B500; font-weight: bold; font-size: 16px; margin-bottom: 10px; display: block; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .highlight { color: #F7B500; font-weight: bold; }
+        .highlight { color: #F7B500; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
@@ -143,10 +140,8 @@
     <div class="warranty-section">
         <span class="warranty-title">🛡️ 電池保固條款</span>
         <ul>
-            <li>蘋果手機電池更換完成後，自交機日起享有 <span class="highlight">3 個月</span>保固。若電池於正常使用下出現健康度低於 <span class="highlight">80%</span>、循環次數超過 <span class="highlight">500 次</span>，或經檢測確認為電池本體品質異常，本店將提供保固處理。</li>
-            <li>若電池發生 <span class="highlight">膨脹</span> 情形，自交機日起享有 <span class="highlight">1 年</span>保固。</li>
-            <li>保固範圍僅限本次更換之電池零件。若因摔落、進水、自行拆機、非本店拆修造成之問題，則不在保固範圍內。</li>
-            <li>保固需提供本店維修紀錄或消費證明，並經檢測確認後辦理。</li>
+            <li>蘋果手機電池更換完成後，自交機日起享有 <span class="highlight">3 個月</span>保固。若電池於正常使用下出現健康度低於 80%、循環次數超過 500 次，或經檢測確認為電池本體品質異常，本店將提供保固處理。</li>
+            <li>若電池發生膨脹情形，自交機日起享有 <span class="highlight">1 年</span>保固。</li>
         </ul>
     </div>
 </div>
@@ -173,7 +168,6 @@
         if (!id) return;
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
         
-        // 修正：調整報價版面結構
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
