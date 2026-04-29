@@ -69,48 +69,36 @@
             padding: 20px 10px; border-radius: 12px; cursor: pointer; transition: 0.3s; 
         }
         
-        .btn-title { display: block; font-size: 18px; font-weight: bold; margin-bottom: 8px; }
-        .price-tag { display: block; font-size: 22px; font-weight: bold; color: #F7B500; }
-        .bsmi-note { font-size: 12px; color: #00e676; margin-top: 5px; display: block; }
-        
         .booking-btn { 
-            display: none; 
-            width: 100%; box-sizing: border-box;
-            background: #F7B500; color: #000; 
-            padding: 18px; border-radius: 12px; text-decoration: none; 
-            font-weight: bold; font-size: 18px; margin-top: 10px; 
+            display: none; width: 100%; box-sizing: border-box;
+            background: #F7B500; color: #000; padding: 18px; border-radius: 12px; 
+            text-decoration: none; font-weight: bold; font-size: 18px; margin-top: 10px; 
             border: none; cursor: pointer;
-            transition: transform 0.2s, background 0.3s;
         }
-        .booking-btn:hover { background: #e0a300; transform: scale(1.02); }
 
         .store-section { margin-top: 40px; text-align: left; }
         .store-card { 
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px 120px 20px 20px; 
-            border-radius: 12px; border: 1px solid #333; 
-            margin-bottom: 20px; position: relative;
-            white-space: nowrap;
+            background: rgba(255, 255, 255, 0.05); padding: 20px 120px 20px 20px; 
+            border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; position: relative;
         }
-        .license-icon {
-            position: absolute; top: 50%; right: 2px; width: 100px; height: auto;
-            transform: translateY(-50%); z-index: 5;
-        }
+        .license-icon { position: absolute; top: 50%; right: 2px; width: 100px; transform: translateY(-50%); }
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
-        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; }
-        .map-link { 
-            display: inline-block; background: #333; color: white; 
-            padding: 6px 12px; border-radius: 6px; text-decoration: none; 
-            font-size: 13px; border: 1px solid #F7B500;
-        }
+        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .map-link { display: inline-block; background: #333; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; border: 1px solid #F7B500; }
 
-        /* === 保固條款區塊 === */
-        .warranty-section { 
-            margin-top: 50px; padding: 20px; text-align: left; 
-            background: rgba(255, 255, 255, 0.03); border-radius: 15px;
-            border: 1px solid #444; font-size: 13px; color: #bbb; line-height: 1.6;
+        /* === 折疊式保固條款 === */
+        .warranty-container { margin-top: 30px; text-align: left; }
+        .warranty-toggle {
+            width: 100%; background: #222; color: #F7B500; padding: 15px;
+            border: 1px solid #F7B500; border-radius: 12px; cursor: pointer;
+            font-size: 16px; font-weight: bold; display: flex; align-items: center;
+            justify-content: center; gap: 10px;
         }
-        .warranty-title { color: #F7B500; font-weight: bold; font-size: 16px; margin-bottom: 10px; display: block; }
+        .warranty-content {
+            display: none; padding: 20px; background: rgba(0,0,0,0.5);
+            border: 1px solid #444; border-top: none; border-radius: 0 0 12px 12px;
+            font-size: 13px; color: #bbb; line-height: 1.6;
+        }
         .highlight { color: #F7B500; font-weight: bold; }
     </style>
 </head>
@@ -126,9 +114,7 @@
     <p class="subtitle">現場維修快速更換，原廠品質、數據不流失</p>
     
     <select id="modelSelect"><option value="">👉 選擇機型，立即查詢價格</option></select>
-    
     <div class="battery-grid" id="batteryGrid"></div>
-    
     <a href="https://blackboxrepair.github.io/bookingonline/?utm_source=facebook&utm_medium=ad&utm_campaign=repair_service&utm_content=battery_replacement" id="bookingBtn" class="booking-btn">立即預約，現場免等候 ➔</a>
 
     <div class="store-section">
@@ -149,18 +135,27 @@
         </div>
     </div>
 
-    <div class="warranty-section">
-        <span class="warranty-title">電池保固條款</span>
-        <ul>
-            <li>蘋果手機電池更換完成後，自交機日起享有 <span class="highlight">3 個月</span>保固。保固期間內，若電池於正常使用下出現健康度低於 <span class="highlight">80%</span>、循環次數超過 <span class="highlight">500 次</span>，或經檢測確認為電池本體品質異常，本店將提供保固處理。</li>
-            <li>若電池發生 <span class="highlight">膨脹</span> 情形，自交機日起享有 <span class="highlight">1 年</span>保固。如發現螢幕被頂起、機身縫隙變大或異常變形，請立即停止使用並送回檢測。</li>
-            <li>保固範圍僅限本次更換之電池零件。若因摔落、進水、受潮、機身變形、自行拆機、非本店拆修、不當充電設備、主機板或其他零件異常造成之問題，則不在保固範圍內。</li>
-            <li>保固需提供本店維修紀錄或消費證明，並經檢測確認後辦理。保固期限以原始交機日為起算基準。</li>
-        </ul>
+    <div class="warranty-container">
+        <button class="warranty-toggle" onclick="toggleWarranty()">
+            <span>🛡️</span> 點擊查看電池保固條款
+        </button>
+        <div id="warrantyContent" class="warranty-content">
+            <ul>
+                <li>蘋果手機電池更換完成後，自交機日起享有 <span class="highlight">3 個月</span>保固。若電池於正常使用下出現健康度低於 <span class="highlight">80%</span>、循環次數超過 <span class="highlight">500 次</span>，或檢測確認為電池本體品質異常，本店提供保固處理。</li>
+                <li>若電池發生 <span class="highlight">膨脹</span> 情形，自交機日起享有 <span class="highlight">1 年</span>保固。</li>
+                <li>保固範圍僅限更換之零件。因摔落、進水、自行拆機、非本店拆修造成之問題，不在保固範圍內。</li>
+                <li>保固需提供維修紀錄或消費證明，並經檢測確認後辦理。</li>
+            </ul>
+        </div>
     </div>
 </div>
 
 <script>
+    function toggleWarranty() {
+        const content = document.getElementById('warrantyContent');
+        content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+    }
+
     if (!window.mySupabase) {
         window.mySupabase = supabase.createClient(
             'https://hkygeqtxtvnslyrmfiux.supabase.co',
@@ -178,18 +173,13 @@
         const id = e.target.value;
         const grid = document.getElementById('batteryGrid');
         const bookingBtn = document.getElementById('bookingBtn');
-        
-        grid.innerHTML = '';
-        bookingBtn.style.display = 'none';
-
+        grid.innerHTML = ''; bookingBtn.style.display = 'none';
         if (!id) return;
-
         const { data } = await window.mySupabase.from('iphone_prices').select('*').eq('id', id).single();
         const options = [
             { key: 'original_battery', label: '蘋果原廠電池', note: '系統可查維修紀錄' }, 
             { key: 'third_party_battery', label: 'BSMI認證電池', note: '支援健康度顯示' }
         ];
-
         options.forEach(opt => {
             if (data[opt.key]) {
                 const btn = document.createElement('button');
@@ -198,7 +188,6 @@
                 grid.appendChild(btn);
             }
         });
-
         bookingBtn.style.display = 'block';
     });
     init();
