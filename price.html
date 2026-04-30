@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iPhone 電池限時優惠 | 黑盒子專業維修</title>
     
+    <!-- 網站圖示 -->
     <link rel="icon" href="https://blackboxrepair.github.io/bookingonline/icon.jpg" type="image/jpeg">
     
+    <!-- 社群分享預覽圖設定 (使用您提供的新圖 ads.png) -->
     <meta property="og:image" content="https://blackboxrepair.github.io/bookingonline/ads.png">
     <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
@@ -90,10 +92,11 @@
         .store-card { 
             background: rgba(255, 255, 255, 0.05); padding: 20px 120px 20px 20px; 
             border-radius: 12px; border: 1px solid #333; margin-bottom: 20px; position: relative;
+            white-space: nowrap;
         }
-        .license-icon { position: absolute; top: 50%; right: 2px; width: 100px; transform: translateY(-50%); z-index: 5; }
+        .license-icon { position: absolute; top: 50%; right: 2px; width: 100px; height: auto; transform: translateY(-50%); z-index: 5; }
         .store-name { font-size: 16px; font-weight: bold; color: #F7B500; margin-bottom: 5px; }
-        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; }
+        .store-info { font-size: 14px; color: #ccc; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; }
         .map-link { display: inline-block; background: #333; color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 13px; border: 1px solid #F7B500; }
 
         .warranty-section { 
@@ -119,6 +122,8 @@
     
     <select id="modelSelect"><option value="">👉 選擇機型，立即查詢價格</option></select>
     <div class="battery-grid" id="batteryGrid"></div>
+    
+    <!-- 包含 Meta 廣告追蹤 UTM 的預約按鈕 -->
     <a href="https://blackboxrepair.github.io/bookingonline/?utm_source=facebook&utm_medium=ad&utm_campaign=repair_service&utm_content=battery_replacement" id="bookingBtn" class="booking-btn">立即預約，現場免等候 ➔</a>
 
     <div class="store-section">
