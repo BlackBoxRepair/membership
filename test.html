@@ -82,26 +82,24 @@
             justify-content: center; 
             gap: 15px; 
             margin-bottom: 50px; 
-            flex-wrap: nowrap; /* 確保三個按鈕並排 */
+            flex-wrap: nowrap; 
         }
         
-        /* 調整後的按鈕尺寸 */
         .tab-btn { 
             background: var(--primary-black); 
             color: #fff; 
             border: 2px solid var(--primary-black); 
-            padding: 10px 30px; /* 縮小內距 */
-            font-size: 18px; /* 縮小字體 */
+            padding: 6px 20px; /* 縮小按鈕框 */
+            font-size: 18px; /* 字體大小維持不變 */
             border-radius: 40px; 
             cursor: pointer; 
             transition: var(--transition); 
             letter-spacing: 1px;
-            white-space: nowrap; /* 防止按鈕內文字斷行 */
+            white-space: nowrap; 
         }
         .tab-btn.active { border-color: var(--gold-accent); color: var(--gold-accent); font-weight: 700; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15); }
         .tab-btn:hover { transform: translateY(-2px); background-color: var(--secondary-black); }
 
-        /* 圖片尺寸維持 600px */
         .process-img-box { max-width: 600px; margin: 0 auto; }
         .process-img { width: 100%; height: auto; display: none; }
         .process-img.active { display: block; animation: fadeIn 0.4s; }
@@ -153,7 +151,6 @@
     </nav>
 
     <main>
-        <!-- 首頁 -->
         <section id="section-home" class="content-section active">
             <div class="empty-state">
                 <h2 class="page-header">歡迎來到黑盒子維修中心</h2>
@@ -161,7 +158,6 @@
             </div>
         </section>
 
-        <!-- 服務流程頁 -->
         <section id="section-process" class="content-section">
             <div class="process-container">
                 <h2 class="page-header">服務流程</h2>
@@ -178,19 +174,16 @@
             </div>
         </section>
 
-        <!-- 維修案例頁 -->
         <section id="section-cases" class="content-section">
             <h2 class="page-header">維修案例</h2>
             <div class="empty-state">維修案例文章準備中...</div>
         </section>
 
-        <!-- 價格查詢頁 -->
         <section id="section-prices" class="content-section">
             <h2 class="page-header">價格查詢</h2>
             <div class="empty-state">價格報價單整理中...</div>
         </section>
 
-        <!-- 服務站點頁 -->
         <section id="section-locations" class="content-section">
             <h2 class="page-header">服務站點</h2>
             <div class="empty-state">門市據點載入中...</div>
@@ -203,12 +196,10 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
-        // 選單開關
         document.getElementById('openMenu').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
         document.getElementById('closeMenu').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
         overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
 
-        // 頁面導覽邏輯
         function navigateTo(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
             document.getElementById(`section-${sectionId}`).classList.add('active');
@@ -217,7 +208,6 @@
             window.scrollTo(0, 0);
         }
 
-        // 服務流程圖片切換
         function changeImg(type, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.process-img').forEach(i => i.classList.remove('active'));
