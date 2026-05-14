@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- 核心樣式與顏色定義 (融入文青白底風格) --- */
+        /* --- 核心樣式與顏色定義 --- */
         :root {
             --primary-black: #1a1a1a;
             --secondary-black: #2d2d2d;
             --gold-accent: #d4af37;
             --bg-light: #f9f9f9;
             --text-dark: #333333;
-            --text-muted: #999999; /* 分類小標題顏色 */
+            --text-muted: #999999;
             --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             --transition: all 0.3s ease;
         }
@@ -59,7 +59,6 @@
             gap: 15px;
         }
 
-        /* 漢堡選單按鈕 */
         .menu-toggle {
             font-size: 24px;
             color: var(--primary-black);
@@ -85,7 +84,6 @@
             object-fit: contain;
         }
 
-        /* 右上角功能按鈕組 (維持圖片圓形底色風格) */
         .header-right {
             display: flex;
             gap: 15px;
@@ -133,14 +131,14 @@
             visibility: visible;
         }
 
-        /* --- 🎨 側邊展開選單 (參考森息日常風格改造) --- */
+        /* --- 側邊展開選單 (森息日常風格) --- */
         .sidebar {
             position: fixed;
             top: 0;
             left: -320px;
             width: 320px;
             height: 100%;
-            background-color: #ffffff; /* 改為與參考圖相同的純白底色 */
+            background-color: #ffffff;
             z-index: 2000;
             transition: var(--transition);
             padding: 24px;
@@ -154,7 +152,6 @@
             left: 0;
         }
 
-        /* 頂部品牌 Logo 與 關閉按鈕 */
         .sidebar-header {
             display: flex;
             justify-content: space-between;
@@ -189,21 +186,18 @@
             color: var(--gold-accent);
         }
 
-        /* 選單容器樣式 */
         .sidebar-content {
             display: flex;
             flex-direction: column;
             gap: 24px;
         }
 
-        /* 分類區塊 */
         .menu-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        /* 分類小標題 (如：商品、探索) */
         .group-title {
             font-size: 13px;
             color: var(--text-muted);
@@ -212,7 +206,6 @@
             padding-left: 8px;
         }
 
-        /* 單個連結項目 */
         .menu-item {
             color: var(--text-dark);
             text-decoration: none;
@@ -226,29 +219,17 @@
 
         .menu-item:hover {
             color: var(--gold-accent);
-            background-color: #fcfbf7; /* 輕微的暖色調懸停背景 */
-            padding-left: 14px; /* 優雅的微幅內縮效果 */
+            background-color: #fcfbf7;
+            padding-left: 14px;
         }
 
-        /* 階層縮進項目 (如：維修案例內分類) */
-        .menu-item.sub-item {
-            padding-left: 24px;
-            font-size: 15px;
-            color: #555555;
-        }
-
-        .menu-item.sub-item:hover {
-            padding-left: 30px;
-        }
-
-        /* 側邊選單開啟時的背景遮罩 */
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.3); /* 稍微調淡，呈現乾淨感 */
+            background-color: rgba(0, 0, 0, 0.3);
             z-index: 1500;
             display: none;
         }
@@ -257,14 +238,93 @@
             display: block;
         }
 
-        /* --- 網頁主要內容區 (暫時留白) --- */
+        /* --- 網頁主要內容區 --- */
         main {
             margin-top: 70px;
-            padding: 40px 20px;
+            padding: 60px 20px;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
             min-height: calc(100vh - 180px);
+        }
+
+        /* --- 🛠 服務流程網頁切換樣式區 --- */
+        .process-section {
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            text-align: center;
+        }
+
+        .process-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary-black);
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        /* 三個切換按鈕排版 */
+        .process-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: var(--primary-black);
+            color: #ffffff;
+            border: 2px solid var(--primary-black);
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn:hover {
+            background-color: var(--secondary-black);
+            border-color: var(--secondary-black);
+            transform: translateY(-2px);
+        }
+
+        /* 啟用狀態的按鈕 (黑底金邊金字) */
+        .tab-btn.active {
+            background-color: var(--primary-black);
+            color: var(--gold-accent);
+            border-color: var(--gold-accent);
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        /* 圖片顯示容器 */
+        .process-display {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .process-img {
+            width: 100%;
+            height: auto;
+            display: none; /* 預設先隱藏，交由 JS 控制 */
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        /* 顯示圖片時的動畫 */
+        .process-img.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* 頁尾 */
@@ -309,7 +369,6 @@
         </div>
         
         <div class="sidebar-content">
-            
             <div class="menu-group">
                 <a href="#" class="menu-item" style="font-weight: 500;">首頁</a>
             </div>
@@ -322,9 +381,7 @@
 
             <div class="menu-group">
                 <div class="group-title">實作紀錄</div>
-                <a href="#cases" class="menu-item">全部維修案例</a>
-                <a href="#cases-iphone" class="menu-item sub-item">iPhone 維修</a>
-                <a href="#cases-macbook" class="menu-item sub-item">MacBook 維修</a>
+                <a href="#cases" class="menu-item">維修案例</a>
             </div>
 
             <div class="menu-group">
@@ -332,18 +389,35 @@
                 <a href="https://blackboxrepair.github.io/membership/" class="menu-item">會員中心</a>
                 <a href="#locations" class="menu-item">服務站點</a>
             </div>
-
         </div>
     </nav>
 
     <main>
-        </main>
+        
+        <section id="process" class="process-section">
+            <h2 class="process-title">服務流程</h2>
+            
+            <div class="process-tabs">
+                <button class="tab-btn active" onclick="switchProcess('phone')">手機維修</button>
+                <button class="tab-btn" onclick="switchProcess('notebook')">筆電維修</button>
+                <button class="tab-btn" onclick="switchProcess('data')">資料救援</button>
+            </div>
+
+            <div class="process-display">
+                <img src="phone process.png" id="phone-img" alt="手機維修流程" class="process-img active">
+                <img src="notebook process.png" id="notebook-img" alt="筆電維修流程" class="process-img">
+                <img src="data process.png" id="data-img" alt="資料救援流程" class="process-img">
+            </div>
+        </section>
+
+    </main>
 
     <footer>
         <p>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</p>
     </footer>
 
     <script>
+        // --- 側邊選單控制 ---
         const openMenuBtn = document.getElementById('openMenu');
         const closeMenuBtn = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
@@ -359,14 +433,32 @@
         closeMenuBtn.addEventListener('click', toggleMenu);
         overlay.addEventListener('click', toggleMenu);
 
-        // 點擊選單連結後，自動關閉選單
         sidebarLinks.forEach(link => {
             link.addEventListener('click', () => {
-                // 如果是連到外部(如會員中心)，不用特別阻止預設行為
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
             });
         });
+
+        // --- 🛠 服務流程切換邏輯 ---
+        function switchProcess(type) {
+            // 1. 移除所有按鈕的 active 狀態
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // 2. 移除所有圖片的 active 狀態
+            const images = document.querySelectorAll('.process-img');
+            images.forEach(img => img.classList.remove('active'));
+
+            // 3. 幫當前點擊的按鈕加上 active
+            // 透過事件觸發來源找到對應按鈕
+            const clickedBtn = event.currentTarget;
+            clickedBtn.classList.add('active');
+
+            // 4. 顯示對應的圖片並觸發漸變動畫
+            const targetImg = document.getElementById(`${type}-img`);
+            targetImg.classList.add('active');
+        }
     </script>
 </body>
 </html>
