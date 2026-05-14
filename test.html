@@ -73,28 +73,35 @@
 
         /* --- 🛠 服務流程頁面修正區 --- */
         .process-container { 
-            /* 移除白色背景框與陰影 */
             background: transparent; 
             padding: 20px 0; 
             text-align: center; 
         }
-        .process-tabs { display: flex; justify-content: center; gap: 20px; margin-bottom: 50px; flex-wrap: wrap; }
+        .process-tabs { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-bottom: 50px; 
+            flex-wrap: nowrap; /* 確保三個按鈕並排 */
+        }
         
-        /* 放大後的按鈕樣式 */
+        /* 調整後的按鈕尺寸 */
         .tab-btn { 
             background: var(--primary-black); 
             color: #fff; 
             border: 2px solid var(--primary-black); 
-            padding: 15px 45px; /* 內距加大 */
-            font-size: 20px; /* 字體加大 */
+            padding: 10px 30px; /* 縮小內距 */
+            font-size: 18px; /* 縮小字體 */
             border-radius: 40px; 
             cursor: pointer; 
             transition: var(--transition); 
             letter-spacing: 1px;
+            white-space: nowrap; /* 防止按鈕內文字斷行 */
         }
         .tab-btn.active { border-color: var(--gold-accent); color: var(--gold-accent); font-weight: 700; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15); }
         .tab-btn:hover { transform: translateY(-2px); background-color: var(--secondary-black); }
 
+        /* 圖片尺寸維持 600px */
         .process-img-box { max-width: 600px; margin: 0 auto; }
         .process-img { width: 100%; height: auto; display: none; }
         .process-img.active { display: block; animation: fadeIn 0.4s; }
@@ -154,7 +161,7 @@
             </div>
         </section>
 
-        <!-- 服務流程頁 (已修改按鈕與框線) -->
+        <!-- 服務流程頁 -->
         <section id="section-process" class="content-section">
             <div class="process-container">
                 <h2 class="page-header">服務流程</h2>
