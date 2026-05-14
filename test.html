@@ -75,11 +75,16 @@
             color: var(--gold-accent);
         }
 
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-black);
-            letter-spacing: 1px;
+        /* 圖片 Logo 樣式優化 */
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            height: 40px; /* 限制高度以符合導覽列比例 */
+            width: auto;
+            object-fit: contain;
         }
 
         /* 右上角功能按鈕組 (維持圖片圓形底色風格) */
@@ -142,7 +147,7 @@
             z-index: 2000;
             transition: var(--transition);
             padding: 30px 20px;
-            box-shadow: 5px 0 2fa0px rgba(0,0,0,0.2);
+            box-shadow: 5px 0 20px rgba(0,0,0,0.2);
         }
 
         .sidebar.active {
@@ -220,115 +225,14 @@
             display: block;
         }
 
-        /* --- 網頁主要內容區 (Main Content) --- */
+        /* --- 網頁主要內容區 (暫時留白) --- */
         main {
             margin-top: 70px;
             padding: 40px 20px;
             max-width: 1200px;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        /* 區塊通用樣式 */
-        section {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 40px 30px;
-            margin-bottom: 40px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0, 0, 0, 0.02);
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary-black);
-            margin-bottom: 30px;
-            position: relative;
-            display: inline-block;
-            padding-bottom: 8px;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background-color: var(--gold-accent);
-        }
-
-        /* --- 維修案例 文章排版 (部落格卡片) --- */
-        .case-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .case-card {
-            background: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #eeeeee;
-            transition: var(--transition);
-        }
-
-        .case-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        }
-
-        .case-img {
-            width: 100%;
-            height: 200px;
-            background-color: #e0e0e0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text-gray);
-            font-size: 14px;
-            /* 未來有圖片可替換為 background-image */
-        }
-
-        .case-info {
-            padding: 20px;
-        }
-
-        .case-date {
-            font-size: 12px;
-            color: var(--text-gray);
-            margin-bottom: 8px;
-        }
-
-        .case-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary-black);
-            margin-bottom: 10px;
-        }
-
-        .case-excerpt {
-            font-size: 14px;
-            color: #666666;
-        }
-
-        /* 價格表格簡易樣式 */
-        .price-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .price-table th, .price-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eeeeee;
-        }
-
-        .price-table th {
-            background-color: var(--primary-black);
-            color: #ffffff;
+            min-height: calc(100vh - 180px); /* 確保留白時頁尾維持在下方 */
         }
 
         /* 頁尾 */
@@ -347,7 +251,9 @@
             <button class="menu-toggle" id="openMenu" aria-label="開啟選單">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <div class="logo">BLACK BOX</div>
+            <a href="#" class="logo-container">
+                <img src="site logo.png" alt="Black Box Logo" class="logo-img">
+            </a>
         </div>
         <div class="header-right">
             <a href="https://blackboxrepair.github.io/membership/" class="nav-btn" data-tooltip="會員中心">
@@ -376,68 +282,7 @@
     </nav>
 
     <main>
-        
-        <section id="process">
-            <h2 class="section-title">服務流程</h2>
-            <p>這裡填寫您的核心維修服務流程（例如：檢測、報價、維修、交機）。</p>
-        </section>
-
-        <section id="cases">
-            <h2 class="section-title">維修案例</h2>
-            <div class="case-grid">
-                
-                <article class="case-card">
-                    <div class="case-img">維修案例照片預留位置</div>
-                    <div class="case-info">
-                        <div class="case-date">2026-05-14</div>
-                        <h3 class="case-title">iPhone 15 Pro 擴充 1TB 紀錄</h3>
-                        <p class="case-excerpt">客戶表示容量嚴重不足，現場透過精密設備進行晶片升級，資料完美保留...</p>
-                    </div>
-                </article>
-
-                <article class="case-card">
-                    <div class="case-img">維修案例照片預留位置</div>
-                    <div class="case-info">
-                        <div class="case-date">2026-05-10</div>
-                        <h3 class="case-title">iPad Pro 螢幕破壞修復</h3>
-                        <p class="case-excerpt">現場快速更換原廠等級面板，色彩與觸控靈敏度完全恢復如初...</p>
-                    </div>
-                </article>
-
-            </div>
-        </section>
-
-        <section id="prices">
-            <h2 class="section-title">價格查詢</h2>
-            <table class="price-table">
-                <thead>
-                    <tr>
-                        <th>項目</th>
-                        <th>適用型號</th>
-                        <th>參考價格</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>硬碟容量擴充 512GB</td>
-                        <td>iPhone X ~ iPhone 15 全系列</td>
-                        <td>$4,500 起</td>
-                    </tr>
-                    <tr>
-                        <td>硬碟容量擴充 1TB</td>
-                        <td>iPhone 13 Pro 系列以上</td>
-                        <td>$7,500 起</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section id="locations">
-            <h2 class="section-title">服務站點</h2>
-            <p>填寫您的門市地址、營業時間與聯絡電話。</p>
-        </section>
-
-    </main>
+        </main>
 
     <footer>
         <p>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</p>
