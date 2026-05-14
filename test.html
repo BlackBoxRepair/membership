@@ -2,155 +2,470 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>小星運 - 黑盒子手機維修中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑盒子維修中心 - 官方網站</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { 
-            --w: 220px; 
-            --h: 330px; 
-            --gap: 240px; 
+        /* --- 核心樣式與顏色定義 (黑、白、金) --- */
+        :root {
+            --primary-black: #1a1a1a;
+            --secondary-black: #2d2d2d;
+            --gold-accent: #d4af37;
+            --gold-light: #f4ebd0;
+            --bg-light: #f9f9f9;
+            --text-dark: #333333;
+            --text-gray: #777777;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
         }
-        body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; background: #000; overflow: hidden; font-family: sans-serif; }
-        
-        #loading {
-            position: fixed; inset: 0; background: #000; z-index: 999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.4s ease;
-        }
-        .lds-ring { display: inline-block; width: 40px; height: 40px; border: 4px solid #fff; border-color: #fff transparent #fff transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .game-bg { position: fixed; inset: 0; background: url('game desk.png') center/cover; z-index: 1; }
-        
-        /* 舞台：使用 Flex 並確保垂直水平皆居中 */
-        .stage { 
-            position: relative; 
-            width: 100%; 
-            height: 100%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            perspective: 1200px; 
-            z-index: 10; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* --- 上排固定導覽列 (Top Header) --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #ffffff;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* 漢堡選單按鈕 */
+        .menu-toggle {
+            font-size: 24px;
+            color: var(--primary-black);
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            transition: var(--transition);
         }
         
-        .carousel { position: relative; width: var(--w); height: var(--h); transform-style: preserve-3d; }
-        
-        .card { 
-            position: absolute; inset: 0; 
-            transform-style: preserve-3d; 
-            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
-            display: none; 
+        .menu-toggle:hover {
+            color: var(--gold-accent);
         }
-        
-        .card-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .card-front { background: url('Taro Front.png') center/100% 100% no-repeat; }
-        .card-back { background: url('Taro Back.png') center/100% 100% no-repeat; transform: rotateY(180deg); display: flex; align-items: center; justify-content: center; }
-        .fortune { color: #432a0a; font-size: 1.8rem; font-weight: bold; text-align: center; opacity: 0; margin-top: -15px; }
 
-        /* --- 核心修正區：移除 translateY 偏移，達成 X 與 Y 軸絕對置中 --- */
-        .card.is-flipped { 
-            /* 將 translateY 設為 0，並增加 translateZ 讓卡牌放大靠近 */
-            transform: translateZ(500px) rotateY(180deg) translateY(0) !important; 
-            z-index: 100 !important; 
-            display: block !important; 
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-black);
+            letter-spacing: 1px;
         }
-        /* --------------------------------------------------------- */
 
-        .card.is-flipped .fortune { opacity: 1; transition: 0.5s 0.3s; }
+        /* 右上角功能按鈕組 (維持圖片圓形底色風格) */
+        .header-right {
+            display: flex;
+            gap: 15px;
+        }
 
-        .hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; z-index: 20; text-shadow: 0 2px 4px #000; letter-spacing: 1px;}
+        .nav-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--primary-black);
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 18px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--gold-accent);
+            transform: translateY(-2px);
+        }
+
+        /* 滑鼠懸停提示文字 */
+        .nav-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--secondary-black);
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* --- 側邊展開選單 (Sidebar) --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: var(--primary-black);
+            z-index: 2000;
+            transition: var(--transition);
+            padding: 30px 20px;
+            box-shadow: 5px 0 2fa0px rgba(0,0,0,0.2);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-title {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .close-btn {
+            font-size: 22px;
+            color: #ffffff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            color: var(--gold-accent);
+        }
+
+        /* 側邊選單連結列表 */
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cccccc;
+            text-decoration: none;
+            padding: 14px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover {
+            color: #ffffff;
+            background-color: var(--secondary-black);
+            padding-left: 24px;
+            border-left: 4px solid var(--gold-accent);
+        }
+
+        /* 側邊選單開啟時的背景遮罩 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* --- 網頁主要內容區 (Main Content) --- */
+        main {
+            margin-top: 70px;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 區塊通用樣式 */
+        section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px 30px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-black);
+            margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 8px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--gold-accent);
+        }
+
+        /* --- 維修案例 文章排版 (部落格卡片) --- */
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .case-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #eeeeee;
+            transition: var(--transition);
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+        .case-img {
+            width: 100%;
+            height: 200px;
+            background-color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-gray);
+            font-size: 14px;
+            /* 未來有圖片可替換為 background-image */
+        }
+
+        .case-info {
+            padding: 20px;
+        }
+
+        .case-date {
+            font-size: 12px;
+            color: var(--text-gray);
+            margin-bottom: 8px;
+        }
+
+        .case-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary-black);
+            margin-bottom: 10px;
+        }
+
+        .case-excerpt {
+            font-size: 14px;
+            color: #666666;
+        }
+
+        /* 價格表格簡易樣式 */
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .price-table th, .price-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .price-table th {
+            background-color: var(--primary-black);
+            color: #ffffff;
+        }
+
+        /* 頁尾 */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading">
-        <div class="lds-ring"></div>
-        <p style="color:white; margin-top:15px; font-weight: bold;">正在載入星運...</p>
-    </div>
+    <header>
+        <div class="header-left">
+            <button class="menu-toggle" id="openMenu" aria-label="開啟選單">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="logo">BLACK BOX</div>
+        </div>
+        <div class="header-right">
+            <a href="https://blackboxrepair.github.io/membership/" class="nav-btn" data-tooltip="會員中心">
+                <i class="fa-solid fa-user"></i>
+            </a>
+            <a href="https://blackboxrepair.github.io/bookingonline/" class="nav-btn" data-tooltip="線上預約">
+                <i class="fa-solid fa-calendar-check"></i>
+            </a>
+        </div>
+    </header>
 
-    <div class="game-bg"></div>
-    <div class="hint">左右滑動切換，向上滑動選定</div>
-    <div class="stage" id="main">
-        <div class="carousel" id="box"></div>
-    </div>
+    <div class="overlay" id="overlay"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">項目選單</span>
+            <button class="close-btn" id="closeMenu" aria-label="關閉選單">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#process"><i class="fa-solid fa-arrows-spin"></i>服務流程</a></li>
+            <li><a href="#cases"><i class="fa-solid fa-toolbox"></i>維修案例</a></li>
+            <li><a href="#prices"><i class="fa-solid fa-tags"></i>價格查詢</a></li>
+            <li><a href="#locations"><i class="fa-solid fa-shop"></i>服務站點</a></li>
+        </ul>
+    </nav>
 
-<script>
-    const FORTUNES = ["財運大吉", "心想事成", "萬事如意", "驚喜連連", "美夢成真", "元氣滿滿", "步步高升", "福氣滿門", "貴人相助", "吉星高照"];
-    let idx = 0, sx = 0, sy = 0, isFlip = false;
-
-    function render() {
-        const cards = document.querySelectorAll('.card');
-        const total = cards.length;
+    <main>
         
-        cards.forEach((c, i) => {
-            c.style.display = "none";
-            
-            if (i === idx) {
-                // 正中間
-                c.style.display = "block";
-                c.style.zIndex = "20";
-                c.style.transform = "translateZ(250px)";
-            } else if (i === (idx - 1 + total) % total) {
-                // 左側
-                c.style.display = "block";
-                c.style.zIndex = "10";
-                c.style.transform = "translateX(calc(var(--gap) * -1)) rotateY(25deg) translateZ(0px)";
-            } else if (i === (idx + 1) % total) {
-                // 右側
-                c.style.display = "block";
-                c.style.zIndex = "10";
-                c.style.transform = "translateX(var(--gap)) rotateY(-25deg) translateZ(0px)";
-            }
-        });
-    }
+        <section id="process">
+            <h2 class="section-title">服務流程</h2>
+            <p>這裡填寫您的核心維修服務流程（例如：檢測、報價、維修、交機）。</p>
+        </section>
 
-    window.onload = () => {
-        const b = document.getElementById('box');
-        for (let i = 0; i < 10; i++) {
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.innerHTML = `
-                <div class="card-face card-front"></div>
-                <div class="card-back card-face">
-                    <div class="fortune">${FORTUNES[i]}</div>
-                </div>`;
-            b.appendChild(d);
+        <section id="cases">
+            <h2 class="section-title">維修案例</h2>
+            <div class="case-grid">
+                
+                <article class="case-card">
+                    <div class="case-img">維修案例照片預留位置</div>
+                    <div class="case-info">
+                        <div class="case-date">2026-05-14</div>
+                        <h3 class="case-title">iPhone 15 Pro 擴充 1TB 紀錄</h3>
+                        <p class="case-excerpt">客戶表示容量嚴重不足，現場透過精密設備進行晶片升級，資料完美保留...</p>
+                    </div>
+                </article>
+
+                <article class="case-card">
+                    <div class="case-img">維修案例照片預留位置</div>
+                    <div class="case-info">
+                        <div class="case-date">2026-05-10</div>
+                        <h3 class="case-title">iPad Pro 螢幕破壞修復</h3>
+                        <p class="case-excerpt">現場快速更換原廠等級面板，色彩與觸控靈敏度完全恢復如初...</p>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <section id="prices">
+            <h2 class="section-title">價格查詢</h2>
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>項目</th>
+                        <th>適用型號</th>
+                        <th>參考價格</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>硬碟容量擴充 512GB</td>
+                        <td>iPhone X ~ iPhone 15 全系列</td>
+                        <td>$4,500 起</td>
+                    </tr>
+                    <tr>
+                        <td>硬碟容量擴充 1TB</td>
+                        <td>iPhone 13 Pro 系列以上</td>
+                        <td>$7,500 起</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="locations">
+            <h2 class="section-title">服務站點</h2>
+            <p>填寫您的門市地址、營業時間與聯絡電話。</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const openMenuBtn = document.getElementById('openMenu');
+        const closeMenuBtn = document.getElementById('closeMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+
+        function toggleMenu() {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         }
-        render();
 
-        setTimeout(() => {
-            const ld = document.getElementById('loading');
-            if(ld) {
-                ld.style.opacity = '0';
-                setTimeout(() => ld.remove(), 400);
-            }
-        }, 800);
+        openMenuBtn.addEventListener('click', toggleMenu);
+        closeMenuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
 
-        const m = document.getElementById('main');
-        m.ontouchstart = e => { sx = e.touches[0].pageX; sy = e.touches[0].pageY; };
-        m.ontouchend = e => {
-            if (isFlip) return;
-            const dx = sx - e.changedTouches[0].pageX;
-            const dy = sy - e.changedTouches[0].pageY;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 35) {
-                    idx = dx > 0 ? (idx + 1) % 10 : (idx - 1 + 10) % 10;
-                    render();
-                }
-            } else {
-                // 向上滑動觸發翻牌
-                if (dy > 65) {
-                    const ac = document.querySelectorAll('.card')[idx];
-                    if (ac) {
-                        isFlip = true;
-                        ac.classList.add('is-flipped');
-                    }
-                }
-            }
-        };
-    };
-</script>
+        // 點擊選單連結後，自動關閉選單並滾動到該區塊
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>
