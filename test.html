@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- 核心樣式與顏色定義 --- */
         :root {
             --primary-black: #1a1a1a;
             --secondary-black: #2d2d2d;
@@ -20,444 +19,190 @@
             --transition: all 0.3s ease;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans TC', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans TC', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-
-        /* --- 上排固定導覽列 (Top Header) --- */
+        /* --- 導覽列 --- */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #ffffff;
-            box-shadow: var(--shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background-color: #ffffff; box-shadow: var(--shadow);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; z-index: 1000;
         }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { font-size: 24px; color: var(--primary-black); cursor: pointer; background: none; border: none; }
+        .logo-img { height: 28px; width: auto; object-fit: contain; }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .menu-toggle {
-            font-size: 24px;
-            color: var(--primary-black);
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 5px;
-            transition: var(--transition);
-        }
-        
-        .menu-toggle:hover {
-            color: var(--gold-accent);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .logo-img {
-            height: 28px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 15px;
-        }
-
+        .header-right { display: flex; gap: 15px; }
         .nav-btn {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background-color: var(--primary-black);
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 18px;
-            transition: var(--transition);
-            position: relative;
+            display: flex; justify-content: center; align-items: center;
+            width: 42px; height: 42px; border-radius: 50%;
+            background-color: var(--primary-black); color: #ffffff;
+            text-decoration: none; font-size: 18px; transition: var(--transition);
         }
+        .nav-btn:hover { background-color: var(--gold-accent); transform: translateY(-2px); }
 
-        .nav-btn:hover {
-            background-color: var(--gold-accent);
-            transform: translateY(-2px);
-        }
-
-        .nav-btn::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: -35px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--secondary-black);
-            color: #fff;
-            font-size: 12px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .nav-btn:hover::after {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* --- 側邊展開選單 (森息日常風格) --- */
+        /* --- 側邊選單 --- */
         .sidebar {
-            position: fixed;
-            top: 0;
-            left: -320px;
-            width: 320px;
-            height: 100%;
-            background-color: #ffffff;
-            z-index: 2000;
-            transition: var(--transition);
-            padding: 24px;
-            box-shadow: 5px 0 25px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
+            position: fixed; top: 0; left: -320px; width: 320px; height: 100%;
+            background-color: #ffffff; z-index: 2000; transition: var(--transition);
+            padding: 24px; box-shadow: 5px 0 25px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column;
         }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
+        .sidebar-logo { height: 24px; }
+        .close-btn { font-size: 20px; background: none; border: none; cursor: pointer; }
 
-        .sidebar.active {
-            left: 0;
-        }
+        .sidebar-content { display: flex; flex-direction: column; gap: 24px; }
+        .menu-group { display: flex; flex-direction: column; gap: 8px; }
+        .group-title { font-size: 13px; color: var(--text-muted); letter-spacing: 1px; padding-left: 8px; }
+        .menu-item { color: var(--text-dark); text-decoration: none; font-size: 16px; padding: 8px; border-radius: 6px; transition: var(--transition); cursor: pointer; }
+        .menu-item:hover { color: var(--gold-accent); background-color: #fcfbf7; padding-left: 14px; }
 
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #f0f0f0;
-        }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); z-index: 1500; display: none; }
+        .overlay.active { display: block; }
 
-        .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        /* --- 頁面內容切換核心 --- */
+        main { margin-top: 70px; padding: 40px 20px; max-width: 1200px; margin-left: auto; margin-right: auto; min-height: calc(100vh - 180px); }
+        
+        .content-section { display: none; animation: fadeIn 0.4s ease forwards; }
+        .content-section.active { display: block; }
 
-        .sidebar-logo {
-            height: 24px;
-            width: auto;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .close-btn {
-            font-size: 20px;
-            color: #333333;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 5px;
-        }
+        /* --- 服務流程頁面樣式 --- */
+        .process-container { background: #fff; padding: 40px; border-radius: 16px; box-shadow: var(--shadow); text-align: center; }
+        .process-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { background: var(--primary-black); color: #fff; border: 2px solid var(--primary-black); padding: 10px 25px; border-radius: 25px; cursor: pointer; transition: var(--transition); }
+        .tab-btn.active { border-color: var(--gold-accent); color: var(--gold-accent); font-weight: bold; }
+        .process-img-box { max-width: 600px; margin: 0 auto; }
+        .process-img { width: 100%; height: auto; display: none; }
+        .process-img.active { display: block; animation: fadeIn 0.4s; }
 
-        .close-btn:hover {
-            color: var(--gold-accent);
-        }
+        /* --- 其他頁面樣式 --- */
+        .page-header { font-size: 28px; font-weight: 700; margin-bottom: 20px; text-align: center; color: var(--primary-black); }
+        .empty-state { text-align: center; padding: 100px 0; color: var(--text-muted); }
 
-        .sidebar-content {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .menu-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .group-title {
-            font-size: 13px;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            padding-left: 8px;
-        }
-
-        .menu-item {
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 400;
-            padding: 8px 8px;
-            border-radius: 6px;
-            transition: var(--transition);
-            display: block;
-        }
-
-        .menu-item:hover {
-            color: var(--gold-accent);
-            background-color: #fcfbf7;
-            padding-left: 14px;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.3);
-            z-index: 1500;
-            display: none;
-        }
-
-        .overlay.active {
-            display: block;
-        }
-
-        /* --- 網頁主要內容區 --- */
-        main {
-            margin-top: 70px;
-            padding: 60px 20px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-            min-height: calc(100vh - 180px);
-        }
-
-        /* --- 🛠 服務流程網頁切換樣式區 --- */
-        .process-section {
-            background-color: #ffffff;
-            border-radius: 16px;
-            padding: 40px 30px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0, 0, 0, 0.02);
-            text-align: center;
-        }
-
-        .process-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--primary-black);
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
-
-        /* 三個切換按鈕排版 */
-        .process-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background-color: var(--primary-black);
-            color: #ffffff;
-            border: 2px solid var(--primary-black);
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: 500;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: var(--transition);
-            letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        .tab-btn:hover {
-            background-color: var(--secondary-black);
-            border-color: var(--secondary-black);
-            transform: translateY(-2px);
-        }
-
-        /* 啟用狀態的按鈕 (黑底金邊金字) */
-        .tab-btn.active {
-            background-color: var(--primary-black);
-            color: var(--gold-accent);
-            border-color: var(--gold-accent);
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
-        }
-
-        /* 圖片顯示容器 */
-        .process-display {
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .process-img {
-            width: 100%;
-            height: auto;
-            display: none; /* 預設先隱藏，交由 JS 控制 */
-            opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-
-        /* 顯示圖片時的動畫 */
-        .process-img.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* 頁尾 */
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-gray);
-            font-size: 14px;
-        }
+        footer { text-align: center; padding: 40px; color: var(--text-gray); font-size: 14px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-left">
-            <button class="menu-toggle" id="openMenu" aria-label="開啟選單">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <a href="#" class="logo-container">
-                <img src="site logo.png" alt="Black Box Logo" class="logo-img">
-            </a>
+            <button class="menu-toggle" id="openMenu"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo-container"><img src="site logo.png" alt="Logo" class="logo-img"></div>
         </div>
         <div class="header-right">
-            <a href="https://blackboxrepair.github.io/membership/" class="nav-btn" data-tooltip="會員中心">
-                <i class="fa-solid fa-user"></i>
-            </a>
-            <a href="https://blackboxrepair.github.io/bookingonline/" class="nav-btn" data-tooltip="線上預約">
-                <i class="fa-solid fa-calendar-check"></i>
-            </a>
+            <a href="https://blackboxrepair.github.io/membership/" class="nav-btn"><i class="fa-solid fa-user"></i></a>
+            <a href="https://blackboxrepair.github.io/bookingonline/" class="nav-btn"><i class="fa-solid fa-calendar-check"></i></a>
         </div>
     </header>
 
     <div class="overlay" id="overlay"></div>
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <img src="site logo.png" alt="Logo" class="sidebar-logo">
-            </div>
-            <button class="close-btn" id="closeMenu" aria-label="關閉選單">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            <img src="site logo.png" class="sidebar-logo">
+            <button class="close-btn" id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        
         <div class="sidebar-content">
             <div class="menu-group">
-                <a href="#" class="menu-item" style="font-weight: 500;">首頁</a>
+                <div class="menu-item" onclick="navigateTo('home')">首頁</div>
             </div>
-
             <div class="menu-group">
                 <div class="group-title">服務項目</div>
-                <a href="#process" class="menu-item">服務流程</a>
-                <a href="#prices" class="menu-item">價格查詢</a>
+                <div class="menu-item" onclick="navigateTo('process')">服務流程</div>
+                <div class="menu-item" onclick="navigateTo('prices')">價格查詢</div>
             </div>
-
             <div class="menu-group">
                 <div class="group-title">實作紀錄</div>
-                <a href="#cases" class="menu-item">維修案例</a>
+                <div class="menu-item" onclick="navigateTo('cases')">維修案例</div>
             </div>
-
             <div class="menu-group">
-                <div class="group-title">專屬帳號</div>
-                <a href="https://blackboxrepair.github.io/membership/" class="menu-item">會員中心</a>
-                <a href="#locations" class="menu-item">服務站點</a>
+                <div class="group-title">門市資訊</div>
+                <div class="menu-item" onclick="navigateTo('locations')">服務站點</div>
             </div>
         </div>
     </nav>
 
     <main>
-        
-        <section id="process" class="process-section">
-            <h2 class="process-title">服務流程</h2>
-            
-            <div class="process-tabs">
-                <button class="tab-btn active" onclick="switchProcess('phone')">手機維修</button>
-                <button class="tab-btn" onclick="switchProcess('notebook')">筆電維修</button>
-                <button class="tab-btn" onclick="switchProcess('data')">資料救援</button>
-            </div>
-
-            <div class="process-display">
-                <img src="phone process.png" id="phone-img" alt="手機維修流程" class="process-img active">
-                <img src="notebook process.png" id="notebook-img" alt="筆電維修流程" class="process-img">
-                <img src="data process.png" id="data-img" alt="資料救援流程" class="process-img">
+        <!-- 首頁 -->
+        <section id="section-home" class="content-section active">
+            <div class="empty-state">
+                <h2 class="page-header">歡迎來到黑盒子維修中心</h2>
+                <p>請從左側選單選擇您需要的服務</p>
             </div>
         </section>
 
+        <!-- 服務流程頁 -->
+        <section id="section-process" class="content-section">
+            <div class="process-container">
+                <h2 class="page-header">服務流程</h2>
+                <div class="process-tabs">
+                    <button class="tab-btn active" onclick="changeImg('phone', this)">手機維修</button>
+                    <button class="tab-btn" onclick="changeImg('notebook', this)">筆電維修</button>
+                    <button class="tab-btn" onclick="changeImg('data', this)">資料救援</button>
+                </div>
+                <div class="process-img-box">
+                    <img src="phone process.png" id="img-phone" class="process-img active">
+                    <img src="notebook process.png" id="img-notebook" class="process-img">
+                    <img src="data process.png" id="img-data" class="process-img">
+                </div>
+            </div>
+        </section>
+
+        <!-- 維修案例頁 -->
+        <section id="section-cases" class="content-section">
+            <h2 class="page-header">維修案例</h2>
+            <div class="empty-state">維修案例文章準備中...</div>
+        </section>
+
+        <!-- 價格查詢頁 -->
+        <section id="section-prices" class="content-section">
+            <h2 class="page-header">價格查詢</h2>
+            <div class="empty-state">價格報價單整理中...</div>
+        </section>
+
+        <!-- 服務站點頁 -->
+        <section id="section-locations" class="content-section">
+            <h2 class="page-header">服務站點</h2>
+            <div class="empty-state">門市據點載入中...</div>
+        </section>
     </main>
 
-    <footer>
-        <p>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</p>
-    </footer>
+    <footer>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</footer>
 
     <script>
-        // --- 側邊選單控制 ---
-        const openMenuBtn = document.getElementById('openMenu');
-        const closeMenuBtn = document.getElementById('closeMenu');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
-        const sidebarLinks = document.querySelectorAll('.sidebar-content a');
 
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+        // 選單開關
+        document.getElementById('openMenu').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+        document.getElementById('closeMenu').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+
+        // 頁面導覽邏輯
+        function navigateTo(sectionId) {
+            // 1. 切換顯示區塊
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(`section-${sectionId}`).classList.add('active');
+            
+            // 2. 關閉選單
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            
+            // 3. 回到頂部
+            window.scrollTo(0, 0);
         }
 
-        openMenuBtn.addEventListener('click', toggleMenu);
-        closeMenuBtn.addEventListener('click', toggleMenu);
-        overlay.addEventListener('click', toggleMenu);
-
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
-        });
-
-        // --- 🛠 服務流程切換邏輯 ---
-        function switchProcess(type) {
-            // 1. 移除所有按鈕的 active 狀態
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            // 2. 移除所有圖片的 active 狀態
-            const images = document.querySelectorAll('.process-img');
-            images.forEach(img => img.classList.remove('active'));
-
-            // 3. 幫當前點擊的按鈕加上 active
-            // 透過事件觸發來源找到對應按鈕
-            const clickedBtn = event.currentTarget;
-            clickedBtn.classList.add('active');
-
-            // 4. 顯示對應的圖片並觸發漸變動畫
-            const targetImg = document.getElementById(`${type}-img`);
-            targetImg.classList.add('active');
+        // 服務流程圖片切換
+        function changeImg(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.process-img').forEach(i => i.classList.remove('active'));
+            
+            btn.classList.add('active');
+            document.getElementById(`img-${type}`).classList.add('active');
         }
     </script>
 </body>
