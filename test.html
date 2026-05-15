@@ -134,17 +134,17 @@
         .diamond-row {
             display: flex;
             justify-content: center;
-            gap: 36px; /* 縮小按鈕後的水平間距調校 */
+            gap: 28px; /* 隨按鈕再度縮小微調水平間距 */
         }
 
         .diamond-row.bottom {
-            margin-top: -12px; /* 縮小按鈕後的垂直穿插縫隙調校 */
+            margin-top: -10px; /* 隨按鈕再度縮小微調穿插縫隙 */
         }
 
-        /* 修改：縮小菱形按鈕外框 */
+        /* 修改：菱形按鈕外框再次縮小 */
         .diamond-btn {
-            width: 54px;  /* 從 70px 縮小至 54px */
-            height: 54px; /* 從 70px 縮小至 54px */
+            width: 44px;  /* 從 54px 縮小至 44px */
+            height: 44px; /* 從 54px 縮小至 44px */
             background-color: var(--primary-black);
             transform: rotate(45deg);
             display: flex;
@@ -156,7 +156,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* 裡面的 icon 大小依然維持 24px 不變 */
+        /* 裡面的 icon 大大小依然維持原樣 24px */
         .diamond-btn i {
             transform: rotate(-45deg); 
             color: #ffffff;
@@ -253,10 +253,10 @@
                 <div class="diamond-tabs-wrapper">
                     <div class="diamond-row">
                         <div class="diamond-btn active" onclick="changePriceImg('applewatch', this)" title="Apple Watch">
-                            <i class="fa-solid fa-watch-fitness"></i>
+                            <i class="fa-solid fa-watch"></i>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('memory', this)" title="容量擴充">
-                            <i class="fa-solid fa-microchip"></i>
+                            <i class="fa-solid fa-circuit-board"></i>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('switch', this)" title="Switch遊戲機">
                             <i class="fa-solid fa-gamepad"></i>
