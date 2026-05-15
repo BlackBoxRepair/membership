@@ -78,12 +78,22 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 🛠 服務流程頁面修正區 --- */
-        .process-container { 
+        /* --- 🛠 服務流程 & 價格查詢 共用容器樣式 --- */
+        .page-container { 
             background: transparent; 
-            padding: 15px 0 20px 0; /* 增加上方內距，讓標題與按鈕整體稍微往下移動一點點 */
+            padding: 15px 0 20px 0; 
             text-align: center; 
         }
+
+        .page-header { 
+            font-size: 28px; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            text-align: center; 
+            color: var(--primary-black); 
+        }
+
+        /* 服務流程按鈕排版 */
         .process-tabs { 
             display: flex; 
             justify-content: center; 
@@ -107,18 +117,65 @@
         .tab-btn.active { border-color: var(--gold-accent); color: var(--gold-accent); font-weight: 700; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15); }
         .tab-btn:hover { transform: translateY(-2px); background-color: var(--secondary-black); }
 
-        .process-img-box { max-width: 600px; margin: 0 auto; }
-        .process-img { width: 100%; height: auto; display: none; }
-        .process-img.active { display: block; animation: fadeIn 0.4s; }
+        /* 圖片外框維持 600px */
+        .img-box { max-width: 600px; margin: 0 auto; }
+        .display-img { width: 100%; height: auto; display: none; }
+        .display-img.active { display: block; animation: fadeIn 0.4s; }
 
-        /* --- 其他頁面樣式 --- */
-        .page-header { 
-            font-size: 28px; 
-            font-weight: 700; 
-            margin-bottom: 6px; 
-            text-align: center; 
-            color: var(--primary-black); 
+        /* --- 💎 價格查詢 菱形按鈕排版區 --- */
+        .diamond-tabs-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 50px;
+            margin-top: 30px;
         }
+
+        .diamond-row {
+            display: flex;
+            justify-content: center;
+            gap: 45px; /* 菱形水平間距 */
+        }
+
+        .diamond-row.bottom {
+            margin-top: -15px; /* 向上移動產生穿插效果 */
+        }
+
+        .diamond-btn {
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary-black);
+            transform: rotate(45deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .diamond-btn i {
+            transform: rotate(-45deg); /* 圖示轉回來 */
+            color: #ffffff;
+            font-size: 24px;
+        }
+
+        .diamond-btn:hover {
+            transform: rotate(45deg) scale(1.05);
+            background-color: var(--secondary-black);
+        }
+
+        .diamond-btn.active {
+            border-color: var(--gold-accent);
+            background-color: var(--primary-black);
+        }
+
+        .diamond-btn.active i {
+            color: var(--gold-accent);
+        }
+
+        /* --- 其他樣式 --- */
         .empty-state { text-align: center; padding: 100px 0; color: var(--text-muted); }
 
         footer { text-align: center; padding: 40px; color: var(--text-gray); font-size: 14px; }
@@ -172,17 +229,53 @@
         </section>
 
         <section id="section-process" class="content-section">
-            <div class="process-container">
+            <div class="page-container">
                 <h2 class="page-header">服務流程</h2>
                 <div class="process-tabs">
-                    <button class="tab-btn active" onclick="changeImg('phone', this)">手機維修</button>
-                    <button class="tab-btn" onclick="changeImg('notebook', this)">筆電維修</button>
-                    <button class="tab-btn" onclick="changeImg('data', this)">資料救援</button>
+                    <button class="tab-btn active" onclick="changeProcessImg('phone', this)">手機維修</button>
+                    <button class="tab-btn" onclick="changeProcessImg('notebook', this)">筆電維修</button>
+                    <button class="tab-btn" onclick="changeProcessImg('data', this)">資料救援</button>
                 </div>
-                <div class="process-img-box">
-                    <img src="phone process.png" id="img-phone" class="process-img active">
-                    <img src="notebook process.png" id="img-notebook" class="process-img">
-                    <img src="data process.png" id="img-data" class="process-img">
+                <div class="img-box">
+                    <img src="phone process.png" id="img-process-phone" class="display-img active">
+                    <img src="notebook process.png" id="img-process-notebook" class="display-img">
+                    <img src="data process.png" id="img-process-data" class="display-img">
+                </div>
+            </div>
+        </section>
+
+        <section id="section-prices" class="content-section">
+            <div class="page-container">
+                <h2 class="page-header">價格查詢</h2>
+                
+                <div class="diamond-tabs-wrapper">
+                    <div class="diamond-row">
+                        <div class="diamond-btn active" onclick="changePriceImg('applewatch', this)" title="Apple Watch">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <div class="diamond-btn" onclick="changePriceImg('memory', this)" title="容量擴充">
+                            <i class="fa-solid fa-memory"></i>
+                        </div>
+                        <div class="diamond-btn" onclick="changePriceImg('switch', this)" title="Switch遊戲機">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                    </div>
+                    <div class="diamond-row bottom">
+                        <div class="diamond-btn" onclick="changePriceImg('vacuum', this)" title="吸塵器">
+                            <i class="fa-solid fa-wind"></i>
+                        </div>
+                        <div class="diamond-btn" onclick="changePriceImg('hdd', this)" title="硬碟">
+                            <i class="fa-solid fa-hdd"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="img-box">
+                    <img src="Price_applewatch.PNG" id="img-price-applewatch" class="display-img active">
+                    <img src="Price_memory.PNG" id="img-price-memory" class="display-img">
+                    <img src="" id="img-price-switch" class="display-img">
+                    <img src="" id="img-price-vacuum" class="display-img">
+                    <img src="" id="img-price-hdd" class="display-img">
                 </div>
             </div>
         </section>
@@ -190,11 +283,6 @@
         <section id="section-cases" class="content-section">
             <h2 class="page-header">維修案例</h2>
             <div class="empty-state">維修案例文章準備中...</div>
-        </section>
-
-        <section id="section-prices" class="content-section">
-            <h2 class="page-header">價格查詢</h2>
-            <div class="empty-state">價格報價單整理中...</div>
         </section>
 
         <section id="section-locations" class="content-section">
@@ -209,30 +297,23 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
-        // 選單開關
         document.getElementById('openMenu').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
         document.getElementById('closeMenu').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
         overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
 
-        // 頁面導覽邏輯（修改：加入網址錨點控制維持頁面）
         function navigateTo(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            
             const targetSection = document.getElementById(`section-${sectionId}`);
             if (targetSection) {
                 targetSection.classList.add('active');
-                // 改變網址 hash 標記
                 window.location.hash = sectionId;
             }
-            
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             window.scrollTo(0, 0);
         }
 
-        // 監聽網頁載入或重新整理
         window.addEventListener('DOMContentLoaded', () => {
-            // 讀取目前網址後方的 hash (例如 #process)，若無則預設顯示 'home'
             const currentHash = window.location.hash.replace('#', '');
             if (currentHash && document.getElementById(`section-${currentHash}`)) {
                 navigateTo(currentHash);
@@ -242,12 +323,20 @@
         });
 
         // 服務流程圖片切換
-        function changeImg(type, btn) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.process-img').forEach(i => i.classList.remove('active'));
-            
+        function changeProcessImg(type, btn) {
+            document.querySelectorAll('#section-process .tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#section-process .display-img').forEach(i => i.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById(`img-${type}`).classList.add('active');
+            document.getElementById(`img-process-${type}`).classList.add('active');
+        }
+
+        // 價格查詢圖片切換 (菱形按鈕)
+        function changePriceImg(type, btn) {
+            document.querySelectorAll('#section-prices .diamond-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#section-prices .display-img').forEach(i => i.classList.remove('active'));
+            btn.classList.add('active');
+            const target = document.getElementById(`img-price-${type}`);
+            if (target) target.classList.add('active');
         }
     </script>
 </body>
