@@ -64,7 +64,14 @@
         .overlay.active { display: block; }
 
         /* --- 頁面內容切換核心 --- */
-        main { margin-top: 70px; padding: 40px 20px; max-width: 1200px; margin-left: auto; margin-right: auto; min-height: calc(100vh - 180px); }
+        main { 
+            margin-top: 70px; 
+            padding: 20px 20px 40px 20px; /* 縮減上方內距，讓內容整體上移 */
+            max-width: 1200px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            min-height: calc(100vh - 180px); 
+        }
         
         .content-section { display: none; animation: fadeIn 0.4s ease forwards; }
         .content-section.active { display: block; }
@@ -74,14 +81,14 @@
         /* --- 🛠 服務流程頁面修正區 --- */
         .process-container { 
             background: transparent; 
-            padding: 20px 0; 
+            padding: 10px 0 20px 0; /* 縮減上方內距 */
             text-align: center; 
         }
         .process-tabs { 
             display: flex; 
             justify-content: center; 
-            gap: 8px; /* 縮小按鈕與按鈕之間的間距 */
-            margin-bottom: 50px; 
+            gap: 8px; 
+            margin-bottom: 40px; /* 稍微縮小與下方圖片的間距 */
             flex-wrap: nowrap; 
         }
         
@@ -89,8 +96,8 @@
             background: var(--primary-black); 
             color: #fff; 
             border: 2px solid var(--primary-black); 
-            padding: 6px 14px; /* 縮小按鈕的左右框範圍 */
-            font-size: 18px; /* 字體大小維持不變 */
+            padding: 6px 14px; 
+            font-size: 18px; 
             border-radius: 40px; 
             cursor: pointer; 
             transition: var(--transition); 
@@ -105,7 +112,13 @@
         .process-img.active { display: block; animation: fadeIn 0.4s; }
 
         /* --- 其他頁面樣式 --- */
-        .page-header { font-size: 28px; font-weight: 700; margin-bottom: 30px; text-align: center; color: var(--primary-black); }
+        .page-header { 
+            font-size: 28px; 
+            font-weight: 700; 
+            margin-bottom: 20px; /* 縮減標題下方的間距 */
+            text-align: center; 
+            color: var(--primary-black); 
+        }
         .empty-state { text-align: center; padding: 100px 0; color: var(--text-muted); }
 
         footer { text-align: center; padding: 40px; color: var(--text-gray); font-size: 14px; }
