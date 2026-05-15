@@ -81,14 +81,14 @@
         /* --- 🛠 服務流程頁面修正區 --- */
         .process-container { 
             background: transparent; 
-            padding: 0 0 20px 0; 
+            padding: 15px 0 20px 0; /* 增加上方內距，讓標題與按鈕整體稍微往下移動一點點 */
             text-align: center; 
         }
         .process-tabs { 
             display: flex; 
             justify-content: center; 
             gap: 8px; 
-            margin-bottom: 20px; /* 縮減按鈕與下方圖片的間距，使按鈕更靠近圖片 */
+            margin-bottom: 20px; 
             flex-wrap: nowrap; 
         }
         
@@ -115,7 +115,7 @@
         .page-header { 
             font-size: 28px; 
             font-weight: 700; 
-            margin-bottom: 6px; /* 再縮小與下方按鈕的距離，使標題再下移更貼近按鈕 */
+            margin-bottom: 6px; 
             text-align: center; 
             color: var(--primary-black); 
         }
@@ -164,7 +164,7 @@
     </nav>
 
     <main>
-        <section id="section-home" class="content-section active">
+        <section id="section-home" class="content-section">
             <div class="empty-state">
                 <h2 class="page-header">歡迎來到黑盒子維修中心</h2>
                 <p>請從左側選單選擇您需要的服務</p>
@@ -209,18 +209,39 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
+        // 選單開關
         document.getElementById('openMenu').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
         document.getElementById('closeMenu').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
         overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
 
+        // 頁面導覽邏輯（修改：加入網址錨點控制維持頁面）
         function navigateTo(sectionId) {
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById(`section-${sectionId}`).classList.add('active');
+            
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                // 改變網址 hash 標記
+                window.location.hash = sectionId;
+            }
+            
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
             window.scrollTo(0, 0);
         }
 
+        // 監聽網頁載入或重新整理
+        window.addEventListener('DOMContentLoaded', () => {
+            // 讀取目前網址後方的 hash (例如 #process)，若無則預設顯示 'home'
+            const currentHash = window.location.hash.replace('#', '');
+            if (currentHash && document.getElementById(`section-${currentHash}`)) {
+                navigateTo(currentHash);
+            } else {
+                navigateTo('home');
+            }
+        });
+
+        // 服務流程圖片切換
         function changeImg(type, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.process-img').forEach(i => i.classList.remove('active'));
