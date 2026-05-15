@@ -78,7 +78,7 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- 🛠 服務流程 & 價格查詢 共用容器樣式 --- */
+        /* --- 共用容器樣式 --- */
         .page-container { 
             background: transparent; 
             padding: 15px 0 20px 0; 
@@ -134,16 +134,17 @@
         .diamond-row {
             display: flex;
             justify-content: center;
-            gap: 28px; 
+            gap: 32px; /* 隨按鈕放大調整水平間距 */
         }
 
         .diamond-row.bottom {
-            margin-top: -10px; 
+            margin-top: -12px; /* 隨按鈕放大調整垂直交錯縫隙 */
         }
 
+        /* 修改：菱形按鈕稍微放大 */
         .diamond-btn {
-            width: 44px;  
-            height: 44px; 
+            width: 50px;  /* 從 44px 稍微放大至 50px */
+            height: 50px; /* 從 44px 稍微放大至 50px */
             background-color: var(--primary-black);
             transform: rotate(45deg);
             display: flex;
@@ -155,10 +156,27 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        .diamond-btn i {
+        /* 內容與 Icon 的反轉與尺寸設定 */
+        .diamond-btn .btn-content {
             transform: rotate(-45deg); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .diamond-btn i {
             color: #ffffff;
             font-size: 24px; 
+        }
+
+        /* 專屬繪製 Apple Watch SVG 顏色控制 */
+        .diamond-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+            transition: var(--transition);
         }
 
         .diamond-btn:hover {
@@ -173,6 +191,10 @@
 
         .diamond-btn.active i {
             color: var(--gold-accent);
+        }
+
+        .diamond-btn.active svg {
+            fill: var(--gold-accent);
         }
 
         /* --- 其他樣式 --- */
@@ -251,21 +273,25 @@
                 <div class="diamond-tabs-wrapper">
                     <div class="diamond-row">
                         <div class="diamond-btn active" onclick="changePriceImg('applewatch', this)" title="Apple Watch">
-                            <i class="fa-solid fa-stopwatch"></i>
+                            <div class="btn-content">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M7,5 L17,5 L16,1 L8,1 Z M7,19 L17,19 L16,23 L8,23 Z M5,5 C5,3.9 5.9,3 7,3 L17,3 C18.1,3 19,3.9 19,5 L19,19 C19,20.1 18.1,21 17,21 L7,21 C5.9,21 5,20.1 5,19 Z M6.5,7 C6.5,6.2 7.2,5.5 8,5.5 L16,5.5 C16.8,5.5 17.5,6.2 17.5,7 L17.5,17 C17.5,17.8 16.8,18.5 16,18.5 L8,18.5 C7.2,18.5 6.5,17.8 6.5,17 Z"/>
+                                </svg>
+                            </div>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('memory', this)" title="容量擴充">
-                            <i class="fa-solid fa-microchip"></i>
+                            <div class="btn-content"><i class="fa-solid fa-microchip"></i></div>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('switch', this)" title="Switch遊戲機">
-                            <i class="fa-solid fa-gamepad"></i>
+                            <div class="btn-content"><i class="fa-solid fa-gamepad"></i></div>
                         </div>
                     </div>
                     <div class="diamond-row bottom">
                         <div class="diamond-btn" onclick="changePriceImg('vacuum', this)" title="吸塵器">
-                            <i class="fa-solid fa-wind"></i>
+                            <div class="btn-content"><i class="fa-solid fa-wind"></i></div>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('hdd', this)" title="硬碟">
-                            <i class="fa-solid fa-hdd"></i>
+                            <div class="btn-content"><i class="fa-solid fa-hdd"></i></div>
                         </div>
                     </div>
                 </div>
