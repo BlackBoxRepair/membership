@@ -134,16 +134,17 @@
         .diamond-row {
             display: flex;
             justify-content: center;
-            gap: 45px; /* 菱形水平間距 */
+            gap: 36px; /* 縮小按鈕後的水平間距調校 */
         }
 
         .diamond-row.bottom {
-            margin-top: -15px; /* 向上移動產生穿插效果 */
+            margin-top: -12px; /* 縮小按鈕後的垂直穿插縫隙調校 */
         }
 
+        /* 修改：縮小菱形按鈕外框 */
         .diamond-btn {
-            width: 70px;
-            height: 70px;
+            width: 54px;  /* 從 70px 縮小至 54px */
+            height: 54px; /* 從 70px 縮小至 54px */
             background-color: var(--primary-black);
             transform: rotate(45deg);
             display: flex;
@@ -155,10 +156,11 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
+        /* 裡面的 icon 大小依然維持 24px 不變 */
         .diamond-btn i {
-            transform: rotate(-45deg); /* 圖示轉回來 */
+            transform: rotate(-45deg); 
             color: #ffffff;
-            font-size: 24px;
+            font-size: 24px; 
         }
 
         .diamond-btn:hover {
@@ -251,10 +253,10 @@
                 <div class="diamond-tabs-wrapper">
                     <div class="diamond-row">
                         <div class="diamond-btn active" onclick="changePriceImg('applewatch', this)" title="Apple Watch">
-                            <i class="fa-solid fa-clock"></i>
+                            <i class="fa-solid fa-watch-fitness"></i>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('memory', this)" title="容量擴充">
-                            <i class="fa-solid fa-memory"></i>
+                            <i class="fa-solid fa-microchip"></i>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('switch', this)" title="Switch遊戲機">
                             <i class="fa-solid fa-gamepad"></i>
@@ -262,7 +264,7 @@
                     </div>
                     <div class="diamond-row bottom">
                         <div class="diamond-btn" onclick="changePriceImg('vacuum', this)" title="吸塵器">
-                            <i class="fa-solid fa-wind"></i>
+                            <i class="fa-solid fa-broom-ball"></i>
                         </div>
                         <div class="diamond-btn" onclick="changePriceImg('hdd', this)" title="硬碟">
                             <i class="fa-solid fa-hdd"></i>
@@ -322,7 +324,6 @@
             }
         });
 
-        // 服務流程圖片切換
         function changeProcessImg(type, btn) {
             document.querySelectorAll('#section-process .tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#section-process .display-img').forEach(i => i.classList.remove('active'));
@@ -330,7 +331,6 @@
             document.getElementById(`img-process-${type}`).classList.add('active');
         }
 
-        // 價格查詢圖片切換 (菱形按鈕)
         function changePriceImg(type, btn) {
             document.querySelectorAll('#section-prices .diamond-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('#section-prices .display-img').forEach(i => i.classList.remove('active'));
