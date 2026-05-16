@@ -769,7 +769,32 @@
 
     .process-list {
       display: grid;
+      grid-template-columns: 1fr;
       gap: 10px;
+    }
+
+    .process-step,
+    .process-note {
+      opacity: 0;
+    }
+
+    .process-section.in-view .process-step,
+    .process-section.in-view .process-note {
+      animation: processReveal 0.58s cubic-bezier(.16, 1, .3, 1) forwards;
+      animation-delay: var(--step-delay);
+    }
+
+    @keyframes processReveal {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+        filter: blur(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
     }
 
     .step {
@@ -781,13 +806,14 @@
       border-radius: 20px;
       background: rgba(255,255,255,0.065);
       border: 1px solid var(--line);
-      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
     }
 
     .step:hover {
       transform: translateY(-3px);
       border-color: rgba(247,181,0,0.35);
       background: rgba(255,255,255,0.085);
+      box-shadow: 0 16px 34px rgba(247,181,0,0.08);
     }
 
     .step-num {
@@ -800,6 +826,7 @@
       background: var(--brand);
       font-size: 14px;
       font-weight: 950;
+      box-shadow: 0 0 18px rgba(247,181,0,0.24);
     }
 
     .step strong {
@@ -814,6 +841,91 @@
       line-height: 1.55;
     }
 
+    .process-note {
+      position: relative;
+      margin-top: 12px;
+      padding: 18px;
+      border-radius: 24px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 92% 0%, rgba(247,181,0,0.28), transparent 34%),
+        linear-gradient(135deg, rgba(247,181,0,0.18), rgba(255,255,255,0.065));
+      border: 1px solid rgba(247,181,0,0.42);
+      box-shadow: 0 18px 42px rgba(247,181,0,0.12);
+    }
+
+    .process-note::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.13) 44%, transparent 66%);
+      transform: translateX(-120%);
+      animation: processNoteShine 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes processNoteShine {
+      0%, 50% { transform: translateX(-120%); }
+      75%, 100% { transform: translateX(120%); }
+    }
+
+    .process-note-label {
+      position: relative;
+      z-index: 1;
+      width: fit-content;
+      min-height: 28px;
+      padding: 0 10px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      color: #111;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .process-note h3 {
+      position: relative;
+      z-index: 1;
+      font-size: 24px;
+      line-height: 1.18;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+    }
+
+    .process-note h3 span {
+      color: var(--brand);
+    }
+
+    .process-note p {
+      position: relative;
+      z-index: 1;
+      color: #d6dbea;
+      font-size: 14px;
+      line-height: 1.72;
+    }
+
+    .process-note-points {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .process-note-point {
+      min-height: 42px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      color: #ffffff;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px;
+      font-weight: 850;
+      line-height: 1.45;
+    }
     .store-list-compact {
       display: grid;
       gap: 8px;
@@ -1137,6 +1249,12 @@
 
       .process-list {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .process-note-points {
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .store-name-grid {
@@ -1268,40 +1386,57 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section process-section" id="repair-process">
       <div class="section-title">
         <h2>維修流程</h2>
-        <span>快速清楚</span>
+        <span>現場快修，不耽誤接單</span>
       </div>
 
       <div class="process-list">
-        <div class="step">
+        <div class="step process-step step-1" style="--step-delay: 0ms;">
           <div class="step-num">01</div>
           <div>
             <strong>線上預約</strong>
             <span>先選門市與時間，減少現場等待。</span>
           </div>
         </div>
-        <div class="step">
+
+        <div class="step process-step step-2" style="--step-delay: 220ms;">
           <div class="step-num">02</div>
           <div>
             <strong>現場檢測</strong>
-            <span>確認機型、故障狀況與維修方案。</span>
+            <span>工程師現場確認機型、故障狀況與維修方案。</span>
           </div>
         </div>
-        <div class="step">
+
+        <div class="step process-step step-3" style="--step-delay: 440ms;">
           <div class="step-num">03</div>
           <div>
-            <strong>專業維修</strong>
-            <span>由工程人員進行維修與功能確認。</span>
+            <strong>現場維修</strong>
+            <span>不需留機排隊，現場等候約 30–60 分鐘。</span>
           </div>
         </div>
-        <div class="step">
+
+        <div class="step process-step step-4" style="--step-delay: 660ms;">
           <div class="step-num">04</div>
           <div>
             <strong>現場交機</strong>
-            <span>確認螢幕、電池、充電與基本功能。</span>
+            <span>確認螢幕、電池、充電與基本功能後，馬上帶走。</span>
           </div>
+        </div>
+      </div>
+
+      <div class="process-note" style="--step-delay: 880ms;">
+        <div class="process-note-label">外送員最需要的快修節奏</div>
+        <h3>現場維修，<span>30–60 分鐘取機</span></h3>
+        <p>
+          黑盒子維修中心以現場維修為主，外送員不用把工作機留在店裡等通知。
+          多數常見螢幕與電池維修，現場等候約 30–60 分鐘即可拿到修好的手機，盡量不延誤接單時段。
+        </p>
+        <div class="process-note-points">
+          <div class="process-note-point">不用長時間留機</div>
+          <div class="process-note-point">現場檢測、現場說明</div>
+          <div class="process-note-point">修好後立即確認取件</div>
         </div>
       </div>
     </section>
@@ -1519,6 +1654,27 @@
         showStore(button.dataset.store, button);
       });
     });
+
+    const processSection = document.querySelector('.process-section');
+
+    if (processSection) {
+      if ('IntersectionObserver' in window) {
+        const processObserver = new IntersectionObserver(function (entries, observer) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              processSection.classList.add('in-view');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.28
+        });
+
+        processObserver.observe(processSection);
+      } else {
+        processSection.classList.add('in-view');
+      }
+    }
   </script>
 </body>
 </html>
