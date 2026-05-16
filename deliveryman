@@ -1,1 +1,919 @@
 
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="黑盒子維修中心外送員專屬維修優惠：原廠螢幕維修89折、原廠電池維修79折、認證電池790元起。" />
+  <meta property="og:title" content="外送員專屬維修優惠｜黑盒子維修中心" />
+  <meta property="og:description" content="手機是外送員最重要的工作工具，螢幕、電池、充電異常立即交給黑盒子維修中心。" />
+  <meta property="og:type" content="website" />
+  <title>外送員專屬維修優惠｜黑盒子維修中心</title>
+
+  <style>
+    :root {
+      --bg: #07090d;
+      --card: rgba(255, 255, 255, 0.075);
+      --card-strong: rgba(255, 255, 255, 0.12);
+      --text: #f6f7fb;
+      --muted: #aeb6c7;
+      --line: rgba(255, 255, 255, 0.14);
+      --brand: #f7b500;
+      --brand-dark: #d89600;
+      --green: #28d39b;
+      --white: #ffffff;
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% 8%, rgba(247, 181, 0, 0.22), transparent 32%),
+        radial-gradient(circle at 86% 22%, rgba(40, 211, 155, 0.16), transparent 26%),
+        linear-gradient(135deg, #050608 0%, #0d1118 46%, #06080c 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent 70%);
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+      padding: 28px 20px 120px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 42px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--brand), #ffe28a);
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      letter-spacing: -1px;
+      box-shadow: 0 12px 30px rgba(247, 181, 0, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 16px;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-text span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid var(--line);
+      color: var(--white);
+      font-size: 14px;
+      font-weight: 700;
+      backdrop-filter: blur(18px);
+      transition: 0.22s ease;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      border-color: rgba(247, 181, 0, 0.55);
+      background: rgba(247, 181, 0, 0.14);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 34px;
+      align-items: center;
+      margin-bottom: 42px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      border: 1px solid rgba(247, 181, 0, 0.32);
+      border-radius: 999px;
+      background: rgba(247, 181, 0, 0.12);
+      color: #ffe3a1;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      margin-bottom: 18px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+      box-shadow: 0 0 0 0 rgba(247, 181, 0, 0.7);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(247, 181, 0, 0.55); }
+      70% { box-shadow: 0 0 0 12px rgba(247, 181, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(247, 181, 0, 0); }
+    }
+
+    .hero h1 {
+      max-width: 640px;
+      font-size: clamp(42px, 6.2vw, 78px);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 span {
+      color: var(--brand);
+    }
+
+    .hero p {
+      max-width: 560px;
+      color: var(--muted);
+      font-size: clamp(16px, 2vw, 19px);
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      padding: 0 24px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 900;
+      transition: 0.22s ease;
+      border: 1px solid transparent;
+    }
+
+    .primary-btn {
+      color: #111;
+      background: linear-gradient(135deg, var(--brand), #ffe08a);
+      box-shadow: 0 18px 36px rgba(247, 181, 0, 0.22);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 46px rgba(247, 181, 0, 0.32);
+    }
+
+    .secondary-btn {
+      color: var(--white);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--line);
+    }
+
+    .secondary-btn:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.13);
+    }
+
+    .hero-card {
+      position: relative;
+      min-height: 520px;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.045)),
+        radial-gradient(circle at 30% 12%, rgba(247, 181, 0, 0.24), transparent 42%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: rgba(247, 181, 0, 0.22);
+      filter: blur(20px);
+      right: -70px;
+      top: -54px;
+    }
+
+    .phone-visual {
+      position: absolute;
+      left: 50%;
+      top: 48%;
+      width: min(255px, 62vw);
+      height: 430px;
+      transform: translate(-50%, -50%) rotate(-7deg);
+      border-radius: 38px;
+      padding: 14px;
+      background: linear-gradient(145deg, #232833, #07090d);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.18),
+        0 42px 80px rgba(0,0,0,0.55);
+    }
+
+    .phone-screen {
+      position: relative;
+      height: 100%;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top, rgba(247,181,0,0.24), transparent 34%),
+        linear-gradient(180deg, #101521 0%, #05070a 100%);
+      overflow: hidden;
+      padding: 26px 20px;
+    }
+
+    .phone-notch {
+      position: absolute;
+      left: 50%;
+      top: 11px;
+      width: 82px;
+      height: 23px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: #05070a;
+      opacity: 0.92;
+    }
+
+    .repair-status {
+      margin-top: 28px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .repair-status small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .repair-status strong {
+      display: block;
+      color: var(--white);
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .battery-bar {
+      margin-top: 20px;
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+    }
+
+    .battery-bar span {
+      display: block;
+      width: 79%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--green), var(--brand));
+    }
+
+    .delivery-card {
+      position: absolute;
+      right: 20px;
+      bottom: 28px;
+      left: 20px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(5, 7, 10, 0.72);
+      border: 1px solid rgba(255,255,255,0.13);
+      backdrop-filter: blur(16px);
+    }
+
+    .delivery-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(247,181,0,0.14);
+      color: var(--brand);
+    }
+
+    .delivery-card strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    .delivery-card span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 18px;
+      margin: 58px 0 22px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.15;
+      letter-spacing: -0.04em;
+    }
+
+    .section-head p {
+      max-width: 420px;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .offers {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .offer-card {
+      position: relative;
+      min-height: 280px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.045));
+      box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+      overflow: hidden;
+      transition: 0.24s ease;
+    }
+
+    .offer-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(247,181,0,0.42);
+    }
+
+    .offer-card.featured {
+      background:
+        linear-gradient(180deg, rgba(247,181,0,0.18), rgba(255,255,255,0.045)),
+        rgba(255,255,255,0.08);
+      border-color: rgba(247,181,0,0.42);
+    }
+
+    .offer-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    .icon-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--brand);
+    }
+
+    .tag {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.09);
+      color: #dfe4ef;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .offer-card h3 {
+      font-size: 21px;
+      line-height: 1.35;
+      margin-bottom: 16px;
+    }
+
+    .price-line {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+
+    .price-line strong {
+      font-size: clamp(42px, 5vw, 56px);
+      line-height: 1;
+      letter-spacing: -0.06em;
+      color: var(--brand);
+    }
+
+    .price-line span {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .offer-card p {
+      color: var(--muted);
+      line-height: 1.72;
+      font-size: 14px;
+    }
+
+    .process {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .step {
+      padding: 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .step-number {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 16px;
+      background: var(--brand);
+      color: #111;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .notice {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+      margin-top: 18px;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(247,181,0,0.28);
+      background: rgba(247,181,0,0.09);
+    }
+
+    .notice h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .notice p {
+      color: #d9deea;
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    .store-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .store-card {
+      padding: 22px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .store-card h3 {
+      font-size: 20px;
+      margin-bottom: 14px;
+      color: var(--white);
+    }
+
+    .store-card p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .footer-cta {
+      margin-top: 52px;
+      padding: 42px 28px;
+      border-radius: 34px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.14);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(247,181,0,0.22), transparent 42%),
+        linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.045));
+      box-shadow: var(--shadow);
+    }
+
+    .footer-cta h2 {
+      font-size: clamp(28px, 4vw, 48px);
+      letter-spacing: -0.04em;
+      line-height: 1.16;
+      margin-bottom: 14px;
+    }
+
+    .footer-cta p {
+      max-width: 620px;
+      margin: 0 auto 24px;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .floating-booking {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      width: min(calc(100% - 32px), 520px);
+      transform: translateX(-50%);
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px;
+      border-radius: 999px;
+      background: rgba(10, 12, 17, 0.82);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.42);
+    }
+
+    .floating-booking span {
+      padding-left: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .floating-booking a {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 0 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      background: var(--brand);
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .svg-icon {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 880px) {
+      .page {
+        padding-top: 20px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-card {
+        min-height: 500px;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .offers,
+      .process,
+      .store-info {
+        grid-template-columns: 1fr;
+      }
+
+      .notice {
+        grid-template-columns: 1fr;
+      }
+
+      .notice .primary-btn {
+        width: 100%;
+      }
+
+      .floating-booking {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .nav-cta {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 46px;
+      }
+
+      .hero-actions a {
+        width: 100%;
+      }
+
+      .hero-card {
+        min-height: 460px;
+      }
+
+      .phone-visual {
+        height: 390px;
+        width: 225px;
+      }
+
+      .delivery-card {
+        bottom: 18px;
+      }
+
+      .offer-card {
+        min-height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <nav class="nav" aria-label="主選單">
+      <a class="brand" href="#top" aria-label="黑盒子維修中心首頁">
+        <div class="brand-mark">BB</div>
+        <div class="brand-text">
+          <strong>黑盒子維修中心</strong>
+          <span>Professional Repair Service</span>
+        </div>
+      </a>
+      <a class="nav-cta" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
+    </nav>
+
+    <section class="hero" id="top">
+      <div>
+        <div class="eyebrow"><span class="pulse"></span> 外送員專屬維修優惠</div>
+        <h1>手機不能停，<br><span>接單不中斷。</span></h1>
+        <p>
+          螢幕破裂、電池耗電、續航不穩，都可能影響外送接單效率。
+          黑盒子維修中心提供外送員專屬優惠，讓你的工作機快速恢復穩定狀態。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-btn" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約維修</a>
+          <a class="secondary-btn" href="#offers">查看優惠內容</a>
+        </div>
+      </div>
+
+      <div class="hero-card" aria-label="手機維修專業視覺">
+        <div class="phone-visual">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="repair-status">
+              <small>REPAIR STATUS</small>
+              <strong>快速檢測中<br>保持接單續航</strong>
+              <div class="battery-bar"><span></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="delivery-card">
+          <div class="delivery-icon" aria-hidden="true">
+            <svg class="svg-icon" viewBox="0 0 24 24">
+              <path d="M5 17h10" />
+              <path d="M16 17h2.5a1.5 1.5 0 0 0 1.35-.84l1.15-2.3a2 2 0 0 0 .21-.9V9h-4l-2-3H9a2 2 0 0 0-2 2v9" />
+              <circle cx="7" cy="17" r="2" />
+              <circle cx="17" cy="17" r="2" />
+              <path d="M9 10h4" />
+            </svg>
+          </div>
+          <div>
+            <strong>給每天高頻使用手機的你</strong>
+            <span>外送導航、接單、通話、支付，一支穩定手機就是工作效率。</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="offers">
+      <div class="section-head">
+        <h2>優惠方案</h2>
+        <p>到店出示外送員相關證明，即可享有專屬維修優惠。實際維修項目依現場檢測與機型報價為準。</p>
+      </div>
+
+      <div class="offers">
+        <article class="offer-card">
+          <div class="offer-top">
+            <div class="icon-box" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <rect x="7" y="2" width="10" height="20" rx="2" />
+                <path d="M11 18h2" />
+              </svg>
+            </div>
+            <span class="tag">原廠零件</span>
+          </div>
+          <h3>原廠螢幕維修</h3>
+          <div class="price-line"><strong>89</strong><span>折</span></div>
+          <p>螢幕破裂、觸控異常、顯示異常，協助恢復清晰畫面與穩定操作。</p>
+        </article>
+
+        <article class="offer-card featured">
+          <div class="offer-top">
+            <div class="icon-box" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <rect x="3" y="7" width="17" height="10" rx="2" />
+                <path d="M22 11v2" />
+                <path d="M7 11h7" />
+              </svg>
+            </div>
+            <span class="tag">外送首選</span>
+          </div>
+          <h3>原廠電池維修</h3>
+          <div class="price-line"><strong>79</strong><span>折</span></div>
+          <p>改善耗電快、電量跳動、低電量關機，讓導航與接單更安心。</p>
+        </article>
+
+        <article class="offer-card">
+          <div class="offer-top">
+            <div class="icon-box" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z" />
+                <path d="M9 12l2 2 4-5" />
+              </svg>
+            </div>
+            <span class="tag">高CP值</span>
+          </div>
+          <h3>認證電池更換</h3>
+          <div class="price-line"><strong>790</strong><span>元起</span></div>
+          <p>預算型方案，適合想快速恢復續航、穩定工作使用的外送夥伴。</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>維修流程</h2>
+        <p>流程清楚、檢測透明，讓你不用反覆等待與猜測維修狀況。</p>
+      </div>
+
+      <div class="process">
+        <div class="step">
+          <div class="step-number">01</div>
+          <strong>線上預約</strong>
+          <span>先選擇門市與時段，減少現場等候時間。</span>
+        </div>
+        <div class="step">
+          <div class="step-number">02</div>
+          <strong>現場檢測</strong>
+          <span>確認機型、故障狀況與維修方案。</span>
+        </div>
+        <div class="step">
+          <div class="step-number">03</div>
+          <strong>專業維修</strong>
+          <span>由工程人員進行維修與功能確認。</span>
+        </div>
+        <div class="step">
+          <div class="step-number">04</div>
+          <strong>交機確認</strong>
+          <span>現場確認螢幕、電池、充電與基本功能。</span>
+        </div>
+      </div>
+
+      <div class="notice">
+        <div>
+          <h3>優惠使用提醒</h3>
+          <p>
+            到店時請出示外送平台工作證明、接單畫面或相關識別資料。
+            優惠不可與其他活動併用，實際適用機型、零件狀況與最終費用以門市現場說明為準。
+          </p>
+        </div>
+        <a class="primary-btn" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>服務門市</h2>
+        <p>可依照你的外送區域，選擇較方便的門市預約維修。</p>
+      </div>
+
+      <div class="store-info">
+        <div class="store-card">
+          <h3>勤美公益店</h3>
+          <p>
+            地址：台中市西區公益路145號<br>
+            營業時間：每日 11:00-20:00<br>
+            客服電話：04-23015157
+          </p>
+        </div>
+        <div class="store-card">
+          <h3>沙鹿站前店</h3>
+          <p>
+            地址：台中市沙鹿區沙田路149號<br>
+            營業時間：每日 12:00-21:00<br>
+            客服電話：04-26633009
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-cta">
+      <h2>今天接單前，先讓手機恢復最佳狀態。</h2>
+      <p>螢幕看得清、電池撐得久、接單更穩定。立即預約黑盒子維修中心，享外送員專屬優惠。</p>
+      <a class="primary-btn" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即線上預約</a>
+    </section>
+  </main>
+
+  <div class="floating-booking" aria-label="手機版固定預約按鈕">
+    <span>外送員專屬優惠<br>快速預約維修</span>
+    <a href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
+  </div>
+</body>
+</html>
