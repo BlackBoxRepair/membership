@@ -30,7 +30,9 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       min-height: 100vh;
@@ -76,8 +78,14 @@
       100% { transform: translate3d(2%, 1.5%, 0) scale(1.04); }
     }
 
-    a { color: inherit; text-decoration: none; }
-    button { font-family: inherit; }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
 
     .page {
       width: 100%;
@@ -100,8 +108,15 @@
       margin-bottom: 18px;
     }
 
-    .brand { display: flex; align-items: center; min-width: 0; }
-    .brand-text { min-width: 0; }
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
 
     .brand-text strong {
       display: block;
@@ -224,7 +239,9 @@
       margin-bottom: 14px;
     }
 
-    .hero h1 span { color: var(--brand); }
+    .hero h1 span {
+      color: var(--brand);
+    }
 
     .hero-copy {
       position: relative;
@@ -234,37 +251,30 @@
       line-height: 1.78;
     }
 
-    .primary-btn,
-    .ghost-btn {
+    .primary-btn {
       min-height: 54px;
       border-radius: 18px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
+      color: #111;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+      box-shadow: 0 16px 34px rgba(247, 181, 0, 0.25);
       font-size: 16px;
       font-weight: 950;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .primary-btn {
-      color: #111;
-      background: linear-gradient(135deg, var(--brand), var(--brand-light));
-      box-shadow: 0 16px 34px rgba(247, 181, 0, 0.25);
-    }
-
-    .ghost-btn {
-      color: var(--text);
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--line);
-    }
-
     .primary-btn:active,
-    .ghost-btn:active,
     .mini-booking:active,
-    .bottom-cta a:active { transform: scale(0.98); }
+    .bottom-cta a:active {
+      transform: scale(0.98);
+    }
 
-    .section { margin-top: 28px; }
+    .section {
+      margin-top: 28px;
+    }
 
     .section-title {
       display: flex;
@@ -350,7 +360,9 @@
       margin-bottom: 8px;
     }
 
-    .discount-hero h3 span { color: var(--brand); }
+    .discount-hero h3 span {
+      color: var(--brand);
+    }
 
     .discount-hero p {
       position: relative;
@@ -360,7 +372,10 @@
       line-height: 1.7;
     }
 
-    .offer-list { display: grid; gap: 12px; }
+    .offer-list {
+      display: grid;
+      gap: 12px;
+    }
 
     .offer-card {
       position: relative;
@@ -407,8 +422,13 @@
     }
 
     .offer-card:hover::before,
-    .offer-card:focus-visible::before { opacity: 1; }
-    .offer-card:active { transform: translateY(-2px) scale(0.985); }
+    .offer-card:focus-visible::before {
+      opacity: 1;
+    }
+
+    .offer-card:active {
+      transform: translateY(-2px) scale(0.985);
+    }
 
     .offer-card.featured {
       background:
@@ -429,8 +449,13 @@
       border-color: rgba(247,181,0,0.72);
     }
 
-    .offer-card.is-tapped .discount-price strong { animation: numberBounce 0.58s cubic-bezier(.16, 1, .3, 1); }
-    .offer-card.is-tapped .offer-icon { animation: iconPop 0.58s cubic-bezier(.16, 1, .3, 1); }
+    .offer-card.is-tapped .discount-price strong {
+      animation: numberBounce 0.58s cubic-bezier(.16, 1, .3, 1);
+    }
+
+    .offer-card.is-tapped .offer-icon {
+      animation: iconPop 0.58s cubic-bezier(.16, 1, .3, 1);
+    }
 
     @keyframes cardTap {
       0% { transform: scale(1); }
@@ -464,7 +489,10 @@
     }
 
     @keyframes ripple {
-      to { opacity: 0; transform: translate(-50%, -50%) scale(24); }
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(24);
+      }
     }
 
     .offer-tag {
@@ -500,16 +528,36 @@
       border-radius: 20px;
       display: grid;
       place-items: center;
-      color: var(--brand);
-      background: rgba(0,0,0,0.24);
-      border: 1px solid rgba(255,255,255,0.12);
-      transition: transform 0.25s ease, background 0.25s ease;
+      color: #ffd84d;
+      background: linear-gradient(145deg, rgba(255, 215, 64, 0.22), rgba(247, 181, 0, 0.08));
+      border: 1px solid rgba(255, 215, 64, 0.45);
+      box-shadow:
+        0 0 12px rgba(255, 208, 0, 0.35),
+        0 0 24px rgba(255, 196, 0, 0.22),
+        inset 0 0 12px rgba(255, 220, 120, 0.12);
+      transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
     }
 
     .offer-card:hover .offer-icon,
     .offer-card:focus-visible .offer-icon {
-      transform: translateY(-2px) rotate(-2deg);
-      background: rgba(247,181,0,0.12);
+      transform: translateY(-2px) scale(1.05);
+      color: #ffe680;
+      background: linear-gradient(145deg, rgba(255, 220, 90, 0.32), rgba(247, 181, 0, 0.14));
+      box-shadow:
+        0 0 16px rgba(255, 208, 0, 0.48),
+        0 0 34px rgba(255, 196, 0, 0.30),
+        inset 0 0 14px rgba(255, 235, 150, 0.16);
+    }
+
+    .svg-icon {
+      width: 26px;
+      height: 26px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 6px rgba(255, 220, 100, 0.75));
     }
 
     .offer-content h3 {
@@ -549,7 +597,9 @@
     }
 
     .offer-card:hover .discount::after,
-    .offer-card.is-tapped .discount::after { transform: translateX(120%); }
+    .offer-card.is-tapped .discount::after {
+      transform: translateX(120%);
+    }
 
     .discount-label {
       color: #ffe2a2;
@@ -598,7 +648,6 @@
       font-size: 17px;
     }
 
-    .info-box p,
     .info-box li {
       color: #d6dbea;
       font-size: 13px;
@@ -611,7 +660,10 @@
       padding-left: 18px;
     }
 
-    .process-list { display: grid; gap: 10px; }
+    .process-list {
+      display: grid;
+      gap: 10px;
+    }
 
     .step {
       display: grid;
@@ -655,231 +707,7 @@
       line-height: 1.55;
     }
 
-    .map-card {
-      position: relative;
-      border-radius: 30px;
-      border: 1px solid var(--line);
-      background:
-        radial-gradient(circle at 70% 10%, rgba(247,181,0,0.16), transparent 32%),
-        linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.045));
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      padding: 16px;
-    }
-
-    .map-hint {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      color: #d6dbea;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .map-hint strong { color: var(--brand); }
-
-    .map-shell {
-      position: relative;
-      min-height: 520px;
-      border-radius: 26px;
-      border: 1px solid rgba(255,255,255,0.11);
-      background:
-        radial-gradient(circle at 52% 28%, rgba(44,224,159,0.1), transparent 32%),
-        rgba(0,0,0,0.22);
-      overflow: hidden;
-    }
-
-    .taiwan-svg {
-      position: absolute;
-      inset: 30px 18px 22px;
-      width: calc(100% - 36px);
-      height: calc(100% - 52px);
-      filter: drop-shadow(0 30px 32px rgba(0,0,0,0.35));
-    }
-
-    .taiwan-island {
-      fill: rgba(255,255,255,0.08);
-      stroke: rgba(247,181,0,0.5);
-      stroke-width: 2;
-    }
-
-    .taiwan-line {
-      fill: none;
-      stroke: rgba(255,255,255,0.1);
-      stroke-width: 1.5;
-      stroke-dasharray: 5 7;
-    }
-
-    .map-region-label {
-      position: absolute;
-      right: 18px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      color: rgba(255,255,255,0.72);
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
-      font-size: 11px;
-      font-weight: 850;
-      pointer-events: none;
-    }
-
-    .map-region-label.north { top: 48px; }
-    .map-region-label.central { top: 220px; }
-    .map-region-label.south { bottom: 58px; }
-
-    .map-marker {
-      position: absolute;
-      left: var(--x);
-      top: var(--y);
-      width: 18px;
-      height: 18px;
-      border: 0;
-      border-radius: 999px;
-      transform: translate(-50%, -50%);
-      background: var(--brand);
-      box-shadow: 0 0 0 5px rgba(247,181,0,0.16), 0 0 24px rgba(247,181,0,0.55);
-      cursor: pointer;
-      z-index: 4;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-
-    .map-marker::before {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: inherit;
-      border: 1px solid rgba(247,181,0,0.35);
-      animation: markerPulse 1.8s infinite;
-    }
-
-    @keyframes markerPulse {
-      0% { transform: scale(0.7); opacity: 0.9; }
-      100% { transform: scale(1.6); opacity: 0; }
-    }
-
-    .map-marker:hover,
-    .map-marker:focus-visible,
-    .map-marker.active {
-      outline: none;
-      transform: translate(-50%, -50%) scale(1.25);
-      background: var(--brand-light);
-      box-shadow: 0 0 0 7px rgba(247,181,0,0.2), 0 0 34px rgba(247,181,0,0.72);
-    }
-
-    .store-popup {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 14px;
-      z-index: 10;
-      padding: 16px;
-      border-radius: 22px;
-      background: rgba(8, 10, 14, 0.9);
-      border: 1px solid rgba(247,181,0,0.3);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 18px 46px rgba(0,0,0,0.4);
-      transform: translateY(16px);
-      opacity: 0;
-      pointer-events: none;
-      transition: 0.24s ease;
-    }
-
-    .store-popup.show {
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .popup-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .popup-top h3 {
-      font-size: 21px;
-      line-height: 1.2;
-      color: var(--brand);
-    }
-
-    .popup-region {
-      display: inline-flex;
-      margin-top: 6px;
-      min-height: 24px;
-      padding: 0 8px;
-      align-items: center;
-      border-radius: 999px;
-      color: #111;
-      background: var(--brand);
-      font-size: 11px;
-      font-weight: 950;
-    }
-
-    .popup-close {
-      width: 34px;
-      height: 34px;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 999px;
-      color: #fff;
-      background: rgba(255,255,255,0.08);
-      font-size: 20px;
-      line-height: 1;
-      cursor: pointer;
-    }
-
-    .popup-info {
-      display: grid;
-      gap: 8px;
-      color: #d6dbea;
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 12px;
-    }
-
-    .popup-info div {
-      display: grid;
-      grid-template-columns: 66px 1fr;
-      gap: 8px;
-    }
-
-    .popup-info strong {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .popup-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .popup-actions a {
-      min-height: 44px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 15px;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .popup-actions a:first-child {
-      color: #111;
-      background: linear-gradient(135deg, var(--brand), var(--brand-light));
-    }
-
-    .popup-actions a:last-child {
-      color: #fff;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--line);
-    }
-
     .store-list-compact {
-      margin-top: 12px;
       display: grid;
       gap: 8px;
     }
@@ -892,20 +720,27 @@
     }
 
     .store-list-compact summary {
-      min-height: 46px;
-      padding: 0 14px;
+      min-height: 58px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
       color: var(--brand);
-      font-size: 14px;
+      font-size: 17px;
       font-weight: 950;
       cursor: pointer;
       list-style: none;
     }
 
-    .store-list-compact summary::-webkit-details-marker { display: none; }
+    .store-list-compact summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .store-list-compact summary span {
+      font-size: 16px;
+      font-weight: 950;
+    }
 
     .store-name-grid {
       padding: 0 14px 14px;
@@ -915,7 +750,7 @@
     }
 
     .store-name-grid button {
-      min-height: 38px;
+      min-height: 40px;
       padding: 0 10px;
       border-radius: 13px;
       color: #fff;
@@ -924,6 +759,7 @@
       font-size: 12px;
       font-weight: 800;
       cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
     }
 
     .store-name-grid button:hover,
@@ -931,6 +767,106 @@
       color: #111;
       background: var(--brand);
       border-color: var(--brand);
+    }
+
+    .store-name-grid button:active {
+      transform: scale(0.98);
+    }
+
+    .store-detail-panel {
+      margin: 12px 14px 14px;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid rgba(247,181,0,0.28);
+      background:
+        radial-gradient(circle at 92% 0%, rgba(247,181,0,0.12), transparent 34%),
+        rgba(255,255,255,0.065);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.22);
+      display: none;
+    }
+
+    .store-detail-panel.show {
+      display: block;
+      animation: detailIn 0.24s ease both;
+    }
+
+    @keyframes detailIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .store-detail-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .store-detail-head h3 {
+      color: var(--brand);
+      font-size: 21px;
+      line-height: 1.2;
+    }
+
+    .store-detail-region {
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      color: #111;
+      background: var(--brand);
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .store-detail-info {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: #d6dbea;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .store-detail-info div {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      gap: 8px;
+    }
+
+    .store-detail-info strong {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .store-detail-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .store-detail-actions a {
+      min-height: 44px;
+      border-radius: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .store-detail-actions a:first-child {
+      color: #111;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+    }
+
+    .store-detail-actions a:last-child {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
     }
 
     .final-card {
@@ -1020,16 +956,6 @@
       box-shadow: 0 18px 38px rgba(247, 181, 0, 0.36);
     }
 
-    .svg-icon {
-      width: 26px;
-      height: 26px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -1040,9 +966,17 @@
     }
 
     @media (min-width: 700px) {
-      body { padding-bottom: 0; }
-      .page { padding: 28px 22px 60px; }
-      .hero { padding: 34px 30px 30px; }
+      body {
+        padding-bottom: 0;
+      }
+
+      .page {
+        padding: 28px 22px 60px;
+      }
+
+      .hero {
+        padding: 34px 30px 30px;
+      }
 
       .discount-hero {
         display: grid;
@@ -1051,9 +985,17 @@
         gap: 18px;
       }
 
-      .discount-hero small { margin-bottom: 0; }
-      .offer-list { grid-template-columns: repeat(3, 1fr); }
-      .offer-card { min-height: 310px; }
+      .discount-hero small {
+        margin-bottom: 0;
+      }
+
+      .offer-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .offer-card {
+        min-height: 310px;
+      }
 
       .offer-main {
         grid-template-columns: 1fr;
@@ -1061,21 +1003,32 @@
         align-items: start;
       }
 
-      .offer-tag { top: 16px; right: 16px; }
-      .discount { margin-top: auto; grid-template-columns: 1fr; align-items: start; }
-      .discount-price { justify-content: flex-start; }
-      .process-list { grid-template-columns: repeat(2, 1fr); }
+      .offer-tag {
+        top: 16px;
+        right: 16px;
+      }
 
-      .map-layout {
-        display: grid;
-        grid-template-columns: minmax(360px, 1.08fr) 0.92fr;
-        gap: 14px;
+      .discount {
+        margin-top: auto;
+        grid-template-columns: 1fr;
         align-items: start;
       }
 
-      .map-shell { min-height: 620px; }
-      .store-list-compact { margin-top: 0; }
-      .bottom-cta { display: none; }
+      .discount-price {
+        justify-content: flex-start;
+      }
+
+      .process-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .store-name-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .bottom-cta {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -1227,104 +1180,60 @@
     <section class="section" id="stores">
       <div class="section-title">
         <h2>服務門市</h2>
-        <span>點擊地圖查看資訊</span>
+        <span>點擊門市查看資訊</span>
       </div>
 
-      <div class="map-layout">
-        <div class="map-card">
-          <div class="map-hint">
-            <span><strong>台灣門市地圖</strong><br>點擊黃色小點查看門市資訊</span>
-            <span>共 18 間</span>
+      <div class="store-list-compact" aria-label="門市快速選單">
+        <details open>
+          <summary>北部地區 <span>8 間</span></summary>
+          <div class="store-name-grid">
+            <button type="button" data-store="taipei-hankou">台北漢口店</button>
+            <button type="button" data-store="tamsui">淡水店</button>
+            <button type="button" data-store="xinzhuang-minan">新莊民安店</button>
+            <button type="button" data-store="xinzhuang-xingfu">新莊幸福店</button>
+            <button type="button" data-store="yonghe">永和中興店</button>
+            <button type="button" data-store="zhonghe">中和店</button>
+            <button type="button" data-store="taoyuan-arts">桃園藝文店</button>
+            <button type="button" data-store="taoyuan-zhongli">桃園中壢店</button>
           </div>
+        </details>
 
-          <div class="map-shell" id="mapShell">
-            <svg class="taiwan-svg" viewBox="0 0 320 560" aria-hidden="true">
-              <path class="taiwan-island" d="M205 13 C238 35 258 82 248 130 C240 167 260 202 248 246 C238 282 217 302 212 342 C207 386 190 418 168 454 C145 492 122 535 91 546 C67 554 46 531 55 502 C66 468 86 446 86 408 C86 374 76 350 91 314 C109 271 104 232 119 191 C133 151 132 112 151 77 C166 48 181 25 205 13 Z" />
-              <path class="taiwan-line" d="M205 48 C200 95 202 139 188 183 C175 225 174 264 157 305 C139 350 141 395 124 432 C112 459 92 486 74 520" />
-            </svg>
-
-            <span class="map-region-label north">北部</span>
-            <span class="map-region-label central">中部</span>
-            <span class="map-region-label south">南部</span>
-
-            <button class="map-marker" style="--x: 70%; --y: 13%;" data-store="taipei-hankou" aria-label="台北漢口店"></button>
-            <button class="map-marker" style="--x: 61%; --y: 10%;" data-store="tamsui" aria-label="淡水店"></button>
-            <button class="map-marker" style="--x: 64%; --y: 16%;" data-store="xinzhuang-minan" aria-label="新莊民安店"></button>
-            <button class="map-marker" style="--x: 68%; --y: 18%;" data-store="xinzhuang-xingfu" aria-label="新莊幸福店"></button>
-            <button class="map-marker" style="--x: 72%; --y: 22%;" data-store="yonghe" aria-label="永和中興店"></button>
-            <button class="map-marker" style="--x: 75%; --y: 25%;" data-store="zhonghe" aria-label="中和店"></button>
-            <button class="map-marker" style="--x: 56%; --y: 21%;" data-store="taoyuan-arts" aria-label="桃園藝文店"></button>
-            <button class="map-marker" style="--x: 51%; --y: 25%;" data-store="taoyuan-zhongli" aria-label="桃園中壢店"></button>
-
-            <button class="map-marker" style="--x: 48%; --y: 45%;" data-store="qinmei" aria-label="勤美公益店"></button>
-            <button class="map-marker" style="--x: 43%; --y: 47%;" data-store="fengjia" aria-label="逢甲直營店"></button>
-            <button class="map-marker" style="--x: 50%; --y: 51%;" data-store="dali" aria-label="大里直營店"></button>
-            <button class="map-marker" style="--x: 37%; --y: 43%;" data-store="shalu" aria-label="沙鹿站前店"></button>
-            <button class="map-marker" style="--x: 53%; --y: 40%;" data-store="fengyuan" aria-label="豐原中正店"></button>
-            <button class="map-marker" style="--x: 35%; --y: 38%;" data-store="dajia" aria-label="大甲店"></button>
-            <button class="map-marker" style="--x: 47%; --y: 57%;" data-store="changhua" aria-label="彰化中正店"></button>
-            <button class="map-marker" style="--x: 57%; --y: 61%;" data-store="nantou" aria-label="南投草屯店"></button>
-
-            <button class="map-marker" style="--x: 37%; --y: 78%;" data-store="tainan" aria-label="台南民族站前店"></button>
-            <button class="map-marker" style="--x: 47%; --y: 88%;" data-store="pingtung" aria-label="屏東仁愛店"></button>
-
-            <div class="store-popup show" id="storePopup" aria-live="polite">
-              <div class="popup-top">
-                <div>
-                  <h3 id="popupName">勤美公益店</h3>
-                  <span class="popup-region" id="popupRegion">中部地區</span>
-                </div>
-                <button class="popup-close" id="popupClose" aria-label="關閉門市資訊">×</button>
-              </div>
-              <div class="popup-info">
-                <div><strong>營業時間</strong><span id="popupHours">每日 11:00-20:00</span></div>
-                <div><strong>電話</strong><span id="popupPhone">04-23015157</span></div>
-                <div><strong>Google</strong><span>點擊下方按鈕開啟地圖</span></div>
-              </div>
-              <div class="popup-actions">
-                <a id="popupTel" href="tel:0423015157">撥打電話</a>
-                <a id="popupMap" href="https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7" target="_blank" rel="noopener">開啟地圖</a>
-              </div>
-            </div>
+        <details open>
+          <summary>中部地區 <span>8 間</span></summary>
+          <div class="store-name-grid">
+            <button type="button" data-store="qinmei">勤美公益店</button>
+            <button type="button" data-store="fengjia">逢甲店</button>
+            <button type="button" data-store="dali">大里店</button>
+            <button type="button" data-store="shalu">沙鹿站前店</button>
+            <button type="button" data-store="fengyuan">豐原中正店</button>
+            <button type="button" data-store="dajia">大甲店</button>
+            <button type="button" data-store="changhua">彰化中正店</button>
+            <button type="button" data-store="nantou">南投草屯店</button>
           </div>
+        </details>
+
+        <details open>
+          <summary>南部地區 <span>2 間</span></summary>
+          <div class="store-name-grid">
+            <button type="button" data-store="tainan">台南民族站前店</button>
+            <button type="button" data-store="pingtung">屏東仁愛店</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="store-detail-panel" id="storeDetail" aria-live="polite">
+        <div class="store-detail-head">
+          <h3 id="storeDetailName">門市名稱</h3>
+          <span class="store-detail-region" id="storeDetailRegion">地區</span>
         </div>
-
-        <div class="store-list-compact" aria-label="門市快速選單">
-          <details open>
-            <summary>北部地區 <span>8 間</span></summary>
-            <div class="store-name-grid">
-              <button data-store="taipei-hankou">台北漢口店</button>
-              <button data-store="tamsui">淡水店</button>
-              <button data-store="xinzhuang-minan">新莊民安店</button>
-              <button data-store="xinzhuang-xingfu">新莊幸福店</button>
-              <button data-store="yonghe">永和中興店</button>
-              <button data-store="zhonghe">中和店</button>
-              <button data-store="taoyuan-arts">桃園藝文店</button>
-              <button data-store="taoyuan-zhongli">桃園中壢店</button>
-            </div>
-          </details>
-
-          <details open>
-            <summary>中部地區 <span>8 間</span></summary>
-            <div class="store-name-grid">
-              <button data-store="qinmei">勤美公益店</button>
-              <button data-store="fengjia">逢甲直營店</button>
-              <button data-store="dali">大里直營店</button>
-              <button data-store="shalu">沙鹿站前店</button>
-              <button data-store="fengyuan">豐原中正店</button>
-              <button data-store="dajia">大甲店</button>
-              <button data-store="changhua">彰化中正店</button>
-              <button data-store="nantou">南投草屯店</button>
-            </div>
-          </details>
-
-          <details open>
-            <summary>南部地區 <span>2 間</span></summary>
-            <div class="store-name-grid">
-              <button data-store="tainan">台南民族站前店</button>
-              <button data-store="pingtung">屏東仁愛店</button>
-            </div>
-          </details>
+        <div class="store-detail-info">
+          <div><strong>營業時間</strong><span id="storeDetailHours">每日 11:00-20:00</span></div>
+          <div><strong>電話</strong><span id="storeDetailPhone">04-23015157</span></div>
+          <div><strong>Google</strong><span>點擊下方按鈕開啟地圖</span></div>
+        </div>
+        <div class="store-detail-actions">
+          <a id="storeDetailTel" href="tel:0423015157">撥打電話</a>
+          <a id="storeDetailMap" href="https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7" target="_blank" rel="noopener">開啟地圖</a>
         </div>
       </div>
     </section>
@@ -1348,12 +1257,242 @@
 
   <script>
     const stores = {
-      "taipei-hankou": { name: "台北漢口店", region: "北部地區", phone: "02-23122177", tel: "0223122177", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9Z9V9mPrPkW88Pz89" },
-      "tamsui": { name: "淡水店", region: "北部地區", phone: "02-26283151", tel: "0226283151", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/uXvFvM7hA2A2nN3z8" },
-      "xinzhuang-minan": { name: "新莊民安店", region: "北部地區", phone: "02-22026858", tel: "0222026858", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/A7vPkW88Pz89M7hA2" },
-      "xinzhuang-xingfu": { name: "新莊幸福店", region: "北部地區", phone: "02-29906636", tel: "0229906636", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/XvFvM7hA2A2nN3z89" },
-      "yonghe": { name: "永和中興店", region: "北部地區", phone: "02-29290029", tel: "0229290029", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9V9mPrPkW88Pz89M7" },
-      "zhonghe": { name: "中和店", region: "北部地區", phone: "02-22421818", tel: "0222421818", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/M7hA2A2nN3z89V9mP" },
-      "taoyuan-arts": { name: "桃園藝文店", region: "北部地區", phone: "03-3561555", tel: "033561555", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/kW88Pz89M7hA2A2nN" },
-      "taoyuan-zhongli": { name: "桃園中壢店", region: "北部地區", phone: "03-4251122", tel: "034251122", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/3z89V9mPrPkW88Pz8" },
-      "qinmei": { name: "勤美公益店", region:
+      "taipei-hankou": {
+        name: "台北漢口店",
+        region: "北部地區",
+        phone: "02-23122177",
+        tel: "0223122177",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/9Z9V9mPrPkW88Pz89"
+      },
+      "tamsui": {
+        name: "淡水店",
+        region: "北部地區",
+        phone: "02-26283151",
+        tel: "0226283151",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/uXvFvM7hA2A2nN3z8"
+      },
+      "xinzhuang-minan": {
+        name: "新莊民安店",
+        region: "北部地區",
+        phone: "02-22026858",
+        tel: "0222026858",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/A7vPkW88Pz89M7hA2"
+      },
+      "xinzhuang-xingfu": {
+        name: "新莊幸福店",
+        region: "北部地區",
+        phone: "02-29906636",
+        tel: "0229906636",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/XvFvM7hA2A2nN3z89"
+      },
+      "yonghe": {
+        name: "永和中興店",
+        region: "北部地區",
+        phone: "02-29290029",
+        tel: "0229290029",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/9V9mPrPkW88Pz89M7"
+      },
+      "zhonghe": {
+        name: "中和店",
+        region: "北部地區",
+        phone: "02-22421818",
+        tel: "0222421818",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/M7hA2A2nN3z89V9mP"
+      },
+      "taoyuan-arts": {
+        name: "桃園藝文店",
+        region: "北部地區",
+        phone: "03-3561555",
+        tel: "033561555",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/kW88Pz89M7hA2A2nN"
+      },
+      "taoyuan-zhongli": {
+        name: "桃園中壢店",
+        region: "北部地區",
+        phone: "03-4251122",
+        tel: "034251122",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/3z89V9mPrPkW88Pz8"
+      },
+      "qinmei": {
+        name: "勤美公益店",
+        region: "中部地區",
+        phone: "04-23015157",
+        tel: "0423015157",
+        hours: "每日 11:00-20:00",
+        map: "https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7"
+      },
+      "fengjia": {
+        name: "逢甲店",
+        region: "中部地區",
+        phone: "04-24523311",
+        tel: "0424523311",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/yN8Wv4Uq2p3RzZ5a8"
+      },
+      "dali": {
+        name: "大里店",
+        region: "中部地區",
+        phone: "04-24831122",
+        tel: "0424831122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/mZ7rT6vXp2Yn8Wv4U"
+      },
+      "shalu": {
+        name: "沙鹿站前店",
+        region: "中部地區",
+        phone: "04-26633009",
+        tel: "0426633009",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/w5tN4uQ2p3RzZ5a8y"
+      },
+      "fengyuan": {
+        name: "豐原中正店",
+        region: "中部地區",
+        phone: "04-25251122",
+        tel: "0425251122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/T6vXp2Yn8Wv4Uq2p3"
+      },
+      "dajia": {
+        name: "大甲店",
+        region: "中部地區",
+        phone: "04-26881122",
+        tel: "0426881122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/p3RzZ5a8yN8Wv4Uq2"
+      },
+      "changhua": {
+        name: "彰化中正店",
+        region: "中部地區",
+        phone: "04-7281122",
+        tel: "047281122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/Z5a8yN8Wv4Uq2p3Rz"
+      },
+      "nantou": {
+        name: "南投草屯店",
+        region: "中部地區",
+        phone: "049-2311122",
+        tel: "0492311122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/v4Uq2p3RzZ5a8yN8W"
+      },
+      "tainan": {
+        name: "台南民族站前店",
+        region: "南部地區",
+        phone: "06-2231122",
+        tel: "062231122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/8yN8Wv4Uq2p3RzZ5a"
+      },
+      "pingtung": {
+        name: "屏東仁愛店",
+        region: "南部地區",
+        phone: "08-7321122",
+        tel: "087321122",
+        hours: "每日 12:00-21:00",
+        map: "https://maps.app.goo.gl/3RzZ5a8yN8Wv4Uq2"
+      }
+    };
+
+    const offerCards = document.querySelectorAll('.offer-card');
+
+    function animateCard(card, event) {
+      const rect = card.getBoundingClientRect();
+      const clientX = event.clientX || rect.left + rect.width / 2;
+      const clientY = event.clientY || rect.top + rect.height / 2;
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      card.style.setProperty('--mx', x + 'px');
+      card.style.setProperty('--my', y + 'px');
+      card.classList.remove('is-tapped');
+      void card.offsetWidth;
+      card.classList.add('is-tapped');
+
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      card.appendChild(ripple);
+
+      window.setTimeout(function () {
+        ripple.remove();
+      }, 760);
+
+      window.setTimeout(function () {
+        card.classList.remove('is-tapped');
+      }, 620);
+    }
+
+    offerCards.forEach(function (card) {
+      card.addEventListener('pointermove', function (event) {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (event.clientX - rect.left) + 'px');
+        card.style.setProperty('--my', (event.clientY - rect.top) + 'px');
+      });
+
+      card.addEventListener('click', function (event) {
+        animateCard(card, event);
+      });
+
+      card.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          animateCard(card, event);
+        }
+      });
+    });
+
+    const storeDetail = document.getElementById('storeDetail');
+    const storeDetailName = document.getElementById('storeDetailName');
+    const storeDetailRegion = document.getElementById('storeDetailRegion');
+    const storeDetailHours = document.getElementById('storeDetailHours');
+    const storeDetailPhone = document.getElementById('storeDetailPhone');
+    const storeDetailTel = document.getElementById('storeDetailTel');
+    const storeDetailMap = document.getElementById('storeDetailMap');
+    const storeButtons = document.querySelectorAll('.store-name-grid button[data-store]');
+
+    function showStore(storeId, button) {
+      const store = stores[storeId];
+      if (!store) return;
+
+      storeDetailName.textContent = store.name;
+      storeDetailRegion.textContent = store.region;
+      storeDetailHours.textContent = store.hours;
+      storeDetailPhone.textContent = store.phone;
+      storeDetailTel.href = 'tel:' + store.tel;
+      storeDetailMap.href = store.map;
+      storeDetail.classList.add('show');
+
+      storeButtons.forEach(function (item) {
+        item.classList.toggle('active', item.dataset.store === storeId);
+      });
+
+      const selectedRegion = button.closest('details');
+      if (selectedRegion) {
+        selectedRegion.open = true;
+        selectedRegion.appendChild(storeDetail);
+      }
+
+      window.requestAnimationFrame(function () {
+        storeDetail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+
+    storeButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        showStore(button.dataset.store, button);
+      });
+    });
+  </script>
+</body>
+</html>
