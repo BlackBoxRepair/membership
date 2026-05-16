@@ -432,16 +432,10 @@
 
     .offer-card.featured {
       background:
-        radial-gradient(circle at 88% 8%, rgba(247,181,0,0.32), transparent 36%),
-        linear-gradient(180deg, rgba(247,181,0,0.18), rgba(255,255,255,0.055));
-      border-color: rgba(247, 181, 0, 0.52);
-      box-shadow: 0 18px 44px rgba(247,181,0,0.16);
-      animation: featuredGlow 2.8s ease-in-out infinite alternate;
-    }
-
-    @keyframes featuredGlow {
-      from { box-shadow: 0 18px 44px rgba(247,181,0,0.12); }
-      to { box-shadow: 0 22px 54px rgba(247,181,0,0.26); }
+        radial-gradient(circle at 88% 8%, rgba(247,181,0,0.18), transparent 36%),
+        linear-gradient(180deg, rgba(247,181,0,0.10), rgba(255,255,255,0.055));
+      border-color: rgba(247, 181, 0, 0.38);
+      box-shadow: 0 18px 44px rgba(247,181,0,0.10);
     }
 
     .offer-card.is-tapped {
@@ -451,10 +445,6 @@
 
     .offer-card.is-tapped .discount-price strong {
       animation: numberBounce 0.58s cubic-bezier(.16, 1, .3, 1);
-    }
-
-    .offer-card.is-tapped .offer-icon {
-      animation: iconPop 0.58s cubic-bezier(.16, 1, .3, 1);
     }
 
     @keyframes cardTap {
@@ -468,12 +458,6 @@
       0% { transform: translateY(0) scale(1); }
       45% { transform: translateY(-8px) scale(1.12); }
       100% { transform: translateY(0) scale(1); }
-    }
-
-    @keyframes iconPop {
-      0% { transform: rotate(0deg) scale(1); }
-      45% { transform: rotate(-6deg) scale(1.12); }
-      100% { transform: rotate(0deg) scale(1); }
     }
 
     .ripple {
@@ -522,31 +506,38 @@
       padding-right: 72px;
     }
 
+    /* 平常暗燈狀態 */
     .offer-icon {
+      position: relative;
       width: 58px;
       height: 58px;
       border-radius: 20px;
       display: grid;
       place-items: center;
-      color: #ffd84d;
-      background: linear-gradient(145deg, rgba(255, 215, 64, 0.22), rgba(247, 181, 0, 0.08));
-      border: 1px solid rgba(255, 215, 64, 0.45);
+      color: rgba(255, 216, 77, 0.32);
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255, 216, 77, 0.12);
       box-shadow:
-        0 0 12px rgba(255, 208, 0, 0.35),
-        0 0 24px rgba(255, 196, 0, 0.22),
-        inset 0 0 12px rgba(255, 220, 120, 0.12);
-      transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        inset 0 0 10px rgba(255,255,255,0.02),
+        0 0 0 rgba(255, 196, 0, 0);
+      transition:
+        transform 0.28s ease,
+        color 0.28s ease,
+        background 0.28s ease,
+        border-color 0.28s ease,
+        box-shadow 0.28s ease;
     }
 
-    .offer-card:hover .offer-icon,
-    .offer-card:focus-visible .offer-icon {
-      transform: translateY(-2px) scale(1.05);
-      color: #ffe680;
-      background: linear-gradient(145deg, rgba(255, 220, 90, 0.32), rgba(247, 181, 0, 0.14));
-      box-shadow:
-        0 0 16px rgba(255, 208, 0, 0.48),
-        0 0 34px rgba(255, 196, 0, 0.30),
-        inset 0 0 14px rgba(255, 235, 150, 0.16);
+    .offer-icon::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 16px;
+      background: radial-gradient(circle, rgba(255, 215, 64, 0.22), transparent 72%);
+      opacity: 0;
+      transform: scale(0.88);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      pointer-events: none;
     }
 
     .svg-icon {
@@ -557,7 +548,37 @@
       stroke-width: 2.4;
       stroke-linecap: round;
       stroke-linejoin: round;
+      filter: drop-shadow(0 0 0 rgba(255, 220, 100, 0));
+      transition: filter 0.28s ease, color 0.28s ease;
+    }
+
+    /* 點擊後點亮狀態 */
+    .offer-card.lit .offer-icon {
+      transform: translateY(-2px) scale(1.05);
+      color: #ffe680;
+      background: linear-gradient(145deg, rgba(255, 220, 90, 0.26), rgba(247, 181, 0, 0.10));
+      border: 1px solid rgba(255, 220, 90, 0.42);
+      box-shadow:
+        0 0 12px rgba(255, 208, 0, 0.30),
+        0 0 26px rgba(255, 196, 0, 0.18),
+        inset 0 0 12px rgba(255, 235, 150, 0.10);
+    }
+
+    .offer-card.lit .offer-icon::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .offer-card.lit .svg-icon {
       filter: drop-shadow(0 0 6px rgba(255, 220, 100, 0.75));
+    }
+
+    .offer-card.lit {
+      border-color: rgba(247,181,0,0.55);
+      box-shadow:
+        0 24px 54px rgba(0,0,0,0.32),
+        0 0 0 1px rgba(247,181,0,0.14),
+        0 0 28px rgba(247,181,0,0.10);
     }
 
     .offer-content h3 {
@@ -895,7 +916,7 @@
     }
 
     .final-card p {
-      margin-bottom: 16px;
+      margin-bottom: 0;
       color: #d6dbea;
       font-size: 14px;
       line-height: 1.72;
@@ -1072,8 +1093,8 @@
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
               <svg class="svg-icon" viewBox="0 0 24 24">
-                <rect x="7" y="2" width="10" height="20" rx="2" />
-                <path d="M11 18h2" />
+                <rect x="7" y="2" width="10" height="20" rx="2"></rect>
+                <path d="M11 18h2"></path>
               </svg>
             </div>
             <div class="offer-content">
@@ -1092,9 +1113,9 @@
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
               <svg class="svg-icon" viewBox="0 0 24 24">
-                <rect x="3" y="7" width="17" height="10" rx="2" />
-                <path d="M22 11v2" />
-                <path d="M7 11h7" />
+                <rect x="3" y="7" width="17" height="10" rx="2"></rect>
+                <path d="M22 11v2"></path>
+                <path d="M7 11h7"></path>
               </svg>
             </div>
             <div class="offer-content">
@@ -1113,8 +1134,8 @@
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
               <svg class="svg-icon" viewBox="0 0 24 24">
-                <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z" />
-                <path d="M9 12l2 2 4-5" />
+                <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z"></path>
+                <path d="M9 12l2 2 4-5"></path>
               </svg>
             </div>
             <div class="offer-content">
@@ -1241,7 +1262,6 @@
     <section class="final-card">
       <h2>接單前，先把手機狀態補滿。</h2>
       <p>螢幕看得清、電池撐得久、導航更穩定。立即預約黑盒子維修中心，享外送員專屬優惠。</p>
-      <a class="primary-btn" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即線上預約</a>
     </section>
   </main>
 
@@ -1441,12 +1461,23 @@
       });
 
       card.addEventListener('click', function (event) {
+        offerCards.forEach(function (item) {
+          item.classList.remove('lit');
+        });
+
+        card.classList.add('lit');
         animateCard(card, event);
       });
 
       card.addEventListener('keydown', function (event) {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
+
+          offerCards.forEach(function (item) {
+            item.classList.remove('lit');
+          });
+
+          card.classList.add('lit');
           animateCard(card, event);
         }
       });
