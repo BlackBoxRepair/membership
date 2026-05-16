@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="description" content="黑盒子維修中心外送員專屬維修優惠：原廠螢幕維修89折、原廠電池維修79折、認證電池790元起。" />
+  <meta name="description" content="黑盒子維修中心推出 foodpanda 與 Uber Eats 外送員專屬維修優惠：原廠螢幕維修89折、原廠電池維修79折、認證電池790元起。" />
   <meta property="og:title" content="外送員專屬維修優惠｜黑盒子維修中心" />
-  <meta property="og:description" content="手機是外送員最重要的工作工具，螢幕、電池、充電異常立即交給黑盒子維修中心。" />
+  <meta property="og:description" content="黑盒子維修中心推出 foodpanda 與 Uber Eats 外送員專屬優惠，螢幕、電池、充電異常立即檢測維修。" />
   <meta property="og:type" content="website" />
   <title>外送員專屬維修優惠｜黑盒子維修中心</title>
 
@@ -249,6 +249,94 @@
       color: #d6dbea;
       font-size: 15px;
       line-height: 1.78;
+    }
+
+    .platform-panel {
+      position: relative;
+      z-index: 1;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 22px;
+      background: rgba(0, 0, 0, 0.18);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(14px);
+    }
+
+    .platform-title {
+      color: #f7f9ff;
+      font-size: 13px;
+      line-height: 1.65;
+      font-weight: 850;
+      margin-bottom: 12px;
+    }
+
+    .platform-title span {
+      color: var(--brand);
+    }
+
+    .platform-logos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .platform-logo {
+      min-height: 58px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 950;
+      letter-spacing: -0.02em;
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: 0 14px 26px rgba(0,0,0,0.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .platform-logo::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.16) 44%, transparent 66%);
+      transform: translateX(-120%);
+      animation: platformShine 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes platformShine {
+      0%, 52% { transform: translateX(-120%); }
+      74%, 100% { transform: translateX(120%); }
+    }
+
+    .foodpanda-logo {
+      color: #ffffff;
+      background: linear-gradient(135deg, #ff2b85, #e51670);
+    }
+
+    .uber-logo {
+      color: #ffffff;
+      background: linear-gradient(135deg, #111111, #1f2a22);
+    }
+
+    .uber-mark {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      font-size: 18px;
+    }
+
+    .uber-mark strong {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    .uber-mark span {
+      color: #39d97a;
+      font-size: 18px;
+      font-weight: 950;
     }
 
     .primary-btn {
@@ -1069,6 +1157,18 @@
       <p class="hero-copy">
         每天導航、接單、通話、收款都靠手機。螢幕破裂、電池耗電、低電量關機，交給黑盒子快速檢測維修。
       </p>
+
+      <div class="platform-panel" aria-label="合作外送平台優惠">
+        <p class="platform-title">黑盒子維修中心推出 <span>foodpanda</span> 與 <span>Uber Eats</span> 外送員專屬維修優惠。</p>
+        <div class="platform-logos">
+          <div class="platform-logo foodpanda-logo" aria-label="foodpanda">
+            <span>foodpanda</span>
+          </div>
+          <div class="platform-logo uber-logo" aria-label="Uber Eats">
+            <span class="uber-mark"><strong>Uber</strong><span>Eats</span></span>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="offers">
@@ -1081,7 +1181,7 @@
         <div>
           <small>DELIVERY RIDER ONLY</small>
           <h3>外送員維修優惠<br><span>最高享 79 折</span></h3>
-          <p>原廠螢幕、原廠電池、認證電池三種方案，一眼看懂優惠，現場檢測後依機型報價。</p>
+          <p>黑盒子針對 foodpanda 與 Uber Eats 外送員推出專屬方案，原廠螢幕、原廠電池、認證電池三種優惠一次看懂。</p>
         </div>
       </div>
 
@@ -1151,7 +1251,7 @@
       <div class="info-box">
         <h3>優惠使用方式</h3>
         <ul>
-          <li>到店出示外送平台工作證明、接單畫面或相關識別資料。</li>
+          <li>到店出示 foodpanda 或 Uber Eats 外送員工作證明、接單畫面或相關識別資料。</li>
           <li>實際適用機型、零件狀況與最終費用，以門市現場檢測說明為準。</li>
           <li>優惠不可與其他活動併用。</li>
         </ul>
@@ -1267,7 +1367,7 @@
     <div class="bottom-cta-inner">
       <div class="bottom-cta-text">
         <strong>外送員維修優惠</strong>
-        <span>最高 79 折｜認證電池 790 元起</span>
+        <span>foodpanda / Uber Eats 適用</span>
       </div>
       <a href="#stores">立即預約</a>
     </div>
