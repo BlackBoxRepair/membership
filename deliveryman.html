@@ -857,14 +857,16 @@
     }
 
     .store-name-grid button {
-      min-height: 40px;
-      padding: 0 10px;
+      min-height: 44px;
+      padding: 8px 10px;
       border-radius: 13px;
       color: #fff;
       background: rgba(255,255,255,0.075);
       border: 1px solid rgba(255,255,255,0.12);
       font-size: 12px;
       font-weight: 800;
+      line-height: 1.35;
+      white-space: normal;
       cursor: pointer;
       transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
     }
@@ -974,6 +976,14 @@
       color: #fff;
       background: rgba(255,255,255,0.08);
       border: 1px solid var(--line);
+    }
+
+    .store-detail-actions a.disabled {
+      color: #d6dbea;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      pointer-events: none;
+      opacity: 0.78;
     }
 
     .final-card {
@@ -1306,36 +1316,36 @@
         <details open>
           <summary>北部地區 <span>8 間</span></summary>
           <div class="store-name-grid">
-            <button type="button" data-store="taipei-hankou">台北漢口店</button>
-            <button type="button" data-store="tamsui">淡水店</button>
-            <button type="button" data-store="xinzhuang-minan">新莊民安店</button>
-            <button type="button" data-store="xinzhuang-xingfu">新莊幸福店</button>
-            <button type="button" data-store="yonghe">永和中興店</button>
-            <button type="button" data-store="zhonghe">中和店</button>
-            <button type="button" data-store="taoyuan-arts">桃園藝文店</button>
-            <button type="button" data-store="taoyuan-zhongli">桃園中壢店</button>
+            <button type="button" data-store="north-tamsui">新北-淡水店</button>
+            <button type="button" data-store="north-taoyuan-arts">桃園-藝文店</button>
+            <button type="button" data-store="north-xinzhuang-minan">新北-新莊民安店</button>
+            <button type="button" data-store="north-taipei-station">台北市-中正區站前店（特許授權採預約制）</button>
+            <button type="button" data-store="north-zhongli">桃園-中壢中正店</button>
+            <button type="button" data-store="north-yonghe">新北-永和店</button>
+            <button type="button" data-store="north-zhonghe">新北-中和店</button>
+            <button type="button" data-store="north-xinzhuang-xingfu">新北-新莊幸福店</button>
           </div>
         </details>
 
         <details open>
           <summary>中部地區 <span>8 間</span></summary>
           <div class="store-name-grid">
-            <button type="button" data-store="qinmei">勤美公益店</button>
-            <button type="button" data-store="fengjia">逢甲店</button>
-            <button type="button" data-store="dali">大里店</button>
-            <button type="button" data-store="shalu">沙鹿站前店</button>
-            <button type="button" data-store="fengyuan">豐原中正店</button>
-            <button type="button" data-store="dajia">大甲店</button>
-            <button type="button" data-store="changhua">彰化中正店</button>
-            <button type="button" data-store="nantou">南投草屯店</button>
+            <button type="button" data-store="central-qinmei">台中-公益旗艦店</button>
+            <button type="button" data-store="central-dali">台中-大里店</button>
+            <button type="button" data-store="central-fengjia">台中-逢甲店</button>
+            <button type="button" data-store="central-fengyuan">台中-豐原中正店</button>
+            <button type="button" data-store="central-shalu">台中-沙鹿站前店</button>
+            <button type="button" data-store="central-changhua">彰化-彰化市區店</button>
+            <button type="button" data-store="central-nantou">南投-草屯店</button>
+            <button type="button" data-store="central-dajia">台中-大甲店</button>
           </div>
         </details>
 
         <details open>
           <summary>南部地區 <span>2 間</span></summary>
           <div class="store-name-grid">
-            <button type="button" data-store="tainan">台南民族站前店</button>
-            <button type="button" data-store="pingtung">屏東仁愛店</button>
+            <button type="button" data-store="south-tainan">台南-民族站前店</button>
+            <button type="button" data-store="south-pingtung">屏東-環球仁愛店</button>
           </div>
         </details>
       </div>
@@ -1346,13 +1356,14 @@
           <span class="store-detail-region" id="storeDetailRegion">地區</span>
         </div>
         <div class="store-detail-info">
-          <div><strong>營業時間</strong><span id="storeDetailHours">每日 11:00-20:00</span></div>
-          <div><strong>電話</strong><span id="storeDetailPhone">04-23015157</span></div>
-          <div><strong>Google</strong><span>點擊下方按鈕開啟地圖</span></div>
+          <div><strong>地址</strong><span id="storeDetailAddress">請先選擇門市</span></div>
+          <div><strong>營業時間</strong><span id="storeDetailHours">請先選擇門市</span></div>
+          <div><strong>電話</strong><span id="storeDetailPhone">請先選擇門市</span></div>
+          <div><strong>Google</strong><span>點擊下方按鈕依地址開啟地圖</span></div>
         </div>
         <div class="store-detail-actions">
           <a id="storeDetailTel" href="tel:0423015157">撥打電話</a>
-          <a id="storeDetailMap" href="https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7" target="_blank" rel="noopener">開啟地圖</a>
+          <a id="storeDetailMap" href="https://www.google.com/maps/search/?api=1&query=%E5%8F%B0%E4%B8%AD%E5%B8%82%E8%A5%BF%E5%8D%80%E5%85%AC%E7%9B%8A%E8%B7%AF145%E8%99%9F" target="_blank" rel="noopener">開啟地圖</a>
         </div>
       </div>
     </section>
@@ -1375,24 +1386,24 @@
 
   <script>
     const stores = {
-      "taipei-hankou": { name: "台北漢口店", region: "北部地區", phone: "02-23122177", tel: "0223122177", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9Z9V9mPrPkW88Pz89" },
-      "tamsui": { name: "淡水店", region: "北部地區", phone: "02-26283151", tel: "0226283151", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/uXvFvM7hA2A2nN3z8" },
-      "xinzhuang-minan": { name: "新莊民安店", region: "北部地區", phone: "02-22026858", tel: "0222026858", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/A7vPkW88Pz89M7hA2" },
-      "xinzhuang-xingfu": { name: "新莊幸福店", region: "北部地區", phone: "02-29906636", tel: "0229906636", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/XvFvM7hA2A2nN3z89" },
-      "yonghe": { name: "永和中興店", region: "北部地區", phone: "02-29290029", tel: "0229290029", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9V9mPrPkW88Pz89M7" },
-      "zhonghe": { name: "中和店", region: "北部地區", phone: "02-22421818", tel: "0222421818", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/M7hA2A2nN3z89V9mP" },
-      "taoyuan-arts": { name: "桃園藝文店", region: "北部地區", phone: "03-3561555", tel: "033561555", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/kW88Pz89M7hA2A2nN" },
-      "taoyuan-zhongli": { name: "桃園中壢店", region: "北部地區", phone: "03-4251122", tel: "034251122", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/3z89V9mPrPkW88Pz8" },
-      "qinmei": { name: "勤美公益店", region: "中部地區", phone: "04-23015157", tel: "0423015157", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7" },
-      "fengjia": { name: "逢甲店", region: "中部地區", phone: "04-24523311", tel: "0424523311", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/yN8Wv4Uq2p3RzZ5a8" },
-      "dali": { name: "大里店", region: "中部地區", phone: "04-24831122", tel: "0424831122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/mZ7rT6vXp2Yn8Wv4U" },
-      "shalu": { name: "沙鹿站前店", region: "中部地區", phone: "04-26633009", tel: "0426633009", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/w5tN4uQ2p3RzZ5a8y" },
-      "fengyuan": { name: "豐原中正店", region: "中部地區", phone: "04-25251122", tel: "0425251122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/T6vXp2Yn8Wv4Uq2p3" },
-      "dajia": { name: "大甲店", region: "中部地區", phone: "04-26881122", tel: "0426881122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/p3RzZ5a8yN8Wv4Uq2" },
-      "changhua": { name: "彰化中正店", region: "中部地區", phone: "04-7281122", tel: "047281122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/Z5a8yN8Wv4Uq2p3Rz" },
-      "nantou": { name: "南投草屯店", region: "中部地區", phone: "049-2311122", tel: "0492311122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/v4Uq2p3RzZ5a8yN8W" },
-      "tainan": { name: "台南民族站前店", region: "南部地區", phone: "06-2231122", tel: "062231122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/8yN8Wv4Uq2p3RzZ5a" },
-      "pingtung": { name: "屏東仁愛店", region: "南部地區", phone: "08-7321122", tel: "087321122", hours: "每日 12:00-21:00", map: "https://maps.app.goo.gl/3RzZ5a8yN8Wv4Uq2" }
+      "north-tamsui": { name: "新北-淡水店", region: "北部地區", address: "新北市淡水區中山路35號", phone: "02-26219161", tel: "0226219161", hours: "一～六 11:00–21:00；日公休；休假另行公告" },
+      "north-taoyuan-arts": { name: "桃園-藝文店", region: "北部地區", address: "桃園市桃園區同安里新埔八街86號", phone: "03-3176046", tel: "033176046", hours: "一～三、五～日 11:00–20:00；四公休" },
+      "north-xinzhuang-minan": { name: "新北-新莊民安店", region: "北部地區", address: "242新北市新莊區民安西路45號", phone: "02-22025998", tel: "0222025998", hours: "每日 12:00–21:00；休假另行公告" },
+      "north-taipei-station": { name: "台北市-中正區站前店（特許授權採預約制）", region: "北部地區", address: "台北市中正區漢口街", phone: "官網未列電話，請先聯繫總部客服／LINE", tel: "", hours: "每日 11:00–22:00" },
+      "north-zhongli": { name: "桃園-中壢中正店", region: "北部地區", address: "320桃園市中壢區中正路310號", phone: "03-4023339", tel: "034023339", hours: "一～六 11:00–20:00；日公休" },
+      "north-yonghe": { name: "新北-永和店", region: "北部地區", address: "新北市永和區中興街18號", phone: "0918-555-593", tel: "0918555593", hours: "每日 12:00–21:00；休假另行公告" },
+      "north-zhonghe": { name: "新北-中和店", region: "北部地區", address: "新北市中和區中和路153號", phone: "0965-728-894", tel: "0965728894", hours: "一～六 12:00–21:00；日公休" },
+      "north-xinzhuang-xingfu": { name: "新北-新莊幸福店", region: "北部地區", address: "新北市新莊區幸福路19號", phone: "02-66043458", tel: "0266043458", hours: "每日 12:00–21:00；休假另行公告" },
+      "central-qinmei": { name: "台中-公益旗艦店", region: "中部地區", address: "台中市西區公益路145號", phone: "04-23015157", tel: "0423015157", hours: "每日 11:00–20:00；全年無休" },
+      "central-dali": { name: "台中-大里店", region: "中部地區", address: "412台中市大里區中興路二段109號", phone: "04-24834066", tel: "0424834066", hours: "一、二、四～六 12:00–21:00；三、日公休" },
+      "central-fengjia": { name: "台中-逢甲店", region: "中部地區", address: "台中市西屯區逢甲路120號", phone: "04-24529290", tel: "0424529290", hours: "每日 12:00–22:00；全年無休" },
+      "central-fengyuan": { name: "台中-豐原中正店", region: "中部地區", address: "420台中市豐原區中正路103號", phone: "0965-805-905", tel: "0965805905", hours: "每日 12:00–21:00；休假另行公告" },
+      "central-shalu": { name: "台中-沙鹿站前店", region: "中部地區", address: "433台中市沙鹿區沙田路149號", phone: "04-26633009", tel: "0426633009", hours: "每日 12:00–21:00" },
+      "central-changhua": { name: "彰化-彰化市區店", region: "中部地區", address: "500彰化縣彰化市中正路一段457號", phone: "0909-715-627", tel: "0909715627", hours: "一～六 12:00–21:00；日公休" },
+      "central-nantou": { name: "南投-草屯店", region: "中部地區", address: "南投縣草屯鎮中山街198號-1", phone: "0974-193-568", tel: "0974193568", hours: "一～六 11:00–21:00；日公休" },
+      "central-dajia": { name: "台中-大甲店", region: "中部地區", address: "台中市大甲區中山路一段792-1號", phone: "0958-425-141", tel: "0958425141", hours: "一～六 12:00–21:00；日公休" },
+      "south-tainan": { name: "台南-民族站前店", region: "南部地區", address: "700台南市中西區民族路二段6號", phone: "0970-502-622", tel: "0970502622", hours: "一～六 12:00–21:00；日公休" },
+      "south-pingtung": { name: "屏東-環球仁愛店", region: "南部地區", address: "900屏東縣屏東市仁愛路75-6號", phone: "08-7660583", tel: "087660583", hours: "每日 11:00–21:00；全年無休" }
     };
 
     const offerCards = document.querySelectorAll('.offer-card');
@@ -1458,6 +1469,7 @@
     const storeDetail = document.getElementById('storeDetail');
     const storeDetailName = document.getElementById('storeDetailName');
     const storeDetailRegion = document.getElementById('storeDetailRegion');
+    const storeDetailAddress = document.getElementById('storeDetailAddress');
     const storeDetailHours = document.getElementById('storeDetailHours');
     const storeDetailPhone = document.getElementById('storeDetailPhone');
     const storeDetailTel = document.getElementById('storeDetailTel');
@@ -1470,10 +1482,21 @@
 
       storeDetailName.textContent = store.name;
       storeDetailRegion.textContent = store.region;
+      storeDetailAddress.textContent = store.address;
       storeDetailHours.textContent = store.hours;
       storeDetailPhone.textContent = store.phone;
-      storeDetailTel.href = 'tel:' + store.tel;
-      storeDetailMap.href = store.map;
+
+      if (store.tel) {
+        storeDetailTel.href = 'tel:' + store.tel;
+        storeDetailTel.textContent = '撥打電話';
+        storeDetailTel.classList.remove('disabled');
+      } else {
+        storeDetailTel.removeAttribute('href');
+        storeDetailTel.textContent = '請先聯繫總部客服 / LINE';
+        storeDetailTel.classList.add('disabled');
+      }
+
+      storeDetailMap.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(store.address);
       storeDetail.classList.add('show');
 
       storeButtons.forEach(function (item) {
