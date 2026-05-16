@@ -20,10 +20,6 @@
       --brand: #f7b500;
       --brand-light: #ffe097;
       --green: #2ce09f;
-      --danger: #ff5f58;
-      --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 16px;
       --shadow: 0 18px 46px rgba(0, 0, 0, 0.35);
     }
 
@@ -34,9 +30,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
       min-height: 100vh;
@@ -54,7 +48,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      z-index: -1;
+      z-index: -2;
       pointer-events: none;
       background-image:
         linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
@@ -63,16 +57,39 @@
       mask-image: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent 72%);
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -30%;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 24% 22%, rgba(247,181,0,0.18), transparent 22%),
+        radial-gradient(circle at 78% 28%, rgba(44,224,159,0.12), transparent 20%),
+        radial-gradient(circle at 50% 90%, rgba(247,181,0,0.08), transparent 24%);
+      filter: blur(10px);
+      animation: ambientMove 12s ease-in-out infinite alternate;
     }
+
+    @keyframes ambientMove {
+      0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+      100% { transform: translate3d(2%, 1.5%, 0) scale(1.04); }
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; }
 
     .page {
       width: 100%;
       max-width: 760px;
       margin: 0 auto;
       padding: 18px 16px 34px;
+      animation: pageIn 0.7s ease both;
+    }
+
+    @keyframes pageIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .topbar {
@@ -83,15 +100,8 @@
       margin-bottom: 18px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-    }
-
-    .brand-text {
-      min-width: 0;
-    }
+    .brand { display: flex; align-items: center; min-width: 0; }
+    .brand-text { min-width: 0; }
 
     .brand-text strong {
       display: block;
@@ -124,11 +134,17 @@
       font-size: 13px;
       font-weight: 950;
       box-shadow: 0 10px 24px rgba(247, 181, 0, 0.22);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .mini-booking:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(247, 181, 0, 0.32);
     }
 
     .hero {
       position: relative;
-      padding: 24px 18px 18px;
+      padding: 24px 18px 22px;
       border-radius: 30px;
       border: 1px solid var(--line);
       background:
@@ -136,6 +152,16 @@
         linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.055));
       box-shadow: var(--shadow);
       overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.08) 45%, transparent 70%);
+      transform: translateX(-110%);
+      animation: softShine 5.2s ease-in-out infinite;
+      pointer-events: none;
     }
 
     .hero::after {
@@ -150,7 +176,14 @@
       pointer-events: none;
     }
 
+    @keyframes softShine {
+      0%, 48% { transform: translateX(-110%); }
+      70%, 100% { transform: translateX(110%); }
+    }
+
     .badge {
+      position: relative;
+      z-index: 1;
       width: fit-content;
       display: inline-flex;
       align-items: center;
@@ -191,9 +224,7 @@
       margin-bottom: 14px;
     }
 
-    .hero h1 span {
-      color: var(--brand);
-    }
+    .hero h1 span { color: var(--brand); }
 
     .hero-copy {
       position: relative;
@@ -201,49 +232,6 @@
       color: #d6dbea;
       font-size: 15px;
       line-height: 1.78;
-      margin-bottom: 18px;
-    }
-
-    .quick-points {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin: 18px 0;
-    }
-
-    .quick-point {
-      min-height: 74px;
-      padding: 12px 8px;
-      border-radius: 18px;
-      text-align: center;
-      background: rgba(0,0,0,0.24);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .quick-point strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--brand);
-      font-size: 22px;
-      line-height: 1;
-      letter-spacing: -0.04em;
-    }
-
-    .quick-point span {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.35;
-    }
-
-    .hero-buttons {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      gap: 10px;
-      margin-top: 16px;
     }
 
     .primary-btn,
@@ -256,7 +244,7 @@
       gap: 8px;
       font-size: 16px;
       font-weight: 950;
-      transition: 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .primary-btn {
@@ -274,13 +262,9 @@
     .primary-btn:active,
     .ghost-btn:active,
     .mini-booking:active,
-    .bottom-cta a:active {
-      transform: scale(0.98);
-    }
+    .bottom-cta a:active { transform: scale(0.98); }
 
-    .section {
-      margin-top: 28px;
-    }
+    .section { margin-top: 28px; }
 
     .section-title {
       display: flex;
@@ -302,47 +286,235 @@
       white-space: nowrap;
     }
 
-    .offer-list {
-      display: grid;
-      gap: 12px;
+    .discount-hero {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 18px;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(247,181,0,0.38);
+      background:
+        radial-gradient(circle at 88% 12%, rgba(255,224,151,0.22), transparent 34%),
+        linear-gradient(135deg, rgba(247,181,0,0.24), rgba(255,255,255,0.07));
+      box-shadow: 0 16px 40px rgba(247,181,0,0.12);
     }
+
+    .discount-hero::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.12) 42%, transparent 64%);
+      transform: translateX(-120%);
+      animation: offerShine 4.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .discount-hero::after {
+      content: "SPECIAL OFFER";
+      position: absolute;
+      right: -18px;
+      bottom: 10px;
+      color: rgba(255,255,255,0.055);
+      font-size: 36px;
+      font-weight: 950;
+      letter-spacing: -0.04em;
+      pointer-events: none;
+    }
+
+    @keyframes offerShine {
+      0%, 45% { transform: translateX(-120%); }
+      70%, 100% { transform: translateX(120%); }
+    }
+
+    .discount-hero small {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      color: #111;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .discount-hero h3 {
+      position: relative;
+      z-index: 1;
+      font-size: 28px;
+      line-height: 1.15;
+      letter-spacing: -0.05em;
+      margin-bottom: 8px;
+    }
+
+    .discount-hero h3 span { color: var(--brand); }
+
+    .discount-hero p {
+      position: relative;
+      z-index: 1;
+      color: #d6dbea;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .offer-list { display: grid; gap: 12px; }
 
     .offer-card {
       position: relative;
       display: grid;
-      grid-template-columns: 56px 1fr auto;
-      gap: 12px;
-      align-items: center;
-      min-height: 116px;
-      padding: 16px;
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      grid-template-columns: 1fr;
+      gap: 14px;
+      min-height: 178px;
+      padding: 18px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 92% 0%, rgba(247,181,0,0.12), transparent 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.045));
       border: 1px solid var(--line);
       box-shadow: 0 14px 34px rgba(0,0,0,0.22);
       overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      isolation: isolate;
+      transform: translateZ(0);
+      transition:
+        transform 0.28s cubic-bezier(.2,.8,.2,1),
+        border-color 0.28s ease,
+        box-shadow 0.28s ease,
+        background 0.28s ease;
     }
+
+    .offer-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%), rgba(247,181,0,0.22), transparent 36%);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    .offer-card:hover,
+    .offer-card:focus-visible {
+      transform: translateY(-6px) scale(1.01);
+      border-color: rgba(247,181,0,0.48);
+      box-shadow: 0 24px 54px rgba(0,0,0,0.32), 0 0 0 1px rgba(247,181,0,0.1);
+      outline: none;
+    }
+
+    .offer-card:hover::before,
+    .offer-card:focus-visible::before { opacity: 1; }
+    .offer-card:active { transform: translateY(-2px) scale(0.985); }
 
     .offer-card.featured {
       background:
-        radial-gradient(circle at 88% 8%, rgba(247,181,0,0.26), transparent 32%),
-        linear-gradient(180deg, rgba(247,181,0,0.16), rgba(255,255,255,0.055));
-      border-color: rgba(247, 181, 0, 0.38);
+        radial-gradient(circle at 88% 8%, rgba(247,181,0,0.32), transparent 36%),
+        linear-gradient(180deg, rgba(247,181,0,0.18), rgba(255,255,255,0.055));
+      border-color: rgba(247, 181, 0, 0.52);
+      box-shadow: 0 18px 44px rgba(247,181,0,0.16);
+      animation: featuredGlow 2.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes featuredGlow {
+      from { box-shadow: 0 18px 44px rgba(247,181,0,0.12); }
+      to { box-shadow: 0 22px 54px rgba(247,181,0,0.26); }
+    }
+
+    .offer-card.is-tapped {
+      animation: cardTap 0.58s cubic-bezier(.16, 1, .3, 1);
+      border-color: rgba(247,181,0,0.72);
+    }
+
+    .offer-card.is-tapped .discount-price strong { animation: numberBounce 0.58s cubic-bezier(.16, 1, .3, 1); }
+    .offer-card.is-tapped .offer-icon { animation: iconPop 0.58s cubic-bezier(.16, 1, .3, 1); }
+
+    @keyframes cardTap {
+      0% { transform: scale(1); }
+      34% { transform: scale(0.975); }
+      66% { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes numberBounce {
+      0% { transform: translateY(0) scale(1); }
+      45% { transform: translateY(-8px) scale(1.12); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    @keyframes iconPop {
+      0% { transform: rotate(0deg) scale(1); }
+      45% { transform: rotate(-6deg) scale(1.12); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+
+    .ripple {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: rgba(247,181,0,0.32);
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripple 0.72s ease-out forwards;
+      z-index: 0;
+    }
+
+    @keyframes ripple {
+      to { opacity: 0; transform: translate(-50%, -50%) scale(24); }
+    }
+
+    .offer-tag {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      background: var(--brand);
+      font-size: 12px;
+      font-weight: 950;
+      z-index: 2;
+    }
+
+    .offer-main {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding-right: 72px;
     }
 
     .offer-icon {
-      width: 56px;
-      height: 56px;
+      width: 58px;
+      height: 58px;
       border-radius: 20px;
       display: grid;
       place-items: center;
       color: var(--brand);
       background: rgba(0,0,0,0.24);
       border: 1px solid rgba(255,255,255,0.12);
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+
+    .offer-card:hover .offer-icon,
+    .offer-card:focus-visible .offer-icon {
+      transform: translateY(-2px) rotate(-2deg);
+      background: rgba(247,181,0,0.12);
     }
 
     .offer-content h3 {
-      font-size: 17px;
-      line-height: 1.35;
+      font-size: 19px;
+      line-height: 1.25;
       margin-bottom: 5px;
     }
 
@@ -353,24 +525,61 @@
     }
 
     .discount {
-      min-width: 68px;
-      text-align: right;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(247,181,0,0.18), rgba(247,181,0,0.05));
+      border: 1px solid rgba(247,181,0,0.32);
+      overflow: hidden;
     }
 
-    .discount strong {
-      display: block;
-      color: var(--brand);
-      font-size: 34px;
-      line-height: 0.94;
-      letter-spacing: -0.08em;
+    .discount::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.1) 48%, transparent 66%);
+      transform: translateX(-120%);
+      transition: transform 0.52s ease;
+      pointer-events: none;
     }
 
-    .discount span {
-      display: block;
-      margin-top: 4px;
-      color: #dfe4ef;
-      font-size: 12px;
+    .offer-card:hover .discount::after,
+    .offer-card.is-tapped .discount::after { transform: translateX(120%); }
+
+    .discount-label {
+      color: #ffe2a2;
+      font-size: 13px;
       font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .discount-price {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 4px;
+      color: var(--brand);
+      white-space: nowrap;
+    }
+
+    .discount-price strong {
+      display: block;
+      font-size: 50px;
+      line-height: 0.88;
+      letter-spacing: -0.09em;
+      text-shadow: 0 0 22px rgba(247,181,0,0.18);
+    }
+
+    .discount-price span {
+      display: block;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 950;
     }
 
     .info-box {
@@ -402,10 +611,7 @@
       padding-left: 18px;
     }
 
-    .process-list {
-      display: grid;
-      gap: 10px;
-    }
+    .process-list { display: grid; gap: 10px; }
 
     .step {
       display: grid;
@@ -416,6 +622,13 @@
       border-radius: 20px;
       background: rgba(255,255,255,0.065);
       border: 1px solid var(--line);
+      transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .step:hover {
+      transform: translateY(-3px);
+      border-color: rgba(247,181,0,0.35);
+      background: rgba(255,255,255,0.085);
     }
 
     .step-num {
@@ -442,47 +655,282 @@
       line-height: 1.55;
     }
 
-    .store-card {
-      display: grid;
-      gap: 12px;
+    .map-card {
+      position: relative;
+      border-radius: 30px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 70% 10%, rgba(247,181,0,0.16), transparent 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.045));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      padding: 16px;
+    }
+
+    .map-hint {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      color: #d6dbea;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .map-hint strong { color: var(--brand); }
+
+    .map-shell {
+      position: relative;
+      min-height: 520px;
+      border-radius: 26px;
+      border: 1px solid rgba(255,255,255,0.11);
+      background:
+        radial-gradient(circle at 52% 28%, rgba(44,224,159,0.1), transparent 32%),
+        rgba(0,0,0,0.22);
+      overflow: hidden;
+    }
+
+    .taiwan-svg {
+      position: absolute;
+      inset: 30px 18px 22px;
+      width: calc(100% - 36px);
+      height: calc(100% - 52px);
+      filter: drop-shadow(0 30px 32px rgba(0,0,0,0.35));
+    }
+
+    .taiwan-island {
+      fill: rgba(255,255,255,0.08);
+      stroke: rgba(247,181,0,0.5);
+      stroke-width: 2;
+    }
+
+    .taiwan-line {
+      fill: none;
+      stroke: rgba(255,255,255,0.1);
+      stroke-width: 1.5;
+      stroke-dasharray: 5 7;
+    }
+
+    .map-region-label {
+      position: absolute;
+      right: 18px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 11px;
+      font-weight: 850;
+      pointer-events: none;
+    }
+
+    .map-region-label.north { top: 48px; }
+    .map-region-label.central { top: 220px; }
+    .map-region-label.south { bottom: 58px; }
+
+    .map-marker {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: 18px;
+      height: 18px;
+      border: 0;
+      border-radius: 999px;
+      transform: translate(-50%, -50%);
+      background: var(--brand);
+      box-shadow: 0 0 0 5px rgba(247,181,0,0.16), 0 0 24px rgba(247,181,0,0.55);
+      cursor: pointer;
+      z-index: 4;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .map-marker::before {
+      content: "";
+      position: absolute;
+      inset: -8px;
+      border-radius: inherit;
+      border: 1px solid rgba(247,181,0,0.35);
+      animation: markerPulse 1.8s infinite;
+    }
+
+    @keyframes markerPulse {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .map-marker:hover,
+    .map-marker:focus-visible,
+    .map-marker.active {
+      outline: none;
+      transform: translate(-50%, -50%) scale(1.25);
+      background: var(--brand-light);
+      box-shadow: 0 0 0 7px rgba(247,181,0,0.2), 0 0 34px rgba(247,181,0,0.72);
+    }
+
+    .store-popup {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      z-index: 10;
       padding: 16px;
       border-radius: 22px;
-      background: rgba(255,255,255,0.065);
-      border: 1px solid var(--line);
+      background: rgba(8, 10, 14, 0.9);
+      border: 1px solid rgba(247,181,0,0.3);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 18px 46px rgba(0,0,0,0.4);
+      transform: translateY(16px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.24s ease;
     }
 
-    .store-card + .store-card {
-      margin-top: 10px;
+    .store-popup.show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    .store-card h3 {
-      font-size: 18px;
+    .popup-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .popup-top h3 {
+      font-size: 21px;
+      line-height: 1.2;
       color: var(--brand);
     }
 
-    .store-card p {
-      color: #d6dbea;
-      font-size: 13px;
-      line-height: 1.75;
+    .popup-region {
+      display: inline-flex;
+      margin-top: 6px;
+      min-height: 24px;
+      padding: 0 8px;
+      align-items: center;
+      border-radius: 999px;
+      color: #111;
+      background: var(--brand);
+      font-size: 11px;
+      font-weight: 950;
     }
 
-    .store-actions {
+    .popup-close {
+      width: 34px;
+      height: 34px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .popup-info {
+      display: grid;
+      gap: 8px;
+      color: #d6dbea;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .popup-info div {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      gap: 8px;
+    }
+
+    .popup-info strong {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .popup-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
 
-    .store-actions a {
-      min-height: 42px;
+    .popup-actions a {
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 14px;
-      color: var(--text);
+      border-radius: 15px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .popup-actions a:first-child {
+      color: #111;
+      background: linear-gradient(135deg, var(--brand), var(--brand-light));
+    }
+
+    .popup-actions a:last-child {
+      color: #fff;
       background: rgba(255,255,255,0.08);
       border: 1px solid var(--line);
-      font-size: 13px;
+    }
+
+    .store-list-compact {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .store-list-compact details {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.055);
+      overflow: hidden;
+    }
+
+    .store-list-compact summary {
+      min-height: 46px;
+      padding: 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--brand);
+      font-size: 14px;
+      font-weight: 950;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .store-list-compact summary::-webkit-details-marker { display: none; }
+
+    .store-name-grid {
+      padding: 0 14px 14px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .store-name-grid button {
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: 13px;
+      color: #fff;
+      background: rgba(255,255,255,0.075);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 12px;
       font-weight: 800;
+      cursor: pointer;
+    }
+
+    .store-name-grid button:hover,
+    .store-name-grid button.active {
+      color: #111;
+      background: var(--brand);
+      border-color: var(--brand);
     }
 
     .final-card {
@@ -495,6 +943,12 @@
         linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.055));
       border: 1px solid rgba(247,181,0,0.25);
       box-shadow: var(--shadow);
+      animation: finalGlow 3.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes finalGlow {
+      from { box-shadow: var(--shadow); }
+      to { box-shadow: 0 22px 58px rgba(247,181,0,0.16); }
     }
 
     .final-card h2 {
@@ -558,6 +1012,12 @@
       font-weight: 950;
       box-shadow: 0 14px 30px rgba(247, 181, 0, 0.24);
       white-space: nowrap;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .bottom-cta a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 38px rgba(247, 181, 0, 0.36);
     }
 
     .svg-icon {
@@ -570,44 +1030,52 @@
       stroke-linejoin: round;
     }
 
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     @media (min-width: 700px) {
-      body {
-        padding-bottom: 0;
+      body { padding-bottom: 0; }
+      .page { padding: 28px 22px 60px; }
+      .hero { padding: 34px 30px 30px; }
+
+      .discount-hero {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 18px;
       }
 
-      .page {
-        padding: 28px 22px 60px;
-      }
+      .discount-hero small { margin-bottom: 0; }
+      .offer-list { grid-template-columns: repeat(3, 1fr); }
+      .offer-card { min-height: 310px; }
 
-      .hero {
-        padding: 34px 30px 28px;
-      }
-
-      .hero-buttons {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .offer-list {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .offer-card {
+      .offer-main {
         grid-template-columns: 1fr;
-        min-height: 260px;
+        padding-right: 0;
         align-items: start;
       }
 
-      .discount {
-        text-align: left;
+      .offer-tag { top: 16px; right: 16px; }
+      .discount { margin-top: auto; grid-template-columns: 1fr; align-items: start; }
+      .discount-price { justify-content: flex-start; }
+      .process-list { grid-template-columns: repeat(2, 1fr); }
+
+      .map-layout {
+        display: grid;
+        grid-template-columns: minmax(360px, 1.08fr) 0.92fr;
+        gap: 14px;
+        align-items: start;
       }
 
-      .process-list {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .bottom-cta {
-        display: none;
-      }
+      .map-shell { min-height: 620px; }
+      .store-list-compact { margin-top: 0; }
+      .bottom-cta { display: none; }
     }
   </style>
 </head>
@@ -617,7 +1085,7 @@
       <a class="brand" href="#top" aria-label="黑盒子維修中心">
         <div class="brand-text">
           <strong>黑盒子維修中心</strong>
-          <span>Professional Repair</span>
+          <span>Blackbox repair center</span>
         </div>
       </a>
       <a class="mini-booking" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">預約</a>
@@ -629,26 +1097,6 @@
       <p class="hero-copy">
         每天導航、接單、通話、收款都靠手機。螢幕破裂、電池耗電、低電量關機，交給黑盒子快速檢測維修。
       </p>
-
-      <div class="quick-points" aria-label="優惠重點">
-        <div class="quick-point">
-          <strong>89</strong>
-          <span>原廠螢幕<br>維修折扣</span>
-        </div>
-        <div class="quick-point">
-          <strong>79</strong>
-          <span>原廠電池<br>維修折扣</span>
-        </div>
-        <div class="quick-point">
-          <strong>790</strong>
-          <span>認證電池<br>元起</span>
-        </div>
-      </div>
-
-      <div class="hero-buttons">
-        <a class="primary-btn" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約維修</a>
-        <a class="ghost-btn" href="#offers">查看優惠內容</a>
-      </div>
     </section>
 
     <section class="section" id="offers">
@@ -657,56 +1105,73 @@
         <span>到店出示外送員證明</span>
       </div>
 
+      <div class="discount-hero">
+        <div>
+          <small>DELIVERY RIDER ONLY</small>
+          <h3>外送員維修優惠<br><span>最高享 79 折</span></h3>
+          <p>原廠螢幕、原廠電池、認證電池三種方案，一眼看懂優惠，現場檢測後依機型報價。</p>
+        </div>
+      </div>
+
       <div class="offer-list">
-        <article class="offer-card">
-          <div class="offer-icon" aria-hidden="true">
-            <svg class="svg-icon" viewBox="0 0 24 24">
-              <rect x="7" y="2" width="10" height="20" rx="2" />
-              <path d="M11 18h2" />
-            </svg>
-          </div>
-          <div class="offer-content">
-            <h3>原廠螢幕維修</h3>
-            <p>螢幕破裂、觸控異常、顯示異常，協助恢復穩定操作。</p>
+        <article class="offer-card" role="button" tabindex="0" aria-label="原廠螢幕維修，外送員專屬優惠89折">
+          <span class="offer-tag">原廠零件</span>
+          <div class="offer-main">
+            <div class="offer-icon" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <rect x="7" y="2" width="10" height="20" rx="2" />
+                <path d="M11 18h2" />
+              </svg>
+            </div>
+            <div class="offer-content">
+              <h3>原廠螢幕維修</h3>
+              <p>螢幕破裂、觸控異常、顯示異常，協助恢復穩定操作。</p>
+            </div>
           </div>
           <div class="discount">
-            <strong>89</strong>
-            <span>折</span>
+            <div class="discount-label">外送員專屬優惠</div>
+            <div class="discount-price"><strong>89</strong><span>折</span></div>
           </div>
         </article>
 
-        <article class="offer-card featured">
-          <div class="offer-icon" aria-hidden="true">
-            <svg class="svg-icon" viewBox="0 0 24 24">
-              <rect x="3" y="7" width="17" height="10" rx="2" />
-              <path d="M22 11v2" />
-              <path d="M7 11h7" />
-            </svg>
-          </div>
-          <div class="offer-content">
-            <h3>原廠電池維修</h3>
-            <p>改善耗電快、電量跳動、低電量自動關機，外送導航更安心。</p>
+        <article class="offer-card featured" role="button" tabindex="0" aria-label="原廠電池維修，外送員專屬優惠79折">
+          <span class="offer-tag">最推薦</span>
+          <div class="offer-main">
+            <div class="offer-icon" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <rect x="3" y="7" width="17" height="10" rx="2" />
+                <path d="M22 11v2" />
+                <path d="M7 11h7" />
+              </svg>
+            </div>
+            <div class="offer-content">
+              <h3>原廠電池維修</h3>
+              <p>改善耗電快、電量跳動、低電量自動關機，外送導航更安心。</p>
+            </div>
           </div>
           <div class="discount">
-            <strong>79</strong>
-            <span>折</span>
+            <div class="discount-label">外送員專屬優惠</div>
+            <div class="discount-price"><strong>79</strong><span>折</span></div>
           </div>
         </article>
 
-        <article class="offer-card">
-          <div class="offer-icon" aria-hidden="true">
-            <svg class="svg-icon" viewBox="0 0 24 24">
-              <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z" />
-              <path d="M9 12l2 2 4-5" />
-            </svg>
-          </div>
-          <div class="offer-content">
-            <h3>認證電池更換</h3>
-            <p>高 CP 值續航方案，適合想快速恢復工作手機狀態的外送夥伴。</p>
+        <article class="offer-card" role="button" tabindex="0" aria-label="認證電池更換，外送員續航方案790元起">
+          <span class="offer-tag">高 CP 值</span>
+          <div class="offer-main">
+            <div class="offer-icon" aria-hidden="true">
+              <svg class="svg-icon" viewBox="0 0 24 24">
+                <path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z" />
+                <path d="M9 12l2 2 4-5" />
+              </svg>
+            </div>
+            <div class="offer-content">
+              <h3>認證電池更換</h3>
+              <p>高 CP 值續航方案，適合想快速恢復工作手機狀態的外送夥伴。</p>
+            </div>
           </div>
           <div class="discount">
-            <strong>790</strong>
-            <span>元起</span>
+            <div class="discount-label">外送員續航方案</div>
+            <div class="discount-price"><strong>790</strong><span>元起</span></div>
           </div>
         </article>
       </div>
@@ -759,35 +1224,107 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="stores">
       <div class="section-title">
         <h2>服務門市</h2>
-        <span>台中兩店</span>
+        <span>點擊地圖查看資訊</span>
       </div>
 
-      <div class="store-card">
-        <h3>勤美公益店</h3>
-        <p>
-          台中市西區公益路145號<br>
-          每日 11:00-20:00<br>
-          04-23015157
-        </p>
-        <div class="store-actions">
-          <a href="tel:0423015157">撥打電話</a>
-          <a href="https://www.google.com/maps/search/?api=1&query=台中市西區公益路145號" target="_blank" rel="noopener">開啟地圖</a>
+      <div class="map-layout">
+        <div class="map-card">
+          <div class="map-hint">
+            <span><strong>台灣門市地圖</strong><br>點擊黃色小點查看門市資訊</span>
+            <span>共 18 間</span>
+          </div>
+
+          <div class="map-shell" id="mapShell">
+            <svg class="taiwan-svg" viewBox="0 0 320 560" aria-hidden="true">
+              <path class="taiwan-island" d="M205 13 C238 35 258 82 248 130 C240 167 260 202 248 246 C238 282 217 302 212 342 C207 386 190 418 168 454 C145 492 122 535 91 546 C67 554 46 531 55 502 C66 468 86 446 86 408 C86 374 76 350 91 314 C109 271 104 232 119 191 C133 151 132 112 151 77 C166 48 181 25 205 13 Z" />
+              <path class="taiwan-line" d="M205 48 C200 95 202 139 188 183 C175 225 174 264 157 305 C139 350 141 395 124 432 C112 459 92 486 74 520" />
+            </svg>
+
+            <span class="map-region-label north">北部</span>
+            <span class="map-region-label central">中部</span>
+            <span class="map-region-label south">南部</span>
+
+            <button class="map-marker" style="--x: 70%; --y: 13%;" data-store="taipei-hankou" aria-label="台北漢口店"></button>
+            <button class="map-marker" style="--x: 61%; --y: 10%;" data-store="tamsui" aria-label="淡水店"></button>
+            <button class="map-marker" style="--x: 64%; --y: 16%;" data-store="xinzhuang-minan" aria-label="新莊民安店"></button>
+            <button class="map-marker" style="--x: 68%; --y: 18%;" data-store="xinzhuang-xingfu" aria-label="新莊幸福店"></button>
+            <button class="map-marker" style="--x: 72%; --y: 22%;" data-store="yonghe" aria-label="永和中興店"></button>
+            <button class="map-marker" style="--x: 75%; --y: 25%;" data-store="zhonghe" aria-label="中和店"></button>
+            <button class="map-marker" style="--x: 56%; --y: 21%;" data-store="taoyuan-arts" aria-label="桃園藝文店"></button>
+            <button class="map-marker" style="--x: 51%; --y: 25%;" data-store="taoyuan-zhongli" aria-label="桃園中壢店"></button>
+
+            <button class="map-marker" style="--x: 48%; --y: 45%;" data-store="qinmei" aria-label="勤美公益店"></button>
+            <button class="map-marker" style="--x: 43%; --y: 47%;" data-store="fengjia" aria-label="逢甲直營店"></button>
+            <button class="map-marker" style="--x: 50%; --y: 51%;" data-store="dali" aria-label="大里直營店"></button>
+            <button class="map-marker" style="--x: 37%; --y: 43%;" data-store="shalu" aria-label="沙鹿站前店"></button>
+            <button class="map-marker" style="--x: 53%; --y: 40%;" data-store="fengyuan" aria-label="豐原中正店"></button>
+            <button class="map-marker" style="--x: 35%; --y: 38%;" data-store="dajia" aria-label="大甲店"></button>
+            <button class="map-marker" style="--x: 47%; --y: 57%;" data-store="changhua" aria-label="彰化中正店"></button>
+            <button class="map-marker" style="--x: 57%; --y: 61%;" data-store="nantou" aria-label="南投草屯店"></button>
+
+            <button class="map-marker" style="--x: 37%; --y: 78%;" data-store="tainan" aria-label="台南民族站前店"></button>
+            <button class="map-marker" style="--x: 47%; --y: 88%;" data-store="pingtung" aria-label="屏東仁愛店"></button>
+
+            <div class="store-popup show" id="storePopup" aria-live="polite">
+              <div class="popup-top">
+                <div>
+                  <h3 id="popupName">勤美公益店</h3>
+                  <span class="popup-region" id="popupRegion">中部地區</span>
+                </div>
+                <button class="popup-close" id="popupClose" aria-label="關閉門市資訊">×</button>
+              </div>
+              <div class="popup-info">
+                <div><strong>營業時間</strong><span id="popupHours">每日 11:00-20:00</span></div>
+                <div><strong>電話</strong><span id="popupPhone">04-23015157</span></div>
+                <div><strong>Google</strong><span>點擊下方按鈕開啟地圖</span></div>
+              </div>
+              <div class="popup-actions">
+                <a id="popupTel" href="tel:0423015157">撥打電話</a>
+                <a id="popupMap" href="https://maps.app.goo.gl/E4L9fDkYj7mQ6XzY7" target="_blank" rel="noopener">開啟地圖</a>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="store-card">
-        <h3>沙鹿站前店</h3>
-        <p>
-          台中市沙鹿區沙田路149號<br>
-          每日 12:00-21:00<br>
-          04-26633009
-        </p>
-        <div class="store-actions">
-          <a href="tel:0426633009">撥打電話</a>
-          <a href="https://www.google.com/maps/search/?api=1&query=台中市沙鹿區沙田路149號" target="_blank" rel="noopener">開啟地圖</a>
+        <div class="store-list-compact" aria-label="門市快速選單">
+          <details open>
+            <summary>北部地區 <span>8 間</span></summary>
+            <div class="store-name-grid">
+              <button data-store="taipei-hankou">台北漢口店</button>
+              <button data-store="tamsui">淡水店</button>
+              <button data-store="xinzhuang-minan">新莊民安店</button>
+              <button data-store="xinzhuang-xingfu">新莊幸福店</button>
+              <button data-store="yonghe">永和中興店</button>
+              <button data-store="zhonghe">中和店</button>
+              <button data-store="taoyuan-arts">桃園藝文店</button>
+              <button data-store="taoyuan-zhongli">桃園中壢店</button>
+            </div>
+          </details>
+
+          <details open>
+            <summary>中部地區 <span>8 間</span></summary>
+            <div class="store-name-grid">
+              <button data-store="qinmei">勤美公益店</button>
+              <button data-store="fengjia">逢甲直營店</button>
+              <button data-store="dali">大里直營店</button>
+              <button data-store="shalu">沙鹿站前店</button>
+              <button data-store="fengyuan">豐原中正店</button>
+              <button data-store="dajia">大甲店</button>
+              <button data-store="changhua">彰化中正店</button>
+              <button data-store="nantou">南投草屯店</button>
+            </div>
+          </details>
+
+          <details open>
+            <summary>南部地區 <span>2 間</span></summary>
+            <div class="store-name-grid">
+              <button data-store="tainan">台南民族站前店</button>
+              <button data-store="pingtung">屏東仁愛店</button>
+            </div>
+          </details>
         </div>
       </div>
     </section>
@@ -803,10 +1340,20 @@
     <div class="bottom-cta-inner">
       <div class="bottom-cta-text">
         <strong>外送員維修優惠</strong>
-        <span>原廠電池 79 折｜認證電池 790 元起</span>
+        <span>最高 79 折｜認證電池 790 元起</span>
       </div>
       <a href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
     </div>
   </aside>
-</body>
-</html>
+
+  <script>
+    const stores = {
+      "taipei-hankou": { name: "台北漢口店", region: "北部地區", phone: "02-23122177", tel: "0223122177", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9Z9V9mPrPkW88Pz89" },
+      "tamsui": { name: "淡水店", region: "北部地區", phone: "02-26283151", tel: "0226283151", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/uXvFvM7hA2A2nN3z8" },
+      "xinzhuang-minan": { name: "新莊民安店", region: "北部地區", phone: "02-22026858", tel: "0222026858", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/A7vPkW88Pz89M7hA2" },
+      "xinzhuang-xingfu": { name: "新莊幸福店", region: "北部地區", phone: "02-29906636", tel: "0229906636", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/XvFvM7hA2A2nN3z89" },
+      "yonghe": { name: "永和中興店", region: "北部地區", phone: "02-29290029", tel: "0229290029", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/9V9mPrPkW88Pz89M7" },
+      "zhonghe": { name: "中和店", region: "北部地區", phone: "02-22421818", tel: "0222421818", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/M7hA2A2nN3z89V9mP" },
+      "taoyuan-arts": { name: "桃園藝文店", region: "北部地區", phone: "03-3561555", tel: "033561555", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/kW88Pz89M7hA2A2nN" },
+      "taoyuan-zhongli": { name: "桃園中壢店", region: "北部地區", phone: "03-4251122", tel: "034251122", hours: "每日 11:00-20:00", map: "https://maps.app.goo.gl/3z89V9mPrPkW88Pz8" },
+      "qinmei": { name: "勤美公益店", region:
