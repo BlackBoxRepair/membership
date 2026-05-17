@@ -747,6 +747,143 @@
       border: 1px solid var(--line);
     }
 
+    .price-panel {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 92% 0%, rgba(247,181,0,0.18), transparent 36%),
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.055));
+      border: 1px solid rgba(247,181,0,0.32);
+      box-shadow: 0 18px 42px rgba(0,0,0,0.25);
+      overflow: hidden;
+    }
+
+    .price-panel.show {
+      display: block;
+      animation: pricePanelIn 0.28s ease both;
+    }
+
+    @keyframes pricePanelIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .price-panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .price-panel-head h3 {
+      font-size: 21px;
+      line-height: 1.25;
+      letter-spacing: -0.04em;
+    }
+
+    .price-panel-head p {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .price-badge {
+      min-height: 30px;
+      padding: 0 11px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      background: var(--brand);
+      font-size: 13px;
+      font-weight: 950;
+      white-space: nowrap;
+      box-shadow: 0 10px 22px rgba(247,181,0,0.22);
+    }
+
+    .price-table-wrap {
+      max-height: 430px;
+      overflow: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.16);
+    }
+
+    .price-table {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+    }
+
+    .price-table th,
+    .price-table td {
+      padding: 12px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 13px;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .price-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: #ffe2a2;
+      background: rgba(10, 12, 16, 0.96);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .price-table td:nth-child(2) {
+      color: #d6dbea;
+      font-weight: 800;
+    }
+
+    .price-table td:nth-child(3) {
+      color: var(--brand);
+      font-size: 15px;
+      font-weight: 950;
+    }
+
+    .price-table td:nth-child(4) {
+      color: #9ff0c9;
+      font-weight: 850;
+    }
+
+    .price-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .certified-note {
+      display: none;
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.065);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #d6dbea;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .certified-note.show {
+      display: block;
+      animation: pricePanelIn 0.28s ease both;
+    }
+
+    .certified-note strong {
+      color: var(--brand);
+    }
+
     .info-box h3 {
       display: flex;
       align-items: center;
@@ -1314,7 +1451,7 @@
       </div>
 
       <div class="offer-list">
-        <article class="offer-card" role="button" tabindex="0" aria-label="原廠螢幕維修，外送員專屬優惠89折">
+        <article class="offer-card" data-offer="screen" role="button" tabindex="0" aria-label="原廠螢幕維修，外送員專屬優惠89折">
           <span class="offer-tag">原廠零件</span>
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
@@ -1334,7 +1471,7 @@
           </div>
         </article>
 
-        <article class="offer-card featured" role="button" tabindex="0" aria-label="原廠電池維修，外送員專屬優惠79折">
+        <article class="offer-card featured" data-offer="battery" role="button" tabindex="0" aria-label="原廠電池維修，外送員專屬優惠79折">
           <span class="offer-tag">最推薦</span>
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
@@ -1355,7 +1492,7 @@
           </div>
         </article>
 
-        <article class="offer-card" role="button" tabindex="0" aria-label="認證電池更換，外送員續航方案790元起">
+        <article class="offer-card" data-offer="certified" role="button" tabindex="0" aria-label="認證電池更換，外送員續航方案790元起">
           <span class="offer-tag">高 CP 值</span>
           <div class="offer-main">
             <div class="offer-icon" aria-hidden="true">
@@ -1374,6 +1511,35 @@
             <div class="discount-price"><strong>790</strong><span>元起</span></div>
           </div>
         </article>
+      </div>
+
+      <div class="price-panel" id="pricePanel" aria-live="polite">
+        <div class="price-panel-head">
+          <div>
+            <h3 id="pricePanelTitle">維修優惠價格</h3>
+            <p id="pricePanelSubtitle">點擊上方維修項目後，查看原價與外送員優惠價。</p>
+          </div>
+          <span class="price-badge" id="pricePanelBadge">優惠價</span>
+        </div>
+
+        <div class="price-table-wrap">
+          <table class="price-table">
+            <thead>
+              <tr>
+                <th>iPhone 型號</th>
+                <th>維修原價</th>
+                <th>折扣後價格</th>
+                <th>現省</th>
+              </tr>
+            </thead>
+            <tbody id="priceTableBody"></tbody>
+          </table>
+        </div>
+        <p class="price-note">價格為依照你提供的原價進行折扣試算，折扣後金額四捨五入至元；實際維修項目與最終費用以門市現場檢測說明為準。</p>
+      </div>
+
+      <div class="certified-note" id="certifiedNote">
+        <strong>認證電池更換 790 元起：</strong>外送員高 CP 值續航方案，讓工作手機恢復穩定電力，導航、接單、通話更安心，不怕跑單途中突然沒電。
       </div>
 
       <div class="info-box">
@@ -1541,6 +1707,90 @@
       "south-pingtung": { name: "屏東-環球仁愛店", region: "南部地區", address: "900屏東縣屏東市仁愛路75-6號", phone: "08-7660583", tel: "087660583", hours: "每日 11:00–21:00；全年無休" }
     };
 
+    const repairPrices = [
+      { model: "iPhone 17e", screen: 11200, battery: 3390 },
+      { model: "iPhone Air", screen: 14300, battery: 4190 },
+      { model: "iPhone 17 Pro Max", screen: 15900, battery: 4190 },
+      { model: "iPhone 17 Pro", screen: 14300, battery: 4190 },
+      { model: "iPhone 17", screen: 14300, battery: 3390 },
+      { model: "iPhone 16e", screen: 11200, battery: 3390 },
+      { model: "iPhone 16 Pro Max", screen: 15900, battery: 4190 },
+      { model: "iPhone 16 Pro", screen: 14300, battery: 4190 },
+      { model: "iPhone 16 Plus", screen: 14300, battery: 3390 },
+      { model: "iPhone 16", screen: 12300, battery: 3390 },
+      { model: "iPhone 15 Pro Max", screen: 15900, battery: 3390 },
+      { model: "iPhone 15 Pro", screen: 14300, battery: 3390 },
+      { model: "iPhone 15 Plus", screen: 14300, battery: 3390 },
+      { model: "iPhone 15", screen: 12300, battery: 3390 },
+      { model: "iPhone 14 Pro Max", screen: 15900, battery: 3390 },
+      { model: "iPhone 14 Pro", screen: 14300, battery: 3390 },
+      { model: "iPhone 14 Plus", screen: 14300, battery: 3390 },
+      { model: "iPhone 14", screen: 12300, battery: 3390 },
+      { model: "iPhone SE 3rd", screen: 5200, battery: 2490 },
+      { model: "iPhone 12 / 13 Pro Max", screen: 13790, battery: 2990 },
+      { model: "iPhone 12 / 13 Pro", screen: 12190, battery: 2990 },
+      { model: "iPhone 12 / 13", screen: 12190, battery: 2990 },
+      { model: "iPhone 12 / 13 Mini", screen: 10000, battery: 2990 },
+      { model: "iPhone SE 2nd", screen: 5200, battery: 2490 },
+      { model: "iPhone 11", screen: 7900, battery: 2990 },
+      { model: "iPhone XR", screen: 7900, battery: 2990 }
+    ];
+
+    const pricePanel = document.getElementById('pricePanel');
+    const certifiedNote = document.getElementById('certifiedNote');
+    const pricePanelTitle = document.getElementById('pricePanelTitle');
+    const pricePanelSubtitle = document.getElementById('pricePanelSubtitle');
+    const pricePanelBadge = document.getElementById('pricePanelBadge');
+    const priceTableBody = document.getElementById('priceTableBody');
+
+    function formatMoney(value) {
+      return '$' + Number(value).toLocaleString('en-US');
+    }
+
+    function renderPricePanel(type) {
+      if (!pricePanel || !priceTableBody) return;
+
+      if (type === 'certified') {
+        pricePanel.classList.remove('show');
+        if (certifiedNote) {
+          certifiedNote.classList.add('show');
+          certifiedNote.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        return;
+      }
+
+      if (certifiedNote) {
+        certifiedNote.classList.remove('show');
+      }
+
+      const isScreen = type === 'screen';
+      const field = isScreen ? 'screen' : 'battery';
+      const discountRate = isScreen ? 0.89 : 0.79;
+      const discountLabel = isScreen ? '89 折' : '79 折';
+
+      pricePanelTitle.textContent = isScreen ? '原廠螢幕維修優惠價格' : '原廠電池維修優惠價格';
+      pricePanelSubtitle.textContent = isScreen
+        ? '外送員專屬原廠螢幕維修 89 折，以下為原價與折扣後價格試算。'
+        : '外送員專屬原廠電池維修 79 折，以下為原價與折扣後價格試算。';
+      pricePanelBadge.textContent = discountLabel;
+
+      priceTableBody.innerHTML = repairPrices.map(function (item) {
+        const original = item[field];
+        const discounted = Math.round(original * discountRate);
+        const saved = original - discounted;
+
+        return '<tr>' +
+          '<td>' + item.model + '</td>' +
+          '<td>' + formatMoney(original) + '</td>' +
+          '<td>' + formatMoney(discounted) + '</td>' +
+          '<td>省 ' + formatMoney(saved) + '</td>' +
+        '</tr>';
+      }).join('');
+
+      pricePanel.classList.add('show');
+      pricePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     const offerCards = document.querySelectorAll('.offer-card');
 
     function animateCard(card, event) {
@@ -1585,6 +1835,7 @@
 
         card.classList.add('lit');
         animateCard(card, event);
+        renderPricePanel(card.dataset.offer);
       });
 
       card.addEventListener('keydown', function (event) {
@@ -1597,6 +1848,7 @@
 
           card.classList.add('lit');
           animateCard(card, event);
+          renderPricePanel(card.dataset.offer);
         }
       });
     });
