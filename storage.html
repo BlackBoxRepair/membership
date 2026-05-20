@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>iPhone 硬碟容量擴充｜黑盒子維修中心</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --surface-soft: #fbfbfd;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #d2d2d7;
+      --blue: #0071e3;
+      --blue-dark: #005bb5;
+      --red: #bf1d1d;
+      --gold: #b8831b;
+      --shadow: 0 12px 34px rgba(0, 0, 0, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: saturate(180%) blur(20px);
+      background: rgba(245, 245, 247, 0.82);
+      border-bottom: 1px solid rgba(210, 210, 215, 0.72);
+    }
+
+    .topbar-inner {
+      width: min(100% - 28px, 520px);
+      height: 48px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      display: block;
+      width: auto;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .top-link {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 650;
+    }
+
+    .page {
+      width: min(100% - 24px, 520px);
+      margin: 0 auto;
+      padding: 28px 0 calc(92px + env(safe-area-inset-bottom));
+    }
+
+    .hero {
+      text-align: center;
+      padding: 18px 4px 28px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 13vw, 64px);
+      line-height: 1.04;
+      letter-spacing: -0.075em;
+      font-weight: 850;
+    }
+
+    .subtitle {
+      margin: 16px auto 0;
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 520;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-actions {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: var(--blue);
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 680;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .button:active { transform: scale(.98); }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--blue);
+      border-color: rgba(0, 113, 227, .28);
+    }
+
+    .section { margin-top: 16px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid rgba(210, 210, 215, .72);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .soft-card {
+      background: var(--surface-soft);
+      border: 1px solid rgba(210, 210, 215, .72);
+      border-radius: var(--radius-md);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px) scale(.985);
+      transition:
+        opacity .72s cubic-bezier(.2, .8, .2, 1),
+        transform .72s cubic-bezier(.2, .8, .2, 1),
+        box-shadow .32s ease;
+      will-change: opacity, transform;
+    }
+
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .reveal-delay-1 { transition-delay: .08s; }
+    .reveal-delay-2 { transition-delay: .16s; }
+
+    .card.reveal.is-visible:hover,
+    .soft-card.reveal.is-visible:hover,
+    .store-card.reveal.is-visible:hover {
+      transform: translateY(-3px) scale(1.005);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, .1);
+    }
+
+    .hero h1,
+    .hero .subtitle,
+    .hero .hero-actions {
+      opacity: 0;
+      animation: heroRise .72s cubic-bezier(.2, .8, .2, 1) forwards;
+    }
+
+    .hero h1 { animation-delay: .05s; }
+    .hero .subtitle { animation-delay: .16s; }
+    .hero .hero-actions { animation-delay: .27s; }
+
+    @keyframes heroRise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pricePop {
+      0% { opacity: 0; transform: translateY(12px) scale(.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .section-head {
+      padding: 26px 20px 14px;
+      text-align: center;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: clamp(30px, 9vw, 42px);
+      line-height: 1.12;
+      letter-spacing: -0.065em;
+      font-weight: 850;
+    }
+
+    .section-desc {
+      margin: 10px auto 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 520;
+    }
+
+    .query-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .control-panel,
+    .result-panel { padding: 18px; }
+    .result-panel { background: linear-gradient(180deg, #fff, #fafafa); }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--text);
+      font-weight: 760;
+      font-size: 15px;
+    }
+
+    select {
+      width: 100%;
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20'%3E%3Cpath fill='%236e6e73' d='M5.5 7.5L10 12l4.5-4.5 1.1 1.1L10 14.2 4.4 8.6z'/%3E%3C/svg%3E") no-repeat right 15px center;
+      padding: 15px 44px 15px 15px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+    }
+
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(0, 113, 227, .14);
+    }
+
+    .selector-note {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 520;
+    }
+
+    .model-name {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .result-title {
+      margin: 3px 0 16px;
+      font-size: 32px;
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+      font-weight: 850;
+    }
+
+    .price-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .price-option {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      animation: pricePop .42s cubic-bezier(.2, .8, .2, 1) both;
+      transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease,
+        background .22s ease,
+        opacity .22s ease;
+    }
+
+    .price-option:nth-child(2) { animation-delay: .06s; }
+    .price-option:nth-child(3) { animation-delay: .12s; }
+
+    .price-option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .08);
+    }
+
+    .price-option:active { transform: scale(.98); }
+
+    .price-option.is-selected {
+      border-color: var(--blue);
+      background: rgba(0, 113, 227, .06);
+      box-shadow: 0 0 0 4px rgba(0, 113, 227, .12);
+      transform: translateY(-2px);
+    }
+
+    .price-option.unavailable {
+      opacity: .52;
+      background: #f5f5f7;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .price-option.unavailable:hover { transform: none; }
+
+    .option-capacity {
+      font-size: 26px;
+      font-weight: 850;
+      letter-spacing: -0.045em;
+    }
+
+    .option-price {
+      color: var(--red);
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.055em;
+      text-align: right;
+    }
+
+    .unavailable .option-price {
+      color: var(--muted);
+      font-size: 21px;
+      letter-spacing: -0.02em;
+    }
+
+    .selected-capacity-box {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #f5f5f7;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .selected-capacity-box strong {
+      color: var(--blue);
+      font-weight: 850;
+    }
+
+    .support-message {
+      margin-top: 12px;
+      padding: 13px 15px;
+      border-radius: 17px;
+      background: #f5f5f7;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .support-message strong { color: var(--text); }
+
+    .attention { padding: 24px 18px; }
+
+    .attention h2 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.15;
+      letter-spacing: -0.06em;
+      font-weight: 850;
+      text-align: center;
+    }
+
+    .attention-list {
+      margin: 20px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 14px;
+    }
+
+    .attention-list li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      font-size: 16px;
+      font-weight: 620;
+      color: #2c2c2e;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #1d1d1f;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 850;
+      margin-top: 1px;
+    }
+
+    .highlight-red { color: var(--red); font-weight: 900; }
+    .highlight { color: var(--gold); font-weight: 900; }
+
+    .cta-bar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 22px;
+      background: #1d1d1f;
+      color: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .cta-bar strong {
+      display: block;
+      font-size: 23px;
+      line-height: 1.2;
+      letter-spacing: -0.045em;
+    }
+
+    .cta-bar span {
+      display: block;
+      margin-top: 6px;
+      color: #c7c7cc;
+      font-size: 14px;
+    }
+
+    .store-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .store-card {
+      padding: 19px;
+      border-radius: var(--radius-md);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .store-card h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      letter-spacing: -0.045em;
+      font-weight: 820;
+    }
+
+    .store-card p {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .footnote {
+      margin-top: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .floating-cta {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 30;
+      width: min(100% - 24px, 520px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      border: 1px solid rgba(210, 210, 215, .8);
+      backdrop-filter: saturate(180%) blur(20px);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, .14);
+    }
+
+    .floating-cta .button { min-height: 42px; font-size: 15px; }
+
+    @media (min-width: 760px) {
+      .page,
+      .topbar-inner { width: min(100% - 40px, 760px); }
+      .hero-actions { display: flex; justify-content: center; }
+      .query-layout { grid-template-columns: .85fr 1.15fr; }
+      .store-grid { grid-template-columns: repeat(2, 1fr); }
+      .price-options { grid-template-columns: repeat(3, 1fr); }
+      .price-option { grid-template-columns: 1fr; min-height: 128px; text-align: center; }
+      .option-price { text-align: center; }
+      .floating-cta { display: none; }
+      .page { padding-bottom: 76px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal,
+      .hero h1,
+      .hero .subtitle,
+      .hero .hero-actions,
+      .price-option {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#" aria-label="黑盒子維修中心首頁">
+        <img class="brand-logo" src="site logo.png" alt="黑盒子維修中心" />
+      </a>
+      <a class="top-link" href="#query">查詢價格</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <h1>iPhone 硬碟容量擴充</h1>
+      <p class="subtitle">選擇你的 iPhone 型號，立即查看可擴充容量、價格與送修前須知。</p>
+      <div class="hero-actions">
+        <a class="button" href="#query">開始查詢</a>
+        <a class="button secondary" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">線上預約</a>
+      </div>
+    </section>
+
+    <section id="query" class="card section reveal">
+      <div class="section-head">
+        <h2 class="section-title">選擇型號，查看擴容價格。</h2>
+        <p class="section-desc">價格會依照型號系列與支援容量自動顯示；不支援的容量會標示為不可擴充。</p>
+      </div>
+
+      <div class="query-layout">
+        <div class="soft-card control-panel reveal reveal-delay-1">
+          <label for="modelSelect">選擇 iPhone 型號</label>
+          <select id="modelSelect"></select>
+          <p class="selector-note">查詢結果僅供報價參考，實際可升級容量仍需依現場檢測與機型版本確認。</p>
+        </div>
+
+        <div class="soft-card result-panel reveal reveal-delay-2">
+          <p class="model-name" id="selectedSeries">iPhone X ～ iPhone 15 系列</p>
+          <h3 class="result-title" id="selectedModel">iPhone 15 Pro Max</h3>
+          <div class="price-options" id="priceOptions"></div>
+          <div class="selected-capacity-box" id="selectedCapacityBox">請點選上方容量查看詳細價格。</div>
+          <div class="support-message" id="supportMessage"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="notice" class="card attention section reveal">
+      <h2>iPhone 容量擴充注意事項</h2>
+      <ol class="attention-list">
+        <li>
+          <span class="num">1</span>
+          <span>手機請先自行備份，解掉密碼鎖、<span class="highlight-red">登出 Apple ID</span>，並關閉尋找我的 iPhone。</span>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <span>我們提供 <span class="highlight">3 個月</span> 的硬碟保固。</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="cta-bar section reveal">
+      <div>
+        <strong>需要確認你的 iPhone 是否可擴容？</strong>
+        <span>建議先線上預約或到店檢測，依實際機型與資料狀況評估。</span>
+      </div>
+      <a class="button" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
+    </section>
+
+    <p class="footnote">黑盒子維修中心｜iPhone 硬碟容量擴充服務</p>
+  </main>
+
+  <div class="floating-cta" aria-label="快捷操作">
+    <a class="button secondary" href="#query">查詢價格</a>
+    <a class="button" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">立即預約</a>
+  </div>
+
+  <script>
+    const models = [
+      { name: 'iPhone X', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 256 },
+      { name: 'iPhone XR', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 256 },
+      { name: 'iPhone XS', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone XS Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 11', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 256 },
+      { name: 'iPhone 11 Pro', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 11 Pro Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 12 mini', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 256 },
+      { name: 'iPhone 12', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 256 },
+      { name: 'iPhone 12 Pro', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 12 Pro Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 13 mini', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 13', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 13 Pro', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 13 Pro Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 14', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 14 Plus', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 14 Pro', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 14 Pro Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 15', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 15 Plus', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 512 },
+      { name: 'iPhone 15 Pro', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 15 Pro Max', group: 'iPhone X ～ iPhone 15 系列', series: 'x15', max: 1024 },
+      { name: 'iPhone 16', group: 'iPhone 16 及 17 系列', series: 's1617', max: 512 },
+      { name: 'iPhone 16 Plus', group: 'iPhone 16 及 17 系列', series: 's1617', max: 512 },
+      { name: 'iPhone 16 Pro', group: 'iPhone 16 及 17 系列', series: 's1617', max: 1024 },
+      { name: 'iPhone 16 Pro Max', group: 'iPhone 16 及 17 系列', series: 's1617', max: 1024 },
+      { name: 'iPhone 17', group: 'iPhone 16 及 17 系列', series: 's1617', max: 512 },
+      { name: 'iPhone 17 Air', group: 'iPhone 16 及 17 系列', series: 's1617', max: 512 },
+      { name: 'iPhone 17 Pro', group: 'iPhone 16 及 17 系列', series: 's1617', max: 1024 },
+      { name: 'iPhone 17 Pro Max', group: 'iPhone 16 及 17 系列', series: 's1617', max: 1024 }
+    ];
+
+    const prices = {
+      x15: [
+        { label: '256GB', value: 256, price: '$4500' },
+        { label: '512GB', value: 512, price: '$6300' },
+        { label: '1TB', value: 1024, price: '$7500' }
+      ],
+      s1617: [
+        { label: '512GB', value: 512, price: '$8000' },
+        { label: '1TB', value: 1024, price: '$10000' }
+      ]
+    };
+
+    const modelSelect = document.querySelector('#modelSelect');
+    const selectedSeries = document.querySelector('#selectedSeries');
+    const selectedModel = document.querySelector('#selectedModel');
+    const priceOptions = document.querySelector('#priceOptions');
+    const selectedCapacityBox = document.querySelector('#selectedCapacityBox');
+    const supportMessage = document.querySelector('#supportMessage');
+
+    function setupOptions() {
+      const groups = [...new Set(models.map(item => item.group))];
+
+      groups.forEach(group => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = group;
+
+        models
+          .filter(item => item.group === group)
+          .forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.name;
+            option.textContent = item.name;
+            optGroup.appendChild(option);
+          });
+
+        modelSelect.appendChild(optGroup);
+      });
+
+      modelSelect.value = 'iPhone 15 Pro Max';
+    }
+
+    function selectCapacityCard(card, model, option) {
+      document.querySelectorAll('.price-option').forEach(el => {
+        el.classList.remove('is-selected');
+      });
+
+      card.classList.add('is-selected');
+
+      selectedCapacityBox.innerHTML =
+        `你目前選擇的是 <strong>${option.label}</strong>，` +
+        `${model.name} 的擴容價格為 <strong>${option.price}</strong>。`;
+    }
+
+    function renderResult() {
+      const model = models.find(item => item.name === modelSelect.value) || models[0];
+      const currentPrices = prices[model.series];
+
+      selectedSeries.textContent = model.group;
+      selectedModel.textContent = model.name;
+      priceOptions.innerHTML = '';
+      selectedCapacityBox.textContent = '請點選上方容量查看詳細價格。';
+
+      let firstAvailableCard = null;
+      let firstAvailableOption = null;
+
+      currentPrices.forEach(option => {
+        const available = model.max >= option.value;
+        const card = document.createElement('div');
+        card.className = 'price-option' + (available ? '' : ' unavailable');
+        card.setAttribute('role', available ? 'button' : 'note');
+        card.setAttribute('tabindex', available ? '0' : '-1');
+
+        card.innerHTML = `
+          <div class="option-capacity">${option.label}</div>
+          <div class="option-price">${available ? option.price : '不支援'}</div>
+        `;
+
+        if (available) {
+          card.addEventListener('click', () => selectCapacityCard(card, model, option));
+          card.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              selectCapacityCard(card, model, option);
+            }
+          });
+
+          if (!firstAvailableCard) {
+            firstAvailableCard = card;
+            firstAvailableOption = option;
+          }
+        }
+
+        priceOptions.appendChild(card);
+      });
+
+      if (firstAvailableCard && firstAvailableOption) {
+        setTimeout(() => selectCapacityCard(firstAvailableCard, model, firstAvailableOption), 80);
+      }
+
+      const unavailable = currentPrices
+        .filter(option => model.max < option.value)
+        .map(option => option.label);
+
+      if (unavailable.length) {
+        supportMessage.innerHTML = `<strong>${model.name}</strong> 不支援 ${unavailable.join('、')} 擴充；可支援容量仍需以現場檢測為準。`;
+      } else {
+        supportMessage.innerHTML = `<strong>${model.name}</strong> 目前表列容量皆可列入擴容評估；實際仍需依現場檢測確認。`;
+      }
+    }
+
+    setupOptions();
+    renderResult();
+    modelSelect.addEventListener('change', renderResult);
+
+    const revealElements = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.16,
+      rootMargin: '0px 0px -8% 0px'
+    });
+
+    revealElements.forEach(element => revealObserver.observe(element));
+  </script>
+</body>
+</html>
