@@ -93,6 +93,10 @@
       font-weight: 850;
     }
 
+    .mobile-title-break {
+      display: none;
+    }
+
     .subtitle {
       margin: 16px auto 0;
       color: var(--muted);
@@ -528,6 +532,12 @@
 
     .floating-cta .button { min-height: 42px; font-size: 15px; }
 
+    @media (max-width: 759px) {
+      .mobile-title-break {
+        display: block;
+      }
+    }
+
     @media (min-width: 760px) {
       .page,
       .topbar-inner { width: min(100% - 40px, 760px); }
@@ -570,7 +580,7 @@
 
   <main class="page">
     <section class="hero">
-      <h1>iPhone 硬碟容量擴充</h1>
+      <h1>iPhone 硬碟<span class="mobile-title-break"></span>容量擴充</h1>
       <p class="subtitle">選擇你的 iPhone 型號，立即查看可擴充容量、價格與送修前須知。</p>
       <div class="hero-actions">
         <a class="button" href="#query">開始查詢</a>
