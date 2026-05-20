@@ -13,7 +13,6 @@
       --muted: #6e6e73;
       --line: #d2d2d7;
       --blue: #0071e3;
-      --blue-dark: #005bb5;
       --red: #bf1d1d;
       --gold: #b8831b;
       --shadow: 0 12px 34px rgba(0, 0, 0, 0.08);
@@ -71,6 +70,7 @@
       color: var(--blue);
       text-decoration: none;
       font-weight: 650;
+      letter-spacing: -0.01em;
     }
 
     .page {
@@ -86,7 +86,7 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(42px, 13vw, 64px);
+      font-size: clamp(42px, 13vw, 66px);
       line-height: 1.04;
       letter-spacing: -0.075em;
       font-weight: 850;
@@ -98,13 +98,6 @@
       font-size: 18px;
       font-weight: 520;
       letter-spacing: -0.03em;
-    }
-
-    .hero-actions {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
     }
 
     .button {
@@ -121,15 +114,25 @@
       font-size: 16px;
       font-weight: 680;
       cursor: pointer;
-      transition: transform .18s ease, background .18s ease;
+      box-shadow: none;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
     }
 
     .button:active { transform: scale(.98); }
+    .button:hover { background: #0077ed; box-shadow: none; filter: none; }
 
     .button.secondary {
       background: #fff;
       color: var(--blue);
       border-color: rgba(0, 113, 227, .28);
+      box-shadow: none;
+    }
+
+    .hero-actions {
+      margin-top: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
 
     .section { margin-top: 16px; }
@@ -142,11 +145,14 @@
       overflow: hidden;
     }
 
+
     .soft-card {
       background: var(--surface-soft);
       border: 1px solid rgba(210, 210, 215, .72);
       border-radius: var(--radius-md);
+      overflow: hidden;
     }
+
 
     .reveal {
       opacity: 0;
@@ -158,17 +164,12 @@
       will-change: opacity, transform;
     }
 
-    .reveal.is-visible {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
+    .reveal.is-visible { opacity: 1; transform: translateY(0) scale(1); }
     .reveal-delay-1 { transition-delay: .08s; }
     .reveal-delay-2 { transition-delay: .16s; }
 
     .card.reveal.is-visible:hover,
-    .soft-card.reveal.is-visible:hover,
-    .store-card.reveal.is-visible:hover {
+    .soft-card.reveal.is-visible:hover {
       transform: translateY(-3px) scale(1.005);
       box-shadow: 0 18px 42px rgba(0, 0, 0, .1);
     }
@@ -207,6 +208,7 @@
       font-weight: 850;
     }
 
+
     .section-desc {
       margin: 10px auto 0;
       color: var(--muted);
@@ -244,12 +246,15 @@
       font-weight: 700;
       color: var(--text);
       outline: none;
+      box-shadow: none;
     }
 
     select:focus {
       border-color: var(--blue);
       box-shadow: 0 0 0 4px rgba(0, 113, 227, .14);
     }
+
+    option, optgroup { background: #fff; color: var(--text); }
 
     .selector-note {
       margin: 12px 0 0;
@@ -263,6 +268,7 @@
       color: var(--muted);
       font-size: 14px;
       font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
     .result-title {
@@ -305,20 +311,21 @@
 
     .price-option:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, .08);
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      border-color: var(--line);
     }
 
     .price-option:active { transform: scale(.98); }
 
     .price-option.is-selected {
       border-color: var(--blue);
-      background: rgba(0, 113, 227, .06);
-      box-shadow: 0 0 0 4px rgba(0, 113, 227, .12);
+      background: rgba(0, 113, 227, 0.06);
+      box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
       transform: translateY(-2px);
     }
 
     .price-option.unavailable {
-      opacity: .52;
+      opacity: .5;
       background: #f5f5f7;
       cursor: not-allowed;
       box-shadow: none;
@@ -334,6 +341,7 @@
 
     .option-price {
       color: var(--red);
+      text-shadow: none;
       font-size: 34px;
       line-height: 1;
       font-weight: 900;
@@ -343,30 +351,26 @@
 
     .unavailable .option-price {
       color: var(--muted);
+      text-shadow: none;
       font-size: 21px;
       letter-spacing: -0.02em;
     }
 
-    .selected-capacity-box {
+    .selected-capacity-box,
+    .support-message {
       margin-top: 12px;
       padding: 14px 16px;
       border-radius: 16px;
       background: #f5f5f7;
+      border: 0;
       color: var(--text);
       font-size: 15px;
       font-weight: 700;
     }
 
-    .selected-capacity-box strong {
-      color: var(--blue);
-      font-weight: 850;
-    }
+    .selected-capacity-box strong { color: var(--blue); font-weight: 850; }
 
     .support-message {
-      margin-top: 12px;
-      padding: 13px 15px;
-      border-radius: 17px;
-      background: #f5f5f7;
       color: var(--muted);
       font-size: 14px;
       font-weight: 650;
@@ -410,6 +414,7 @@
       height: 26px;
       border-radius: 50%;
       background: #1d1d1f;
+      border: 0;
       color: #fff;
       font-size: 13px;
       font-weight: 850;
@@ -426,6 +431,7 @@
       align-items: center;
       padding: 22px;
       background: #1d1d1f;
+      border: 0;
       color: #fff;
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
@@ -437,6 +443,7 @@
       font-size: 23px;
       line-height: 1.2;
       letter-spacing: -0.045em;
+      font-weight: 850;
     }
 
     .cta-bar span {
@@ -444,34 +451,7 @@
       margin-top: 6px;
       color: #c7c7cc;
       font-size: 14px;
-    }
-
-    .store-grid {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .store-card {
-      padding: 19px;
-      border-radius: var(--radius-md);
-      background: #fff;
-      border: 1px solid var(--line);
-    }
-
-    .store-card h3 {
-      margin: 0 0 8px;
-      font-size: 21px;
-      letter-spacing: -0.045em;
-      font-weight: 820;
-    }
-
-    .store-card p {
-      margin: 4px 0;
-      color: var(--muted);
-      font-size: 15px;
-      font-weight: 600;
+      font-weight: 520;
     }
 
     .footnote {
@@ -488,7 +468,7 @@
       right: 12px;
       bottom: calc(12px + env(safe-area-inset-bottom));
       z-index: 30;
-      width: min(100% - 24px, 520px);
+      width: min(100% - 24px, 560px);
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -498,7 +478,7 @@
       background: rgba(255, 255, 255, .82);
       border: 1px solid rgba(210, 210, 215, .8);
       backdrop-filter: saturate(180%) blur(20px);
-      box-shadow: 0 12px 34px rgba(0, 0, 0, .14);
+      box-shadow: 0 12px 34px rgba(0,0,0,.14);
     }
 
     .floating-cta .button { min-height: 42px; font-size: 15px; }
@@ -507,10 +487,9 @@
       .page,
       .topbar-inner { width: min(100% - 40px, 760px); }
       .hero-actions { display: flex; justify-content: center; }
-      .query-layout { grid-template-columns: .85fr 1.15fr; }
-      .store-grid { grid-template-columns: repeat(2, 1fr); }
+      .query-layout { grid-template-columns: .82fr 1.18fr; }
       .price-options { grid-template-columns: repeat(3, 1fr); }
-      .price-option { grid-template-columns: 1fr; min-height: 128px; text-align: center; }
+      .price-option { grid-template-columns: 1fr; min-height: 132px; text-align: center; }
       .option-price { text-align: center; }
       .floating-cta { display: none; }
       .page { padding-bottom: 76px; }
@@ -554,22 +533,22 @@
     <section id="query" class="card section reveal">
       <div class="section-head">
         <h2 class="section-title">選擇型號，查看擴容價格。</h2>
-        <p class="section-desc">價格會依照型號系列與支援容量自動顯示；不支援的容量會標示為不可擴充。</p>
+        <p class="section-desc">系統會依照型號顯示可擴充容量；不支援的容量會標示為不可擴充。</p>
       </div>
 
       <div class="query-layout">
         <div class="soft-card control-panel reveal reveal-delay-1">
-          <label for="modelSelect">選擇 iPhone 型號</label>
+          <label for="modelSelect">請選擇您的手機型號</label>
           <select id="modelSelect"></select>
           <p class="selector-note">查詢結果僅供報價參考，實際可升級容量仍需依現場檢測與機型版本確認。</p>
         </div>
 
         <div class="soft-card result-panel reveal reveal-delay-2">
-          <p class="model-name" id="selectedSeries">iPhone X ～ iPhone 15 系列</p>
-          <h3 class="result-title" id="selectedModel">iPhone 15 Pro Max</h3>
+          <p class="model-name" id="selectedSeries">尚未選擇型號</p>
+          <h3 class="result-title" id="selectedModel">請先選擇您的手機型號</h3>
           <div class="price-options" id="priceOptions"></div>
-          <div class="selected-capacity-box" id="selectedCapacityBox">請點選上方容量查看詳細價格。</div>
-          <div class="support-message" id="supportMessage"></div>
+          <div class="selected-capacity-box" id="selectedCapacityBox">選擇型號後，這裡會顯示可擴充容量與價格。</div>
+          <div class="support-message" id="supportMessage">請先從上方選單選擇 iPhone 型號。</div>
         </div>
       </div>
     </section>
@@ -659,6 +638,13 @@
     const supportMessage = document.querySelector('#supportMessage');
 
     function setupOptions() {
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '請選擇您的手機型號';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      modelSelect.appendChild(placeholder);
+
       const groups = [...new Set(models.map(item => item.group))];
 
       groups.forEach(group => {
@@ -676,26 +662,27 @@
 
         modelSelect.appendChild(optGroup);
       });
-
-      modelSelect.value = 'iPhone 15 Pro Max';
     }
 
     function selectCapacityCard(card, model, option) {
-      document.querySelectorAll('.price-option').forEach(el => {
-        el.classList.remove('is-selected');
-      });
-
+      document.querySelectorAll('.price-option').forEach(el => el.classList.remove('is-selected'));
       card.classList.add('is-selected');
-
-      selectedCapacityBox.innerHTML =
-        `你目前選擇的是 <strong>${option.label}</strong>，` +
-        `${model.name} 的擴容價格為 <strong>${option.price}</strong>。`;
+      selectedCapacityBox.innerHTML = `你目前選擇的是 <strong>${option.label}</strong>，${model.name} 的擴容價格為 <strong>${option.price}</strong>。`;
     }
 
     function renderResult() {
-      const model = models.find(item => item.name === modelSelect.value) || models[0];
-      const currentPrices = prices[model.series];
+      const model = models.find(item => item.name === modelSelect.value);
 
+      if (!model) {
+        selectedSeries.textContent = '尚未選擇型號';
+        selectedModel.textContent = '請先選擇您的手機型號';
+        priceOptions.innerHTML = '';
+        selectedCapacityBox.textContent = '選擇型號後，這裡會顯示可擴充容量與價格。';
+        supportMessage.textContent = '請先從上方選單選擇 iPhone 型號。';
+        return;
+      }
+
+      const currentPrices = prices[model.series];
       selectedSeries.textContent = model.group;
       selectedModel.textContent = model.name;
       priceOptions.innerHTML = '';
@@ -710,7 +697,6 @@
         card.className = 'price-option' + (available ? '' : ' unavailable');
         card.setAttribute('role', available ? 'button' : 'note');
         card.setAttribute('tabindex', available ? '0' : '-1');
-
         card.innerHTML = `
           <div class="option-capacity">${option.label}</div>
           <div class="option-price">${available ? option.price : '不支援'}</div>
@@ -761,10 +747,7 @@
           revealObserver.unobserve(entry.target);
         }
       });
-    }, {
-      threshold: 0.16,
-      rootMargin: '0px 0px -8% 0px'
-    });
+    }, { threshold: 0.16, rootMargin: '0px 0px -8% 0px' });
 
     revealElements.forEach(element => revealObserver.observe(element));
   </script>
