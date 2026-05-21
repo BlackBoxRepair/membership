@@ -222,6 +222,8 @@
     }
 
     .issue-card {
+      position: relative;
+      overflow: hidden;
       min-height: 138px;
       padding: 16px 10px;
       border-radius: 24px;
@@ -238,6 +240,32 @@
       cursor: pointer;
       user-select: none;
       transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+    }
+
+    .issue-card::after {
+      content: "";
+      position: absolute;
+      top: -30%;
+      left: -65%;
+      width: 42%;
+      height: 170%;
+      background: linear-gradient(
+        115deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.08) 30%,
+        rgba(255,255,255,0.58) 50%,
+        rgba(255,255,255,0.08) 70%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: skewX(-20deg);
+      animation: cardShine 3.2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .issue-card > * {
+      position: relative;
+      z-index: 1;
     }
 
     .issue-card:hover,
@@ -495,6 +523,14 @@
 
     [data-animate] { opacity: 0; transform: translateY(24px) scale(0.96); transition: opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1), transform 0.62s cubic-bezier(0.22, 1, 0.36, 1); transition-delay: var(--reveal-delay, 0ms); will-change: transform, opacity; }
     [data-animate].is-visible { opacity: 1; transform: translateY(0) scale(1); }
+
+    @keyframes cardShine {
+      0% { left: -65%; opacity: 0; }
+      8% { opacity: 1; }
+      28% { left: 130%; opacity: 1; }
+      40% { left: 130%; opacity: 0; }
+      100% { left: 130%; opacity: 0; }
+    }
 
     @keyframes ctaPulse { 0%, 100% { transform: translateY(0); box-shadow: 0 18px 34px rgba(167,134,54,0.16), 0 0 0 1px rgba(247,181,0,0.16); } 50% { transform: translateY(-3px); box-shadow: 0 22px 40px rgba(167,134,54,0.20), 0 0 0 1px rgba(247,181,0,0.24), 0 0 0 10px rgba(247,181,0,0.08); } }
     @keyframes ctaPulseSmall { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
