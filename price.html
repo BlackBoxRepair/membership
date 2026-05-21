@@ -191,37 +191,18 @@
     }
 
     .lowpower-wrap {
-      position: relative;
       width: min(100%, 430px);
       margin: 24px auto 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      border-radius: 32px;
-      overflow: hidden;
-    }
-
-    .lowpower-wrap::before {
-      content: "";
-      position: absolute;
-      inset: -28px;
-      background:
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.52) 46%, rgba(245,245,247,0.18) 68%, rgba(245,245,247,0) 82%);
-      filter: blur(18px);
-      z-index: 0;
-      pointer-events: none;
     }
 
     .lowpower-img {
-      position: relative;
-      z-index: 1;
       display: block;
       width: 100%;
       height: auto;
       object-fit: contain;
-      filter: drop-shadow(0 18px 34px rgba(0,0,0,0.08));
-      -webkit-mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 48%, rgba(0,0,0,0.88) 64%, rgba(0,0,0,0.45) 80%, rgba(0,0,0,0) 100%);
-      mask-image: radial-gradient(ellipse at center, rgba(0,0,0,1) 48%, rgba(0,0,0,0.88) 64%, rgba(0,0,0,0.45) 80%, rgba(0,0,0,0) 100%);
     }
 
     .reason-copy {
