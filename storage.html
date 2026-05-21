@@ -146,10 +146,7 @@
       max-width: 760px;
       display: flex;
       justify-content: center;
-      overflow: hidden;
-      opacity: 0;
-      animation: heroRise .72s cubic-bezier(.2, .8, .2, 1) forwards;
-      animation-delay: .36s;
+      overflow: visible;
     }
 
     .hero-storage-img {
@@ -158,29 +155,6 @@
       max-width: 720px;
       height: auto;
       object-fit: contain;
-      opacity: .96;
-      -webkit-mask-image: radial-gradient(
-        ellipse at center,
-        rgba(0, 0, 0, 1) 52%,
-        rgba(0, 0, 0, .92) 62%,
-        rgba(0, 0, 0, .72) 72%,
-        rgba(0, 0, 0, .42) 82%,
-        rgba(0, 0, 0, .12) 90%,
-        transparent 100%
-      );
-      mask-image: radial-gradient(
-        ellipse at center,
-        rgba(0, 0, 0, 1) 52%,
-        rgba(0, 0, 0, .92) 62%,
-        rgba(0, 0, 0, .72) 72%,
-        rgba(0, 0, 0, .42) 82%,
-        rgba(0, 0, 0, .12) 90%,
-        transparent 100%
-      );
-      -webkit-mask-repeat: no-repeat;
-      mask-repeat: no-repeat;
-      -webkit-mask-size: 100% 100%;
-      mask-size: 100% 100%;
     }
 
 
@@ -558,7 +532,6 @@
       .hero h1,
       .hero .subtitle,
       .hero .hero-actions,
-      .hero .hero-storage-wrap,
       .price-option {
         opacity: 1 !important;
         transform: none !important;
