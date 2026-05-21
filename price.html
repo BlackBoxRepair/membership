@@ -539,11 +539,45 @@
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(247,181,0,0.46); } 70% { box-shadow: 0 0 0 9px rgba(247,181,0,0); } 100% { box-shadow: 0 0 0 0 rgba(247,181,0,0); } }
     @keyframes shimmer { to { background-position: -220% 0; } }
 
+
+    @media (max-width: 520px) {
+      .issue-grid {
+        gap: 8px;
+      }
+
+      .issue-card {
+        min-height: 118px;
+        padding: 13px 6px;
+        border-radius: 22px;
+      }
+
+      .issue-icon {
+        width: 46px;
+        height: 46px;
+        margin-bottom: 10px;
+        border-radius: 16px;
+      }
+
+      .issue-icon svg {
+        width: 27px;
+        height: 27px;
+      }
+
+      .issue-card strong {
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+
+      .issue-card span {
+        font-size: 11px;
+        line-height: 1.25;
+        white-space: nowrap;
+      }
+    }
+
     @media (min-width: 521px) { .page { padding-left: 0; padding-right: 0; } }
 
     @media (max-width: 390px) {
-      .issue-grid { grid-template-columns: 1fr; }
-      .issue-card { min-height: auto; padding: 18px 16px; }
       .mini-info { grid-template-columns: 1fr; }
       .battery-btn { grid-template-columns: 1fr; }
       .price-tag { text-align: left; }
