@@ -373,6 +373,27 @@
     .btn-kicker { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 12px; font-weight: 850; margin-bottom: 8px; }
     .btn-title { display: block; font-size: 17px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 5px; }
     .btn-note { display: block; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .price-wrap {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .original-price {
+      display: block;
+      margin-bottom: 2px;
+      margin-right: 34px;
+      color: #a1a1a6;
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+
     .price-tag { position: relative; z-index: 1; display: block; color: var(--text); text-align: right; font-size: 28px; font-weight: 950; letter-spacing: -0.05em; white-space: nowrap; }
     .price-tag small { display: block; margin-top: 4px; color: var(--brand-dark); font-size: 12px; letter-spacing: 0; font-weight: 850; }
 
@@ -421,7 +442,30 @@
     .store-card:active { transform: translateY(-1px) scale(0.995); }
     .store-card h3 { position: relative; z-index: 1; margin: 0 0 10px; font-size: 17px; letter-spacing: -0.03em; }
     .store-badges { position: relative; z-index: 1; display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 12px; }
-    .store-badge { display: inline-flex; align-items: center; min-height: 28px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; letter-spacing: -0.01em; color: #9a6700; background: rgba(247,181,0,0.12); border: 1px solid rgba(247,181,0,0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.65); }
+    .store-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #15803d;
+      background: rgba(34,197,94,0.10);
+      border: 1px solid rgba(34,197,94,0.26);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+
+    .store-badge::before {
+      content: "✦";
+      color: #22c55e;
+      font-size: 15px;
+      line-height: 1;
+      text-shadow: 0 0 8px rgba(34,197,94,0.45);
+      flex: 0 0 auto;
+    }
     .store-info { margin: 7px 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
     .store-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: flex-end; width: 100%; }
     .map-link, .call-link { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 12px; border-radius: 999px; color: var(--text); background: rgba(245,245,247,0.9); border: 1px solid rgba(29,29,31,0.08); text-decoration: none; font-size: 13px; font-weight: 850; }
@@ -562,7 +606,6 @@
           <h2>選擇機型</h2>
           <p>點選機型後，系統會自動帶出可更換的電池方案。</p>
         </div>
-        <div class="step-pill">Step 1</div>
       </div>
 
       <div class="select-wrap">
@@ -757,7 +800,10 @@
           <span class="btn-title">${plan.label}</span>
           <span class="btn-note">${plan.note}</span>
         </span>
-        <span class="price-tag">${formatPrice(plan.price)}<small>點選此方案</small></span>
+        <span class="price-wrap">
+          ${plan.originalPrice ? `<span class="original-price">原價 ${formatPrice(plan.originalPrice)}</span>` : ""}
+          <span class="price-tag">${formatPrice(plan.price)}<small>點選此方案</small></span>
+        </span>
         <span class="check-dot" aria-hidden="true"></span>`;
 
       button.addEventListener("click", () => {
@@ -776,7 +822,7 @@
       updateCTA();
 
       const plans = [
-        { key: "original_battery", label: "蘋果原廠電池", kicker: "原廠方案", note: "更換後可於系統內查看原廠零件相關提示。", price: data.original_battery },
+        { key: "original_battery", label: "蘋果原廠電池", kicker: "原廠方案", note: "更換後可於系統內查看原廠零件相關提示。", price: data.original_battery, originalPrice: data.original_price_ini },
         { key: "third_party_battery", label: "BSMI 認證電池", kicker: "高 CP 值方案", note: "支援健康度顯示，適合重視預算與日常使用的客人。", price: data.third_party_battery }
       ].filter(plan => plan.price !== null && plan.price !== undefined && plan.price !== "");
 
