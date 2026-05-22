@@ -2,365 +2,1356 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黑盒子維修中心 - 官方網站</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BLACKBOX | 會員中心</title>
+    
+    <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="shortcut icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary-black: #1a1a1a;
-            --secondary-black: #2d2d2d;
-            --gold-accent: #d4af37;
-            --bg-light: #f9f9f9;
-            --text-dark: #333333;
-            --text-muted: #999999;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans TC', sans-serif; }
-        body { background-color: var(--bg-light); color: var(--text-dark); line-height: 1.6; }
-
-        /* --- 導覽列 --- */
-        header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-            background-color: #ffffff; box-shadow: var(--shadow);
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0 24px; z-index: 1000;
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .menu-toggle { font-size: 24px; color: var(--primary-black); cursor: pointer; background: none; border: none; }
-        .logo-img { height: 28px; width: auto; object-fit: contain; }
-
-        .header-right { display: flex; gap: 15px; }
-        .nav-btn {
-            display: flex; justify-content: center; align-items: center;
-            width: 42px; height: 42px; border-radius: 50%;
-            background-color: var(--primary-black); color: #ffffff;
-            text-decoration: none; font-size: 18px; transition: var(--transition);
-        }
-        .nav-btn:hover { background-color: var(--gold-accent); transform: translateY(-2px); }
-
-        /* --- 側邊選單 --- */
-        .sidebar {
-            position: fixed; top: 0; left: -320px; width: 320px; height: 100%;
-            background-color: #ffffff; z-index: 2000; transition: var(--transition);
-            padding: 24px; box-shadow: 5px 0 25px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column;
-        }
-        .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; }
-        .sidebar-logo { height: 24px; }
-        .close-btn { font-size: 20px; background: none; border: none; cursor: pointer; }
-
-        .sidebar-content { display: flex; flex-direction: column; gap: 24px; }
-        .menu-group { display: flex; flex-direction: column; gap: 8px; }
-        .group-title { font-size: 13px; color: var(--text-muted); letter-spacing: 1px; padding-left: 8px; }
-        .menu-item { color: var(--text-dark); text-decoration: none; font-size: 16px; padding: 8px; border-radius: 6px; transition: var(--transition); cursor: pointer; }
-        .menu-item:hover { color: var(--gold-accent); background-color: #fcfbf7; padding-left: 14px; }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); z-index: 1500; display: none; }
-        .overlay.active { display: block; }
-
-        /* --- 頁面內容切換核心 --- */
-        main { 
-            margin-top: 70px; 
-            padding: 5px 20px 40px 20px; 
-            max-width: 1200px; 
-            margin-left: auto; 
-            margin-right: auto; 
-            min-height: calc(100vh - 180px); 
+        /* 基礎設定 */
+        html, body { 
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(180deg, #EDF2F7 0%, #F3F5F7 300px, #F3F5F7 100%);
+            color: #191F28; 
+            overscroll-behavior: none;
+            touch-action: pan-y;
+            height: 100dvh; width: 100%;
+            overflow: hidden; 
+            position: fixed;
         }
         
-        .content-section { display: none; animation: fadeIn 0.4s ease forwards; }
-        .content-section.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- 共用容器樣式 --- */
-        .page-container { 
-            background: transparent; 
-            padding: 15px 0 20px 0; 
-            text-align: center; 
+        #app { height: 100%; width: 100%; display: flex; flex-direction: column; }
+        
+        .content-scroll { 
+            flex: 1; 
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+            padding-bottom: calc(40px + env(safe-area-inset-bottom)); 
+            padding-top: 4px;
         }
-
-        .page-header { 
-            font-size: 28px; 
-            font-weight: 700; 
-            margin-bottom: 6px; 
-            text-align: center; 
-            color: var(--primary-black); 
-        }
-
-        /* 服務流程按鈕排版 */
-        .process-tabs { 
-            display: flex; 
-            justify-content: center; 
-            gap: 8px; 
-            margin-bottom: 20px; 
-            flex-wrap: nowrap; 
+        .content-scroll::-webkit-scrollbar { display: none; }
+        
+        .tab-content { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; height: 100%; }
+        .tab-content.active { display: block; opacity: 1; }
+        
+        /* 會員卡面設計 */
+        .card-black-gold { 
+            background-image: url('Card.png'); 
+            background-size: cover;          
+            background-repeat: no-repeat;    
+            background-position: center;     
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.15); 
+            border-radius: 14px; 
+            min-height: 180px; 
+            position: relative;
+            padding: 28px;
+            overflow: hidden;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
         }
         
-        .tab-btn { 
-            background: var(--primary-black); 
-            color: #fff; 
-            border: 2px solid var(--primary-black); 
-            padding: 6px 14px; 
-            font-size: 18px; 
-            border-radius: 40px; 
-            cursor: pointer; 
-            transition: var(--transition); 
-            letter-spacing: 1px;
-            white-space: nowrap; 
+        .click-wrapper:active .card-black-gold {
+            transform: scale(0.97);
+            box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.1); 
         }
-        .tab-btn.active { border-color: var(--gold-accent); color: var(--gold-accent); font-weight: 700; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.15); }
-        .tab-btn:hover { transform: translateY(-2px); background-color: var(--secondary-black); }
 
-        /* 圖片外框維持 600px */
-        .img-box { max-width: 600px; margin: 0 auto; }
-        .display-img { width: 100%; height: auto; display: none; }
-        .display-img.active { display: block; animation: fadeIn 0.4s; }
+        .rank-badge { 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center; 
+            padding: 6px 14px;
+            border-radius: 12px;
+            overflow: hidden; 
+            transform: translateZ(0); 
+            -webkit-transform: translateZ(0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            will-change: transform, backdrop-filter;
+        }
 
-        /* --- 💎 價格查詢 菱形按鈕排版區 --- */
-        .diamond-tabs-wrapper {
-            display: flex;
+        .toss-card {
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            padding: 24px;
+        }
+
+        .soft-input { 
+            background-color: #F2F4F6; 
+            border: none; 
+            border-radius: 16px; 
+            padding: 16px; 
+            font-size: 16px; 
+            font-weight: 500;
+            color: #191F28;
+            width: 100%; 
+            outline: none; 
+            appearance: none; 
+            -webkit-appearance: none; 
+            transition: background 0.2s;
+        }
+        .soft-input:focus { background-color: #E5E8EB; }
+        .locked-input { background-color: #F2F4F6; color: #8B95A1; cursor: not-allowed; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; animation: fadeIn 0.2s ease-out; }
+        .msg-modal-content { background: white; border-radius: 32px; padding: 32px 24px; text-align: center; width: 100%; max-width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+        /* 深色底部條碼彈窗 */
+        .bottom-sheet-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 2500;
             flex-direction: column;
-            align-items: center;
-            margin-bottom: 50px;
-            margin-top: 30px;
+            justify-content: flex-end; 
         }
 
-        .diamond-row {
-            display: flex;
-            justify-content: center;
-            gap: 32px; /* 隨按鈕放大調整水平間距 */
+        .bottom-sheet-content {
+            background-color: #242426; 
+            width: 100%;
+            border-radius: 28px 28px 0 0;
+            padding: 16px 24px calc(32px + env(safe-area-inset-bottom)); 
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+            max-height: 95vh;
+            overflow-y: auto;
+            transform: translateY(100%);
         }
 
-        .diamond-row.bottom {
-            margin-top: -12px; /* 隨按鈕放大調整垂直交錯縫隙 */
+        .modal-slide-in { transform: translateY(0%); pointer-events: auto; }
+        .modal-slide-out { transform: translateY(100%); pointer-events: none; }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes slideDown { from { transform: translateY(0); } to { transform: translateY(100%); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .sheet-handle { width: 36px; height: 5px; background-color: #555555; border-radius: 3px; margin: 0 auto 20px; }
+        .qr-wrapper { background-color: #ffffff; padding: 16px; border-radius: 16px; display: inline-block; margin: 16px 0 32px; border: 1px solid rgba(255,255,255,0.1); }
+        .select-wrapper { position: relative; width: 100%; }
+        .select-wrapper::after { content: '▼'; font-size: 10px; color: #8B95A1; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+        iframe { border: none; width: 100%; height: 100%; display: block; }
+        .text-gold { color: #FFD700; }
+
+        /* --- 驚喜盒動畫設定 --- */
+        @keyframes boxGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1.1); }
+        }
+        .box-animating {
+            animation: boxGlow 1.8s forwards ease-in-out;
+            pointer-events: none;
         }
 
-        /* 修改：菱形按鈕稍微放大 */
-        .diamond-btn {
-            width: 50px;  /* 從 44px 稍微放大至 50px */
-            height: 50px; /* 從 44px 稍微放大至 50px */
-            background-color: var(--primary-black);
-            transform: rotate(45deg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: var(--transition);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        /* === 黑盒子整合版 App 首頁樣式：只動外觀，不改會員核心邏輯 === */
+        .app-home{
+            min-height:100%;
+            background:
+                radial-gradient(circle at 78% 0%, rgba(147,197,253,.58), transparent 30%),
+                radial-gradient(circle at 8% 12%, rgba(219,234,254,.78), transparent 34%),
+                linear-gradient(180deg,#E8F5FF 0%,#F7FBFF 47%,#F5F8FC 100%);
         }
+        #tab-card.app-home{padding-top:0;}
+        .quick-item{min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:800;color:#191F28;position:relative;}
+        .quick-item:not(:last-child)::after{content:"";position:absolute;right:0;top:24%;height:52%;width:1px;background:#E5E7EB;}
+        .quick-icon{font-size:31px;filter:drop-shadow(0 7px 10px rgba(37,99,235,.18));}
+        .feature-card{position:relative;border-radius:28px;padding:20px;overflow:hidden;box-shadow:0 18px 45px rgba(15,23,42,.07);border:1px solid rgba(255,255,255,.75);transition:transform .18s ease, box-shadow .18s ease;}
+        .feature-card:active{transform:scale(.975);}
+        .feature-blue{background:linear-gradient(145deg,#3B82F6 0%,#1D4ED8 100%);color:#fff;}
+        .feature-kicker{font-size:13px;font-weight:900;color:rgba(255,255,255,.72);margin-bottom:8px;}
+        .feature-kicker.dark{color:#64748B;}.feature-kicker.light{color:rgba(255,255,255,.78);}
+        .feature-card h3{font-size:25px;line-height:1.25;font-weight:950;letter-spacing:-.02em;position:relative;z-index:2;}.feature-card h3.dark-title{color:#101828;font-size:22px;}
+        .feature-desc{font-size:13px;font-weight:700;color:rgba(255,255,255,.78);line-height:1.5;margin-top:12px;position:relative;z-index:2;}.feature-desc.dark-desc{color:#667085;}.feature-desc.light-desc{color:rgba(255,255,255,.76);}
+        .feature-pill{display:inline-flex;background:#fff;color:#1D4ED8;border-radius:999px;font-size:13px;font-weight:900;padding:9px 16px;margin-top:18px;position:relative;z-index:2;}
+        .feature-visual{position:absolute;right:-5px;bottom:-10px;width:120px;height:120px;border-radius:36px;display:flex;align-items:center;justify-content:center;font-size:58px;background:rgba(255,255,255,.16);transform:rotate(-16deg);}
+        .mini-visual{position:absolute;right:14px;bottom:9px;font-size:54px;opacity:.9;filter:drop-shadow(0 10px 14px rgba(37,99,235,.12));}
+        .member-summary{display:grid;grid-template-columns:1fr 1fr;}
+        .summary-cell{position:relative;display:flex;align-items:center;gap:12px;padding:17px 16px;text-align:left;}
+        .summary-icon{width:42px;height:42px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:950;box-shadow:0 10px 24px rgba(37,99,235,.22);}
+        .summary-label{font-size:12px;color:#667085;font-weight:800;}.summary-value{font-size:18px;color:#101828;font-weight:950;line-height:1.1;}.summary-arrow{margin-left:auto;font-size:28px;color:#101828;}
+        .integrated-bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:448px;height:92px;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(255,255,255,.88);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 -12px 42px rgba(15,23,42,.08);border-radius:28px 28px 0 0;display:grid;grid-template-columns:1fr 1fr 86px 1fr 1fr;align-items:center;z-index:1200;}
+        .bottom-item{height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#667085;font-size:22px;font-weight:900;}.bottom-item span{font-size:12px;font-weight:900;}.bottom-item.active{color:#101828;}
+        .bottom-main{width:76px;height:76px;margin-top:-34px;border-radius:50%;background:#101828;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:24px;box-shadow:0 18px 36px rgba(16,24,40,.24);}.bottom-main span{font-size:12px;font-weight:900;}
+        .sheet-page{position:fixed;inset:0;z-index:3100;background:#F3F8FF;display:none;flex-direction:column;max-width:448px;margin:0 auto;left:0;right:0;box-shadow:0 0 40px rgba(0,0,0,.08);} .sheet-page.active{display:flex;}
+        .sheet-head{height:64px;display:flex;align-items:center;gap:12px;padding:0 18px;background:rgba(255,255,255,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(226,232,240,.85);}.sheet-back{width:38px;height:38px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(15,23,42,.06);font-size:24px;font-weight:900;color:#101828;}.sheet-title{font-size:20px;font-weight:950;color:#101828;}.sheet-body{flex:1;overflow-y:auto;padding:18px 18px calc(28px + env(safe-area-inset-bottom));}.info-card{background:#fff;border-radius:26px;padding:20px;box-shadow:0 16px 36px rgba(15,23,42,.07);border:1px solid rgba(255,255,255,.8);margin-bottom:14px;}.info-card h3{font-size:20px;font-weight:950;margin-bottom:8px;color:#101828;}.info-card p,.info-card li{font-size:14px;line-height:1.75;color:#4E5968;font-weight:600;}.info-card .black-btn{display:inline-flex;margin-top:14px;background:#101828;color:white;border-radius:999px;padding:12px 18px;font-size:14px;font-weight:900;}
+        .booking-frame{width:100%;height:100%;border:0;background:white;}
 
-        /* 內容與 Icon 的反轉與尺寸設定 */
-        .diamond-btn .btn-content {
-            transform: rotate(-45deg); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 24px;
-            height: 24px;
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(247,181,0,0.6));
+            box-shadow: 0 0 10px rgba(247,181,0,0.5);
+            animation: floatUp 1.5s ease-in forwards;
+            opacity: 0;
+            z-index: 5;
         }
-
-        .diamond-btn i {
-            color: #ffffff;
-            font-size: 24px; 
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translateY(-90px) scale(1.8); opacity: 0; }
         }
-
-        /* 專屬繪製 Apple Watch SVG 顏色控制 */
-        .diamond-btn svg {
-            width: 24px;
-            height: 24px;
-            fill: #ffffff;
-            transition: var(--transition);
-        }
-
-        .diamond-btn:hover {
-            transform: rotate(45deg) scale(1.05);
-            background-color: var(--secondary-black);
-        }
-
-        .diamond-btn.active {
-            border-color: var(--gold-accent);
-            background-color: var(--primary-black);
-        }
-
-        .diamond-btn.active i {
-            color: var(--gold-accent);
-        }
-
-        .diamond-btn.active svg {
-            fill: var(--gold-accent);
-        }
-
-        /* --- 其他樣式 --- */
-        .empty-state { text-align: center; padding: 100px 0; color: var(--text-muted); }
-
-        footer { text-align: center; padding: 40px; color: var(--text-gray); font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="header-left">
-            <button class="menu-toggle" id="openMenu"><i class="fa-solid fa-bars"></i></button>
-            <div class="logo-container"><img src="site logo.png" alt="Logo" class="logo-img"></div>
-        </div>
-        <div class="header-right">
-            <a href="https://blackboxrepair.github.io/membership/" class="nav-btn"><i class="fa-solid fa-user"></i></a>
-            <a href="https://blackboxrepair.github.io/bookingonline/" class="nav-btn"><i class="fa-solid fa-calendar-check"></i></a>
-        </div>
-    </header>
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex flex-col justify-center items-center">
+        <div class="w-10 h-10 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin mb-4"></div>
+        <p class="text-[11px] font-bold text-[#8B95A1] tracking-widest uppercase">Loading</p>
+    </div>
 
-    <div class="overlay" id="overlay"></div>
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <img src="site logo.png" class="sidebar-logo">
-            <button class="close-btn" id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
+    <div id="milestone-locked-modal" class="modal-overlay" style="z-index: 4000;">
+        <div class="bg-white w-full max-w-[280px] rounded-[28px] p-8 text-center shadow-2xl">
+            <div class="w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-[#8B95A1]">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+            </div>
+            <h3 class="text-[18px] font-bold text-[#191F28] mb-2">成就尚未達成</h3>
+            <p class="text-[13px] text-[#8B95A1] font-medium leading-relaxed mb-6">透過取得配件或玻璃貼更換服務加速取得年度達成禮</p>
+            <button onclick="document.getElementById('milestone-locked-modal').style.display='none'" class="w-full bg-[#191F28] text-white py-[14px] rounded-2xl font-bold active:scale-95 transition">我知道了</button>
         </div>
-        <div class="sidebar-content">
-            <div class="menu-group">
-                <div class="menu-item" onclick="navigateTo('home')">首頁</div>
-            </div>
-            <div class="menu-group">
-                <div class="group-title">服務項目</div>
-                <div class="menu-item" onclick="navigateTo('process')">服務流程</div>
-                <div class="menu-item" onclick="navigateTo('prices')">價格查詢</div>
-            </div>
-            <div class="menu-group">
-                <div class="group-title">實作紀錄</div>
-                <div class="menu-item" onclick="navigateTo('cases')">維修案例</div>
-            </div>
-            <div class="menu-group">
-                <div class="group-title">門市資訊</div>
-                <div class="menu-item" onclick="navigateTo('locations')">服務站點</div>
-            </div>
-        </div>
-    </nav>
+    </div>
 
-    <main>
-        <section id="section-home" class="content-section">
-            <div class="empty-state">
-                <h2 class="page-header">歡迎來到黑盒子維修中心</h2>
-                <p>請從左側選單選擇您需要的服務</p>
+    <div id="surprise-box-modal" class="modal-overlay" style="z-index: 4000;">
+        <div class="bg-white w-full max-w-[320px] rounded-[32px] p-8 text-center shadow-2xl flex flex-col items-center relative overflow-hidden" id="sp-box-modal-content">
+            <h3 class="text-[22px] font-bold text-[#191F28] mb-1">年度達成禮</h3>
+            <p class="text-[10px] text-[#8B95A1] font-bold uppercase tracking-widest mb-6">MILESTONE REWARD</p>
+            
+            <div id="sp-box-container" class="relative w-full flex justify-center mb-6 h-48 items-center">
+                <img id="sp-box-img" src="SP BOX.png" alt="Surprise Box" class="w-40 h-40 object-contain cursor-pointer transition-transform active:scale-95 z-10" onclick="triggerBoxAnimation()">
             </div>
-        </section>
-
-        <section id="section-process" class="content-section">
-            <div class="page-container">
-                <h2 class="page-header">服務流程</h2>
-                <div class="process-tabs">
-                    <button class="tab-btn active" onclick="changeProcessImg('phone', this)">手機維修</button>
-                    <button class="tab-btn" onclick="changeProcessImg('notebook', this)">筆電維修</button>
-                    <button class="tab-btn" onclick="changeProcessImg('data', this)">資料救援</button>
+            
+            <p id="sp-box-instruction" class="text-[15px] text-[#F7B500] font-bold animate-pulse">點擊開啟驚喜盒！</p>
+            
+            <div id="sp-box-reward-info" class="hidden w-full">
+                <div class="bg-[#F2F4F6] rounded-[20px] py-4 mb-4 border border-[#E5E8EB]">
+                    <p class="text-[11px] text-[#8B95A1] font-bold mb-1">恭喜獲得</p>
+                    <p id="sp-reward-title" class="text-[20px] font-black text-[#191F28] tracking-wide">---</p>
                 </div>
-                <div class="img-box">
-                    <img src="phone process.png" id="img-process-phone" class="display-img active">
-                    <img src="notebook process.png" id="img-process-notebook" class="display-img">
-                    <img src="data process.png" id="img-process-data" class="display-img">
+                <button id="sp-claim-btn" onclick="claimYearlyReward()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition">領取獎勵</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qr-bottom-sheet" class="bottom-sheet-overlay" onclick="closeQrSheet()">
+        <div id="qr-sheet-content" class="bottom-sheet-content" onclick="event.stopPropagation()">
+            <div class="sheet-handle"></div>
+            <div class="flex justify-between items-center mb-4">
+                <div class="w-8"></div> 
+                <h3 class="text-[17px] font-bold text-white tracking-wide">掃碼賺取或兌換積分</h3>
+                <button onclick="closeQrSheet()" class="w-8 h-8 flex items-center justify-center text-[#8B95A1] bg-[#333333] rounded-full active:scale-95 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div class="text-center">
+                <div class="qr-wrapper shadow-lg"><canvas id="qr-code" class="rounded-[8px]"></canvas></div>
+            </div>
+            <div class="space-y-6 mb-8 px-2">
+                <div class="flex items-start gap-4">
+                    <svg class="w-6 h-6 text-white shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                    <div>
+                        <h4 class="text-[16px] font-bold text-white mb-1 tracking-wide">掃描您的會員條碼</h4>
+                        <p class="text-[13px] text-[#A0A0A0]">請向門市服務人員出示您的會員二維碼</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <svg class="w-6 h-6 text-white shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <div>
+                        <h4 class="text-[16px] font-bold text-white mb-1 tracking-wide">積分活動</h4>
+                        <p class="text-[13px] text-[#A0A0A0]">所賺取積分將於消費結帳後計入您的帳戶</p>
+                    </div>
                 </div>
             </div>
-        </section>
+            <button onclick="closeQrSheet()" class="w-full bg-white text-[#191F28] py-[16px] rounded-[14px] font-bold text-[17px] active:scale-95 transition tracking-wide">完成</button>
+        </div>
+    </div>
 
-        <section id="section-prices" class="content-section">
-            <div class="page-container">
-                <h2 class="page-header">價格查詢</h2>
+    <div id="info-modal" class="modal-overlay" onclick="closeInfoModal()">
+        <div class="bg-white w-full max-w-xs rounded-[32px] p-8 text-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="relative w-14 h-14 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-5">
+                <div class="absolute inset-[4px] rounded-full border-[1.5px] border-[#191F28]"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[26px] h-[26px] text-[#191F28] z-10">
+                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <h3 class="text-[22px] font-bold text-[#191F28] mb-3">會籍積分</h3>
+            <p class="text-[15px] text-[#4E5968] font-medium leading-relaxed mb-6">每 10 積分<br>可折抵消費金額 10 元</p>
+            <div class="bg-[#F2F4F6] p-4 rounded-2xl text-left">
+                <p class="text-[11px] text-[#8B95A1] font-medium mb-1.5">・若有違法使用或消費退款，系統會追回已發放之積分。</p>
+                <p class="text-[11px] text-[#8B95A1] font-medium mb-1.5">・本系統目前僅適用於勤美公益門市、沙鹿站前門市。</p>
+                <p class="text-[11px] text-[#8B95A1] font-medium mb-1.5">・會籍積分及票券是綁定會員LINE帳號，若更換LINE使用帳號所有積分及票券不予保留。</p>
+                <p class="text-[11px] text-[#8B95A1] font-medium">・積分及票券使用不與特約優惠疊加使用。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="msg-modal" class="modal-overlay" style="z-index: 5000;">
+        <div class="msg-modal-content">
+            <h3 id="msg-title" class="text-[22px] font-bold text-[#191F28] mb-3">提示</h3>
+            <p id="msg-body" class="text-[15px] text-[#4E5968] mb-8 leading-relaxed font-medium">---</p>
+            <button onclick="closeMsgModal()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold active:scale-95 transition">確定</button>
+        </div>
+    </div>
+
+    <div id="coming-soon-modal" class="modal-overlay" onclick="closeComingSoonModal()" style="z-index: 2000;">
+        <div class="bg-white w-full max-w-[240px] rounded-[24px] p-6 text-center shadow-2xl" onclick="event.stopPropagation()">
+            <div class="w-12 h-12 bg-[#F2F4F6] rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6 text-[#8B95A1]">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <p class="text-[15px] font-bold text-[#191F28]">盒芯禮遇暫未開啟</p>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="modal-overlay">
+        <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl relative">
+            <h3 class="text-[24px] font-bold mb-1 text-[#191F28]">加入會員</h3>
+            <p class="text-[#8B95A1] text-[11px] mb-6 font-bold uppercase tracking-widest">MEMBER PROFILE</p>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">真實姓名 *</label><input id="input-name" type="text" class="soft-input"></div>
+                    <div><label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">居住區域</label><div class="select-wrapper"><select id="input-area" class="soft-input"></select></div></div>
+                </div>
+                <div><label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">連絡電話 *</label><input id="input-phone" type="tel" maxlength="10" class="soft-input"><p id="phone-error" class="text-[11px] text-[#F04438] mt-1.5 hidden px-1 font-medium">電話格式錯誤</p></div>
+                <div>
+                    <label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">會員生日 *</label>
+                    <div class="flex gap-2">
+                        <div class="select-wrapper flex-[2]"><select id="birth-year" onchange="updateDays()" class="soft-input"><option value="">年</option></select></div>
+                        <div class="select-wrapper flex-1"><select id="birth-month" onchange="updateDays()" class="soft-input"><option value="">月</option></select></div>
+                        <div class="select-wrapper flex-1"><select id="birth-day" class="soft-input"><option value="">日</option></select></div>
+                    </div>
+                </div>
+                <div><label class="text-[12px] font-bold text-[#4E5968] block mb-1.5 px-1">電子信箱</label><input id="input-email" type="email" class="soft-input"></div>
+                <p class="text-[11px] text-[#8B95A1] text-center mb-2 mt-4 font-medium">* 請填寫正確實名資料以免影響權益</p>
+                <button id="btn-save" onclick="saveProfile()" class="w-full bg-[#F7B500] text-white py-[16px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition mt-2">確認加入</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl relative">
+            <button onclick="document.getElementById('edit-modal').style.display='none'" class="absolute top-6 right-6 text-[#8B95A1] text-xl font-bold w-10 h-10 flex items-center justify-center bg-[#F2F4F6] rounded-full active:scale-95 transition">✕</button>
+            <h3 class="text-[24px] font-bold mb-1 text-[#191F28]">個人資料</h3>
+            <p class="text-[#8B95A1] text-[11px] mb-5 font-bold uppercase tracking-widest">EDIT PROFILE</p>
+            
+            <div class="space-y-2">
+                <div><label class="text-[12px] font-bold text-[#8B95A1] block mb-1 px-1">真實姓名</label><input id="edit-name" type="text" disabled class="soft-input locked-input py-[12px]"></div>
+                <div><label class="text-[12px] font-bold text-[#8B95A1] block mb-1 px-1">連絡電話</label><input id="edit-phone" type="text" disabled class="soft-input locked-input py-[12px]"></div>
+                <div><label class="text-[12px] font-bold text-[#8B95A1] block mb-1 px-1">會員生日</label><input id="edit-birthday" type="text" disabled class="soft-input locked-input py-[12px]"></div>
                 
-                <div class="diamond-tabs-wrapper">
-                    <div class="diamond-row">
-                        <div class="diamond-btn active" onclick="changePriceImg('applewatch', this)" title="Apple Watch">
-                            <div class="btn-content">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M7,5 L17,5 L16,1 L8,1 Z M7,19 L17,19 L16,23 L8,23 Z M5,5 C5,3.9 5.9,3 7,3 L17,3 C18.1,3 19,3.9 19,5 L19,19 C19,20.1 18.1,21 17,21 L7,21 C5.9,21 5,20.1 5,19 Z M6.5,7 C6.5,6.2 7.2,5.5 8,5.5 L16,5.5 C16.8,5.5 17.5,6.2 17.5,7 L17.5,17 C17.5,17.8 16.8,18.5 16,18.5 L8,18.5 C7.2,18.5 6.5,17.8 6.5,17 Z"/>
-                                </svg>
+                <div class="py-1"><div class="h-[1px] bg-[#F2F4F6] w-full"></div></div>
+                
+                <div><label class="text-[12px] font-bold text-[#F7B500] block mb-1 px-1">居住區域</label><div class="select-wrapper"><select id="edit-area" class="soft-input py-[12px]"></select></div></div>
+                <div><label class="text-[12px] font-bold text-[#F7B500] block mb-1 px-1">電子信箱</label><input id="edit-email" type="email" class="soft-input py-[12px]"></div>
+                
+                <button id="btn-update" onclick="updateProfile()" class="w-full bg-[#F7B500] text-white py-[14px] rounded-[16px] font-bold shadow-[0_4px_12px_rgba(247,181,0,0.3)] active:scale-95 transition mt-3">儲存變更</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="coupon-detail-modal" class="fixed inset-0 bg-[#F2F4F6] z-[3000] flex flex-col transition-transform duration-300 ease-in-out modal-slide-out will-change-transform">
+        <div class="flex items-center justify-between px-4 py-4 bg-white shrink-0 shadow-sm relative z-10">
+            <button onclick="closeCouponDetail()" class="p-2 text-[#191F28] active:scale-95 transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h2 class="text-[17px] font-bold text-[#191F28] tracking-wide">我的票券</h2>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 pb-8">
+            <div class="bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden relative">
+                <div class="px-6 pt-8 pb-6 text-center">
+                    <div id="cd-icon-container" class="mx-auto mb-4 flex items-center justify-center"></div>
+                    
+                    <h3 id="cd-title" class="text-[18px] font-bold text-[#191F28] mb-2 leading-snug">---</h3>
+                    <p id="cd-date" class="text-[14px] text-[#2BA769] font-bold tracking-wide">---</p>
+                </div>
+
+                <div class="relative h-6 flex items-center overflow-hidden">
+                    <div class="absolute left-[-12px] w-6 h-6 bg-[#F2F4F6] rounded-full shadow-inner"></div>
+                    <div class="w-full border-t-[2px] border-dashed border-[#E5E8EB] mx-5"></div>
+                    <div class="absolute right-[-12px] w-6 h-6 bg-[#F2F4F6] rounded-full shadow-inner"></div>
+                </div>
+
+                <div class="px-6 pt-6 pb-8">
+                    <div class="flex flex-col items-center mb-8">
+                        <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mb-3">
+                            <canvas id="cd-qrcode" class="rounded-lg"></canvas>
+                        </div>
+                        <p id="cd-id" class="text-[14px] text-[#4E5968] font-mono tracking-widest">---</p>
+                    </div>
+
+                    <div class="space-y-6 text-left">
+                        <div>
+                            <h4 class="text-[14px] font-bold text-[#191F28] mb-2">活動說明</h4>
+                            <p id="cd-desc" class="text-[14px] text-[#4E5968] leading-relaxed">---</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 bg-white shrink-0 pb-[calc(16px+env(safe-area-inset-bottom))] shadow-[0_-4px_20px_rgba(0,0,0,0.03)] relative z-10">
+            <button onclick="closeCouponDetail()" class="w-full bg-[#2BA769] text-white py-[16px] rounded-[12px] font-bold text-[17px] active:scale-95 transition tracking-wide">關閉票券</button>
+        </div>
+    </div>
+
+    <div id="booking-modal" class="fixed inset-0 bg-[#F2F4F6] z-[3000] flex flex-col transition-transform duration-300 ease-in-out modal-slide-out will-change-transform">
+        <div class="flex items-center justify-between px-6 pt-3 pb-2 shrink-0 min-h-[60px] relative z-10">
+            <div class="flex items-center gap-2">
+                <button onclick="closeBookingModal()" class="p-2 -ml-3 text-[#191F28] active:scale-95 transition">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <h2 class="text-[22px] font-bold text-[#191F28] tracking-tight leading-none">我的預約</h2>
+            </div>
+            
+            <button onclick="openBookingFlow()" class="w-[36px] h-[36px] flex items-center justify-center bg-white rounded-full text-[#3182F6] active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 pb-8" id="booking-list">
+            <div class="py-12 text-center">
+                <div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="max-w-md mx-auto relative h-full flex flex-col">
+        <header id="main-header" class="px-6 pt-7 pb-4 flex justify-between items-center shrink-0 min-h-[80px] transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <button id="btn-back" onclick="switchTab('card')" class="hidden p-2 -ml-3 text-[#191F28] active:scale-95 transition">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+                <div class="flex flex-col justify-center">
+                    <img id="header-logo" src="site logo.png" alt="Blackbox Logo" class="h-9 w-auto object-contain">
+                    <h1 id="page-title" class="hidden text-[22px] font-bold text-[#191F28] tracking-tight leading-none"></h1>
+                </div>
+            </div>
+            
+            <div id="header-actions" class="flex gap-2">
+                <button onclick="openInfoModal()" class="relative w-[36px] h-[36px] flex items-center justify-center bg-[#F7B500] rounded-full active:scale-95 transition">
+                    <div class="absolute inset-[2px] rounded-full border-[1.5px] border-white"></div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[16px] h-[16px] text-white z-10">
+                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button onclick="openEditModal()" class="w-[36px] h-[36px] flex items-center justify-center bg-white rounded-full text-[#8B95A1] active:scale-95 transition shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-[18px] h-[18px]">
+                      <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+        
+        <div id="main-content" class="content-scroll hidden">
+            <main id="tab-blackbox" class="tab-content h-full">
+                <div id="activity-container" class="h-full w-full"></div>
+            </main>
+
+            <main id="tab-card" class="tab-content active app-home pb-[110px]">
+                <section class="hero-panel px-6 pt-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <p class="text-[15px] text-[#4E5968] font-bold mb-1">您好！👋</p>
+                            <h2 class="text-[32px] leading-tight font-black tracking-tight text-[#101828]">黑盒子<br><span class="text-[#1D4ED8]">會員服務中心</span></h2>
+                            <p class="text-[14px] text-[#4E5968] font-medium mt-3 leading-relaxed">維修預約、會員積分、優惠票券與門市服務，一站完成。</p>
+                        </div>
+                        <button onclick="openQrSheet()" class="w-[92px] h-[92px] rounded-[30px] bg-white/80 shadow-[0_18px_45px_rgba(49,130,246,0.16)] border border-white flex flex-col items-center justify-center active:scale-95 transition">
+                            <div class="w-11 h-11 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-black text-[20px]">P</div>
+                            <span class="text-[11px] text-[#4E5968] font-bold mt-2">會員條碼</span>
+                        </button>
+                    </div>
+
+                    <div class="relative rounded-[32px] p-5 overflow-hidden bg-gradient-to-br from-[#2F7BFF] to-[#1357E8] shadow-[0_22px_60px_rgba(49,130,246,0.28)] text-white mb-5">
+                        <div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/15 blur-sm"></div>
+                        <div class="absolute right-6 bottom-4 w-24 h-24 rounded-[28px] bg-white/15 rotate-12"></div>
+                        <p class="text-[12px] font-bold text-white/75 uppercase tracking-widest mb-2">BLACK BOX MEMBER</p>
+                        <div class="flex justify-between items-end relative z-10">
+                            <div>
+                                <h3 id="m-name" class="text-[22px] font-black tracking-wide">---</h3>
+                                <p id="m-phone" class="text-[13px] text-white/75 font-mono tracking-widest mt-1">---</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[11px] text-white/70 font-bold mb-1">我的點數</p>
+                                <p><span id="m-points" class="text-[32px] leading-none font-black">0</span><span class="text-[15px] font-bold ml-1">P</span></p>
                             </div>
                         </div>
-                        <div class="diamond-btn" onclick="changePriceImg('memory', this)" title="容量擴充">
-                            <div class="btn-content"><i class="fa-solid fa-microchip"></i></div>
-                        </div>
-                        <div class="diamond-btn" onclick="changePriceImg('switch', this)" title="Switch遊戲機">
-                            <div class="btn-content"><i class="fa-solid fa-gamepad"></i></div>
+                    </div>
+
+                    <div class="quick-dock grid grid-cols-4 gap-0 rounded-[28px] bg-white/82 backdrop-blur-xl shadow-[0_18px_45px_rgba(15,23,42,0.08)] border border-white overflow-hidden mb-5">
+                        <button onclick="openServicePanel('search')" class="quick-item"><span class="quick-icon">🔍</span><span>查品搜尋</span></button>
+                        <button onclick="openServicePanel('device')" class="quick-item"><span class="quick-icon">👀</span><span>我的裝置</span></button>
+                        <button onclick="openBookingFlow()" class="quick-item"><span class="quick-icon">🗓️</span><span>預約維修</span></button>
+                        <button onclick="switchTab('coupon')" class="quick-item"><span class="quick-icon">🎟️</span><span>優惠券</span></button>
+                    </div>
+                </section>
+
+                <section class="px-6">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <button onclick="openServicePanel('battery')" class="feature-card feature-blue col-span-1 row-span-2 min-h-[230px] text-left">
+                            <p class="feature-kicker">電池更換</p>
+                            <h3>原廠品質<br>安心保證</h3>
+                            <p class="feature-desc">iPhone 電池優惠與保固說明</p>
+                            <span class="feature-pill">立即查看 ›</span>
+                            <div class="feature-visual battery-visual">⚡</div>
+                        </button>
+                        <button onclick="openServicePanel('repair')" class="feature-card bg-white text-left min-h-[106px]">
+                            <p class="feature-kicker dark">現場維修服務</p>
+                            <h3 class="dark-title">快速維修<br>立即解決！</h3>
+                            <p class="feature-desc dark-desc">現場即可維修。</p>
+                        </button>
+                        <button onclick="openBookingFlow()" class="feature-card bg-[#101828] text-white text-left min-h-[106px]">
+                            <p class="feature-kicker light">線上預約</p>
+                            <h3>免等待<br>快速預約！</h3>
+                            <p class="feature-desc light-desc">選擇時間，輕鬆預約。</p>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-5">
+                        <button onclick="openServicePanel('location')" class="feature-card bg-white text-left min-h-[150px]">
+                            <p class="feature-kicker dark">門市查詢</p>
+                            <h3 class="dark-title">尋找附近<br>門市</h3>
+                            <p class="feature-desc dark-desc">勤美公益店、沙鹿站前店。</p>
+                            <div class="mini-visual">📍</div>
+                        </button>
+                        <button onclick="switchTab('coupon')" class="feature-card bg-white text-left min-h-[150px]">
+                            <p class="feature-kicker dark">會員專屬</p>
+                            <h3 class="dark-title">累積點數<br>兌換好禮</h3>
+                            <p class="feature-desc dark-desc">更多會員優惠等你來拿。</p>
+                            <div class="mini-visual">💳</div>
+                        </button>
+                    </div>
+
+                    <div class="member-summary rounded-[26px] bg-white/86 backdrop-blur-xl shadow-[0_16px_42px_rgba(15,23,42,0.07)] border border-white mb-5 overflow-hidden">
+                        <button onclick="openQrSheet()" class="summary-cell">
+                            <div class="summary-icon bg-[#2563EB]">P</div>
+                            <div><p class="summary-label">我的點數</p><p class="summary-value"><span id="m-points-mini">0</span> P</p></div>
+                            <span class="summary-arrow">›</span>
+                        </button>
+                        <button onclick="switchTab('coupon')" class="summary-cell border-l border-[#E5E7EB]">
+                            <div class="summary-icon bg-[#3B82F6]">%</div>
+                            <div><p class="summary-label">優惠券</p><p class="summary-value">查看票券</p></div>
+                            <span class="summary-arrow">›</span>
+                        </button>
+                    </div>
+
+                    <div id="yearly-card" class="toss-card mb-5 relative flex flex-col items-center py-8 cursor-pointer active:scale-[0.98] transition-transform select-none" onclick="handleYearlyCardClick()">
+                        <div class="w-full max-w-[260px] relative pointer-events-none">
+                            <svg viewBox="0 0 200 120" class="w-full h-auto overflow-visible">
+                                <defs><linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2563EB" /><stop offset="100%" stop-color="#60A5FA" /></linearGradient></defs>
+                                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#EAF2FF" stroke-width="12" stroke-linecap="round"/>
+                                <path id="progress-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#arcGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3" style="transition: stroke-dashoffset 1.5s cubic-bezier(0.16, 1, 0.3, 1);"/>
+                                <g><circle cx="35" cy="53" r="16" fill="transparent" /><circle cx="35" cy="53" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-1"/><text x="22" y="53" font-size="10" fill="#8B95A1" font-weight="bold">3</text></g>
+                                <g><circle cx="75" cy="24" r="16" fill="transparent" /><circle cx="75" cy="24" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-2"/><text x="70" y="14" text-anchor="middle" font-size="10" fill="#8B95A1" font-weight="bold">6</text></g>
+                                <g><circle cx="140" cy="31" r="16" fill="transparent" /><circle cx="140" cy="31" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-3"/><text x="145" y="21" font-size="10" fill="#8B95A1" font-weight="bold">10</text></g>
+                                <g><circle cx="180" cy="100" r="16" fill="transparent" /><circle cx="180" cy="100" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3" id="node-4"/><text x="195" y="103" font-size="10" fill="#8B95A1" font-weight="bold">15</text></g>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-end pb-[6px]">
+                                <span id="yearly-count" class="text-[56px] font-black text-[#191F28] leading-none mb-1 tracking-tighter">0</span>
+                                <div class="flex items-center text-[#8B95A1] text-[12px] font-bold">本年度消費次數 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="diamond-row bottom">
-                        <div class="diamond-btn" onclick="changePriceImg('vacuum', this)" title="吸塵器">
-                            <div class="btn-content"><i class="fa-solid fa-wind"></i></div>
-                        </div>
-                        <div class="diamond-btn" onclick="changePriceImg('hdd', this)" title="硬碟">
-                            <div class="btn-content"><i class="fa-solid fa-hdd"></i></div>
-                        </div>
-                    </div>
-                </div>
+                </section>
 
-                <div class="img-box">
-                    <img src="Price_applewatch.PNG" id="img-price-applewatch" class="display-img active">
-                    <img src="Price_memory.PNG" id="img-price-memory" class="display-img">
-                    <img src="" id="img-price-switch" class="display-img">
-                    <img src="" id="img-price-vacuum" class="display-img">
-                    <img src="" id="img-price-hdd" class="display-img">
-                </div>
-            </div>
-        </section>
+                <nav class="integrated-bottom-nav">
+                    <button class="bottom-item active" onclick="switchTab('card')">⌂<span>首頁</span></button>
+                    <button class="bottom-item" onclick="openServicePanel('location')">⌖<span>門市</span></button>
+                    <button class="bottom-main" onclick="openBookingFlow()">🔧<span>預約維修</span></button>
+                    <button class="bottom-item" onclick="openBookingModal()">▤<span>我的預約</span></button>
+                    <button class="bottom-item" onclick="openEditModal()">○<span>會員專區</span></button>
+                </nav>
+            </main>
 
-        <section id="section-cases" class="content-section">
-            <h2 class="page-header">維修案例</h2>
-            <div class="empty-state">維修案例文章準備中...</div>
-        </section>
+            <main id="tab-coupon" class="tab-content px-6 pt-2">
+                 <div id="coupon-list" class="flex flex-col gap-4">
+                     <div class="py-12 text-center">
+                        <div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div>
+                     </div>
+                 </div>
+            </main>
+        </div>
+    </div>
 
-        <section id="section-locations" class="content-section">
-            <h2 class="page-header">服務站點</h2>
-            <div class="empty-state">門市據點載入中...</div>
-        </section>
-    </main>
 
-    <footer>&copy; 2026 BLACK BOX 維修中心. All Rights Reserved.</footer>
+    <div id="service-sheet" class="sheet-page">
+        <div class="sheet-head">
+            <button class="sheet-back" onclick="closeServicePanel()">‹</button>
+            <h2 id="service-sheet-title" class="sheet-title">服務內容</h2>
+        </div>
+        <div id="service-sheet-body" class="sheet-body"></div>
+    </div>
+
+    <div id="booking-flow-sheet" class="sheet-page">
+        <div class="sheet-head">
+            <button class="sheet-back" onclick="closeBookingFlow()">‹</button>
+            <h2 class="sheet-title">預約維修</h2>
+        </div>
+        <iframe class="booking-frame" src="https://blackboxrepair.github.io/bookingonline/" title="黑盒子預約維修系統"></iframe>
+    </div>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
+        const ACTIVITY_URL = ''; 
+        const LIFF_ID = '2008733642-8wMmnKuw'; 
+        const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
 
-        document.getElementById('openMenu').onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
-        document.getElementById('closeMenu').onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
-        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentUserLineId = null;
+        let currentUserProfile = null;
+        let currentCoupons = []; 
+        let currentYearlyConsumption = 0;
+        let currentClaimingMilestone = 0;
 
-        function navigateTo(sectionId) {
-            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            const targetSection = document.getElementById(`section-${sectionId}`);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                window.location.hash = sectionId;
+        const areaList = [
+            "西屯區","沙鹿區","中區","東區","西區","南區","北區","北屯區","南屯區",
+            "太平區","大里區","霧峰區","烏日區","豐原區","后里區","石岡區","東勢區","和平區","新社區",
+            "潭子區","大雅區","神岡區","大肚區","龍井區","梧棲區","清水區","大甲區","外埔區","大安區",
+            "台北市","新北市","桃園市","基隆縣","新竹市","新竹縣","苗栗縣","彰化縣","南投縣",
+            "雲林縣","嘉義市","嘉義縣","台南市","高雄市","屏東縣","花蓮縣","台東縣","離島地區"
+        ];
+
+        window.onload = async () => {
+            initSelects();
+            renderActivityTab(); 
+            await initLiff();
+        };
+
+        /* --- 驚喜盒控制邏輯 --- */
+        async function handleYearlyCardClick() {
+            const milestones = [3, 6, 10, 15];
+            const currentYear = new Date().getFullYear();
+            
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            try {
+                // 1. 抓取今年度已領取的紀錄
+                const { data, error } = await _supabase.from('point_logs')
+                    .select('order_number')
+                    .eq('line_id', currentUserLineId)
+                    .like('order_number', `YR_${currentYear}_%`);
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (error) throw error;
+
+                // 2. 取出已領取的門檻數字
+                const claimedMilestones = (data || []).map(row => {
+                    const parts = row.order_number.split('_');
+                    return parseInt(parts[2]);
+                });
+
+                // 3. 找尋第一個已達標但尚未領取的門檻
+                let targetMilestone = null;
+                for (let m of milestones) {
+                    if (currentYearlyConsumption >= m && !claimedMilestones.includes(m)) {
+                        targetMilestone = m;
+                        break; 
+                    }
+                }
+
+                if (targetMilestone) {
+                    // 有獎勵可領，進入開箱流程
+                    currentClaimingMilestone = targetMilestone;
+                    
+                    const boxImg = document.getElementById('sp-box-img');
+                    boxImg.classList.remove('box-animating');
+                    boxImg.style.transform = 'scale(1)';
+                    boxImg.style.filter = 'none'; 
+                    boxImg.src = 'SP BOX.png';
+                    boxImg.onclick = triggerBoxAnimation;
+                    
+                    document.querySelectorAll('.bubble').forEach(e => e.remove());
+                    
+                    document.getElementById('sp-box-instruction').style.display = 'block';
+                    document.getElementById('sp-box-reward-info').style.display = 'none';
+                    document.getElementById('surprise-box-modal').style.display = 'flex';
+                } else {
+                    // 如果判斷已達 15 次而且全領完，就什麼事都不做 (防禦性程式碼，通常按鈕會直接失效)
+                    if (currentYearlyConsumption >= 15 && claimedMilestones.includes(15)) {
+                        return;
+                    }
+                    // 沒有獎勵可領且未全通關，顯示鎖定提示
+                    document.getElementById('milestone-locked-modal').style.display = 'flex';
+                }
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loading-overlay').style.display = 'none';
+                showMsg('錯誤', '系統忙線中，請稍後再試');
             }
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            window.scrollTo(0, 0);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const currentHash = window.location.hash.replace('#', '');
-            if (currentHash && document.getElementById(`section-${currentHash}`)) {
-                navigateTo(currentHash);
-            } else {
-                navigateTo('home');
+        function triggerBoxAnimation() {
+            const boxImg = document.getElementById('sp-box-img');
+            boxImg.onclick = null; 
+            boxImg.classList.add('box-animating');
+            document.getElementById('sp-box-instruction').style.display = 'none';
+
+            const container = document.getElementById('sp-box-container');
+            
+            for(let i = 0; i < 20; i++) {
+                let b = document.createElement('div');
+                b.className = 'bubble';
+                const size = Math.random() * 15 + 10;
+                b.style.width = size + 'px';
+                b.style.height = size + 'px';
+                b.style.left = (Math.random() * 80 + 10) + '%';
+                b.style.top = (Math.random() * 80 + 10) + '%';
+                b.style.animationDelay = (Math.random() * 0.8) + 's';
+                container.appendChild(b);
             }
+
+            setTimeout(() => {
+                boxImg.classList.remove('box-animating');
+                boxImg.style.transform = 'scale(1.1)';
+                boxImg.style.filter = 'none'; 
+                boxImg.src = 'SP BOX２.png'; 
+                
+                showRewardInfo(currentClaimingMilestone);
+            }, 1800);
+        }
+
+        function showRewardInfo(milestone) {
+            const rewardInfo = document.getElementById('sp-box-reward-info');
+            const title = document.getElementById('sp-reward-title');
+            
+            if (milestone === 3) title.innerText = '會籍積分 +25';
+            if (milestone === 6) title.innerText = '會籍積分 +50';
+            if (milestone === 10) title.innerText = '會籍積分 +100';
+            if (milestone === 15) title.innerText = '保貼兌換券 x1';
+
+            rewardInfo.style.display = 'block';
+        }
+
+        async function claimYearlyReward() {
+            const btn = document.getElementById('sp-claim-btn');
+            btn.disabled = true;
+            btn.innerText = '處理中...';
+
+            const milestone = currentClaimingMilestone;
+            const currentYear = new Date().getFullYear();
+            const rewardKey = `YR_${currentYear}_${milestone}`;
+
+            try {
+                let pointsToAdd = 0;
+                let couponIdToIssue = null;
+
+                if (milestone === 3) pointsToAdd = 25;
+                if (milestone === 6) pointsToAdd = 50;
+                if (milestone === 10) pointsToAdd = 100;
+                if (milestone === 15) couponIdToIssue = '531aae11-184f-4f86-bf53-41e35974d5ae';
+
+                if (pointsToAdd > 0) {
+                    const { data: profile } = await _supabase.from('profiles').select('total_points').eq('line_id', currentUserLineId).single();
+                    const newPoints = (profile.total_points || 0) + pointsToAdd;
+                    await _supabase.from('profiles').update({ total_points: newPoints }).eq('line_id', currentUserLineId);
+                }
+
+                if (couponIdToIssue) {
+                    const { data: couponTemp } = await _supabase.from('coupons').select('*').eq('id', couponIdToIssue).single();
+                    if (couponTemp) {
+                        let expiryDate = null;
+                        if (couponTemp.validity_days && couponTemp.validity_days > 0) {
+                            const d = new Date(); d.setDate(d.getDate() + couponTemp.validity_days);
+                            expiryDate = d.toISOString().split('T')[0];
+                        } else {
+                            expiryDate = couponTemp.valid_until;
+                        }
+                        
+                        await _supabase.from('user_coupons').insert({
+                            line_id: currentUserLineId,
+                            coupon_name: couponTemp.name,
+                            description: couponTemp.description || '',
+                            valid_until: expiryDate,
+                            status: 'unused',
+                            type: couponTemp.type || 'exchange',
+                            discount_amount: couponTemp.discount_amount || 0
+                        });
+                    }
+                }
+
+                await _supabase.from('point_logs').insert({
+                    line_id: currentUserLineId,
+                    staff_name: '系統發送',
+                    store_name: '年度達成禮',
+                    order_number: rewardKey,
+                    amount: 0,
+                    points_change: pointsToAdd,
+                    points_redeemed: 0,
+                    coupon_discount: 0
+                });
+
+                closeSurpriseBoxModal();
+                showMsg('恭喜', '獎勵已成功發放至您的帳戶！\n若為票券請至「票券錢包」查看。');
+                
+                checkMemberStatus({ userId: currentUserLineId });
+                
+            } catch (e) {
+                console.error(e);
+                showMsg('錯誤', '領取失敗，請聯繫客服');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '領取獎勵';
+            }
+        }
+
+        function closeSurpriseBoxModal() {
+            document.getElementById('surprise-box-modal').style.display = 'none';
+        }
+
+        /* --- 原有功能 --- */
+        function openCouponDetail(couponId) {
+            const coupon = currentCoupons.find(c => c.id === couponId);
+            if (!coupon) return;
+
+            document.getElementById('cd-title').innerText = coupon.coupon_name;
+            document.getElementById('cd-date').innerText = coupon.valid_until ? `使用期間：即日起 ~ ${coupon.valid_until}` : '使用期間：永久有效';
+            
+            const displayId = coupon.id.replace(/-/g, '').substring(0, 16).toUpperCase();
+            document.getElementById('cd-id').innerText = displayId;
+            document.getElementById('cd-desc').innerText = coupon.description || '請於實體店家出示條碼兌換即可，並需於兌換後三個月內使用完畢。';
+
+            const iconContainer = document.getElementById('cd-icon-container');
+            iconContainer.className = "mx-auto mb-4 flex items-center justify-center";
+            
+            if (coupon.type === 'cash') {
+                iconContainer.innerHTML = `<svg class="w-16 h-16 text-[#F7B500]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+            } else {
+                iconContainer.innerHTML = `<svg class="w-16 h-16 text-[#F7B500]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>`;
+            }
+
+            new QRious({
+                element: document.getElementById('cd-qrcode'),
+                value: "CPN-" + coupon.id,
+                size: 160,
+                level: 'H'
+            });
+
+            const modal = document.getElementById('coupon-detail-modal');
+            modal.classList.remove('modal-slide-out');
+            modal.classList.add('modal-slide-in');
+        }
+
+        function closeCouponDetail() {
+            const modal = document.getElementById('coupon-detail-modal');
+            modal.classList.remove('modal-slide-in');
+            modal.classList.add('modal-slide-out');
+        }
+
+        function openBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('modal-slide-out');
+            modal.classList.add('modal-slide-in');
+            loadUserBookings();
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('booking-modal');
+            modal.classList.remove('modal-slide-in');
+            modal.classList.add('modal-slide-out');
+        }
+
+        async function loadUserBookings() {
+            const list = document.getElementById('booking-list');
+            list.innerHTML = `<div class="py-12 text-center"><div class="inline-block w-8 h-8 border-4 border-[#F2F4F6] border-t-[#F7B500] rounded-full animate-spin"></div></div>`;
+            
+            try {
+                const { data, error } = await _supabase
+                    .from('booking')
+                    .select('*')
+                    .eq('phone', currentUserProfile.phone);
+
+                if (error) throw error;
+
+                const now = new Date();
+                const futureBookings = (data || []).filter(b => {
+                    if (!b.booking_date) return false;
+                    const timeStr = b.booking_time || '00:00';
+                    const bookingDateTime = new Date(`${b.booking_date}T${timeStr}:00`);
+                    return bookingDateTime >= now;
+                });
+
+                futureBookings.sort((a, b) => {
+                    const timeA = new Date(`${a.booking_date}T${a.booking_time || '00:00'}:00`).getTime();
+                    const timeB = new Date(`${b.booking_date}T${b.booking_time || '00:00'}:00`).getTime();
+                    return timeA - timeB;
+                });
+
+                const emptyStateHTML = `
+                    <div class="bg-white rounded-[24px] text-center py-10 mt-4 shadow-[0_4px_24px_rgba(0,0,0,0.04)]">
+                        <p class="text-[#8B95A1] font-bold text-[15px]">目前沒有未來的預約資料</p>
+                    </div>`;
+
+                if (futureBookings.length === 0) {
+                     list.innerHTML = emptyStateHTML;
+                    return;
+                }
+
+                let listHTML = futureBookings.map(b => {
+                    const dateText = `${b.booking_date} ${b.booking_time}`;
+                    const storeText = b.store || '黑盒子維修中心';
+
+                    return `
+                    <div class="bg-[#2C2C2E] border border-[#3A3A3D] rounded-[16px] p-5 mb-4 shadow-[0_4px_24px_rgba(0,0,0,0.08)] w-full box-border">
+                        <h4 class="text-[18px] font-bold text-white mb-2">預約資訊</h4>
+                        
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">門市</span>
+                            <span class="text-[15px] text-[#2BA769] font-bold flex-1">${storeText}</span>
+                        </div>
+                        
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">設備</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${b.device}</span>
+                        </div>
+                        
+                        <div class="flex py-3.5 border-b border-[#3A3A3D]">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">狀況</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${b.issue}</span>
+                        </div>
+                        
+                        <div class="flex pt-3.5">
+                            <span class="w-16 text-[15px] text-[#8E8E93] font-medium shrink-0 tracking-wide">時間</span>
+                            <span class="text-[15px] text-white font-medium flex-1">${dateText}</span>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+
+                listHTML += `<p class="text-[12px] text-[#8B95A1] text-center mt-6 mb-4 font-medium">若欲變更預約時段請聯繫客服人員，會員無法自行修改預約。</p>`;
+
+                list.innerHTML = listHTML;
+            } catch (err) {
+                console.error("預約紀錄載入失敗", err);
+                list.innerHTML = `<div class="text-center py-8"><p class="text-[#F04438] font-bold text-[14px]">載入失敗，請稍後再試</p></div>`;
+            }
+        }
+
+        function openQrSheet() {
+            const sheet = document.getElementById('qr-bottom-sheet');
+            const content = document.getElementById('qr-sheet-content');
+            sheet.style.display = 'flex';
+            content.style.animation = 'slideUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1)';
+            sheet.style.animation = 'fadeIn 0.3s ease-out';
+        }
+
+        function closeQrSheet() {
+            const sheet = document.getElementById('qr-bottom-sheet');
+            const content = document.getElementById('qr-sheet-content');
+            content.style.animation = 'slideDown 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1)';
+            sheet.style.animation = 'fadeOut 0.3s forwards ease-out';
+            setTimeout(() => { sheet.style.display = 'none'; }, 300); 
+        }
+
+        function openInfoModal() { document.getElementById('info-modal').style.display = 'flex'; }
+        function closeInfoModal() { document.getElementById('info-modal').style.display = 'none'; }
+        
+        function openComingSoonModal() { document.getElementById('coming-soon-modal').style.display = 'flex'; }
+        function closeComingSoonModal() { document.getElementById('coming-soon-modal').style.display = 'none'; }
+
+        function showMsg(title, msg) { 
+            document.getElementById('msg-title').innerText = title; 
+            document.getElementById('msg-body').innerText = msg; 
+            document.getElementById('msg-modal').style.display = 'flex'; 
+        }
+        function closeMsgModal() { document.getElementById('msg-modal').style.display = 'none'; }
+
+        function initSelects() {
+            const areaOpts = '<option value="">選擇區域</option>' + areaList.map(a => `<option value="${a}">${a}</option>`).join('');
+            document.getElementById('input-area').innerHTML = areaOpts;
+            document.getElementById('edit-area').innerHTML = areaOpts;
+
+            const yearSelect = document.getElementById('birth-year');
+            const monthSelect = document.getElementById('birth-month');
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear; i >= 1940; i--) yearSelect.options.add(new Option(i + '年', i));
+            for (let i = 1; i <= 12; i++) monthSelect.options.add(new Option(i + '月', i));
+            updateDays();
+        }
+
+        function updateDays() {
+            const year = parseInt(document.getElementById('birth-year').value);
+            const month = parseInt(document.getElementById('birth-month').value);
+            const daySelect = document.getElementById('birth-day');
+            const selectedDay = daySelect.value;
+            daySelect.innerHTML = '<option value="">日</option>';
+            if (year && month) {
+                const daysInMonth = new Date(year, month, 0).getDate();
+                for (let i = 1; i <= daysInMonth; i++) daySelect.options.add(new Option(i + '日', i));
+                if (selectedDay && selectedDay <= daysInMonth) daySelect.value = selectedDay;
+            }
+        }
+
+        async function initLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (!liff.isLoggedIn()) { liff.login(); } 
+                else {
+                    const profile = await liff.getProfile();
+                    currentUserLineId = profile.userId;
+                    checkMemberStatus(profile);
+                }
+            } catch (err) { console.error('Init Fail', err); }
+        }
+
+        async function checkMemberStatus(lineProfile) {
+            let { data } = await _supabase.from('profiles').select('*').eq('line_id', lineProfile.userId).single();
+            if (!data || !data.phone || !data.birthday) {
+                document.getElementById('profile-modal').style.display = 'flex';
+                document.getElementById('input-name').value = lineProfile.displayName || "";
+                document.getElementById('loading-overlay').style.display = 'none';
+            } else {
+                currentUserProfile = data;
+                renderApp(data, lineProfile.userId);
+            }
+        }
+
+        document.getElementById('input-phone').addEventListener('input', function(e) {
+            const regex = /^09\d{8}$/;
+            const errorEl = document.getElementById('phone-error');
+            if (e.target.value.length > 0 && !regex.test(e.target.value)) errorEl.classList.remove('hidden');
+            else errorEl.classList.add('hidden');
         });
 
-        function changeProcessImg(type, btn) {
-            document.querySelectorAll('#section-process .tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#section-process .display-img').forEach(i => i.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(`img-process-${type}`).classList.add('active');
+        async function saveProfile() {
+            const btn = document.getElementById('btn-save');
+            const name = document.getElementById('input-name').value;
+            const phone = document.getElementById('input-phone').value;
+            const year = document.getElementById('birth-year').value;
+            const month = document.getElementById('birth-month').value.padStart(2, '0');
+            const day = document.getElementById('birth-day').value.padStart(2, '0');
+            const email = document.getElementById('input-email').value;
+            const area = document.getElementById('input-area').value;
+
+            if (!name || !/^09\d{8}$/.test(phone) || !year || !month || !day) { showMsg('提醒', '請正確填寫所有必填欄位'); return; }
+            if (!currentUserLineId) { showMsg('系統錯誤', '無法取得 LINE ID'); return; }
+
+            btn.disabled = true; btn.innerText = "檢查中...";
+
+            try {
+                const { data: existingUser, error: checkError } = await _supabase.from('profiles').select('line_id').eq('phone', phone).maybeSingle();
+                if (checkError) throw checkError;
+                if (existingUser && existingUser.line_id !== currentUserLineId) {
+                    showMsg('註冊失敗', '此電話號碼已被註冊。');
+                    btn.disabled = false; btn.innerText = "確認加入";
+                    return; 
+                }
+
+                const birthday = `${year}-${month}-${day}`;
+                const { data, error } = await _supabase.from('profiles').upsert({
+                    line_id: currentUserLineId, full_name: name, phone: phone, 
+                    birthday: birthday, email: email, area: area, total_points: 0
+                }, { onConflict: 'line_id' }).select().single();
+
+                if (error) throw error;
+                document.getElementById('profile-modal').style.display = 'none';
+                currentUserProfile = data;
+                renderApp(data, currentUserLineId);
+            } catch (err) {
+                showMsg('儲存失敗', `錯誤代碼：${err.code || 'Unknown'}`);
+                btn.disabled = false; btn.innerText = "確認加入";
+            }
         }
 
-        function changePriceImg(type, btn) {
-            document.querySelectorAll('#section-prices .diamond-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#section-prices .display-img').forEach(i => i.classList.remove('active'));
-            btn.classList.add('active');
-            const target = document.getElementById(`img-price-${type}`);
-            if (target) target.classList.add('active');
+        function openEditModal() {
+            if (!currentUserProfile) return;
+            document.getElementById('edit-name').value = currentUserProfile.full_name;
+            document.getElementById('edit-phone').value = currentUserProfile.phone;
+            document.getElementById('edit-birthday').value = currentUserProfile.birthday;
+            document.getElementById('edit-area').value = currentUserProfile.area || "";
+            document.getElementById('edit-email').value = currentUserProfile.email || "";
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        async function updateProfile() {
+            const btn = document.getElementById('btn-update');
+            const newArea = document.getElementById('edit-area').value;
+            const newEmail = document.getElementById('edit-email').value;
+            btn.disabled = true; btn.innerText = "更新中...";
+
+            try {
+                const { data, error } = await _supabase.from('profiles').update({ area: newArea, email: newEmail }).eq('line_id', currentUserLineId).select().single();
+                if (error) throw error;
+                currentUserProfile = data;
+                showMsg('成功', '資料已更新');
+                document.getElementById('edit-modal').style.display = 'none';
+            } catch (err) { showMsg('更新失敗', '請稍後再試'); } 
+            finally { btn.disabled = false; btn.innerText = "儲存變更"; }
+        }
+
+        function renderApp(data, lineId) {
+            document.getElementById('m-name').innerText = data.full_name;
+            document.getElementById('m-points').innerText = (data.total_points || 0).toLocaleString();
+            document.getElementById('m-phone').innerText = data.phone;
+            syncIntegratedHomeValues();
+            
+            new QRious({ element: document.getElementById('qr-code'), value: 'BBX-' + lineId, size: 200, level: 'M' });
+            
+            document.getElementById('loading-overlay').style.display = 'none';
+            document.getElementById('main-content').classList.remove('hidden');
+            
+            switchTab('card');
+            loadYearlyConsumption();
+        }
+
+        function renderActivityTab() {
+            const container = document.getElementById('activity-container');
+            if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                const targetUrl = new URL(ACTIVITY_URL);
+                if (currentUserLineId) targetUrl.searchParams.set('uid', currentUserLineId);
+                container.innerHTML = `<iframe src="${targetUrl.toString()}" class="w-full h-full border-0"></iframe>`;
+            } else {
+                container.innerHTML = `<div class="h-[60vh] flex flex-col items-center justify-center text-center p-6"><div class="w-20 h-20 bg-[#F2F4F6] rounded-[24px] flex items-center justify-center mb-6 shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-[#8B95A1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><h3 class="text-[22px] font-bold text-[#191F28] mb-2">小黑盒驚喜</h3><p class="text-[#8B95A1] text-[15px] font-medium leading-relaxed">更多專屬活動與最新消息<br>即將在此登場，敬請期待！</p></div>`;
+            }
+        }
+
+        async function loadYearlyConsumption() {
+            const currentYear = new Date().getFullYear();
+            const startDate = `${currentYear}-01-01T00:00:00.000Z`;
+            
+            try {
+                const { count, error } = await _supabase
+                    .from('point_logs')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('line_id', currentUserLineId)
+                    .gte('created_at', startDate)
+                    .neq('store_name', '年度達成禮');
+                    
+                if (error) throw error;
+                
+                const times = count || 0;
+                currentYearlyConsumption = times; 
+                document.getElementById('yearly-count').innerText = times;
+                
+                const MAX_TIMES = 15;
+                const percentage = Math.min(times / MAX_TIMES, 1);
+                const dashoffset = 251.3 - (251.3 * percentage);
+                
+                setTimeout(() => {
+                    document.getElementById('progress-arc').style.strokeDashoffset = dashoffset;
+                    if(times >= 3) document.getElementById('node-1').style.stroke = '#F7B500';
+                    if(times >= 6) document.getElementById('node-2').style.stroke = '#F7B500';
+                    if(times >= 10) document.getElementById('node-3').style.stroke = '#F7B500';
+                    if(times >= 15) document.getElementById('node-4').style.stroke = '#F7B500';
+                }, 300);
+
+                // 【新增邏輯】當消費次數大於等於 15 次時，檢查是否全部領取完畢
+                if (times >= 15) {
+                    const { data: claimedData } = await _supabase.from('point_logs')
+                        .select('order_number')
+                        .eq('line_id', currentUserLineId)
+                        .like('order_number', `YR_${currentYear}_%`);
+
+                    const claimedMilestones = (claimedData || []).map(row => {
+                        const parts = row.order_number.split('_');
+                        return parseInt(parts[2]);
+                    });
+
+                    // 檢查是否 3, 6, 10, 15 四個節點都已領取
+                    if (claimedMilestones.includes(3) && claimedMilestones.includes(6) && 
+                        claimedMilestones.includes(10) && claimedMilestones.includes(15)) {
+                        
+                        const card = document.getElementById('yearly-card');
+                        if (card) {
+                            // 拔除點擊事件與手指圖示特效，使其不再可被點擊
+                            card.removeAttribute('onclick');
+                            card.classList.remove('cursor-pointer', 'active:scale-[0.98]', 'transition-transform');
+                        }
+                    }
+                }
+            } catch (err) { console.error('載入失敗', err); }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            const header = document.getElementById('main-header');
+            const pageTitle = document.getElementById('page-title');
+            const headerLogo = document.getElementById('header-logo');
+            const btnBack = document.getElementById('btn-back');
+            const actions = document.getElementById('header-actions');
+
+            if (tab === 'card') {
+                pageTitle.style.display = 'none';
+                headerLogo.style.display = 'block';
+                btnBack.classList.add('hidden');
+                actions.style.display = 'flex';
+                header.style.display = 'flex';
+                
+                header.classList.remove('pt-3', 'pb-2', 'min-h-[60px]');
+                header.classList.add('pt-7', 'pb-4', 'min-h-[80px]');
+            } 
+            else if (tab === 'coupon') {
+                pageTitle.innerText = '票券錢包';
+                pageTitle.style.display = 'block';
+                headerLogo.style.display = 'none';
+                btnBack.classList.remove('hidden');
+                actions.style.display = 'none';
+                header.style.display = 'flex';
+                
+                header.classList.remove('pt-7', 'pb-4', 'min-h-[80px]');
+                header.classList.add('pt-3', 'pb-2', 'min-h-[60px]');
+                
+                loadUserCoupons();
+            } 
+            else if (tab === 'blackbox') {
+                if (ACTIVITY_URL && ACTIVITY_URL.trim() !== '') {
+                    header.style.display = 'none';
+                } else {
+                    pageTitle.innerText = '小黑盒';
+                    pageTitle.style.display = 'block';
+                    headerLogo.style.display = 'none';
+                    btnBack.classList.remove('hidden');
+                    actions.style.display = 'none';
+                    header.style.display = 'flex';
+                    
+                    header.classList.remove('pt-7', 'pb-4', 'min-h-[80px]');
+                    header.classList.add('pt-3', 'pb-2', 'min-h-[60px]');
+                }
+            }
+        }
+
+
+        function syncIntegratedHomeValues(){
+            const points = document.getElementById('m-points')?.innerText || '0';
+            const mini = document.getElementById('m-points-mini');
+            if(mini) mini.innerText = points;
+        }
+
+        function openBookingFlow(){
+            document.getElementById('booking-flow-sheet').classList.add('active');
+        }
+        function closeBookingFlow(){
+            document.getElementById('booking-flow-sheet').classList.remove('active');
+        }
+
+        function closeServicePanel(){
+            document.getElementById('service-sheet').classList.remove('active');
+        }
+
+        function openServicePanel(type){
+            const title = document.getElementById('service-sheet-title');
+            const body = document.getElementById('service-sheet-body');
+            const data = {
+                search: {
+                    title:'查品搜尋',
+                    html:`<div class="info-card"><h3>商品與服務快速查詢</h3><p>這裡預留給之後整合商品搜尋、維修項目搜尋、報價查詢。第一版先不動會員資料與後台邏輯，避免影響會員功能。</p><button class="black-btn" onclick="openServicePanel('battery')">查看電池服務</button></div>`
+                },
+                device: {
+                    title:'我的裝置',
+                    html:`<div class="info-card"><h3>我的裝置</h3><p>可作為後續綁定客戶手機、筆電、維修紀錄的入口。此版本暫不新增資料表，避免影響既有 Supabase 架構。</p></div>`
+                },
+                battery: {
+                    title:'電池更換服務',
+                    html:`<div class="info-card"><h3>原廠品質・安心保證</h3><p>提供 iPhone 電池更換服務，可依門市現場檢測結果說明適合的維修方案。</p><ul class="list-disc pl-5 mt-3"><li>現場快速維修，資料不流失。</li><li>會員可查看優惠券與累積點數。</li><li>維修前由門市人員確認設備狀況。</li></ul><button class="black-btn" onclick="openBookingFlow()">立即預約維修</button></div>`
+                },
+                repair: {
+                    title:'現場維修服務',
+                    html:`<div class="info-card"><h3>快速維修，立即解決</h3><p>黑盒子維修中心提供手機、筆電與 3C 設備維修服務。可先線上預約，也可以依門市狀況現場諮詢。</p></div><div class="info-card"><h3>服務流程</h3><p>初步檢測 → 報價說明 → 確認維修 → 修後檢測 → 通知取件。</p></div>`
+                },
+                location: {
+                    title:'服務門市',
+                    html:`<div class="info-card"><h3>勤美公益店</h3><p>台中市西區公益路145號<br>每日 11:00-20:00<br>04-23015157</p><a class="black-btn" href="tel:0423015157">撥打電話</a></div><div class="info-card"><h3>沙鹿站前店</h3><p>台中市沙鹿區沙田路149號<br>每日 12:00-21:00<br>04-26633009</p><a class="black-btn" href="tel:0426633009">撥打電話</a></div>`
+                }
+            };
+            const item = data[type] || data.search;
+            title.innerText = item.title;
+            body.innerHTML = item.html;
+            document.getElementById('service-sheet').classList.add('active');
+        }
+
+        async function loadUserCoupons() {
+            const list = document.getElementById('coupon-list');
+            const today = new Date().toISOString().split('T')[0];
+
+            const { data, error } = await _supabase
+                .from('user_coupons')
+                .select('*')
+                .eq('line_id', currentUserLineId)
+                .eq('status', 'unused')
+                .order('created_at', { ascending: false });
+
+            const emptyStateHTML = `
+                <div class="toss-card text-center py-8 mt-4">
+                    <p class="text-[#4E5968] font-bold text-[16px]">目前沒有可用的優惠券</p>
+                </div>`;
+
+            if (error || !data || data.length === 0) {
+                 list.innerHTML = emptyStateHTML;
+                return;
+            }
+
+            const validCoupons = data.filter(c => !c.valid_until || c.valid_until >= today);
+
+            if (validCoupons.length === 0) {
+                 list.innerHTML = emptyStateHTML;
+                return;
+            }
+
+            validCoupons.sort((a, b) => {
+                if (a.valid_until && b.valid_until) return new Date(a.valid_until) - new Date(b.valid_until);
+                if (a.valid_until && !b.valid_until) return -1;
+                if (!a.valid_until && b.valid_until) return 1;
+                return 0;
+            });
+
+            currentCoupons = validCoupons;
+
+            list.innerHTML = validCoupons.map(coupon => {
+                const dateText = coupon.valid_until ? `有效期限：${coupon.valid_until}` : '永久有效';
+                let actionText = ''; 
+
+                if (coupon.type === 'cash') {
+                    actionText = `該票券可折抵 ${coupon.discount_amount || 0} 元`;
+                } else {
+                    actionText = '憑券到門市進行兌換';
+                }
+
+                return `
+                <div class="bg-white rounded-[24px] p-5 shadow-[0_4px_24px_rgba(0,0,0,0.04)] flex items-center justify-between cursor-pointer active:scale-[0.98] transition-transform w-full box-border" onclick="openCouponDetail('${coupon.id}')">
+                    <div class="flex flex-col pr-4 items-start flex-1 min-w-0">
+                        <h4 class="text-[17px] font-bold text-[#191F28] mb-1 leading-tight w-full break-words">${coupon.coupon_name}</h4>
+                        <p class="text-[14px] text-[#8B95A1] mb-2 font-medium w-full break-words">${actionText}</p>
+                        <p class="text-[12px] text-[#B0B8C1] font-medium">${dateText}</p>
+                    </div>
+                    <div class="shrink-0 w-11 h-11 bg-[#F2F4F6] rounded-full flex items-center justify-center shadow-sm">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+                `;
+            }).join('');
         }
     </script>
 </body>
