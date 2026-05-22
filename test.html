@@ -1,206 +1,411 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>BLACK BOX｜Fix My Device 2.0</title>
-  <meta name="description" content="BLACK BOX 黑盒子維修中心會員專區，提供維修預約、會員點數、優惠券、門市查詢與裝置維修服務。" />
-  <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2" />
-  <link rel="apple-touch-icon" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2" />
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>BLACK BOX 黑盒子維修中心 2.0</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-
   <style>
     :root{
-      --bb-blue:#246BFE;
-      --bb-blue-2:#4AA3FF;
-      --bb-ink:#101722;
-      --bb-muted:#6B7280;
-      --bb-card:rgba(255,255,255,.76);
-      --bb-line:rgba(255,255,255,.72);
-      --bb-shadow:0 18px 44px rgba(36,107,254,.16), 0 8px 18px rgba(16,23,34,.06);
-      --safe-bottom:env(safe-area-inset-bottom);
+      --bg:#eaf4ff;
+      --bg2:#f7fbff;
+      --blue:#2f72ff;
+      --blue2:#7db2ff;
+      --deep:#101824;
+      --text:#121826;
+      --muted:#627084;
+      --line:rgba(16,24,36,.10);
+      --card:rgba(255,255,255,.78);
+      --card2:rgba(255,255,255,.92);
+      --shadow:0 18px 45px rgba(45,104,190,.16);
+      --soft-shadow:0 10px 25px rgba(15,30,60,.10);
+      --radius:28px;
+      --safe-bottom:env(safe-area-inset-bottom, 0px);
     }
+
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    html,body{height:100%;margin:0;font-family:'Noto Sans TC',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--bb-ink);background:#ddecff;overscroll-behavior:none}
-    body{overflow:hidden;position:fixed;width:100%}
-    .app-shell{height:100dvh;max-width:430px;margin:0 auto;position:relative;overflow:hidden;background:radial-gradient(circle at 12% -8%,#fff 0,#dbeeff 34%,#cfe7ff 62%,#eff7ff 100%)}
-    .app-shell::before{content:"";position:absolute;inset:-80px -70px auto auto;width:280px;height:280px;border-radius:999px;background:rgba(255,255,255,.55);filter:blur(38px);z-index:0}
-    .page{position:relative;z-index:1;height:100%;overflow-y:auto;padding:18px 18px calc(104px + var(--safe-bottom));scrollbar-width:none;-webkit-overflow-scrolling:touch}
-    .page::-webkit-scrollbar{display:none}
-    .glass{background:var(--bb-card);border:1px solid var(--bb-line);box-shadow:var(--bb-shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-    .soft-card{background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(255,255,255,.62));border:1px solid rgba(255,255,255,.7);box-shadow:0 14px 34px rgba(16,23,34,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
-    .press{transition:transform .18s ease,filter .18s ease}.press:active{transform:scale(.965);filter:brightness(.98)}
-    .hero-phone{position:absolute;right:-14px;top:76px;width:150px;height:245px;border-radius:28px;border:6px solid #1b273a;background:linear-gradient(160deg,#7bbcff,#e7f4ff);box-shadow:0 20px 38px rgba(16,23,34,.22);transform:rotate(3deg)}
-    .hero-phone::before{content:"";position:absolute;top:0;left:43px;width:56px;height:15px;background:#1b273a;border-radius:0 0 12px 12px}.hero-phone::after{content:"";position:absolute;inset:42px 34px auto auto;width:54px;height:74px;border-radius:12px;background:linear-gradient(180deg,#eafffb,#9ee7ed);border:3px solid rgba(255,255,255,.9);box-shadow:0 8px 18px rgba(36,107,254,.22)}
-    .battery-bolt{position:absolute;right:52px;top:134px;font-size:30px;z-index:2;filter:drop-shadow(0 4px 10px rgba(0,0,0,.18))}.cloud{position:absolute;background:#fff;border-radius:999px;filter:drop-shadow(0 10px 12px rgba(36,107,254,.09));opacity:.9}.cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}.cloud.c1{width:70px;height:28px;right:143px;top:78px}.cloud.c1::before{width:34px;height:34px;left:14px;top:-18px}.cloud.c1::after{width:40px;height:40px;right:6px;top:-23px}.cloud.c2{width:88px;height:34px;right:-32px;top:208px}.cloud.c2::before{width:46px;height:46px;left:16px;top:-24px}.cloud.c2::after{width:55px;height:55px;right:8px;top:-28px}
-    .robot{position:absolute;right:6px;top:216px;width:92px;height:98px;z-index:4}.robot-head{width:72px;height:58px;background:#fff;border-radius:24px;margin-left:12px;box-shadow:0 12px 24px rgba(16,23,34,.12);position:relative}.robot-head::before,.robot-head::after{content:"";position:absolute;top:22px;width:8px;height:22px;background:#fff;border-radius:99px}.robot-head::before{left:-10px}.robot-head::after{right:-10px}.robot-face{position:absolute;inset:12px 12px;background:#101722;border-radius:16px}.robot-eye{position:absolute;top:15px;width:8px;height:20px;background:#fff;border-radius:99px}.robot-eye.e1{left:17px}.robot-eye.e2{right:17px}.robot-body{width:62px;height:52px;background:#fff;border-radius:24px 24px 28px 28px;margin:-6px auto 0;box-shadow:0 12px 24px rgba(16,23,34,.1);position:relative}.robot-body::after{content:"";position:absolute;width:24px;height:24px;background:#101722;left:19px;top:15px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
-    .float-label{position:absolute;z-index:5;border-radius:14px;padding:10px 14px;color:#fff;font-weight:900;letter-spacing:.02em;box-shadow:0 14px 22px rgba(36,107,254,.26);transform:rotate(-1deg)}
-    .float-label.blue{right:108px;top:145px;background:linear-gradient(135deg,#3b83ff,#1557e8)}.float-label.white{right:118px;top:222px;background:rgba(255,255,255,.9);color:#111827;box-shadow:0 12px 20px rgba(16,23,34,.12)}
-    .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.feature-card{min-height:126px;border-radius:24px;padding:18px;position:relative;overflow:hidden}.feature-card.wide{grid-column:span 2;min-height:86px}.feature-card.primary{background:linear-gradient(135deg,#3d8bff 0%,#1f68ff 70%);color:#fff}.feature-card.dark{background:linear-gradient(135deg,#263242,#111827);color:#fff}.blob-icon{position:absolute;right:-8px;bottom:-14px;font-size:84px;line-height:1;filter:drop-shadow(0 12px 14px rgba(16,23,34,.16))}
-    .quick-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:28px;overflow:hidden}.quick-btn{min-height:76px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative}.quick-btn:not(:last-child)::after{content:"";position:absolute;right:0;top:20px;height:36px;width:1px;background:rgba(16,23,34,.09)}
-    .bottom-nav{position:absolute;left:18px;right:18px;bottom:calc(12px + var(--safe-bottom));height:72px;border-radius:28px;z-index:60;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;padding:0 6px}.nav-item{height:62px;border:0;background:transparent;color:#687385;font-weight:800;font-size:11px;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}.nav-item.active{color:#101722}.nav-main{width:64px;height:64px;border-radius:50%;margin-top:-30px;background:linear-gradient(145deg,#27303a,#0f1720);color:white;box-shadow:0 16px 26px rgba(16,23,34,.28);display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:11px;font-weight:900;border:4px solid rgba(255,255,255,.72)}
-    .screen{display:none}.screen.active{display:block;animation:fadeUp .25s ease both}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .modal{position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.modal.show{display:flex}.sheet{position:fixed;inset:auto 0 0;z-index:1200;background:#20242c;color:white;border-radius:28px 28px 0 0;padding:14px 22px calc(26px + var(--safe-bottom));display:none;box-shadow:0 -24px 44px rgba(16,23,34,.28)}.sheet.show{display:block;animation:sheetUp .28s cubic-bezier(.2,.9,.2,1) both}@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .input{width:100%;height:50px;border:0;border-radius:16px;background:#f1f5f9;padding:0 14px;font-weight:800;outline:none}.input:focus{box-shadow:0 0 0 3px rgba(36,107,254,.14);background:white}.select-wrap{position:relative}.select-wrap::after{content:"⌄";position:absolute;right:15px;top:12px;color:#94a3b8;font-weight:900;pointer-events:none}.select-wrap select{appearance:none;-webkit-appearance:none}.lock{color:#8b95a1;background:#f1f5f9}.coupon-ticket{position:relative;overflow:hidden}.coupon-ticket::before,.coupon-ticket::after{content:"";position:absolute;top:50%;width:24px;height:24px;background:#eaf5ff;border-radius:50%;transform:translateY(-50%)}.coupon-ticket::before{left:-12px}.coupon-ticket::after{right:-12px}.loading{position:fixed;inset:0;z-index:2000;background:rgba(255,255,255,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}.spin{width:42px;height:42px;border-radius:50%;border:4px solid #dbeafe;border-top-color:var(--bb-blue);animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 70% 4%, rgba(120,177,255,.75) 0 16%, transparent 38%),
+        radial-gradient(circle at 9% 19%, rgba(255,255,255,.9) 0 18%, transparent 37%),
+        linear-gradient(180deg,#dcebff 0%,#f7fbff 50%,#eef6ff 100%);
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background-image:linear-gradient(rgba(255,255,255,.22) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.22) 1px, transparent 1px);
+      background-size:46px 46px;
+      mask-image:linear-gradient(to bottom,rgba(0,0,0,.55),transparent 62%);
+      z-index:-1;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font-family:inherit}
+    button{border:0;cursor:pointer}
+
+    .app{
+      width:min(100%, 480px);
+      min-height:100vh;
+      margin:0 auto;
+      position:relative;
+      padding:22px 20px calc(104px + var(--safe-bottom));
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-weight:800;
+      font-size:17px;
+      letter-spacing:.2px;
+      margin:2px 2px 22px;
+    }
+    .status-icons{display:flex;gap:6px;align-items:center;font-size:22px;color:#05070a}
+    .battery-pill{font-size:13px;font-weight:900;border:2px solid #05070a;border-radius:7px;padding:1px 5px;line-height:1.15}
+
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:28px}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .brand-mark{
+      width:42px;height:42px;border-radius:13px;background:#07090c;display:grid;place-items:center;box-shadow:0 9px 22px rgba(0,0,0,.16);flex:0 0 auto;
+    }
+    .cube{width:28px;height:28px;position:relative;transform:rotate(-45deg)}
+    .cube::before,.cube::after{content:"";position:absolute;inset:0;border:2px solid #fff;border-radius:2px;opacity:.95}
+    .cube::after{transform:translate(7px,7px);opacity:.75}
+    .brand-title{font-weight:950;font-size:18px;line-height:1;letter-spacing:.4px;white-space:nowrap}
+    .brand-sub{font-size:11px;letter-spacing:3px;color:#111827;margin-top:5px;font-weight:600;white-space:nowrap}
+    .quick-actions{display:flex;align-items:center;gap:10px}
+    .quick-btn{
+      width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);display:grid;place-items:center;box-shadow:var(--soft-shadow);position:relative;color:#0b1220;
+    }
+    .quick-btn iconify-icon{font-size:24px}
+    .quick-btn .bubble{position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:#0a0e15;color:#fff;border-radius:14px;padding:4px 9px;font-size:11px;font-weight:800;white-space:nowrap}
+
+    .hero{position:relative;margin-bottom:16px;min-height:362px}
+    .hero-copy{position:relative;z-index:2;width:57%;padding-top:10px}
+    .hello{font-size:17px;color:#41516a;margin-bottom:16px;font-weight:650}
+    .hero h1{margin:0 0 4px;font-size:31px;line-height:1.16;letter-spacing:-1.6px;font-weight:950;color:#0b1020}
+    .hero h2{margin:0 0 18px;font-size:35px;line-height:1.05;letter-spacing:-1.8px;font-weight:950;color:var(--blue)}
+    .hero p{margin:0 0 24px;font-size:16px;line-height:1.75;color:#4e5d72;font-weight:600}
+    .primary-btn{
+      min-height:54px;border-radius:999px;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;padding:0 23px;display:inline-flex;align-items:center;gap:12px;font-size:17px;font-weight:850;box-shadow:0 16px 26px rgba(5,12,24,.22), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .primary-btn iconify-icon{font-size:24px}
+
+    .hero-art{position:absolute;right:-18px;top:72px;width:62%;height:280px;z-index:1}
+    .phone{
+      position:absolute;right:38px;top:14px;width:142px;height:244px;border:8px solid #1b273c;border-radius:32px;transform:rotate(4deg);background:linear-gradient(155deg,#93c5ff,#e9f5ff);box-shadow:0 18px 32px rgba(28,81,164,.26);
+    }
+    .phone::before{content:"";position:absolute;top:-2px;left:39px;width:50px;height:14px;background:#1b273c;border-radius:0 0 12px 12px}
+    .phone::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:86px;border-radius:12px;background:linear-gradient(160deg,#8ff0e9,#fff);box-shadow:0 8px 20px rgba(30,101,196,.18)}
+    .bolt{position:absolute;right:84px;top:120px;font-size:45px;z-index:3;color:#111827;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
+    .discount{position:absolute;border-radius:17px;background:linear-gradient(145deg,#3180ff,#1d5eff);color:#fff;box-shadow:0 15px 25px rgba(47,114,255,.35);padding:14px 17px;left:0;top:92px;transform:rotate(-1deg);z-index:4}
+    .discount small{display:block;font-size:13px;font-weight:700;opacity:.9}.discount b{font-size:26px;letter-spacing:.3px}.discount span{font-size:18px;font-weight:900}
+    .discount.white{background:rgba(255,255,255,.94);color:#111;left:-26px;top:182px;padding:12px 20px;box-shadow:0 12px 18px rgba(12,34,75,.12)}.discount.white b{font-size:22px}.discount.white small{color:#293142}
+    .cloud{position:absolute;background:#fff;border-radius:999px;filter:drop-shadow(0 12px 20px rgba(80,128,180,.13));opacity:.92}.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}.cloud.c1{width:78px;height:31px;left:35px;top:0}.cloud.c1::before{width:37px;height:37px;left:13px;top:-18px}.cloud.c1::after{width:44px;height:44px;right:10px;top:-23px}.cloud.c2{width:108px;height:42px;right:-22px;bottom:34px}.cloud.c2::before{width:56px;height:56px;left:14px;top:-26px}.cloud.c2::after{width:62px;height:62px;right:14px;top:-31px}
+    .bb-robot{position:absolute;right:0;bottom:0;width:128px;height:128px;border-radius:50%;background:linear-gradient(145deg,#fff,#dde8f7);box-shadow:0 20px 35px rgba(24,67,135,.18);z-index:5}.bb-face{position:absolute;left:23px;top:25px;width:72px;height:56px;border-radius:22px;background:#070b13}.bb-eye{position:absolute;top:20px;width:10px;height:24px;border-radius:999px;background:#fff}.bb-eye.e1{left:20px}.bb-eye.e2{right:20px}.bb-ear{position:absolute;right:-8px;top:43px;width:24px;height:34px;border-radius:50%;background:linear-gradient(#fff,#dce8f8);box-shadow:inset 0 -5px 8px rgba(25,70,130,.12)}.bb-hand{position:absolute;left:-22px;bottom:21px;width:32px;height:62px;border-radius:20px;background:linear-gradient(#fff,#dce8f8);transform:rotate(24deg)}.wrench{position:absolute;left:-42px;bottom:40px;font-size:54px;color:#c5cfdd;transform:rotate(-12deg);z-index:6}.bb-logo{position:absolute;left:43px;bottom:20px;width:38px;height:38px;border-radius:10px;background:#07090c;display:grid;place-items:center;color:#fff;font-size:17px;font-weight:900}
+
+    .slider-pill{display:flex;align-items:center;gap:14px;width:max-content;min-width:94px;height:42px;border-radius:999px;background:rgba(255,255,255,.65);backdrop-filter:blur(14px);box-shadow:var(--soft-shadow);padding:0 15px;margin-bottom:14px;font-size:18px;font-weight:700;color:#4b5a6d}
+    .slider-pill button{background:transparent;color:#526071;font-size:28px;line-height:1;padding:0}
+
+    .glass-nav{display:grid;grid-template-columns:repeat(4,1fr);background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.75);border-radius:24px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px}
+    .nav-tile{min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;color:#121826;font-weight:850;font-size:15px;background:transparent}
+    .nav-tile:not(:last-child)::after{content:"";position:absolute;right:0;top:18%;height:64%;width:1px;background:rgba(17,24,39,.10)}
+    .nav-tile iconify-icon{font-size:38px;color:var(--blue);filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
+
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+    .feature-card{position:relative;min-height:134px;border-radius:23px;padding:18px;overflow:hidden;background:rgba(255,255,255,.82);box-shadow:var(--soft-shadow);border:1px solid rgba(255,255,255,.72)}
+    .feature-card.big{grid-row:span 2;min-height:232px;background:linear-gradient(150deg,#4d91ff 0%,#9fc9ff 58%,#eaf4ff 100%);color:#fff}.feature-card.dark{background:linear-gradient(140deg,#1d2738,#09101c);color:#fff}.feature-card.wide{grid-column:1/-1;min-height:86px}
+    .tag{display:inline-flex;align-items:center;border-radius:999px;background:rgba(255,255,255,.28);padding:5px 12px;font-size:12px;font-weight:850;margin-bottom:10px}.feature-card:not(.big):not(.dark) .tag{background:#e9f2ff;color:#2a61c8}
+    .feature-card h3{margin:0;font-size:20px;line-height:1.28;letter-spacing:-.4px}.feature-card.big h3{font-size:28px}.feature-card p{margin:9px 0 0;color:currentColor;opacity:.78;font-weight:650;font-size:13px;line-height:1.55}.feature-card .mini-btn{position:absolute;left:18px;bottom:18px;background:#fff;color:#0f172a;border-radius:999px;padding:10px 14px;font-size:14px;font-weight:900;display:inline-flex;align-items:center;gap:6px}.card-icon{position:absolute;right:12px;bottom:10px;font-size:86px;color:rgba(47,114,255,.9);filter:drop-shadow(0 12px 15px rgba(31,93,190,.18))}.big .card-icon{right:-5px;bottom:-3px;font-size:128px;color:#fff}.dark .card-icon{color:#70a7ff}.coin{color:#f7c545!important}
+
+    .member-strip{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.88);border-radius:21px;overflow:hidden;box-shadow:var(--soft-shadow);margin-top:14px}.member-item{display:flex;align-items:center;gap:12px;min-height:66px;padding:12px 16px;background:rgba(255,255,255,.72)}.member-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#2f72ff,#87b8ff);color:#fff;box-shadow:0 10px 17px rgba(47,114,255,.22)}.member-icon iconify-icon{font-size:28px}.member-text small{display:block;color:#68768b;font-weight:700;font-size:12px}.member-text b{font-size:18px;line-height:1.2}.member-arrow{margin-left:auto;color:#101827;font-size:23px}
+
+    .section{display:none;animation:fadeUp .28s ease both}.section.active{display:block}.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin:18px 0 16px}.page-title small{display:block;color:var(--blue);font-weight:950;margin-bottom:5px}.page-title h2{margin:0;font-size:30px;letter-spacing:-1px}.back-home{border-radius:999px;background:#0e1724;color:#fff;padding:10px 14px;font-weight:850}
+    .search-box{display:flex;gap:8px;background:rgba(255,255,255,.82);border-radius:22px;padding:10px;box-shadow:var(--soft-shadow);margin-bottom:12px}.search-box input,.search-box select{height:44px;border:0;outline:0;background:#f3f7fc;border-radius:15px;padding:0 12px;font-size:15px;min-width:0}.search-box input{flex:1}.search-box select{width:124px}.list{display:grid;gap:10px}.list-card{background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.75);border-radius:22px;padding:16px;box-shadow:var(--soft-shadow)}.list-card h3{margin:0 0 6px;font-size:18px}.list-card p{margin:0;color:#617085;line-height:1.6;font-size:14px}.price{margin-top:10px;color:var(--blue);font-size:22px;font-weight:950}.skeleton{height:86px;border-radius:22px;background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,.95),rgba(255,255,255,.55));background-size:200% 100%;animation:shine 1.2s linear infinite}.empty{padding:28px;text-align:center;color:#6b7789;background:rgba(255,255,255,.72);border-radius:22px;font-weight:700}
+
+    .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);padding:8px 18px calc(10px + var(--safe-bottom));z-index:50}.bottom-shell{height:72px;border-radius:28px 28px 0 0;background:rgba(255,255,255,.82);backdrop-filter:blur(26px);box-shadow:0 -16px 35px rgba(18,44,86,.14);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;border:1px solid rgba(255,255,255,.8)}.bottom-link{height:60px;background:transparent;color:#6b7688;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:850}.bottom-link iconify-icon{font-size:25px}.bottom-link.active{color:#05080d}.reserve-fab{width:72px;height:72px;margin-top:-38px;border-radius:50%;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;display:grid;place-items:center;box-shadow:0 18px 28px rgba(0,0,0,.25);border:5px solid rgba(255,255,255,.86);font-size:12px;font-weight:900}.reserve-fab iconify-icon{font-size:28px;margin-bottom:2px}
+
+    .modal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(5,10,20,.36);backdrop-filter:blur(8px)}.modal.show{display:flex}.modal-card{width:min(100%,480px);background:#fff;border-radius:30px 30px 0 0;padding:22px 20px calc(24px + var(--safe-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.2);animation:sheet .24s ease both}.modal-card h2{margin:0 0 16px}.form{display:grid;gap:10px}.form input,.form select,.form textarea{width:100%;border:0;background:#f2f6fb;border-radius:16px;padding:14px;font-size:16px;outline:0}.form textarea{min-height:90px;resize:vertical}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.submit-btn{height:52px;border-radius:18px;background:var(--blue);color:#fff;font-size:17px;font-weight:950}.ghost-btn{height:48px;border-radius:16px;background:#eef3f9;color:#1f2937;font-weight:900}
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    @keyframes shine{to{background-position:-200% 0}}
+    @keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+
+    @media (max-width:380px){
+      .app{padding-left:14px;padding-right:14px}.hero h1{font-size:27px}.hero h2{font-size:31px}.hero p{font-size:14px}.hero-copy{width:58%}.hero-art{right:-35px;width:67%}.nav-tile{font-size:13px}.nav-tile iconify-icon{font-size:34px}.feature-card{padding:15px}.feature-card h3{font-size:18px}.feature-card.big h3{font-size:25px}.quick-actions{gap:6px}.quick-btn{width:42px;height:42px}
+    }
   </style>
 </head>
 <body>
-  <div id="loading-overlay" class="loading"><div class="spin"></div><p class="text-[11px] tracking-[.28em] font-black text-slate-400">LOADING</p></div>
-
-  <div class="app-shell">
-    <div class="page">
-      <section id="screen-home" class="screen active">
-        <header class="flex items-start justify-between pt-2 mb-5">
-          <div>
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-2xl bg-black flex items-center justify-center shadow-lg">
-                <div class="w-6 h-6 bg-white" style="clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)"></div>
-              </div>
-              <div>
-                <h1 class="text-[24px] leading-none font-black tracking-wide">BLACK BOX</h1>
-                <p class="text-[11px] tracking-[.24em] font-bold">Fix My Device</p>
-              </div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button onclick="showMsg('客服','請透過 LINE 或門市電話聯繫客服人員。')" class="press w-12 h-12 rounded-full glass flex items-center justify-center"><iconify-icon icon="solar:chat-round-dots-bold" width="24"></iconify-icon></button>
-            <button onclick="showMsg('通知','目前沒有新的通知。')" class="press w-12 h-12 rounded-full glass flex items-center justify-center"><iconify-icon icon="solar:bell-bold" width="24"></iconify-icon></button>
-          </div>
-        </header>
-
-        <section class="relative min-h-[338px] mb-4">
-          <div class="cloud c1"></div><div class="cloud c2"></div><div class="hero-phone"></div><div class="battery-bolt">⚡</div>
-          <div class="float-label blue"><span class="text-[12px] block opacity-80">原廠電池</span><span class="text-[24px]">20% OFF</span></div>
-          <div class="float-label white"><span class="text-[12px] block opacity-70">認證電池</span><span class="text-[19px]">10% OFF</span></div>
-          <div class="robot"><div class="robot-head"><div class="robot-face"><i class="robot-eye e1"></i><i class="robot-eye e2"></i></div></div><div class="robot-body"></div></div>
-
-          <div class="absolute left-0 top-[78px] w-[235px]">
-            <p class="text-[17px] font-bold text-slate-600 mb-3">您好！👋</p>
-            <h2 class="text-[34px] leading-tight font-black tracking-[-.04em] mb-1">現在更換電池</h2>
-            <h3 class="text-[34px] leading-tight font-black tracking-[-.04em] text-[#1557e8] mb-4">最高享 20% 優惠</h3>
-            <p class="text-[16px] leading-7 font-bold text-slate-600">BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
-            <button onclick="scrollToDeals()" class="press mt-6 h-52px rounded-full bg-slate-950 text-white px-6 py-3 font-black shadow-xl">查看優惠詳情 <span class="pl-3">›</span></button>
-          </div>
-        </section>
-
-        <section class="quick-row glass mb-4">
-          <button class="quick-btn press" onclick="openServiceSearch()"><iconify-icon icon="solar:magnifer-bold-duotone" width="35" style="color:#246BFE"></iconify-icon><span class="text-[13px] font-black">查品搜尋</span></button>
-          <button class="quick-btn press" onclick="showScreen('device')"><iconify-icon icon="fluent-emoji:eyes" width="34"></iconify-icon><span class="text-[13px] font-black">我的裝置</span></button>
-          <button class="quick-btn press" onclick="openBookingModal()"><iconify-icon icon="fluent-emoji:spiral-calendar" width="34"></iconify-icon><span class="text-[13px] font-black">預約維修</span></button>
-          <button class="quick-btn press" onclick="showScreen('coupon')"><iconify-icon icon="fluent-emoji:ticket" width="34"></iconify-icon><span class="text-[13px] font-black">優惠券</span></button>
-        </section>
-
-        <section id="deals" class="feature-grid">
-          <button class="feature-card primary press text-left" onclick="openBatteryOffer()">
-            <p class="text-[13px] opacity-90 font-bold mb-3">電池更換</p><h3 class="text-[27px] leading-tight font-black">原廠品質<br>安心保證</h3><p class="text-[13px] font-bold mt-3 opacity-90">所有 iPhone 電池皆享優惠</p><span class="blob-icon">🔋</span>
-          </button>
-          <button class="feature-card soft-card press text-left" onclick="showMsg('現場維修服務','無需預約，現場也可以維修；熱門時段仍建議先線上預約。')">
-            <p class="text-[13px] text-slate-500 font-bold mb-2">現場維修服務</p><h3 class="text-[24px] leading-tight font-black">快速維修<br>立即解決！</h3><p class="text-[12px] font-bold text-slate-500 mt-2">無需預約，現場即可維修。</p><span class="blob-icon">🛠️</span>
-          </button>
-          <button class="feature-card dark press text-left" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'">
-            <p class="text-[13px] opacity-85 font-bold mb-2">線上預約</p><h3 class="text-[24px] leading-tight font-black">免等待<br>快速預約！</h3><p class="text-[12px] font-bold opacity-80 mt-2">選擇時間，輕鬆預約。</p><span class="blob-icon">🗓️</span>
-          </button>
-          <button class="feature-card soft-card press text-left" onclick="showScreen('store')">
-            <p class="text-[13px] text-slate-500 font-bold mb-2">門市查詢</p><h3 class="text-[24px] leading-tight font-black">尋找附近<br>門市</h3><p class="text-[12px] font-bold text-slate-500 mt-2">全台門市資訊快速查詢。</p><span class="blob-icon">📍</span>
-          </button>
-          <button class="feature-card soft-card press text-left" onclick="showScreen('member')">
-            <p class="text-[13px] text-slate-500 font-bold mb-2">會員專屬</p><h3 class="text-[24px] leading-tight font-black">累積點數<br>兌換好禮</h3><p class="text-[12px] font-bold text-slate-500 mt-2">更多會員專屬優惠等你來拿！</p><span class="blob-icon">💳</span>
-          </button>
-        </section>
-
-        <section class="grid grid-cols-2 gap-3 mt-4">
-          <button onclick="openQrSheet()" class="press glass rounded-[24px] p-4 flex items-center gap-3 text-left"><div class="w-12 h-12 rounded-full bg-[#246BFE] text-white grid place-items-center font-black text-2xl">P</div><div><p class="text-[12px] text-slate-500 font-bold">我的點數</p><p id="home-points" class="text-[20px] font-black">0 P</p></div></button>
-          <button onclick="showScreen('coupon')" class="press glass rounded-[24px] p-4 flex items-center gap-3 text-left"><div class="w-12 h-12 rounded-2xl bg-[#246BFE] text-white grid place-items-center text-2xl">%</div><div><p class="text-[12px] text-slate-500 font-bold">優惠券</p><p id="home-coupons" class="text-[20px] font-black">0 張</p></div></button>
-        </section>
-      </section>
-
-      <section id="screen-member" class="screen">
-        <div class="flex items-center justify-between pt-3 mb-5"><h2 class="text-[28px] font-black">會員專區</h2><button onclick="openEditModal()" class="press w-11 h-11 rounded-full glass grid place-items-center"><iconify-icon icon="solar:settings-bold" width="22"></iconify-icon></button></div>
-        <div class="rounded-[30px] p-6 text-white mb-4" style="background:linear-gradient(135deg,#111827,#020617);box-shadow:0 24px 42px rgba(2,6,23,.28)">
-          <p class="text-[11px] uppercase tracking-[.24em] text-slate-400 font-black mb-3">BLACK BOX MEMBER</p>
-          <div class="flex items-start justify-between"><div><p class="text-[13px] text-slate-400 font-bold">Member Name</p><h3 id="m-name" class="text-[24px] font-black mt-1">---</h3></div><div class="text-right"><p class="text-[13px] text-slate-400 font-bold">Points</p><p id="m-points" class="text-[34px] leading-none font-black text-blue-300">0</p></div></div>
-          <div class="mt-10 flex justify-between items-end"><div><p class="text-[11px] uppercase tracking-[.2em] text-slate-500 font-black mb-2">Phone Number</p><p id="m-phone" class="font-mono text-[15px] tracking-[.16em] text-slate-200">---</p></div><span class="px-4 py-2 rounded-2xl bg-white/10 text-[11px] font-black tracking-[.2em]">MEMBER</span></div>
-        </div>
-        <div id="yearly-card" class="soft-card rounded-[28px] p-6 mb-4 press" onclick="handleYearlyCardClick()">
-          <div class="flex items-center justify-between"><div><p class="text-[13px] text-slate-500 font-bold">年度達成禮</p><h3 class="text-[24px] font-black mt-1">今年已消費 <span id="yearly-count">0</span> 次</h3><p class="text-[13px] text-slate-500 font-bold mt-2">達成 3 / 6 / 10 / 15 次可開啟驚喜盒</p></div><iconify-icon icon="fluent-emoji:wrapped-gift" width="64"></iconify-icon></div>
-          <div class="h-3 rounded-full bg-slate-200 mt-5 overflow-hidden"><div id="progress-bar" class="h-full rounded-full bg-gradient-to-r from-blue-400 to-blue-700" style="width:0%"></div></div>
-        </div>
-        <div class="grid grid-cols-2 gap-3"><button class="press soft-card rounded-[24px] p-5 text-left" onclick="openQrSheet()"><iconify-icon icon="solar:qr-code-bold-duotone" width="36"></iconify-icon><h3 class="text-[18px] font-black mt-3">會員條碼</h3><p class="text-[12px] text-slate-500 font-bold mt-1">掃碼累積或兌換點數</p></button><button class="press soft-card rounded-[24px] p-5 text-left" onclick="openInfoModal()"><iconify-icon icon="solar:info-circle-bold-duotone" width="36"></iconify-icon><h3 class="text-[18px] font-black mt-3">積分說明</h3><p class="text-[12px] text-slate-500 font-bold mt-1">查看折抵與使用規則</p></button></div>
-      </section>
-
-      <section id="screen-coupon" class="screen"><div class="flex items-center justify-between pt-3 mb-5"><h2 class="text-[28px] font-black">優惠券</h2><button onclick="loadUserCoupons()" class="press w-11 h-11 rounded-full glass grid place-items-center"><iconify-icon icon="solar:refresh-bold" width="22"></iconify-icon></button></div><div id="coupon-list" class="space-y-4"><div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">載入中...</div></div></section>
-      <section id="screen-device" class="screen"><div class="pt-3 mb-5"><h2 class="text-[28px] font-black">我的裝置</h2><p class="text-slate-500 font-bold mt-1">此區先保留給後續裝置綁定、維修紀錄與保固查詢。</p></div><div class="soft-card rounded-[28px] p-6"><iconify-icon icon="solar:smartphone-bold-duotone" width="62" style="color:#246BFE"></iconify-icon><h3 class="text-[24px] font-black mt-3">裝置資料庫</h3><p class="text-[14px] text-slate-500 font-bold leading-7 mt-2">後續可以加入：我的手機型號、維修紀錄、保固日期、電池健康度紀錄、報價查詢連動。</p></div></section>
-      <section id="screen-store" class="screen"><div class="pt-3 mb-5"><h2 class="text-[28px] font-black">服務門市</h2></div><div class="space-y-4"><div class="soft-card rounded-[28px] p-5"><h3 class="text-[22px] font-black">勤美公益店</h3><p class="text-[14px] text-slate-500 font-bold mt-2 leading-7">台中市西區公益路145號<br>每日 11:00-20:00<br>04-23015157</p><button onclick="window.location.href='https://maps.app.goo.gl/tKzhoHtaeiHUD1d76?g_st=ic'" class="press mt-4 rounded-full bg-slate-950 text-white px-5 py-3 font-black">開啟地圖</button></div><div class="soft-card rounded-[28px] p-5"><h3 class="text-[22px] font-black">沙鹿站前店</h3><p class="text-[14px] text-slate-500 font-bold mt-2 leading-7">台中市沙鹿區沙田路149號<br>每日 12:00-21:00<br>04-26633009</p><button onclick="window.location.href='https://maps.app.goo.gl/rppbPCmLMn7TUNiv7?g_st=ic'" class="press mt-4 rounded-full bg-slate-950 text-white px-5 py-3 font-black">開啟地圖</button></div></div></section>
+  <main class="app">
+    <div class="status">
+      <div>9:41</div>
+      <div class="status-icons"><iconify-icon icon="solar:signal-bold"></iconify-icon><iconify-icon icon="solar:wi-fi-router-bold"></iconify-icon><span class="battery-pill">100</span></div>
     </div>
 
-    <nav class="bottom-nav glass">
-      <button class="nav-item active" data-nav="home" onclick="showScreen('home')"><iconify-icon icon="solar:home-bold" width="25"></iconify-icon><span>首頁</span></button>
-      <button class="nav-item" data-nav="store" onclick="showScreen('store')"><iconify-icon icon="solar:shop-bold-duotone" width="25"></iconify-icon><span>門市</span></button>
-      <button class="nav-item" onclick="openBookingModal()"><span class="nav-main"><iconify-icon icon="solar:wrench-bold" width="25"></iconify-icon><span>預約維修</span></span></button>
-      <button class="nav-item" data-nav="coupon" onclick="showScreen('coupon')"><iconify-icon icon="solar:ticket-sale-bold-duotone" width="25"></iconify-icon><span>優惠券</span></button>
-      <button class="nav-item" data-nav="member" onclick="showScreen('member')"><iconify-icon icon="solar:user-bold-duotone" width="25"></iconify-icon><span>會員專區</span></button>
-    </nav>
+    <header class="topbar">
+      <a class="brand" href="#home" data-route="home" aria-label="BLACK BOX 首頁">
+        <div class="brand-mark"><div class="cube"></div></div>
+        <div><div class="brand-title">BLACK BOX</div><div class="brand-sub">Fix My Device</div></div>
+      </a>
+      <div class="quick-actions">
+        <button class="quick-btn" data-open-cs aria-label="客服"><span class="bubble">客服</span><iconify-icon icon="solar:chat-round-dots-bold-duotone"></iconify-icon></button>
+        <button class="quick-btn" aria-label="通知"><iconify-icon icon="solar:bell-bold-duotone"></iconify-icon></button>
+        <button class="quick-btn" data-route="wallet" aria-label="會員錢包"><iconify-icon icon="solar:bag-4-bold-duotone"></iconify-icon></button>
+      </div>
+    </header>
+
+    <section id="home" class="section active">
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="hello">您好！ 👋</div>
+          <h1>現在更換電池</h1>
+          <h2>最高享 20% 優惠</h2>
+          <p>BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
+          <button class="primary-btn" data-route="wallet">查看優惠詳情 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="cloud c1"></div><div class="cloud c2"></div>
+          <div class="phone"></div><iconify-icon class="bolt" icon="solar:bolt-bold"></iconify-icon>
+          <div class="discount"><small>原廠電池</small><b>20%</b> <span>OFF</span></div>
+          <div class="discount white"><small>認證電池</small><b>10% OFF</b></div>
+          <iconify-icon class="wrench" icon="solar:plain-3-bold-duotone"></iconify-icon>
+          <div class="bb-robot"><div class="bb-face"><span class="bb-eye e1"></span><span class="bb-eye e2"></span></div><div class="bb-ear"></div><div class="bb-hand"></div><div class="bb-logo">▱</div></div>
+        </div>
+      </div>
+
+      <div class="slider-pill"><span>1 / 3</span><button>＋</button></div>
+
+      <nav class="glass-nav" aria-label="主要功能">
+        <button class="nav-tile" data-route="search"><iconify-icon icon="solar:magnifer-bold-duotone"></iconify-icon><span>產品搜尋</span></button>
+        <button class="nav-tile" data-route="stores"><iconify-icon icon="solar:shop-bold-duotone"></iconify-icon><span>門市專區</span></button>
+        <button class="nav-tile" data-route="flow"><iconify-icon icon="solar:checklist-minimalistic-bold-duotone"></iconify-icon><span>服務流程</span></button>
+        <button class="nav-tile" data-route="quote"><iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon><span>維修報價</span></button>
+      </nav>
+
+      <section class="cards">
+        <article class="feature-card big"><span class="tag">精選服務</span><h3>專業維修<br>安心首選</h3><p>專業團隊・原廠零件・安心保固</p><button class="mini-btn" data-route="flow">立即了解 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button><iconify-icon class="card-icon" icon="solar:case-round-bold-duotone"></iconify-icon></article>
+        <article class="feature-card"><span>現場維修服務</span><h3>快速維修<br>立即解決！</h3><p>無需預約，現場即可維修。</p><iconify-icon class="card-icon" icon="solar:smartphone-update-bold-duotone"></iconify-icon></article>
+        <article class="feature-card dark"><span>線上預約</span><h3>免等待<br>快速預約！</h3><p>選擇時間，輕鬆預約不必久候。</p><iconify-icon class="card-icon" icon="solar:calendar-mark-bold-duotone"></iconify-icon></article>
+        <article class="feature-card"><span>維修案例</span><h3>真實案例<br>安心保障</h3><p>多種維修案例，專業品質看得見。</p><iconify-icon class="card-icon" icon="solar:gallery-wide-bold-duotone"></iconify-icon></article>
+        <article class="feature-card"><span>會員專屬</span><h3>累積點數<br>兌換好禮</h3><p>更多會員專屬優惠等你來拿！</p><iconify-icon class="card-icon coin" icon="solar:dollar-bold-duotone"></iconify-icon></article>
+      </section>
+
+      <div class="member-strip">
+        <button class="member-item" data-route="wallet"><span class="member-icon"><iconify-icon icon="solar:letter-p-bold"></iconify-icon></span><span class="member-text"><small>我的點數</small><b id="homePoints">12,500 P</b></span><iconify-icon class="member-arrow" icon="solar:alt-arrow-right-linear"></iconify-icon></button>
+        <button class="member-item" data-route="wallet"><span class="member-icon"><iconify-icon icon="solar:ticket-sale-bold-duotone"></iconify-icon></span><span class="member-text"><small>優惠券</small><b id="homeCoupons">3 張</b></span><iconify-icon class="member-arrow" icon="solar:alt-arrow-right-linear"></iconify-icon></button>
+      </div>
+    </section>
+
+    <section id="search" class="section">
+      <div class="page-head"><div class="page-title"><small>PRODUCT SEARCH</small><h2>產品搜尋</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="search-box"><input id="productKeyword" placeholder="搜尋型號、商品或維修項目"><select id="productType"><option value="">全部分類</option><option value="battery">電池</option><option value="screen">螢幕</option><option value="repair">維修</option></select></div>
+      <div id="productList" class="list"></div>
+    </section>
+
+    <section id="stores" class="section">
+      <div class="page-head"><div class="page-title"><small>STORES</small><h2>門市專區</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div id="storeList" class="list"></div>
+    </section>
+
+    <section id="flow" class="section">
+      <div class="page-head"><div class="page-title"><small>SERVICE FLOW</small><h2>服務流程</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div id="flowList" class="list"></div>
+    </section>
+
+    <section id="quote" class="section">
+      <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="search-box"><input id="quoteKeyword" placeholder="輸入 iPhone 型號或維修項目"><select id="quoteCategory"><option value="">全部報價</option><option value="battery">電池</option><option value="screen">螢幕</option><option value="backglass">背蓋</option><option value="storage">容量擴充</option></select></div>
+      <div id="quoteList" class="list"></div>
+    </section>
+
+    <section id="wallet" class="section">
+      <div class="page-head"><div class="page-title"><small>MEMBER WALLET</small><h2>會員錢包</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div id="walletList" class="list"></div>
+    </section>
+
+    <section id="booking" class="section">
+      <div class="page-head"><div class="page-title"><small>BOOKING</small><h2>預約維修</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="list-card"><h3>快速預約</h3><p>填寫資料後可送出到 Supabase 的 <b>bookings</b> 資料表。若您目前資料庫尚未建立 bookings 表，請先建立欄位。</p><button class="submit-btn" style="margin-top:14px;width:100%" data-open-booking>開始預約</button></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="底部選單">
+    <div class="bottom-shell">
+      <button class="bottom-link active" data-route="home"><iconify-icon icon="solar:home-2-bold"></iconify-icon><span>首頁</span></button>
+      <button class="bottom-link" data-route="wallet"><iconify-icon icon="solar:wallet-money-bold-duotone"></iconify-icon><span>會員錢包</span></button>
+      <button class="bottom-link reserve-fab" data-route="booking"><iconify-icon icon="solar:plain-3-bold"></iconify-icon><span>預約維修</span></button>
+      <button class="bottom-link" data-route="quote"><iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon><span>我的預約</span></button>
+      <button class="bottom-link" data-route="wallet"><iconify-icon icon="solar:user-rounded-bold-duotone"></iconify-icon><span>會員專區</span></button>
+    </div>
+  </nav>
+
+  <div class="modal" id="bookingModal" aria-hidden="true">
+    <div class="modal-card">
+      <h2>預約維修</h2>
+      <form class="form" id="bookingForm">
+        <input name="name" placeholder="姓名" required>
+        <input name="phone" placeholder="手機號碼" required>
+        <div class="form-row"><select name="store"><option>勤美公益店</option><option>沙鹿站前店</option></select><input name="date" type="date" required></div>
+        <div class="form-row"><input name="time" type="time" required><input name="model" placeholder="裝置型號"></div>
+        <textarea name="issue" placeholder="故障狀況 / 想維修的項目"></textarea>
+        <button class="submit-btn" type="submit">送出預約</button>
+        <button class="ghost-btn" type="button" data-close-modal>稍後再說</button>
+      </form>
+    </div>
   </div>
 
-  <div id="qr-bottom-sheet" class="sheet" onclick="event.stopPropagation()"><div class="w-10 h-1.5 bg-white/20 rounded-full mx-auto mb-5"></div><div class="text-center"><h3 class="text-[19px] font-black">掃碼賺取或兌換積分</h3><div class="inline-block bg-white rounded-[22px] p-4 my-5"><canvas id="qr-code"></canvas></div><p class="text-white/65 text-[13px] font-bold leading-6">請向門市服務人員出示您的會員二維碼</p><button onclick="closeQrSheet()" class="press mt-6 w-full h-14 rounded-2xl bg-white text-slate-950 font-black">完成</button></div></div>
-
-  <div id="booking-modal" class="modal"><div class="w-full max-w-[390px] max-h-[86dvh] rounded-[30px] bg-[#edf6ff] p-5 overflow-y-auto"><div class="flex items-center justify-between mb-4"><h3 class="text-[24px] font-black">我的預約</h3><button onclick="closeBookingModal()" class="press w-10 h-10 rounded-full bg-white grid place-items-center">✕</button></div><button onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'" class="press w-full h-14 rounded-2xl bg-[#246BFE] text-white font-black mb-4">＋ 新增預約</button><div id="booking-list" class="space-y-3"><div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">載入中...</div></div></div></div>
-  <div id="info-modal" class="modal"><div class="w-full max-w-[330px] rounded-[30px] bg-white p-7 text-center"><iconify-icon icon="solar:star-bold-duotone" width="58" style="color:#246BFE"></iconify-icon><h3 class="text-[24px] font-black mt-2">會籍積分</h3><p class="text-[15px] text-slate-600 font-bold leading-7 mt-3">每 10 積分可折抵消費金額 10 元。</p><div class="bg-slate-100 rounded-2xl p-4 mt-5 text-left text-[12px] text-slate-500 font-bold leading-6"><p>・若有退款或違規使用，系統會追回已發放之積分。</p><p>・目前適用於勤美公益店、沙鹿站前店。</p><p>・積分與票券綁定會員 LINE 帳號。</p></div><button onclick="closeInfoModal()" class="press mt-5 w-full h-13 rounded-2xl bg-slate-950 text-white font-black py-3">我知道了</button></div></div>
-  <div id="msg-modal" class="modal"><div class="w-full max-w-[310px] rounded-[30px] bg-white p-7 text-center"><h3 id="msg-title" class="text-[24px] font-black">提示</h3><p id="msg-body" class="text-[15px] text-slate-600 font-bold leading-7 my-5">---</p><button onclick="closeMsgModal()" class="press w-full rounded-2xl bg-[#246BFE] text-white font-black py-3">確定</button></div></div>
-  <div id="profile-modal" class="modal"><div class="w-full max-w-[370px] rounded-[30px] bg-white p-6"><h3 class="text-[25px] font-black">加入會員</h3><p class="text-[11px] text-slate-400 font-black tracking-[.24em] mb-5">MEMBER PROFILE</p><div class="space-y-3"><input id="input-name" class="input" placeholder="真實姓名 *"><input id="input-phone" class="input" maxlength="10" inputmode="tel" placeholder="連絡電話 *"><p id="phone-error" class="hidden text-[12px] text-red-500 font-bold">電話格式錯誤，請輸入 09 開頭共 10 碼</p><div class="grid grid-cols-3 gap-2"><div class="select-wrap"><select id="birth-year" onchange="updateDays()" class="input"><option value="">年</option></select></div><div class="select-wrap"><select id="birth-month" onchange="updateDays()" class="input"><option value="">月</option></select></div><div class="select-wrap"><select id="birth-day" class="input"><option value="">日</option></select></div></div><div class="select-wrap"><select id="input-area" class="input"></select></div><input id="input-email" type="email" class="input" placeholder="電子信箱"><button id="btn-save" onclick="saveProfile()" class="press w-full h-14 rounded-2xl bg-[#246BFE] text-white font-black">確認加入</button></div></div></div>
-  <div id="edit-modal" class="modal"><div class="w-full max-w-[370px] rounded-[30px] bg-white p-6"><div class="flex justify-between items-center mb-4"><div><h3 class="text-[25px] font-black">個人資料</h3><p class="text-[11px] text-slate-400 font-black tracking-[.24em]">EDIT PROFILE</p></div><button onclick="closeEditModal()" class="press w-10 h-10 rounded-full bg-slate-100 grid place-items-center">✕</button></div><div class="space-y-3"><input id="edit-name" disabled class="input lock"><input id="edit-phone" disabled class="input lock"><input id="edit-birthday" disabled class="input lock"><div class="select-wrap"><select id="edit-area" class="input"></select></div><input id="edit-email" type="email" class="input"><button id="btn-update" onclick="updateProfile()" class="press w-full h-14 rounded-2xl bg-[#246BFE] text-white font-black">儲存變更</button></div></div></div>
-  <div id="coupon-detail-modal" class="modal"><div class="w-full max-w-[340px] rounded-[30px] bg-white p-6 text-center"><div id="cd-icon-container"></div><h3 id="cd-title" class="text-[21px] font-black mt-3">---</h3><p id="cd-date" class="text-[13px] text-green-600 font-black mt-2">---</p><div class="border-t border-dashed border-slate-200 my-5"></div><canvas id="cd-qrcode" class="mx-auto"></canvas><p id="cd-id" class="font-mono text-[12px] text-slate-500 tracking-[.16em] mt-3">---</p><p id="cd-desc" class="text-[14px] text-slate-600 font-bold leading-7 mt-5">---</p><button onclick="closeCouponDetail()" class="press mt-6 w-full rounded-2xl bg-green-600 text-white font-black py-3">關閉票券</button></div></div>
-  <div id="surprise-box-modal" class="modal"><div class="w-full max-w-[320px] rounded-[30px] bg-white p-7 text-center"><h3 class="text-[25px] font-black">年度達成禮</h3><p class="text-[11px] tracking-[.2em] font-black text-slate-400">MILESTONE REWARD</p><button id="sp-box-img" onclick="triggerBoxAnimation()" class="press text-[92px] mt-5">🎁</button><p id="sp-box-instruction" class="font-black text-[#246BFE] mt-2">點擊開啟驚喜盒！</p><div id="sp-box-reward-info" class="hidden"><div class="bg-slate-100 rounded-2xl py-4 my-4"><p class="text-[12px] text-slate-500 font-bold">恭喜獲得</p><p id="sp-reward-title" class="text-[22px] font-black">---</p></div><button id="sp-claim-btn" onclick="claimYearlyReward()" class="press w-full rounded-2xl bg-[#246BFE] text-white font-black py-3">領取獎勵</button></div></div></div>
-  <div id="milestone-locked-modal" class="modal"><div class="w-full max-w-[290px] rounded-[28px] bg-white p-7 text-center"><iconify-icon icon="solar:lock-keyhole-bold-duotone" width="58" style="color:#94a3b8"></iconify-icon><h3 class="text-[22px] font-black mt-2">成就尚未達成</h3><p class="text-[14px] text-slate-500 font-bold leading-7 mt-3">取得配件或玻璃貼更換服務，可加速取得年度達成禮。</p><button onclick="hideModal('milestone-locked-modal')" class="press mt-5 w-full rounded-2xl bg-slate-950 text-white font-black py-3">我知道了</button></div></div>
-
   <script>
-    const LIFF_ID = '2008733642-8wMmnKuw';
     const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    let currentUserLineId = null, currentUserProfile = null, currentCoupons = [], currentYearlyConsumption = 0, currentClaimingMilestone = 0;
-    const areaList = ['西屯區','沙鹿區','中區','東區','西區','南區','北區','北屯區','南屯區','太平區','大里區','霧峰區','烏日區','豐原區','后里區','石岡區','東勢區','和平區','新社區','潭子區','大雅區','神岡區','大肚區','龍井區','梧棲區','清水區','大甲區','外埔區','大安區','台北市','新北市','桃園市','基隆縣','新竹市','新竹縣','苗栗縣','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','花蓮縣','台東縣','離島地區'];
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIc3N1cGFyYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    window.addEventListener('DOMContentLoaded', async()=>{initSelects(); bindPhoneCheck(); await initLiff();});
-    function showModal(id){document.getElementById(id).classList.add('show')} function hideModal(id){document.getElementById(id).classList.remove('show')}
-    function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+name).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.nav===name)); if(name==='coupon') loadUserCoupons();}
-    function scrollToDeals(){document.getElementById('deals').scrollIntoView({behavior:'smooth',block:'start'})}
-    function showMsg(t,b){document.getElementById('msg-title').innerText=t;document.getElementById('msg-body').innerText=b;showModal('msg-modal')} function closeMsgModal(){hideModal('msg-modal')}
-    function openInfoModal(){showModal('info-modal')} function closeInfoModal(){hideModal('info-modal')} function openEditModal(){if(!currentUserProfile){showMsg('尚未登入','請先完成會員登入或加入會員。');return} fillEditForm(); showModal('edit-modal')} function closeEditModal(){hideModal('edit-modal')}
-    function openQrSheet(){document.getElementById('qr-bottom-sheet').classList.add('show')} function closeQrSheet(){document.getElementById('qr-bottom-sheet').classList.remove('show')}
-    function openServiceSearch(){showMsg('查品搜尋','此按鈕先保留為服務／商品搜尋入口，後續可接上價格查詢、維修品項搜尋或 Supabase 資料庫。')}
-    function openBatteryOffer(){showMsg('電池更換優惠','原廠電池最高享 20% 優惠，認證電池最高享 10% 優惠。後續可接上你的電池價格查詢頁。')}
+    const $ = (s, root=document) => root.querySelector(s);
+    const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 
-    function initSelects(){const areaOpts='<option value="">選擇居住區域</option>'+areaList.map(a=>`<option value="${a}">${a}</option>`).join('');['input-area','edit-area'].forEach(id=>document.getElementById(id).innerHTML=areaOpts);const y=document.getElementById('birth-year');const now=new Date().getFullYear();for(let i=now-10;i>=now-90;i--) y.insertAdjacentHTML('beforeend',`<option value="${i}">${i}</option>`);const m=document.getElementById('birth-month');for(let i=1;i<=12;i++)m.insertAdjacentHTML('beforeend',`<option value="${String(i).padStart(2,'0')}">${i}</option>`);updateDays()}
-    function updateDays(){const y=document.getElementById('birth-year').value,m=document.getElementById('birth-month').value,d=document.getElementById('birth-day');const cur=d.value;d.innerHTML='<option value="">日</option>';const days=y&&m?new Date(y,Number(m),0).getDate():31;for(let i=1;i<=days;i++){const v=String(i).padStart(2,'0');d.insertAdjacentHTML('beforeend',`<option value="${v}">${i}</option>`)} if(cur)d.value=cur;}
-    function bindPhoneCheck(){document.getElementById('input-phone').addEventListener('input',e=>{document.getElementById('phone-error').classList.toggle('hidden',/^09\d{8}$/.test(e.target.value)||!e.target.value)})}
+    const fallback = {
+      stores: [
+        { name:'勤美公益店', address:'台中市西區公益路145號', hours:'每日 11:00-20:00', phone:'04-23015157', map_url:'https://maps.app.goo.gl/tKzhoHtaeiHUD1d76?g_st=ic' },
+        { name:'沙鹿站前店', address:'台中市沙鹿區沙田路149號', hours:'每日 12:00-21:00', phone:'04-26633009', map_url:'https://maps.app.goo.gl/rppbPCmLMn7TUNiv7?g_st=ic' }
+      ],
+      flows: [
+        { title:'手機維修流程', description:'初步評估報價 → 功能檢測 → 拆機檢修 → 更換零件 → 修後檢測 → 通知取件 → 現場交機' },
+        { title:'筆電維修流程', description:'初步檢測 → 報價確認 → 等候料件 → 完整維修 → 整機檢測 → 現場交機' },
+        { title:'資料救援流程', description:'初步介紹 → 填寫維修單 → 實驗室檢測報價 → 確認檔案清單 → 備份資料 → 現場驗收' }
+      ],
+      quotes: [
+        { model:'iPhone 15 Pro', category:'battery', item:'原廠電池更換', price:3390, note:'現場快速更換，資料不流失。' },
+        { model:'iPhone 14 Pro', category:'screen', item:'原廠螢幕更換', price:11200, note:'原廠零件，維修後完整檢測。' },
+        { model:'iPhone 13', category:'storage', item:'容量擴充 256GB', price:4500, note:'完修後提供 3 個月保固。' }
+      ],
+      products: [
+        { name:'iPhone 原廠電池', type:'battery', description:'蘋果原廠認證 IRP 維修中心，支援更換後系統顯示原廠零件。' },
+        { name:'iPhone 螢幕維修', type:'screen', description:'現場面對面維修，修後進行基本功能檢測。' },
+        { name:'iPhone 容量擴充', type:'repair', description:'支援多款 iPhone NAND 容量升級服務。' }
+      ],
+      wallet: [
+        { title:'我的點數', description:'目前累積點數', value:'12,500 P' },
+        { title:'優惠券', description:'可使用優惠券', value:'3 張' },
+        { title:'會員等級', description:'BLACK BOX 會員專屬', value:'VIP' }
+      ]
+    };
 
-    async function initLiff(){try{await liff.init({liffId:LIFF_ID}); if(!liff.isLoggedIn()){liff.login(); return;} const profile=await liff.getProfile(); currentUserLineId=profile.userId; await checkMemberStatus(profile);}catch(err){console.warn('LIFF 初始化失敗，進入預覽模式',err); currentUserLineId='preview-user'; renderApp({full_name:'BLACK BOX 會員',phone:'0900000000',total_points:12500,email:'',area:'西區',birthday:'1990-01-01'},currentUserLineId);}}
-    async function checkMemberStatus(lineProfile){const {data,error}=await _supabase.from('profiles').select('*').eq('line_id',lineProfile.userId).maybeSingle(); if(error) console.warn(error); if(!data||!data.phone||!data.birthday){document.getElementById('input-name').value=lineProfile.displayName||'';document.getElementById('loading-overlay').style.display='none';showModal('profile-modal')}else{currentUserProfile=data;renderApp(data,lineProfile.userId)}}
-    function renderApp(data,lineId){currentUserProfile=data;document.getElementById('m-name').innerText=data.full_name||'BLACK BOX 會員';document.getElementById('m-points').innerText=(data.total_points||0).toLocaleString();document.getElementById('m-phone').innerText=data.phone||'---';document.getElementById('home-points').innerText=(data.total_points||0).toLocaleString()+' P';new QRious({element:document.getElementById('qr-code'),value:'BBX-'+lineId,size:190,level:'M'});document.getElementById('loading-overlay').style.display='none';loadYearlyConsumption();loadUserCoupons(false)}
+    function money(n){ return Number(n || 0).toLocaleString('zh-TW', { style:'currency', currency:'TWD', maximumFractionDigits:0 }); }
+    function showSkeleton(el, count=3){ el.innerHTML = Array.from({length:count}).map(()=>'<div class="skeleton"></div>').join(''); }
+    function showEmpty(el, msg='目前沒有資料'){ el.innerHTML = `<div class="empty">${msg}</div>`; }
 
-    async function saveProfile(){const btn=document.getElementById('btn-save');const name=document.getElementById('input-name').value.trim(),phone=document.getElementById('input-phone').value.trim(),year=document.getElementById('birth-year').value,month=document.getElementById('birth-month').value,day=document.getElementById('birth-day').value,area=document.getElementById('input-area').value,email=document.getElementById('input-email').value.trim();if(!name||!/^09\d{8}$/.test(phone)||!year||!month||!day){showMsg('資料未完成','請確認姓名、電話與生日已正確填寫。');return}btn.disabled=true;btn.innerText='儲存中...';try{const {data:existing}=await _supabase.from('profiles').select('line_id').eq('phone',phone).maybeSingle();if(existing&&existing.line_id!==currentUserLineId){showMsg('註冊失敗','此電話號碼已被註冊。');return}const payload={line_id:currentUserLineId,full_name:name,phone,birthday:`${year}-${month}-${day}`,area,email,total_points:0};const {data,error}=await _supabase.from('profiles').upsert(payload).select().single();if(error)throw error;hideModal('profile-modal');renderApp(data,currentUserLineId)}catch(e){console.error(e);showMsg('儲存失敗','請稍後再試或聯繫客服。')}finally{btn.disabled=false;btn.innerText='確認加入'}}
-    function fillEditForm(){document.getElementById('edit-name').value=currentUserProfile.full_name||'';document.getElementById('edit-phone').value=currentUserProfile.phone||'';document.getElementById('edit-birthday').value=currentUserProfile.birthday||'';document.getElementById('edit-area').value=currentUserProfile.area||'';document.getElementById('edit-email').value=currentUserProfile.email||''}
-    async function updateProfile(){const btn=document.getElementById('btn-update');btn.disabled=true;btn.innerText='儲存中...';try{const update={area:document.getElementById('edit-area').value,email:document.getElementById('edit-email').value.trim()};const {data,error}=await _supabase.from('profiles').update(update).eq('line_id',currentUserLineId).select().single();if(error)throw error;currentUserProfile=data;hideModal('edit-modal');showMsg('已更新','個人資料已成功更新。')}catch(e){console.error(e);showMsg('更新失敗','請稍後再試。')}finally{btn.disabled=false;btn.innerText='儲存變更'}}
+    async function fetchTable(table, fallbackData, order='id'){
+      try{
+        let query = supabaseClient.from(table).select('*');
+        query = query.order(order, { ascending:true });
+        const { data, error } = await query;
+        if(error) throw error;
+        return data && data.length ? data : fallbackData;
+      }catch(err){
+        console.warn(`[Supabase] ${table} 讀取失敗，使用預設資料：`, err.message);
+        return fallbackData;
+      }
+    }
 
-    async function loadUserCoupons(updateView=true){try{const {data,error}=await _supabase.from('user_coupons').select('*').eq('line_id',currentUserLineId).eq('status','unused').order('created_at',{ascending:false});if(error)throw error;currentCoupons=data||[];document.getElementById('home-coupons').innerText=currentCoupons.length+' 張';if(updateView) renderCoupons();}catch(e){console.warn(e);if(updateView)document.getElementById('coupon-list').innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-red-500">票券載入失敗</div>'}}
-    function renderCoupons(){const box=document.getElementById('coupon-list');if(!currentCoupons.length){box.innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">目前沒有可使用的優惠券</div>';return}box.innerHTML=currentCoupons.map(c=>{const action=c.type==='cash'?`可折抵 ${c.discount_amount||0} 元`:'憑券到門市兌換';const date=c.valid_until?`有效期限：${c.valid_until}`:'永久有效';return `<button class="coupon-ticket press soft-card rounded-[24px] p-5 w-full text-left flex items-center gap-4" onclick="openCouponDetail('${c.id}')"><div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 grid place-items-center text-2xl"><iconify-icon icon="solar:ticket-sale-bold-duotone" width="30"></iconify-icon></div><div class="flex-1 min-w-0"><h3 class="text-[18px] font-black truncate">${c.coupon_name||'優惠券'}</h3><p class="text-[13px] text-slate-500 font-bold mt-1">${action}</p><p class="text-[12px] text-slate-400 font-bold mt-1">${date}</p></div><span class="text-2xl">›</span></button>`}).join('')}
-    function openCouponDetail(id){const c=currentCoupons.find(x=>x.id===id);if(!c)return;document.getElementById('cd-title').innerText=c.coupon_name||'優惠券';document.getElementById('cd-date').innerText=c.valid_until?`使用期間：即日起 ~ ${c.valid_until}`:'使用期間：永久有效';document.getElementById('cd-id').innerText=c.id.replace(/-/g,'').slice(0,16).toUpperCase();document.getElementById('cd-desc').innerText=c.description||'請於實體店家出示條碼兌換，實際使用規則依門市公告為準。';document.getElementById('cd-icon-container').innerHTML='<iconify-icon icon="solar:ticket-sale-bold-duotone" width="64" style="color:#246BFE"></iconify-icon>';new QRious({element:document.getElementById('cd-qrcode'),value:'CPN-'+c.id,size:150,level:'H'});showModal('coupon-detail-modal')} function closeCouponDetail(){hideModal('coupon-detail-modal')}
+    function routeTo(id){
+      $$('.section').forEach(s => s.classList.toggle('active', s.id === id));
+      $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === id));
+      window.scrollTo({top:0, behavior:'smooth'});
+      if(id === 'search') loadProducts();
+      if(id === 'stores') loadStores();
+      if(id === 'flow') loadFlows();
+      if(id === 'quote') loadQuotes();
+      if(id === 'wallet') loadWallet();
+    }
 
-    async function loadYearlyConsumption(){try{const y=new Date().getFullYear();const start=`${y}-01-01`,end=`${y+1}-01-01`;const {data,error}=await _supabase.from('point_logs').select('id,created_at,amount').eq('line_id',currentUserLineId).gte('created_at',start).lt('created_at',end).gt('amount',0);if(error)throw error;currentYearlyConsumption=(data||[]).length;}catch(e){console.warn(e);currentYearlyConsumption=0}document.getElementById('yearly-count').innerText=currentYearlyConsumption;document.getElementById('progress-bar').style.width=Math.min(currentYearlyConsumption/15*100,100)+'%'}
-    async function handleYearlyCardClick(){const milestones=[3,6,10,15],year=new Date().getFullYear();try{const {data}=await _supabase.from('point_logs').select('order_number').eq('line_id',currentUserLineId).like('order_number',`YR_${year}_%`);const claimed=(data||[]).map(r=>parseInt(String(r.order_number).split('_')[2]));const target=milestones.find(m=>currentYearlyConsumption>=m&&!claimed.includes(m));if(target){currentClaimingMilestone=target;document.getElementById('sp-box-img').innerText='🎁';document.getElementById('sp-box-instruction').style.display='block';document.getElementById('sp-box-reward-info').classList.add('hidden');showModal('surprise-box-modal')}else showModal('milestone-locked-modal')}catch(e){console.error(e);showMsg('錯誤','系統忙線中，請稍後再試')}}
-    function triggerBoxAnimation(){document.getElementById('sp-box-img').innerText='🎉';document.getElementById('sp-box-instruction').style.display='none';setTimeout(()=>showRewardInfo(currentClaimingMilestone),650)}
-    function showRewardInfo(m){const t={3:'會籍積分 +25',6:'會籍積分 +50',10:'會籍積分 +100',15:'保貼兌換券 x1'}[m]||'神秘獎勵';document.getElementById('sp-reward-title').innerText=t;document.getElementById('sp-box-reward-info').classList.remove('hidden')}
-    async function claimYearlyReward(){const btn=document.getElementById('sp-claim-btn'),m=currentClaimingMilestone,year=new Date().getFullYear();btn.disabled=true;btn.innerText='處理中...';try{let pts={3:25,6:50,10:100}[m]||0;if(pts>0){const newPts=(currentUserProfile.total_points||0)+pts;await _supabase.from('profiles').update({total_points:newPts}).eq('line_id',currentUserLineId);currentUserProfile.total_points=newPts;} if(m===15){await _supabase.from('user_coupons').insert({line_id:currentUserLineId,coupon_name:'保貼兌換券',description:'年度達成禮，請於門市出示票券兌換。',status:'unused',type:'exchange',discount_amount:0});}await _supabase.from('point_logs').insert({line_id:currentUserLineId,staff_name:'系統發送',store_name:'年度達成禮',order_number:`YR_${year}_${m}`,amount:0,points_change:pts,points_redeemed:0,coupon_discount:0});hideModal('surprise-box-modal');renderApp(currentUserProfile,currentUserLineId);showMsg('恭喜','獎勵已成功發放至您的帳戶！')}catch(e){console.error(e);showMsg('錯誤','領取失敗，請聯繫客服。')}finally{btn.disabled=false;btn.innerText='領取獎勵'}}
+    $$('[data-route]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); routeTo(btn.dataset.route); }));
 
-    function openBookingModal(){showModal('booking-modal');loadUserBookings()} function closeBookingModal(){hideModal('booking-modal')}
-    async function loadUserBookings(){const box=document.getElementById('booking-list');box.innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">載入中...</div>';try{if(!currentUserProfile?.phone){box.innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">尚無會員電話，無法查詢預約。</div>';return}const {data,error}=await _supabase.from('booking').select('*').eq('phone',currentUserProfile.phone);if(error)throw error;const now=new Date();const future=(data||[]).filter(b=>b.booking_date&&new Date(`${b.booking_date}T${b.booking_time||'00:00'}:00`)>=now).sort((a,b)=>new Date(`${a.booking_date}T${a.booking_time||'00:00'}:00`)-new Date(`${b.booking_date}T${b.booking_time||'00:00'}:00`));if(!future.length){box.innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-slate-500">目前沒有未來的預約資料</div>';return}box.innerHTML=future.map(b=>`<div class="rounded-[22px] bg-slate-900 text-white p-5"><h4 class="text-[19px] font-black mb-3">預約資訊</h4><p class="text-[14px] font-bold leading-7 text-white/75">門市：<span class="text-white">${b.store||'黑盒子維修中心'}</span><br>設備：<span class="text-white">${b.device||'未填寫'}</span><br>狀況：<span class="text-white">${b.issue||'未填寫'}</span><br>時間：<span class="text-white">${b.booking_date||''} ${b.booking_time||''}</span></p></div>`).join('')}catch(e){console.error(e);box.innerHTML='<div class="soft-card rounded-[24px] p-8 text-center font-bold text-red-500">預約載入失敗</div>'}}
+    async function loadStores(){
+      const el = $('#storeList'); showSkeleton(el,2);
+      const rows = await fetchTable('stores', fallback.stores, 'id');
+      el.innerHTML = rows.map(r => `<article class="list-card"><h3>${r.name || '門市'}</h3><p>${r.address || ''}<br>${r.hours || ''}<br>${r.phone ? `客服電話：${r.phone}` : ''}</p>${r.map_url ? `<a class="price" style="display:inline-block;font-size:16px" href="${r.map_url}" target="_blank">查看地圖 →</a>` : ''}</article>`).join('');
+    }
+
+    async function loadFlows(){
+      const el = $('#flowList'); showSkeleton(el,3);
+      const rows = await fetchTable('service_flows', fallback.flows, 'id');
+      el.innerHTML = rows.map((r,i) => `<article class="list-card"><h3>${String(i+1).padStart(2,'0')}　${r.title || r.name || '服務流程'}</h3><p>${r.description || r.steps || ''}</p></article>`).join('');
+    }
+
+    async function loadQuotes(){
+      const el = $('#quoteList'); showSkeleton(el,3);
+      const rows = await fetchTable('repair_quotes', fallback.quotes, 'id');
+      const keyword = ($('#quoteKeyword').value || '').trim().toLowerCase();
+      const cat = $('#quoteCategory').value;
+      const filtered = rows.filter(r => {
+        const text = `${r.model || ''} ${r.item || ''} ${r.name || ''}`.toLowerCase();
+        return (!keyword || text.includes(keyword)) && (!cat || r.category === cat);
+      });
+      if(!filtered.length) return showEmpty(el,'找不到符合的報價');
+      el.innerHTML = filtered.map(r => `<article class="list-card"><h3>${r.model || ''} ${r.item || r.name || ''}</h3><p>${r.note || r.description || '實際價格依現場檢測為準。'}</p><div class="price">${r.price ? money(r.price) : '請洽門市'}</div></article>`).join('');
+    }
+
+    async function loadProducts(){
+      const el = $('#productList'); showSkeleton(el,3);
+      const rows = await fetchTable('products', fallback.products, 'id');
+      const keyword = ($('#productKeyword').value || '').trim().toLowerCase();
+      const type = $('#productType').value;
+      const filtered = rows.filter(r => {
+        const text = `${r.name || ''} ${r.title || ''} ${r.description || ''}`.toLowerCase();
+        return (!keyword || text.includes(keyword)) && (!type || r.type === type || r.category === type);
+      });
+      if(!filtered.length) return showEmpty(el,'找不到符合的產品或服務');
+      el.innerHTML = filtered.map(r => `<article class="list-card"><h3>${r.name || r.title || '服務項目'}</h3><p>${r.description || r.note || ''}</p></article>`).join('');
+    }
+
+    async function loadWallet(){
+      const el = $('#walletList'); showSkeleton(el,3);
+      const rows = await fetchTable('member_wallet', fallback.wallet, 'id');
+      el.innerHTML = rows.map(r => `<article class="list-card"><h3>${r.title || r.name}</h3><p>${r.description || ''}</p><div class="price">${r.value || ''}</div></article>`).join('');
+    }
+
+    $('#quoteKeyword').addEventListener('input', loadQuotes);
+    $('#quoteCategory').addEventListener('change', loadQuotes);
+    $('#productKeyword').addEventListener('input', loadProducts);
+    $('#productType').addEventListener('change', loadProducts);
+
+    function openBooking(){ $('#bookingModal').classList.add('show'); $('#bookingModal').setAttribute('aria-hidden','false'); }
+    function closeBooking(){ $('#bookingModal').classList.remove('show'); $('#bookingModal').setAttribute('aria-hidden','true'); }
+    $$('[data-open-booking]').forEach(b => b.addEventListener('click', openBooking));
+    $('[data-close-modal]').addEventListener('click', closeBooking);
+    $('#bookingModal').addEventListener('click', e => { if(e.target.id === 'bookingModal') closeBooking(); });
+    $('[data-open-cs]').addEventListener('click', () => window.open('https://lin.ee/', '_blank'));
+
+    $('#bookingForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = new FormData(e.currentTarget);
+      const payload = Object.fromEntries(form.entries());
+      payload.created_at = new Date().toISOString();
+      const btn = e.currentTarget.querySelector('.submit-btn');
+      const old = btn.textContent;
+      btn.textContent = '送出中...'; btn.disabled = true;
+      try{
+        const { error } = await supabaseClient.from('bookings').insert(payload);
+        if(error) throw error;
+        alert('預約已送出，我們會盡快與您聯繫。');
+        e.currentTarget.reset(); closeBooking();
+      }catch(err){
+        console.warn('[Supabase] bookings 寫入失敗：', err.message);
+        alert('目前無法寫入 bookings 資料表，請確認 Supabase 是否已建立表格與 RLS insert 權限。');
+      }finally{
+        btn.textContent = old; btn.disabled = false;
+      }
+    });
   </script>
 </body>
 </html>
