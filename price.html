@@ -349,33 +349,133 @@
     .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 
     .step-pill { flex: 0 0 auto; color: var(--blue); background: rgba(0,113,227,0.1); font-size: 12px; font-weight: 800; padding: 7px 10px; border-radius: 999px; }
-    .select-wrap { position: relative; }
 
-    select {
+    /* LINE 內建瀏覽器容易讓原生 select 無法展開，因此改用自製選單。
+       原生 select 保留在頁面中作為資料同步與極端情況備援，但不直接讓客人操作。 */
+    .select-wrap { position: relative; z-index: 20; }
+
+    .native-select-fallback {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .custom-select-button {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       width: 100%;
+      min-height: 58px;
       border: 1px solid var(--line);
-      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8));
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.84));
       color: var(--text);
-      padding: 18px 48px 18px 16px;
+      padding: 16px 16px;
       border-radius: 18px;
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 800;
+      text-align: left;
+      cursor: pointer;
       outline: none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
     }
 
-    /* 修正 Android 系統瀏覽器 / 內建 WebView 下拉選單無法正常開啟的問題：
-       Android 保留原生 select 行為，iOS/Safari 才套用自訂外觀。 */
-    @supports (-webkit-touch-callout: none) {
-      select {
-        appearance: none;
-        -webkit-appearance: none;
-      }
+    .custom-select-button:active { transform: scale(0.992); }
+    .custom-select-button:focus-visible,
+    .select-wrap.is-open .custom-select-button {
+      border-color: rgba(0,113,227,0.45);
+      box-shadow: 0 0 0 5px rgba(0,113,227,0.11), inset 0 1px 0 rgba(255,255,255,0.8);
     }
 
-    select:focus { border-color: rgba(0,113,227,0.45); box-shadow: 0 0 0 5px rgba(0,113,227,0.11); }
-    .select-wrap::after { content: "⌄"; position: absolute; right: 17px; top: 50%; transform: translateY(-55%); color: var(--muted); font-size: 20px; pointer-events: none; }
+    .custom-select-placeholder {
+      display: block;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .custom-select-arrow {
+      flex: 0 0 auto;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: rgba(29,29,31,0.055);
+      font-size: 18px;
+      line-height: 1;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .select-wrap.is-open .custom-select-arrow {
+      transform: rotate(180deg);
+      background: rgba(0,113,227,0.1);
+      color: var(--blue);
+    }
+
+    .custom-options-panel {
+      position: absolute;
+      z-index: 999;
+      left: 0;
+      right: 0;
+      top: calc(100% + 8px);
+      display: none;
+      max-height: min(52vh, 390px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 8px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(29,29,31,0.1);
+      box-shadow: 0 22px 54px rgba(0,0,0,0.16);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+    }
+
+    .select-wrap.is-open .custom-options-panel { display: grid; gap: 6px; }
+
+    .custom-option {
+      width: 100%;
+      min-height: 46px;
+      border: 0;
+      border-radius: 15px;
+      background: transparent;
+      color: var(--text);
+      padding: 12px 13px;
+      text-align: left;
+      font-size: 15px;
+      font-weight: 750;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .custom-option:active,
+    .custom-option:hover,
+    .custom-option.is-selected {
+      background: rgba(0,113,227,0.09);
+      color: var(--blue);
+    }
+
+    .custom-option.is-placeholder {
+      color: var(--muted);
+      background: rgba(245,245,247,0.85);
+    }
 
     .helper-card { margin-top: 14px; padding: 16px; border-radius: 20px; background: rgba(245,245,247,0.82); border: 1px dashed rgba(29,29,31,0.14); color: var(--muted); text-align: center; font-size: 14px; line-height: 1.55; }
     .battery-grid { display: grid; gap: 12px; margin-top: 14px; }
@@ -685,10 +785,17 @@
         </div>
       </div>
 
-      <div class="select-wrap">
-        <select id="modelSelect" aria-label="選擇 iPhone 機型">
+      <div class="select-wrap" id="modelSelectWrap">
+        <select id="modelSelect" class="native-select-fallback" aria-label="選擇 iPhone 機型" tabindex="-1">
           <option value="">選擇 iPhone 機型</option>
         </select>
+
+        <button type="button" id="customModelSelect" class="custom-select-button" aria-haspopup="listbox" aria-expanded="false">
+          <span id="customModelSelectText" class="custom-select-placeholder">選擇 iPhone 機型</span>
+          <span class="custom-select-arrow" aria-hidden="true">⌄</span>
+        </button>
+
+        <div id="customModelOptions" class="custom-options-panel" role="listbox" aria-label="選擇 iPhone 機型"></div>
       </div>
 
       <div id="batteryGrid" class="battery-grid">
@@ -799,6 +906,10 @@
     const state = { models: [], selectedModel: null, selectedPlan: null };
 
     const select = document.getElementById("modelSelect");
+    const selectWrap = document.getElementById("modelSelectWrap");
+    const customSelectButton = document.getElementById("customModelSelect");
+    const customSelectText = document.getElementById("customModelSelectText");
+    const customOptionsPanel = document.getElementById("customModelOptions");
     const grid = document.getElementById("batteryGrid");
     const bookingBtn = document.getElementById("bookingBtn");
     const stickyBtn = document.getElementById("stickyBtn");
@@ -926,6 +1037,67 @@
       prepareRevealWithin(grid);
     }
 
+    function closeCustomModelSelect() {
+      selectWrap.classList.remove("is-open");
+      customSelectButton.setAttribute("aria-expanded", "false");
+    }
+
+    function openCustomModelSelect() {
+      selectWrap.classList.add("is-open");
+      customSelectButton.setAttribute("aria-expanded", "true");
+    }
+
+    function toggleCustomModelSelect() {
+      if (selectWrap.classList.contains("is-open")) {
+        closeCustomModelSelect();
+      } else {
+        openCustomModelSelect();
+      }
+    }
+
+    function updateCustomSelectedStyle(selectedId) {
+      customOptionsPanel.querySelectorAll(".custom-option").forEach(option => {
+        option.classList.toggle("is-selected", option.dataset.value === selectedId);
+        option.setAttribute("aria-selected", option.dataset.value === selectedId ? "true" : "false");
+      });
+    }
+
+    function setCustomSelectLabel(text) {
+      customSelectText.textContent = text || "選擇 iPhone 機型";
+    }
+
+    function createCustomOption({ value, label, isPlaceholder = false }) {
+      const optionButton = document.createElement("button");
+      optionButton.type = "button";
+      optionButton.className = `custom-option${isPlaceholder ? " is-placeholder" : ""}`;
+      optionButton.setAttribute("role", "option");
+      optionButton.setAttribute("aria-selected", value === select.value ? "true" : "false");
+      optionButton.dataset.value = value;
+      optionButton.textContent = label;
+
+      optionButton.addEventListener("click", () => {
+        select.value = value;
+        setCustomSelectLabel(label);
+        updateCustomSelectedStyle(value);
+        closeCustomModelSelect();
+        handleModelChangeById(value);
+      });
+
+      return optionButton;
+    }
+
+    function renderCustomModelOptions() {
+      customOptionsPanel.innerHTML = "";
+      customOptionsPanel.appendChild(createCustomOption({ value: "", label: "選擇 iPhone 機型", isPlaceholder: true }));
+
+      state.models.forEach(model => {
+        customOptionsPanel.appendChild(createCustomOption({
+          value: String(model.id),
+          label: model.model_name
+        }));
+      });
+    }
+
     async function initModels() {
       try {
         const { data, error } = await window.mySupabase.from("iphone_prices").select("id, model_name").order("model_name", { ascending: true });
@@ -943,6 +1115,8 @@
           option.textContent = model.model_name;
           select.appendChild(option);
         });
+
+        renderCustomModelOptions();
       } catch (error) {
         console.error(error);
         setEmpty("機型資料讀取失敗，請確認 Supabase 連線或資料表設定。");
@@ -950,19 +1124,23 @@
       }
     }
 
-    async function handleModelChange(event) {
-      const id = event.target.value;
+    async function handleModelChangeById(id) {
       state.selectedPlan = null;
       state.selectedModel = null;
       updateCTA();
 
       if (!id) {
+        setCustomSelectLabel("選擇 iPhone 機型");
+        updateCustomSelectedStyle("");
         setEmpty("請先選擇機型，立即查詢價格");
         return;
       }
 
-      const selectedOption = select.options[select.selectedIndex];
-      state.selectedModel = { id, model_name: selectedOption.textContent };
+      const model = state.models.find(item => String(item.id) === String(id));
+      const modelName = model?.model_name || select.options[select.selectedIndex]?.textContent || "已選擇機型";
+      state.selectedModel = { id, model_name: modelName };
+      setCustomSelectLabel(modelName);
+      updateCustomSelectedStyle(String(id));
       setLoading();
       updateCTA();
 
@@ -976,6 +1154,11 @@
         setEmpty("這個機型的報價讀取失敗，請重新整理或直接聯繫門市。");
         showToast("報價讀取失敗");
       }
+    }
+
+    async function handleModelChange(event) {
+      const id = event.target.value;
+      handleModelChangeById(id);
     }
 
     let revealObserver;
@@ -1022,6 +1205,28 @@
     }
 
     select.addEventListener("change", handleModelChange);
+
+    customSelectButton.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleCustomModelSelect();
+    });
+
+    customSelectButton.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown") {
+        event.preventDefault();
+        openCustomModelSelect();
+      }
+      if (event.key === "Escape") closeCustomModelSelect();
+    });
+
+    document.addEventListener("click", event => {
+      if (!selectWrap.contains(event.target)) closeCustomModelSelect();
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeCustomModelSelect();
+    });
 
     document.querySelectorAll(".issue-card").forEach(card => {
       const toggleCard = () => {
