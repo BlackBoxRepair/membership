@@ -353,8 +353,6 @@
 
     select {
       width: 100%;
-      appearance: none;
-      -webkit-appearance: none;
       border: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.8));
       color: var(--text);
@@ -364,7 +362,16 @@
       font-weight: 700;
       outline: none;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* 修正 Android 系統瀏覽器 / 內建 WebView 下拉選單無法正常開啟的問題：
+       Android 保留原生 select 行為，iOS/Safari 才套用自訂外觀。 */
+    @supports (-webkit-touch-callout: none) {
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+      }
     }
 
     select:focus { border-color: rgba(0,113,227,0.45); box-shadow: 0 0 0 5px rgba(0,113,227,0.11); }
@@ -799,7 +806,20 @@
     const stickySub = document.getElementById("stickySub");
     const toast = document.getElementById("toast");
 
-    if (!window.mySupabase) window.mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    function initSupabaseClient() {
+      if (!window.supabase) {
+        console.error("Supabase SDK 尚未載入");
+        setEmpty("報價系統載入失敗，請重新整理頁面或改用 Chrome 開啟。");
+        showToast("報價系統載入失敗");
+        return false;
+      }
+
+      if (!window.mySupabase) {
+        window.mySupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+
+      return true;
+    }
 
     const moneyFormatter = new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 });
 
@@ -1019,7 +1039,10 @@
     });
 
     initRevealAnimation();
-    initModels();
+
+    if (initSupabaseClient()) {
+      initModels();
+    }
   </script>
 </body>
 </html>
