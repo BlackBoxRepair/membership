@@ -61,20 +61,7 @@
       padding:22px 20px calc(104px + var(--safe-bottom));
     }
 
-    .status{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      font-weight:800;
-      font-size:17px;
-      letter-spacing:.2px;
-      margin:2px 2px 22px;
-    }
-    .status-icons{display:flex;gap:6px;align-items:center;font-size:22px;color:#05070a}
-    .status-icons iconify-icon{color:currentColor}
-    .battery-pill{font-size:13px;font-weight:900;border:2px solid currentColor;border-radius:7px;padding:1px 5px;line-height:1.15;color:currentColor}
-
-    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:28px}
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:14px 0 28px}
     .brand{display:flex;align-items:center;gap:11px;min-width:0}
     .brand-logo{
       display:block;
@@ -150,10 +137,6 @@
 </head>
 <body>
   <main class="app">
-    <div class="status">
-      <div>9:41</div>
-      <div class="status-icons"><iconify-icon icon="solar:signal-bold"></iconify-icon><iconify-icon icon="solar:wi-fi-router-bold"></iconify-icon><span class="battery-pill">100</span></div>
-    </div>
 
     <header class="topbar">
       <a class="brand" href="#home" data-route="home" aria-label="BLACK BOX 首頁">
