@@ -109,6 +109,7 @@
     .nav-tile{min-height:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;color:var(--blue);font-weight:850;font-size:15px;background:transparent}
     .nav-tile:not(:last-child)::after{content:"";position:absolute;right:0;top:18%;height:64%;width:1px;background:rgba(17,24,39,.10)}
     .nav-tile iconify-icon{font-size:38px;color:currentColor;filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
+    .nav-tile img{width:38px;height:38px;object-fit:contain;display:block;filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
     .nav-tile span{color:#121826}
 
     .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
@@ -162,10 +163,10 @@
 
 
       <nav class="glass-nav" aria-label="主要功能">
-        <button class="nav-tile" data-route="flow"><iconify-icon icon="solar:checklist-minimalistic-bold-duotone"></iconify-icon><span>服務流程</span></button>
-        <button class="nav-tile" data-route="quote"><iconify-icon icon="solar:bill-list-bold-duotone"></iconify-icon><span>維修報價</span></button>
-        <button class="nav-tile" data-route="search"><iconify-icon icon="solar:magnifer-bold-duotone"></iconify-icon><span>配件挑選</span></button>
-        <button class="nav-tile" data-route="stores"><iconify-icon icon="solar:shop-bold-duotone"></iconify-icon><span>門市據點</span></button>
+        <button class="nav-tile" data-route="flow"><img src="bottom/bottom_process.png" alt="服務流程" /><span>服務流程</span></button>
+        <button class="nav-tile" data-route="quote"><img src="bottom/bottom_price.png" alt="維修報價" /><span>維修報價</span></button>
+        <button class="nav-tile" data-route="search"><img src="bottom/bottom_accessories.png" alt="配件挑選" /><span>配件挑選</span></button>
+        <button class="nav-tile" data-route="stores"><img src="bottom/bottom_store.png" alt="門市據點" /><span>門市據點</span></button>
       </nav>
 
       <section class="cards">
