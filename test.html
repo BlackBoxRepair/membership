@@ -136,9 +136,17 @@
       aspect-ratio:auto;
     }
     .feature-card.big{grid-column:1;grid-row:1 / span 2;background:#6fadf5;color:#fff}.feature-card.dark{background:#383a3c;color:#fff}.feature-card.wide{min-height:0}
-    .feature-card > *{display:none!important}
     .feature-card:nth-child(2),.feature-card:nth-child(4),.feature-card:nth-child(5){background:#ffffff;color:#0f172a}
     .feature-card:nth-child(3){background:#383a3c;color:#fff}
+    .card-kicker{display:block;font-size:13px;line-height:1.2;font-weight:750;letter-spacing:.02em;color:rgba(15,23,42,.68);margin-bottom:12px}
+    .feature-card.big .card-kicker,.feature-card.dark .card-kicker{color:rgba(255,255,255,.78)}
+    .card-title{margin:0;font-size:25px;line-height:1.18;letter-spacing:-.04em;font-weight:950;color:currentColor}
+    .card-subtitle{margin:12px 0 0;font-size:13px;line-height:1.55;font-weight:650;color:rgba(15,23,42,.62)}
+    .feature-card.big .card-subtitle,.feature-card.dark .card-subtitle{color:rgba(255,255,255,.78)}
+    .card-pill{position:absolute;left:18px;bottom:18px;height:34px;border-radius:999px;background:#fff;color:#111827;padding:0 16px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:900;box-shadow:0 10px 20px rgba(20,70,140,.14)}
+    .card-pill iconify-icon{font-size:17px;color:currentColor}
+    .feature-card:nth-child(2) .card-title,.feature-card:nth-child(3) .card-title,.feature-card:nth-child(4) .card-title,.feature-card:nth-child(5) .card-title{font-size:20px;line-height:1.18}
+    .feature-card:nth-child(2) .card-subtitle,.feature-card:nth-child(3) .card-subtitle,.feature-card:nth-child(4) .card-subtitle,.feature-card:nth-child(5) .card-subtitle{font-size:11.5px;line-height:1.45;margin-top:8px}
     .feature-card:nth-child(2){grid-column:2;grid-row:1}
     .feature-card:nth-child(3){grid-column:2;grid-row:2}
     .feature-card:nth-child(4){grid-column:1;grid-row:3}
@@ -198,11 +206,36 @@
       </nav>
 
       <section class="cards">
-        <article class="feature-card big"><span class="tag">精選服務</span><h3>專業維修<br>安心首選</h3><p>專業團隊・原廠零件・安心保固</p><button class="mini-btn" data-route="flow">立即了解 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></button><iconify-icon class="card-icon" icon="solar:case-round-bold-duotone"></iconify-icon></article>
-        <article class="feature-card"><span>現場維修服務</span><h3>快速維修<br>立即解決！</h3><p>無需預約，現場即可維修。</p><iconify-icon class="card-icon" icon="solar:smartphone-update-bold-duotone"></iconify-icon></article>
-        <article class="feature-card dark"><span>線上預約</span><h3>免等待<br>快速預約！</h3><p>選擇時間，輕鬆預約不必久候。</p><iconify-icon class="card-icon" icon="solar:calendar-mark-bold-duotone"></iconify-icon></article>
-        <article class="feature-card"><span>維修案例</span><h3>真實案例<br>安心保障</h3><p>多種維修案例，專業品質看得見。</p><iconify-icon class="card-icon" icon="solar:gallery-wide-bold-duotone"></iconify-icon></article>
-        <article class="feature-card"><span>會員專屬</span><h3>累積點數<br>兌換好禮</h3><p>更多會員專屬優惠等你來拿！</p><iconify-icon class="card-icon coin" icon="solar:dollar-bold-duotone"></iconify-icon></article>
+        <button class="feature-card big" data-route="quote">
+          <span class="card-kicker">電池更換</span>
+          <h3 class="card-title">原廠品質<br>安心保證</h3>
+          <p class="card-subtitle">所有 iPhone 電池皆享優惠</p>
+          <span class="card-pill">立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
+        </button>
+
+        <button class="feature-card" data-route="booking">
+          <span class="card-kicker">現場維修</span>
+          <h3 class="card-title">快速維修<br>立即解決</h3>
+          <p class="card-subtitle">現場最快 40 分鐘立即取件</p>
+        </button>
+
+        <button class="feature-card dark" data-route="booking">
+          <span class="card-kicker">線上預約</span>
+          <h3 class="card-title">免等待<br>快速預約</h3>
+          <p class="card-subtitle">選擇時間，輕鬆預約</p>
+        </button>
+
+        <button class="feature-card" data-route="cases">
+          <span class="card-kicker">維修案例</span>
+          <h3 class="card-title">各式型號<br>維修無礙</h3>
+          <p class="card-subtitle">從手機到遊戲機，筆電、平板包羅萬象！</p>
+        </button>
+
+        <button class="feature-card" data-route="member">
+          <span class="card-kicker">會員專屬</span>
+          <h3 class="card-title">累積點數<br>換取折扣</h3>
+          <p class="card-subtitle">更多會員專屬優惠等你來拿！</p>
+        </button>
       </section>
 
       <div class="member-strip">
