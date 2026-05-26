@@ -112,10 +112,13 @@
     .nav-tile img{width:46px;height:46px;object-fit:contain;display:block;filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
     .nav-tile span{color:#121826}
 
-    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;align-items:start}
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;align-items:start;grid-auto-flow:row dense}
     .feature-card{position:relative;min-height:0;border-radius:24px;padding:18px;overflow:hidden;background:rgba(255,255,255,.82);box-shadow:var(--soft-shadow);border:1px solid rgba(255,255,255,.72);aspect-ratio:2/1}
-    .feature-card.big{grid-row:span 2;aspect-ratio:1/1;background:linear-gradient(150deg,#4d91ff 0%,#9fc9ff 58%,#eaf4ff 100%);color:#fff}.feature-card.dark{background:linear-gradient(140deg,#1d2738,#09101c);color:#fff}.feature-card.wide{grid-column:1/-1;min-height:86px}
-    .feature-card:nth-child(4){aspect-ratio:1/1}
+    .feature-card.big{grid-column:1;grid-row:1;aspect-ratio:1/2;background:linear-gradient(150deg,#4d91ff 0%,#9fc9ff 58%,#eaf4ff 100%);color:#fff}.feature-card.dark{background:linear-gradient(140deg,#1d2738,#09101c);color:#fff}.feature-card.wide{grid-column:1/-1;min-height:86px}
+    .feature-card:nth-child(2){grid-column:2;grid-row:1;aspect-ratio:2/1}
+    .feature-card:nth-child(3){grid-column:2;grid-row:2;aspect-ratio:2/1}
+    .feature-card:nth-child(4){grid-column:1;grid-row:2;aspect-ratio:1/1}
+    .feature-card:nth-child(5){grid-column:2;grid-row:3;aspect-ratio:2/1}
     .tag{display:inline-flex;align-items:center;border-radius:999px;background:rgba(255,255,255,.28);padding:5px 12px;font-size:12px;font-weight:850;margin-bottom:10px}.feature-card:not(.big):not(.dark) .tag{background:#e9f2ff;color:#2a61c8}
     .feature-card h3{margin:0;font-size:20px;line-height:1.28;letter-spacing:-.4px}.feature-card.big h3{font-size:28px}.feature-card p{margin:9px 0 0;color:currentColor;opacity:.78;font-weight:650;font-size:13px;line-height:1.55}.feature-card .mini-btn{position:absolute;left:18px;bottom:18px;background:#fff;color:#0f172a;border-radius:999px;padding:10px 14px;font-size:14px;font-weight:900;display:inline-flex;align-items:center;gap:6px}.feature-card .mini-btn iconify-icon{color:currentColor}.card-icon{position:absolute;right:12px;bottom:10px;font-size:86px;color:rgba(47,114,255,.9);filter:drop-shadow(0 12px 15px rgba(31,93,190,.18))}.big .card-icon{right:-5px;bottom:-3px;font-size:128px;color:#fff}.dark .card-icon{color:#70a7ff}.coin{color:#f7c545!important}
 
