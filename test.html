@@ -46,6 +46,10 @@
         document.body.dataset.page = target;
         window.scrollTo(0,0);
 
+        if(target === 'booking'){
+          location.href = 'https://blackboxrepair.github.io/bookingonline/';
+          return;
+        }
         if(target === 'flow' && typeof showProcessImg === 'function') showProcessImg('phone');
         if(target === 'quote' && typeof showPriceImg === 'function') showPriceImg('memory');
         if(target === 'search' && typeof loadProducts === 'function') loadProducts();
@@ -69,6 +73,12 @@
         if(!trigger) return;
 
         const route = normalizeRoute(trigger.dataset.route);
+        if(route === 'booking'){
+          e.preventDefault();
+          e.stopPropagation();
+          location.href = 'https://blackboxrepair.github.io/bookingonline/';
+          return;
+        }
         if(!VALID_ROUTES.has(route)) return;
 
         e.preventDefault();
