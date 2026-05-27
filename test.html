@@ -167,7 +167,7 @@
     .section{display:none;animation:fadeUp .28s ease both}.section.active{display:block}.page-head{display:flex;align-items:flex-end;justify-content:space-between;margin:18px 0 16px}.page-title small{display:block;color:var(--blue);font-weight:950;margin-bottom:5px}.page-title h2{margin:0;font-size:30px;letter-spacing:-1px}.back-home{border-radius:999px;background:#0e1724;color:#fff;padding:10px 14px;font-weight:850}
     .search-box{display:flex;gap:8px;background:rgba(255,255,255,.82);border-radius:16px;padding:10px;box-shadow:var(--soft-shadow);margin-bottom:12px}.search-box input,.search-box select{height:44px;border:0;outline:0;background:#f3f7fc;border-radius:11px;padding:0 12px;font-size:15px;min-width:0}.search-box input{flex:1}.search-box select{width:124px}.list{display:grid;gap:10px}.list-card{background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.75);border-radius:16px;padding:16px;box-shadow:var(--soft-shadow)}.list-card h3{margin:0 0 6px;font-size:18px}.list-card p{margin:0;color:#617085;line-height:1.6;font-size:14px}.price{margin-top:10px;color:var(--blue);font-size:22px;font-weight:950}.skeleton{height:86px;border-radius:22px;background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(255,255,255,.95),rgba(255,255,255,.55));background-size:200% 100%;animation:shine 1.2s linear infinite}.empty{padding:28px;text-align:center;color:#6b7789;background:rgba(255,255,255,.72);border-radius:16px;font-weight:700}
 
-    .process-page{display:grid;gap:16px}.process-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:8px;box-shadow:var(--soft-shadow);backdrop-filter:blur(18px)}.process-tab{height:44px;border-radius:13px;background:transparent;color:#526071;font-size:14px;font-weight:900;letter-spacing:.02em;transition:transform .22s ease,background .22s ease,color .22s ease,box-shadow .22s ease}.process-tab:hover{transform:translateY(-1px)}.process-tab.active{background:#111827;color:#fff;box-shadow:0 10px 20px rgba(15,23,42,.18)}.process-img-box{width:100%;max-width:620px;margin:0 auto;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:10px;box-shadow:var(--soft-shadow);overflow:hidden}.process-img{width:100%;height:auto;display:none;border-radius:12px}.process-img.active{display:block;animation:fadeUp .28s ease both}
+    .process-page,.price-page{display:grid;gap:16px}.process-tabs,.price-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:8px;box-shadow:var(--soft-shadow);backdrop-filter:blur(18px)}.price-tabs{grid-template-columns:repeat(2,1fr)}.process-tab,.price-tab{height:44px;border-radius:13px;background:transparent;color:#526071;font-size:14px;font-weight:900;letter-spacing:.02em;transition:transform .22s ease,background .22s ease,color .22s ease,box-shadow .22s ease}.process-tab:hover,.price-tab:hover{transform:translateY(-1px)}.process-tab.active,.price-tab.active{background:#111827;color:#fff;box-shadow:0 10px 20px rgba(15,23,42,.18)}.process-img-box,.price-img-box{width:100%;max-width:620px;margin:0 auto;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.75);border-radius:18px;padding:10px;box-shadow:var(--soft-shadow);overflow:hidden}.process-img,.quote-price-img{width:100%;height:auto;display:none;border-radius:12px}.process-img.active,.quote-price-img.active{display:block;animation:fadeUp .28s ease both}.price-note{padding:24px 16px;text-align:center;color:#6b7789;font-size:14px;font-weight:700;line-height:1.7}
 
     .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);padding:8px 18px calc(10px + var(--safe-bottom));z-index:50}.bottom-shell{height:72px;border-radius:28px 28px 0 0;background:rgba(255,255,255,.82);backdrop-filter:blur(26px);box-shadow:0 -16px 35px rgba(18,44,86,.14);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;border:1px solid rgba(255,255,255,.8)}.bottom-link{height:60px;background:transparent;color:#6b7688;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:850}.bottom-link iconify-icon{font-size:25px;color:currentColor}.bottom-link.active{color:#05080d}.reserve-fab{width:72px;height:72px;margin-top:-38px;border-radius:50%;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;display:grid;place-items:center;box-shadow:0 18px 28px rgba(0,0,0,.25);border:5px solid rgba(255,255,255,.86);font-size:12px;font-weight:900}.reserve-fab iconify-icon{font-size:28px;margin-bottom:2px;color:currentColor}
 
@@ -290,8 +290,16 @@
 
     <section id="quote" class="section">
       <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home">首頁</button></div>
-      <div class="search-box"><input id="quoteKeyword" placeholder="輸入 iPhone 型號或維修項目"><select id="quoteCategory"><option value="">全部報價</option><option value="battery">電池</option><option value="screen">螢幕</option><option value="backglass">背蓋</option><option value="storage">容量擴充</option></select></div>
-      <div id="quoteList" class="list"></div>
+      <div class="price-page">
+        <div class="price-tabs" aria-label="維修報價分類">
+          <button type="button" class="price-tab active" data-price-img="memory">iPhone 擴容</button>
+          <button type="button" class="price-tab" data-price-img="applewatch">Apple Watch</button>
+        </div>
+        <div class="price-img-box">
+          <img src="Price_memory.PNG" class="quote-price-img active" data-price-img-target="memory" alt="iPhone 擴容報價" />
+          <img src="Price_applewatch.PNG" class="quote-price-img" data-price-img-target="applewatch" alt="Apple Watch 維修報價" />
+        </div>
+      </div>
     </section>
 
     <section id="wallet" class="section">
@@ -389,7 +397,7 @@
       if(id === 'search') loadProducts();
       if(id === 'stores') loadStores();
       if(id === 'flow') showProcessImg('phone');
-      if(id === 'quote') loadQuotes();
+      if(id === 'quote') showPriceImg('memory');
       if(id === 'wallet') loadWallet();
     }
 
@@ -406,17 +414,9 @@
       $$('.process-img').forEach(img => img.classList.toggle('active', img.dataset.processImg === type));
     }
 
-    async function loadQuotes(){
-      const el = $('#quoteList'); showSkeleton(el,3);
-      const rows = await fetchTable('repair_quotes', fallback.quotes, 'id');
-      const keyword = ($('#quoteKeyword').value || '').trim().toLowerCase();
-      const cat = $('#quoteCategory').value;
-      const filtered = rows.filter(r => {
-        const text = `${r.model || ''} ${r.item || ''} ${r.name || ''}`.toLowerCase();
-        return (!keyword || text.includes(keyword)) && (!cat || r.category === cat);
-      });
-      if(!filtered.length) return showEmpty(el,'找不到符合的報價');
-      el.innerHTML = filtered.map(r => `<article class="list-card"><h3>${r.model || ''} ${r.item || r.name || ''}</h3><p>${r.note || r.description || '實際價格依現場檢測為準。'}</p><div class="price">${r.price ? money(r.price) : '請洽門市'}</div></article>`).join('');
+    function showPriceImg(type){
+      $$('.price-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.priceImg === type));
+      $$('.quote-price-img').forEach(img => img.classList.toggle('active', img.dataset.priceImgTarget === type));
     }
 
     async function loadProducts(){
@@ -439,8 +439,7 @@
     }
 
     $$('.process-tab').forEach(btn => btn.addEventListener('click', () => showProcessImg(btn.dataset.process)));
-    $('#quoteKeyword').addEventListener('input', loadQuotes);
-    $('#quoteCategory').addEventListener('change', loadQuotes);
+    $$('.price-tab').forEach(btn => btn.addEventListener('click', () => showPriceImg(btn.dataset.priceImg)));
     $('#productKeyword').addEventListener('input', loadProducts);
     $('#productType').addEventListener('change', loadProducts);
 
