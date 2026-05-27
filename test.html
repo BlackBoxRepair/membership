@@ -7,9 +7,10 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    /* Hash routing：讓每個頁面都有獨立網址，可用於 LINE 圖文選單 */
-    const ROUTE_HASH_MAP={
-      home:'home',
+    /* Path routing：不拆 HTML，用網址後綴切換頁面，可用於 LINE 圖文選單
+       例：/membership/test/flow、/membership/test/quote、/membership/test/booking */
+    const ROUTE_PATH_MAP={
+      home:'',
       wallet:'wallet',
       booking:'booking',
       reservation:'reservation',
@@ -20,6 +21,7 @@
       stores:'stores',
       cases:'cases'
     };
+    const PATH_ROUTE_MAP=Object.fromEntries(Object.entries(ROUTE_PATH_MAP).map(([key,value])=>[value,key]));
     const ROUTE_ALIAS_MAP={
       process:'flow',
       serviceflow:'flow',
@@ -29,23 +31,48 @@
       accessory:'products',
       accessories:'products'
     };
-    const HASH_ROUTE_MAP=Object.fromEntries(Object.entries(ROUTE_HASH_MAP).map(([key,value])=>[value,key]));
+
+    function getBasePath(){
+      const path=location.pathname.replace(/\/$/,'');
+      const parts=path.split('/').filter(Boolean);
+      const repoIndex=parts.indexOf('membership');
+      if(repoIndex >= 0){
+        const next=parts[repoIndex+1] || '';
+        if(next === 'test' || next === 'test.html') return '/membership/test';
+        return '/membership';
+      }
+      return '';
+    }
+
+    function getRouteFromPath(){
+      const base=getBasePath();
+      let suffix=location.pathname.replace(base,'').replace(/^\//,'').replace(/\/$/,'');
+      suffix=suffix.replace('.html','');
+      if(!suffix && location.hash){
+        suffix=location.hash.replace('#','').trim();
+      }
+      const route=ROUTE_ALIAS_MAP[suffix] || PATH_ROUTE_MAP[suffix] || suffix || 'home';
+      return route;
+    }
+
     const ORIGINAL_SHOW_SECTION=showSection;
     showSection=function(id,updateUrl=true){
       ORIGINAL_SHOW_SECTION(id);
       if(updateUrl){
-        const hash=ROUTE_HASH_MAP[id] || id;
-        if(location.hash !== '#'+hash){
-          history.pushState(null,'','#'+hash);
+        const base=getBasePath();
+        const suffix=ROUTE_PATH_MAP[id] || id;
+        const nextUrl=suffix ? `${base}/${suffix}` : base;
+        if(location.pathname.replace(/\/$/,'') !== nextUrl){
+          history.pushState({page:id},'',nextUrl);
         }
       }
     };
+
     function openPageFromUrl(){
-      const hash=(location.hash || '#home').replace('#','').trim();
-      const page=ROUTE_ALIAS_MAP[hash] || HASH_ROUTE_MAP[hash] || hash || 'home';
-      showSection(page,false);
+      showSection(getRouteFromPath(),false);
     }
-    window.addEventListener('hashchange',openPageFromUrl);
+
+    window.addEventListener('popstate',openPageFromUrl);
     window.addEventListener('DOMContentLoaded',openPageFromUrl);
     openPageFromUrl();
   </script>
