@@ -6,7 +6,40 @@
   <title>BLACK BOX 黑盒子維修中心 2.0</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+    /* Hash routing：讓每個頁面都有獨立網址，可用於 LINE 圖文選單 */
+    const ROUTE_HASH_MAP={
+      home:'home',
+      wallet:'wallet',
+      booking:'booking',
+      reservation:'reservation',
+      member:'member',
+      flow:'flow',
+      quote:'quote',
+      products:'products',
+      stores:'stores',
+      cases:'cases'
+    };
+    const HASH_ROUTE_MAP=Object.fromEntries(Object.entries(ROUTE_HASH_MAP).map(([key,value])=>[value,key]));
+    const ORIGINAL_SHOW_SECTION=showSection;
+    showSection=function(id,updateUrl=true){
+      ORIGINAL_SHOW_SECTION(id);
+      if(updateUrl){
+        const hash=ROUTE_HASH_MAP[id] || id;
+        if(location.hash !== '#'+hash){
+          history.pushState(null,'','#'+hash);
+        }
+      }
+    };
+    function openPageFromUrl(){
+      const hash=(location.hash || '#home').replace('#','').trim();
+      const page=HASH_ROUTE_MAP[hash] || hash || 'home';
+      showSection(page,false);
+    }
+    window.addEventListener('hashchange',openPageFromUrl);
+    window.addEventListener('DOMContentLoaded',openPageFromUrl);
+    openPageFromUrl();
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     :root{
