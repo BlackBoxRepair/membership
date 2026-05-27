@@ -7,73 +7,12 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    /* Path routing：不拆 HTML，用網址後綴切換頁面，可用於 LINE 圖文選單
-       例：/membership/test/flow、/membership/test/quote、/membership/test/booking */
-    const ROUTE_PATH_MAP={
-      home:'',
-      wallet:'wallet',
-      booking:'booking',
-      reservation:'reservation',
-      member:'member',
-      flow:'flow',
-      quote:'quote',
-      products:'products',
-      stores:'stores',
-      cases:'cases'
-    };
-    const PATH_ROUTE_MAP=Object.fromEntries(Object.entries(ROUTE_PATH_MAP).map(([key,value])=>[value,key]));
-    const ROUTE_ALIAS_MAP={
-      process:'flow',
-      serviceflow:'flow',
-      repairquote:'quote',
-      price:'quote',
-      store:'stores',
-      accessory:'products',
-      accessories:'products'
-    };
-
-    function getBasePath(){
-      const path=location.pathname.replace(/\/$/,'');
-      const parts=path.split('/').filter(Boolean);
-      const repoIndex=parts.indexOf('membership');
-      if(repoIndex >= 0){
-        const next=parts[repoIndex+1] || '';
-        if(next === 'test' || next === 'test.html') return '/membership/test';
-        return '/membership';
-      }
-      return '';
-    }
-
-    function getRouteFromPath(){
-      const base=getBasePath();
-      let suffix=location.pathname.replace(base,'').replace(/^\//,'').replace(/\/$/,'');
-      suffix=suffix.replace('.html','');
-      if(!suffix && location.hash){
-        suffix=location.hash.replace('#','').trim();
-      }
-      const route=ROUTE_ALIAS_MAP[suffix] || PATH_ROUTE_MAP[suffix] || suffix || 'home';
-      return route;
-    }
-
-    const ORIGINAL_SHOW_SECTION=showSection;
-    showSection=function(id,updateUrl=true){
-      ORIGINAL_SHOW_SECTION(id);
-      if(updateUrl){
-        const base=getBasePath();
-        const suffix=ROUTE_PATH_MAP[id] || id;
-        const nextUrl=suffix ? `${base}/${suffix}` : base;
-        if(location.pathname.replace(/\/$/,'') !== nextUrl){
-          history.pushState({page:id},'',nextUrl);
-        }
-      }
-    };
-
+    /* Path routing：不拆 HTML，用網址後綴切換頁面，可用於 LINE 圖文選單 */
     function openPageFromUrl(){
-      showSection(getRouteFromPath(),false);
+      routeTo(pathToRoute(), false);
     }
-
-    window.addEventListener('popstate',openPageFromUrl);
-    window.addEventListener('DOMContentLoaded',openPageFromUrl);
+    window.addEventListener('popstate', openPageFromUrl);
+    window.addEventListener('DOMContentLoaded', openPageFromUrl);
     openPageFromUrl();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
@@ -535,15 +474,80 @@
       }
     }
 
-    function routeTo(id){
+    function getBasePath(){
+      const path = location.pathname.replace(/\/$/, '');
+      if(path.endsWith('/test')) return path;
+      if(path.endsWith('/test.html')) return path.replace('/test.html', '/test');
+      const testIndex = path.indexOf('/test/');
+      if(testIndex >= 0) return path.slice(0, testIndex + 5);
+      const membershipIndex = path.indexOf('/membership');
+      if(membershipIndex >= 0) return path.slice(0, membershipIndex + '/membership'.length) + '/test';
+      return '/membership/test';
+    }
+
+    const ROUTE_PATHS = {
+      home: '',
+      flow: 'flow',
+      quote: 'quote',
+      search: 'products',
+      products: 'products',
+      stores: 'stores',
+      booking: 'booking',
+      wallet: 'wallet',
+      member: 'member',
+      reservation: 'reservation',
+      cases: 'cases'
+    };
+
+    const PATH_ROUTES = {
+      '': 'home',
+      home: 'home',
+      process: 'flow',
+      flow: 'flow',
+      quote: 'quote',
+      price: 'quote',
+      products: 'search',
+      search: 'search',
+      accessories: 'search',
+      accessory: 'search',
+      stores: 'stores',
+      store: 'stores',
+      booking: 'booking',
+      wallet: 'wallet',
+      member: 'member',
+      reservation: 'reservation',
+      cases: 'cases'
+    };
+
+    function pathToRoute(){
+      const base = getBasePath();
+      let suffix = location.pathname.replace(/\/$/, '').replace(base, '').replace(/^\//, '');
+      suffix = suffix.replace('.html', '');
+      if(!suffix && location.hash){
+        suffix = location.hash.replace('#', '').trim();
+      }
+      return PATH_ROUTES[suffix] || 'home';
+    }
+
+    function routeTo(id, updateUrl = true){
       $$('.section').forEach(s => s.classList.toggle('active', s.id === id));
       $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === id));
+      document.body.dataset.page = id;
       window.scrollTo({top:0, behavior:'smooth'});
       if(id === 'search') loadProducts();
       if(id === 'stores') loadStores();
       if(id === 'flow') showProcessImg('phone');
       if(id === 'quote') showPriceImg('memory');
       if(id === 'wallet') loadWallet();
+
+      if(updateUrl){
+        const base = getBasePath();
+        const suffix = ROUTE_PATHS[id] ?? id;
+        const nextUrl = suffix ? `${base}/${suffix}` : base;
+        if(location.pathname.replace(/\/$/, '') !== nextUrl){
+          history.pushState({page:id}, '', nextUrl);
+        }
+      }
     }
 
     $$('[data-route]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); routeTo(btn.dataset.route); }));
