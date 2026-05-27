@@ -14,6 +14,86 @@
     window.addEventListener('popstate', openPageFromUrl);
     window.addEventListener('DOMContentLoaded', openPageFromUrl);
     openPageFromUrl();
+  
+    /* Final Router：參考舊網站寫法，使用 hash 後綴切換頁面
+       例：test#flow、test#quote、test#booking
+       重點：點擊按鈕時寫入 location.hash；開啟網址時讀取 hash 並顯示對應 section。 */
+    (function(){
+      const ROUTE_ALIAS = {
+        process:'flow',
+        prices:'quote',
+        price:'quote',
+        products:'search',
+        accessories:'search',
+        accessory:'search',
+        locations:'stores',
+        store:'stores'
+      };
+
+      const VALID_ROUTES = new Set([
+        'home','flow','quote','search','stores','booking','wallet','member','reservation','cases'
+      ]);
+
+      function normalizeRoute(route){
+        const key = String(route || 'home').replace('#','').trim();
+        return ROUTE_ALIAS[key] || key || 'home';
+      }
+
+      function showRoute(route, shouldUpdateHash = true){
+        const id = normalizeRoute(route);
+        const target = VALID_ROUTES.has(id) ? id : 'home';
+
+        $$('.section').forEach(section => {
+          section.classList.toggle('active', section.id === target);
+        });
+
+        $$('.bottom-link').forEach(btn => {
+          btn.classList.toggle('active', normalizeRoute(btn.dataset.route) === target);
+        });
+
+        document.body.dataset.page = target;
+        window.scrollTo(0,0);
+
+        if(target === 'flow') showProcessImg('phone');
+        if(target === 'quote') showPriceImg('memory');
+        if(target === 'search') loadProducts();
+        if(target === 'stores') loadStores();
+        if(target === 'wallet') loadWallet();
+
+        if(shouldUpdateHash){
+          const nextHash = '#' + target;
+          if(location.hash !== nextHash){
+            history.pushState(null, '', nextHash);
+          }
+        }
+      }
+
+      window.navigateTo = showRoute;
+      window.routeTo = showRoute;
+      window.showSection = showRoute;
+
+      document.addEventListener('click', function(e){
+        const trigger = e.target.closest('[data-route]');
+        if(!trigger) return;
+        const route = normalizeRoute(trigger.dataset.route);
+        e.preventDefault();
+        e.stopPropagation();
+        showRoute(route, true);
+      }, true);
+
+      function openFromHash(){
+        const raw = location.hash.replace('#','') || 'home';
+        const normalized = normalizeRoute(raw);
+        showRoute(normalized, false);
+        if(raw !== normalized){
+          history.replaceState(null, '', '#' + normalized);
+        }
+      }
+
+      window.addEventListener('hashchange', openFromHash);
+      window.addEventListener('DOMContentLoaded', openFromHash);
+      openFromHash();
+    })();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
