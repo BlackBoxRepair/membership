@@ -267,8 +267,36 @@
     .bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,480px);padding:8px 18px calc(10px + var(--safe-bottom));z-index:50}.bottom-shell{height:72px;border-radius:26px;background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.82);box-shadow:0 18px 42px rgba(17,24,39,.18);backdrop-filter:blur(22px);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;gap:4px;padding:0 8px}.bottom-link{height:58px;border-radius:18px;background:transparent;color:#728093;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:850;transition:transform .22s ease,color .22s ease,background .22s ease,box-shadow .22s ease}.bottom-link iconify-icon{font-size:25px;color:currentColor}
     .bottom-link.home-center{width:58px;height:58px;border-radius:999px;background:#fff;color:#42b9ff;justify-self:center;box-shadow:0 14px 30px rgba(17,24,39,.18);transform:translateY(-10px)}
     .bottom-link.home-center iconify-icon{font-size:29px;color:currentColor}
-    .bottom-link.home-center.active{background:#fff;color:#42b9ff;box-shadow:0 16px 34px rgba(66,185,255,.28)}
-    .bottom-link.home-center span{display:none!important}.bottom-link.active{color:#42b9ff;background:rgba(66,185,255,.12);box-shadow:0 10px 22px rgba(66,185,255,.16)}.reserve-fab{width:72px;height:72px;margin-top:-38px;border-radius:50%;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;display:grid;place-items:center;box-shadow:0 18px 28px rgba(0,0,0,.25);border:5px solid rgba(255,255,255,.86);font-size:12px;font-weight:900}.reserve-fab iconify-icon{font-size:28px;margin-bottom:2px;color:currentColor}
+    .bottom-link.home-center.active{
+      background:
+        linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.54)),
+        radial-gradient(circle at 32% 20%,rgba(255,255,255,1),rgba(255,255,255,0) 44%),
+        rgba(255,255,255,.76);
+      color:#42b9ff;
+      border:1px solid rgba(255,255,255,.86);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,1),
+        inset 0 -12px 20px rgba(66,185,255,.10),
+        0 18px 38px rgba(66,185,255,.25),
+        0 7px 16px rgba(15,23,42,.12);
+      backdrop-filter:blur(20px) saturate(1.7);
+      -webkit-backdrop-filter:blur(20px) saturate(1.7);
+    }
+    .bottom-link.home-center span{display:none!important}.bottom-link.active{
+      color:#42b9ff;
+      background:
+        linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.34)),
+        radial-gradient(circle at 30% 18%,rgba(255,255,255,.95),rgba(255,255,255,0) 42%),
+        rgba(66,185,255,.14);
+      border:1px solid rgba(255,255,255,.72);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.92),
+        inset 0 -10px 18px rgba(66,185,255,.10),
+        0 10px 24px rgba(66,185,255,.18),
+        0 4px 10px rgba(15,23,42,.08);
+      backdrop-filter:blur(18px) saturate(1.55);
+      -webkit-backdrop-filter:blur(18px) saturate(1.55);
+    }.reserve-fab{width:72px;height:72px;margin-top:-38px;border-radius:50%;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;display:grid;place-items:center;box-shadow:0 18px 28px rgba(0,0,0,.25);border:5px solid rgba(255,255,255,.86);font-size:12px;font-weight:900}.reserve-fab iconify-icon{font-size:28px;margin-bottom:2px;color:currentColor}
 
     .modal{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(5,10,20,.36);backdrop-filter:blur(8px)}.modal.show{display:flex}.modal-card{width:min(100%,480px);background:#fff;border-radius:22px 22px 0 0;padding:22px 20px calc(24px + var(--safe-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.2);animation:sheet .24s ease both}.modal-card h2{margin:0 0 16px}.form{display:grid;gap:10px}.form input,.form select,.form textarea{width:100%;border:0;background:#f2f6fb;border-radius:12px;padding:14px;font-size:16px;outline:0}.form textarea{min-height:90px;resize:vertical}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.submit-btn{height:52px;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:950}.ghost-btn{height:48px;border-radius:12px;background:#eef3f9;color:#1f2937;font-weight:900}
 
