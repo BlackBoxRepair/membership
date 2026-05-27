@@ -77,8 +77,8 @@
       }, true);
 
       function openFromCurrentHash(){
-        const hashRoute = normalizeRoute(location.hash.replace('#',''));
-        showRoute(hashRoute || 'home', false);
+        const hashRoute = normalizeRoute(location.hash.replace('#','') || 'home');
+        showRoute(hashRoute, false);
       }
 
       window.addEventListener('hashchange', openFromCurrentHash);
@@ -512,7 +512,7 @@
         <span>我的預約</span>
       </button>
 
-      <button class="bottom-link home-center" data-route="home" aria-label="首頁">
+      <button class="bottom-link home-center active" data-route="home" aria-label="首頁">
         <iconify-icon icon="solar:home-2-bold"></iconify-icon>
       </button>
 
