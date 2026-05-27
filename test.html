@@ -94,7 +94,23 @@
       window.addEventListener('DOMContentLoaded', openFromCurrentHash);
       openFromCurrentHash();
     })();
-</script>
+
+    /* Booking Direct Link Fix：修正「預約維修」選單與「線上預約」卡片點擊無反應 */
+    (function(){
+      const BOOKING_URL = 'https://blackboxrepair.github.io/bookingonline/';
+
+      document.addEventListener('click', function(e){
+        const bookingBtn = e.target.closest('[data-external-link], [data-booking-link], [data-route="booking"]');
+        if(!bookingBtn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        window.location.href = bookingBtn.dataset.externalLink || BOOKING_URL;
+      }, true);
+    })();
+  </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     :root{
