@@ -86,6 +86,79 @@
       window.addEventListener('DOMContentLoaded', openFromHash);
       openFromHash();
     })();
+  
+    /* Route Guard：避免任何舊程式把網址推成 /test/member、/test/booking 這種重新整理會 404 的路徑 */
+    (function(){
+      const routeMap = {
+        home:'home', flow:'flow', quote:'quote', search:'search', products:'search', stores:'stores',
+        booking:'booking', wallet:'wallet', member:'member', reservation:'reservation', cases:'cases',
+        process:'flow', price:'quote', prices:'quote', store:'stores', accessory:'search', accessories:'search'
+      };
+
+      function currentBasePath(){
+        let path = location.pathname.replace(/\/$/, '');
+        if(path.endsWith('/test.html')) return path.replace('/test.html', '/test');
+        if(path.endsWith('/test')) return path;
+        const testIndex = path.indexOf('/test/');
+        if(testIndex >= 0) return path.slice(0, testIndex + 5);
+        const membershipIndex = path.indexOf('/membership');
+        if(membershipIndex >= 0) return path.slice(0, membershipIndex + '/membership'.length) + '/test';
+        return '/membership/test';
+      }
+
+      function normalizeHashUrl(url){
+        if(!url || typeof url !== 'string') return url;
+        if(url.startsWith('#')) return url;
+
+        const base = currentBasePath();
+        const cleanUrl = url.split('?')[0].split('#')[0].replace(/\/$/, '');
+        const last = cleanUrl.split('/').pop();
+        const route = routeMap[last];
+
+        if(route && (cleanUrl.includes('/test/') || !url.includes('.html'))){
+          return base + '#' + route;
+        }
+        return url;
+      }
+
+      const nativePushState = history.pushState.bind(history);
+      const nativeReplaceState = history.replaceState.bind(history);
+
+      history.pushState = function(state, title, url){
+        return nativePushState(state, title, normalizeHashUrl(url));
+      };
+
+      history.replaceState = function(state, title, url){
+        return nativeReplaceState(state, title, normalizeHashUrl(url));
+      };
+
+      document.addEventListener('click', function(e){
+        const routeTarget = e.target.closest('[data-route], a[href]');
+        if(!routeTarget) return;
+
+        let route = routeTarget.dataset?.route || '';
+        const href = routeTarget.getAttribute?.('href') || '';
+
+        if(!route && href){
+          const cleanHref = href.split('?')[0].split('#')[0].replace(/\/$/, '');
+          route = href.startsWith('#') ? href.replace('#','') : cleanHref.split('/').pop();
+        }
+
+        route = routeMap[route];
+        if(!route) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(typeof window.routeTo === 'function'){
+          window.routeTo(route, true);
+        }else if(typeof window.navigateTo === 'function'){
+          window.navigateTo(route, true);
+        }else{
+          location.hash = route;
+        }
+      }, true);
+    })();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
