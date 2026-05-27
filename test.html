@@ -7,17 +7,9 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    /* Path routing：不拆 HTML，用網址後綴切換頁面，可用於 LINE 圖文選單 */
-    function openPageFromUrl(){
-      routeTo(pathToRoute(), false);
-    }
-    window.addEventListener('popstate', openPageFromUrl);
-    window.addEventListener('DOMContentLoaded', openPageFromUrl);
-    openPageFromUrl();
-  
-    /* Final Router：參考舊網站寫法，使用 hash 後綴切換頁面
+    /* Final Router：使用 hash 後綴切換頁面，避免 GitHub Pages 重新整理後 404
        例：test#flow、test#quote、test#booking
-       重點：點擊按鈕時寫入 location.hash；開啟網址時讀取 hash 並顯示對應 section。 */
+       重要：不要使用 /test/flow 這種 path routing，GitHub Pages 重新整理會找不到實體檔案。 */
     (function(){
       const ROUTE_ALIAS = {
         process:'flow',
