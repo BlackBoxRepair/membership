@@ -20,6 +20,15 @@
       stores:'stores',
       cases:'cases'
     };
+    const ROUTE_ALIAS_MAP={
+      process:'flow',
+      serviceflow:'flow',
+      repairquote:'quote',
+      price:'quote',
+      store:'stores',
+      accessory:'products',
+      accessories:'products'
+    };
     const HASH_ROUTE_MAP=Object.fromEntries(Object.entries(ROUTE_HASH_MAP).map(([key,value])=>[value,key]));
     const ORIGINAL_SHOW_SECTION=showSection;
     showSection=function(id,updateUrl=true){
@@ -33,7 +42,7 @@
     };
     function openPageFromUrl(){
       const hash=(location.hash || '#home').replace('#','').trim();
-      const page=HASH_ROUTE_MAP[hash] || hash || 'home';
+      const page=ROUTE_ALIAS_MAP[hash] || HASH_ROUTE_MAP[hash] || hash || 'home';
       showSection(page,false);
     }
     window.addEventListener('hashchange',openPageFromUrl);
