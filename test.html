@@ -7,9 +7,9 @@
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    /* Final Router：使用 hash 後綴切換頁面，避免 GitHub Pages 重新整理後 404
-       例：test#flow、test#quote、test#booking
-       重要：不要使用 /test/flow 這種 path routing，GitHub Pages 重新整理會找不到實體檔案。 */
+    /* Hash Router：參考舊版網站寫法，使用 # 後綴切換頁面
+       目的：GitHub Pages 重新整理後不會 404，並且停留在原本頁面。
+       範例：test#home、test#flow、test#quote、test#booking */
     (function(){
       const ROUTE_ALIAS = {
         process:'flow',
@@ -27,139 +27,65 @@
       ]);
 
       function normalizeRoute(route){
-        const key = String(route || 'home').replace('#','').trim();
-        return ROUTE_ALIAS[key] || key || 'home';
+        const raw = String(route || 'home').replace('#','').trim();
+        return ROUTE_ALIAS[raw] || raw || 'home';
       }
 
-      function showRoute(route, shouldUpdateHash = true){
-        const id = normalizeRoute(route);
-        const target = VALID_ROUTES.has(id) ? id : 'home';
+      function showRoute(route, updateHash = true){
+        const normalized = normalizeRoute(route);
+        const target = VALID_ROUTES.has(normalized) ? normalized : 'home';
 
-        $$('.section').forEach(section => {
+        document.querySelectorAll('.section').forEach(section => {
           section.classList.toggle('active', section.id === target);
         });
 
-        $$('.bottom-link').forEach(btn => {
+        document.querySelectorAll('.bottom-link').forEach(btn => {
           btn.classList.toggle('active', normalizeRoute(btn.dataset.route) === target);
         });
 
         document.body.dataset.page = target;
         window.scrollTo(0,0);
 
-        if(target === 'flow') showProcessImg('phone');
-        if(target === 'quote') showPriceImg('memory');
-        if(target === 'search') loadProducts();
-        if(target === 'stores') loadStores();
-        if(target === 'wallet') loadWallet();
+        if(target === 'flow' && typeof showProcessImg === 'function') showProcessImg('phone');
+        if(target === 'quote' && typeof showPriceImg === 'function') showPriceImg('memory');
+        if(target === 'search' && typeof loadProducts === 'function') loadProducts();
+        if(target === 'stores' && typeof loadStores === 'function') loadStores();
+        if(target === 'wallet' && typeof loadWallet === 'function') loadWallet();
 
-        if(shouldUpdateHash){
+        if(updateHash){
           const nextHash = '#' + target;
           if(location.hash !== nextHash){
-            history.pushState(null, '', nextHash);
+            location.hash = target;
           }
         }
       }
 
-      window.navigateTo = showRoute;
       window.routeTo = showRoute;
+      window.navigateTo = showRoute;
       window.showSection = showRoute;
 
       document.addEventListener('click', function(e){
         const trigger = e.target.closest('[data-route]');
         if(!trigger) return;
+
         const route = normalizeRoute(trigger.dataset.route);
+        if(!VALID_ROUTES.has(route)) return;
+
         e.preventDefault();
         e.stopPropagation();
         showRoute(route, true);
       }, true);
 
-      function openFromHash(){
-        const raw = location.hash.replace('#','') || 'home';
-        const normalized = normalizeRoute(raw);
-        showRoute(normalized, false);
-        if(raw !== normalized){
-          history.replaceState(null, '', '#' + normalized);
-        }
+      function openFromCurrentHash(){
+        const hashRoute = normalizeRoute(location.hash.replace('#',''));
+        showRoute(hashRoute || 'home', false);
       }
 
-      window.addEventListener('hashchange', openFromHash);
-      window.addEventListener('DOMContentLoaded', openFromHash);
-      openFromHash();
+      window.addEventListener('hashchange', openFromCurrentHash);
+      window.addEventListener('DOMContentLoaded', openFromCurrentHash);
+      openFromCurrentHash();
     })();
-  
-    /* Route Guard：避免任何舊程式把網址推成 /test/member、/test/booking 這種重新整理會 404 的路徑 */
-    (function(){
-      const routeMap = {
-        home:'home', flow:'flow', quote:'quote', search:'search', products:'search', stores:'stores',
-        booking:'booking', wallet:'wallet', member:'member', reservation:'reservation', cases:'cases',
-        process:'flow', price:'quote', prices:'quote', store:'stores', accessory:'search', accessories:'search'
-      };
-
-      function currentBasePath(){
-        let path = location.pathname.replace(/\/$/, '');
-        if(path.endsWith('/test.html')) return path.replace('/test.html', '/test');
-        if(path.endsWith('/test')) return path;
-        const testIndex = path.indexOf('/test/');
-        if(testIndex >= 0) return path.slice(0, testIndex + 5);
-        const membershipIndex = path.indexOf('/membership');
-        if(membershipIndex >= 0) return path.slice(0, membershipIndex + '/membership'.length) + '/test';
-        return '/membership/test';
-      }
-
-      function normalizeHashUrl(url){
-        if(!url || typeof url !== 'string') return url;
-        if(url.startsWith('#')) return url;
-
-        const base = currentBasePath();
-        const cleanUrl = url.split('?')[0].split('#')[0].replace(/\/$/, '');
-        const last = cleanUrl.split('/').pop();
-        const route = routeMap[last];
-
-        if(route && (cleanUrl.includes('/test/') || !url.includes('.html'))){
-          return base + '#' + route;
-        }
-        return url;
-      }
-
-      const nativePushState = history.pushState.bind(history);
-      const nativeReplaceState = history.replaceState.bind(history);
-
-      history.pushState = function(state, title, url){
-        return nativePushState(state, title, normalizeHashUrl(url));
-      };
-
-      history.replaceState = function(state, title, url){
-        return nativeReplaceState(state, title, normalizeHashUrl(url));
-      };
-
-      document.addEventListener('click', function(e){
-        const routeTarget = e.target.closest('[data-route], a[href]');
-        if(!routeTarget) return;
-
-        let route = routeTarget.dataset?.route || '';
-        const href = routeTarget.getAttribute?.('href') || '';
-
-        if(!route && href){
-          const cleanHref = href.split('?')[0].split('#')[0].replace(/\/$/, '');
-          route = href.startsWith('#') ? href.replace('#','') : cleanHref.split('/').pop();
-        }
-
-        route = routeMap[route];
-        if(!route) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        if(typeof window.routeTo === 'function'){
-          window.routeTo(route, true);
-        }else if(typeof window.navigateTo === 'function'){
-          window.navigateTo(route, true);
-        }else{
-          location.hash = route;
-        }
-      }, true);
-    })();
-  </script>
+</script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     :root{
