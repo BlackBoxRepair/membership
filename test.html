@@ -193,6 +193,38 @@
         if(modal && e.target.id==='giftModal') closeGiftModal();
       },true);
     })();
+  
+    /* 移除首頁中段四格快捷選單：服務流程 / 維修報價 / 配件挑選 / 門市據點 */
+    (function(){
+      function cleanText(value){
+        return String(value || '').replaceAll(' ','').replaceAll('
+','').replaceAll('	','').replaceAll('
+','');
+      }
+
+      function removeHomeShortcutMenu(){
+        const home = document.querySelector('#home');
+        if(!home) return;
+
+        const targets = ['服務流程','維修報價','配件挑選','門市據點'];
+        const candidates = Array.from(home.querySelectorAll('nav, .quick-menu, .shortcut-menu, .home-menu, .hero-menu, .service-menu, div'));
+
+        const matched = candidates
+          .filter(el => {
+            const text = cleanText(el.textContent);
+            return targets.every(t => text.includes(t));
+          })
+          .sort((a,b) => (a.textContent || '').length - (b.textContent || '').length)[0];
+
+        if(matched){
+          matched.remove();
+        }
+      }
+
+      removeHomeShortcutMenu();
+      window.addEventListener('DOMContentLoaded', removeHomeShortcutMenu);
+      window.addEventListener('hashchange', removeHomeShortcutMenu);
+    })();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
