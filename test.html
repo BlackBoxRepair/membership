@@ -95,57 +95,6 @@
       openFromCurrentHash();
     })();
 
-    /* Booking Direct Link Fix：修正「預約維修」選單與「線上預約」卡片點擊無反應 */
-    (function(){
-      const BOOKING_URL = 'https://blackboxrepair.github.io/bookingonline/';
-
-      document.addEventListener('click', function(e){
-        const bookingBtn = e.target.closest('[data-external-link], [data-booking-link], [data-route="booking"]');
-        if(!bookingBtn) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-
-        window.location.href = bookingBtn.dataset.externalLink || BOOKING_URL;
-      }, true);
-    })();
-  
-    /* Final Booking Override：最後保險，直接綁定底部預約與首頁線上預約卡片 */
-    (function(){
-      const BOOKING_URL = 'https://blackboxrepair.github.io/bookingonline/';
-      function goBooking(e){
-        if(e){
-          e.preventDefault();
-          e.stopPropagation();
-          if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-        }
-        window.location.assign(BOOKING_URL);
-      }
-
-      function bindBookingButtons(){
-        document.querySelectorAll('[aria-label="預約維修"], [data-external-link], [data-route="booking"]').forEach(el=>{
-          el.removeAttribute('data-route');
-          el.setAttribute('data-external-link', BOOKING_URL);
-          el.addEventListener('click', goBooking, true);
-          el.addEventListener('touchend', goBooking, true);
-        });
-
-        document.querySelectorAll('.feature-card.dark').forEach(el=>{
-          const text = el.textContent || '';
-          if(text.includes('線上預約') || text.includes('免等待') || text.includes('快速預約')){
-            el.removeAttribute('data-route');
-            el.setAttribute('data-external-link', BOOKING_URL);
-            el.addEventListener('click', goBooking, true);
-            el.addEventListener('touchend', goBooking, true);
-          }
-        });
-      }
-
-      bindBookingButtons();
-      window.addEventListener('DOMContentLoaded', bindBookingButtons);
-    })();
-  
     /* 盒芯禮遇提示彈窗 */
     (function(){
       function openGiftModal(e){
@@ -189,8 +138,7 @@
       document.addEventListener('click',function(e){
         const trigger=e.target.closest('[data-gift-modal]');
         if(trigger){openGiftModal(e);return;}
-        const modal=e.target.closest('#giftModal');
-        if(modal && e.target.id==='giftModal') closeGiftModal();
+        if(e.target && e.target.id==='giftModal') closeGiftModal();
       },true);
     })();
   
@@ -669,7 +617,7 @@
 
   <nav class="bottom-nav" aria-label="底部選單">
     <div class="bottom-shell">
-      <button class="bottom-link"$1 onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
+      <button class="bottom-link" data-gift-modal aria-label="盒芯禮遇">
         <iconify-icon icon="mdi:key-star"></iconify-icon>
         <span>盒芯禮遇</span>
       </button>
