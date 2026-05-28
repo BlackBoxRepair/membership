@@ -145,6 +145,54 @@
       bindBookingButtons();
       window.addEventListener('DOMContentLoaded', bindBookingButtons);
     })();
+  
+    /* 盒芯禮遇提示彈窗 */
+    (function(){
+      function openGiftModal(e){
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        }
+        const modal=document.getElementById('giftModal');
+        if(modal){
+          modal.classList.add('active');
+          modal.setAttribute('aria-hidden','false');
+        }
+      }
+      function closeGiftModal(){
+        const modal=document.getElementById('giftModal');
+        if(modal){
+          modal.classList.remove('active');
+          modal.setAttribute('aria-hidden','true');
+        }
+      }
+      function setupGiftButton(){
+        document.querySelectorAll('.bottom-link').forEach(btn=>{
+          const label=(btn.textContent||'').trim();
+          if(label.includes('盒芯禮遇') || label.includes('預約維修')){
+            btn.removeAttribute('data-route');
+            btn.removeAttribute('data-external-link');
+            btn.removeAttribute('onclick');
+            btn.removeAttribute('onpointerup');
+            btn.setAttribute('data-gift-modal','');
+            btn.setAttribute('aria-label','盒芯禮遇');
+            const icon=btn.querySelector('iconify-icon');
+            if(icon) icon.setAttribute('icon','mdi:key-star');
+            const span=btn.querySelector('span');
+            if(span) span.textContent='盒芯禮遇';
+          }
+        });
+      }
+      setupGiftButton();
+      window.addEventListener('DOMContentLoaded',setupGiftButton);
+      document.addEventListener('click',function(e){
+        const trigger=e.target.closest('[data-gift-modal]');
+        if(trigger){openGiftModal(e);return;}
+        const modal=e.target.closest('#giftModal');
+        if(modal && e.target.id==='giftModal') closeGiftModal();
+      },true);
+    })();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
@@ -418,6 +466,33 @@
       content:none!important;
     }
 
+    .gift-modal{
+      position:fixed;
+      inset:0;
+      z-index:999;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:rgba(15,23,42,.26);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .gift-modal.active{display:flex}
+    .gift-modal-card{
+      width:min(100%,320px);
+      border-radius:22px;
+      padding:30px 22px 26px;
+      text-align:center;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.86);
+      box-shadow:0 24px 60px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.9);
+      color:#111827;
+    }
+    .gift-modal-card iconify-icon{font-size:46px;color:#42b9ff;margin-bottom:10px}
+    .gift-modal-card h3{margin:0;font-size:20px;font-weight:950;letter-spacing:-.03em}
+    .gift-modal-card p{margin:8px 0 0;font-size:13px;line-height:1.6;color:#667085;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -563,8 +638,8 @@
   <nav class="bottom-nav" aria-label="底部選單">
     <div class="bottom-shell">
       <button class="bottom-link"$1 onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
-        <iconify-icon icon="mdi:calendar-today"></iconify-icon>
-        <span>預約維修</span>
+        <iconify-icon icon="mdi:key-star"></iconify-icon>
+        <span>盒芯禮遇</span>
       </button>
 
       <button class="bottom-link" data-route="reservation" aria-label="我的預約">
@@ -801,5 +876,12 @@
       }
     });
   </script>
+  <div class="gift-modal" id="giftModal" aria-hidden="true">
+    <div class="gift-modal-card" role="dialog" aria-modal="true" aria-label="盒芯禮遇提示">
+      <iconify-icon icon="mdi:key-star"></iconify-icon>
+      <h3>盒芯禮遇暫未開啟</h3>
+      <p>敬請期待更多會員專屬服務。</p>
+    </div>
+  </div>
 </body>
 </html>
