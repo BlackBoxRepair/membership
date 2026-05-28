@@ -110,6 +110,41 @@
         window.location.href = bookingBtn.dataset.externalLink || BOOKING_URL;
       }, true);
     })();
+  
+    /* Final Booking Override：最後保險，直接綁定底部預約與首頁線上預約卡片 */
+    (function(){
+      const BOOKING_URL = 'https://blackboxrepair.github.io/bookingonline/';
+      function goBooking(e){
+        if(e){
+          e.preventDefault();
+          e.stopPropagation();
+          if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+        }
+        window.location.assign(BOOKING_URL);
+      }
+
+      function bindBookingButtons(){
+        document.querySelectorAll('[aria-label="預約維修"], [data-external-link], [data-route="booking"]').forEach(el=>{
+          el.removeAttribute('data-route');
+          el.setAttribute('data-external-link', BOOKING_URL);
+          el.addEventListener('click', goBooking, true);
+          el.addEventListener('touchend', goBooking, true);
+        });
+
+        document.querySelectorAll('.feature-card.dark').forEach(el=>{
+          const text = el.textContent || '';
+          if(text.includes('線上預約') || text.includes('免等待') || text.includes('快速預約')){
+            el.removeAttribute('data-route');
+            el.setAttribute('data-external-link', BOOKING_URL);
+            el.addEventListener('click', goBooking, true);
+            el.addEventListener('touchend', goBooking, true);
+          }
+        });
+      }
+
+      bindBookingButtons();
+      window.addEventListener('DOMContentLoaded', bindBookingButtons);
+    })();
   </script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
@@ -428,14 +463,14 @@
           <span class="card-pill">立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
         </button>
 
-        <button class="feature-card" data-external-link="https://blackboxrepair.github.io/bookingonline/">
+        <button class="feature-card" data-external-link="https://blackboxrepair.github.io/bookingonline/" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">現場維修</span>
           <h3 class="card-title">快速維修<br>立即解決</h3>
           <p class="card-subtitle">現場最快 40 分鐘立即取件</p>
           <img class="card-ornament-small" src="./ornamets/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_repair.png';" alt="" />
         </button>
 
-        <button class="feature-card dark" data-external-link="https://blackboxrepair.github.io/bookingonline/">
+        <button class="feature-card dark"$1 onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">線上預約</span>
           <h3 class="card-title">免等待<br>快速預約</h3>
           <p class="card-subtitle">選擇時間，輕鬆預約</p>
@@ -527,7 +562,7 @@
 
   <nav class="bottom-nav" aria-label="底部選單">
     <div class="bottom-shell">
-      <button class="bottom-link" data-external-link="https://blackboxrepair.github.io/bookingonline/" aria-label="預約維修">
+      <button class="bottom-link"$1 onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
         <iconify-icon icon="mdi:calendar-today"></iconify-icon>
         <span>預約維修</span>
       </button>
