@@ -519,7 +519,7 @@
           <h1>現在更換電池</h1>
           <h2>最高享 20% 優惠</h2>
           <p>BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
-          <button class="primary-btn" data-route="wallet" onclick="window.location.href='https://blackboxrepair.github.io/membership/price'; return false;" aria-label="查看優惠詳情">
+          <button class="primary-btn" onclick="window.location.href='https://blackboxrepair.github.io/membership/price'; return false;" aria-label="查看優惠詳情">
             查看優惠詳情
             <iconify-icon icon="mdi:arrow-right"></iconify-icon>
           </button>
@@ -547,7 +547,7 @@
           <img class="card-ornament-small" src="./ornamets/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_repair.png';" alt="" />
         </button>
 
-        <button class="feature-card dark"$1 onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;" onpointerup="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
+        <button class="feature-card dark" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">線上預約</span>
           <h3 class="card-title">免等待<br>快速預約</h3>
           <p class="card-subtitle">選擇時間，輕鬆預約</p>
@@ -732,83 +732,50 @@
       }
     }
 
-    function getBasePath(){
+    function getBaseUrl(){
+      // 統一所有站內頁面使用同一個網址，不再加入 # 或 /flow、/quote 等後綴。
       const path = location.pathname.replace(/\/$/, '');
-      if(path.endsWith('/test')) return path;
       if(path.endsWith('/test.html')) return path.replace('/test.html', '/test');
-      const testIndex = path.indexOf('/test/');
-      if(testIndex >= 0) return path.slice(0, testIndex + 5);
-      const membershipIndex = path.indexOf('/membership');
-      if(membershipIndex >= 0) return path.slice(0, membershipIndex + '/membership'.length) + '/test';
+      if(path.includes('/membership/test/')) return path.split('/membership/test/')[0] + '/membership/test';
+      if(path.endsWith('/membership/test')) return path;
       return '/membership/test';
     }
 
-    const ROUTE_PATHS = {
-      home: '',
-      flow: 'flow',
-      quote: 'quote',
-      search: 'products',
-      products: 'products',
-      stores: 'stores',
-      booking: 'booking',
-      wallet: 'wallet',
-      member: 'member',
-      reservation: 'reservation',
-      cases: 'cases'
-    };
+    const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','cases']);
 
-    const PATH_ROUTES = {
-      '': 'home',
-      home: 'home',
-      process: 'flow',
-      flow: 'flow',
-      quote: 'quote',
-      price: 'quote',
-      products: 'search',
-      search: 'search',
-      accessories: 'search',
-      accessory: 'search',
-      stores: 'stores',
-      store: 'stores',
-      booking: 'booking',
-      wallet: 'wallet',
-      member: 'member',
-      reservation: 'reservation',
-      cases: 'cases'
-    };
+    function routeTo(id){
+      const target = VALID_ROUTES.has(id) ? id : 'home';
 
-    function pathToRoute(){
-      const base = getBasePath();
-      let suffix = location.pathname.replace(/\/$/, '').replace(base, '').replace(/^\//, '');
-      suffix = suffix.replace('.html', '');
-      if(!suffix && location.hash){
-        suffix = location.hash.replace('#', '').trim();
-      }
-      return PATH_ROUTES[suffix] || 'home';
-    }
-
-    function routeTo(id, updateUrl = true){
-      $$('.section').forEach(s => s.classList.toggle('active', s.id === id));
-      $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === id));
-      document.body.dataset.page = id;
+      $$('.section').forEach(s => s.classList.toggle('active', s.id === target));
+      $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === target));
+      document.body.dataset.page = target;
       window.scrollTo({top:0, behavior:'smooth'});
-      if(id === 'search') loadProducts();
-      if(id === 'stores') loadStores();
-      if(id === 'flow') showProcessImg('phone');
-      if(id === 'quote') showPriceImg('memory');
-      if(id === 'wallet') loadWallet();
 
-      if(updateUrl){
-        const base = getBasePath();
-        const suffix = ROUTE_PATHS[id] ?? id;
-        const nextUrl = suffix ? `${base}/${suffix}` : base;
-        if(location.pathname.replace(/\/$/, '') !== nextUrl){
-          history.pushState({page:id}, '', nextUrl);
-        }
+      if(target === 'search') loadProducts();
+      if(target === 'stores') loadStores();
+      if(target === 'flow') showProcessImg('phone');
+      if(target === 'quote') showPriceImg('memory');
+      if(target === 'wallet') loadWallet();
+
+      const baseUrl = getBaseUrl();
+      if(location.pathname.replace(/\/$/, '') !== baseUrl){
+        history.replaceState({page:target}, '', baseUrl);
+      }else{
+        history.replaceState({page:target}, '', baseUrl);
       }
     }
 
-    $$('[data-route]').forEach(btn => btn.addEventListener('click', e => { e.preventDefault(); routeTo(btn.dataset.route); }));
+    window.routeTo = routeTo;
+
+    $$('.section').forEach(s => s.classList.toggle('active', s.id === 'home'));
+    $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === 'home'));
+    history.replaceState({page:'home'}, '', getBaseUrl());
+
+    $$('[data-route]').forEach(btn => btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      routeTo(btn.dataset.route);
+    }));
 
     async function loadStores(){
       const el = $('#storeList'); showSkeleton(el,2);
@@ -855,7 +822,10 @@
     $$('[data-open-booking]').forEach(b => b.addEventListener('click', openBooking));
     $('[data-close-modal]').addEventListener('click', closeBooking);
     $('#bookingModal').addEventListener('click', e => { if(e.target.id === 'bookingModal') closeBooking(); });
-    $('[data-open-cs]').addEventListener('click', () => window.open('https://lin.ee/', '_blank'));
+    const csButton = $('[data-open-cs]');
+    if(csButton){
+      csButton.addEventListener('click', () => window.open('https://lin.ee/', '_blank'));
+    }
 
     $('#bookingForm').addEventListener('submit', async e => {
       e.preventDefault();
