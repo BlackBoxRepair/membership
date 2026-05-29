@@ -849,14 +849,29 @@
     });
   
 
-    const LIFF_ID = '2007643127-1bJWbG3Q';
+    const LIFF_ID = '2008733642-8wMmnKuw';
     let currentMember = JSON.parse(localStorage.getItem('bb_member') || 'null');
     let currentLineProfile = JSON.parse(localStorage.getItem('bb_line_profile') || 'null');
 
+    let liffReadyPromise = null;
+
+    function getCleanRedirectUri(){
+      // GitHub Pages 單頁網站：LINE 登入回來仍保留目前網址，不使用子路徑，避免重新整理 404。
+      return location.origin + location.pathname + location.search + location.hash;
+    }
+
+    async function ensureLiffReady(){
+      if(!window.liff) throw new Error('LIFF SDK not loaded');
+      if(!liffReadyPromise){
+        liffReadyPromise = liff.init({ liffId: LIFF_ID });
+      }
+      return liffReadyPromise;
+    }
+
     async function initLiffMember(){
       try{
-        if(!window.liff) return;
-        await liff.init({ liffId: LIFF_ID });
+        if(!window.liff){ renderMemberState(); return; }
+        await ensureLiffReady();
         if(liff.isLoggedIn()){
           const profile = await liff.getProfile();
           currentLineProfile = profile;
@@ -872,9 +887,13 @@
 
     async function startLineLogin(){
       try{
-        if(!window.liff){ alert('LINE 連動功能尚未載入，請稍後再試。'); return; }
-        await liff.init({ liffId: LIFF_ID });
-        if(!liff.isLoggedIn()){ liff.login({ redirectUri: location.href }); return; }
+        const btn = event?.currentTarget;
+        if(btn){ btn.disabled = true; btn.textContent = 'LINE 連動中...'; }
+        await ensureLiffReady();
+        if(!liff.isLoggedIn()){
+          liff.login({ redirectUri: getCleanRedirectUri() });
+          return;
+        }
         const profile = await liff.getProfile();
         currentLineProfile = profile;
         localStorage.setItem('bb_line_profile', JSON.stringify(profile));
@@ -883,7 +902,9 @@
         alert('LINE 會員連動成功');
       }catch(err){
         console.error(err);
-        alert('LINE 連動失敗，請稍後再試。');
+        alert('LINE 連動失敗：請確認 LIFF ID、Endpoint URL 與 LINE Developers 設定是否一致。');
+        const btn = event?.currentTarget;
+        if(btn){ btn.disabled = false; btn.textContent = 'LINE 連動登入'; }
       }
     }
 
@@ -938,7 +959,7 @@
             <div class="member-login-form">
               <input class="member-login-input" type="text" placeholder="請輸入信箱或電話號碼" autocomplete="username">
               <input class="member-login-input" type="password" placeholder="請輸入密碼" autocomplete="current-password">
-              <button class="member-login-submit" type="button" onclick="startLineLogin()">會員登入</button>
+              <button class="member-login-submit" type="button" onclick="startLineLogin()">LINE 連動登入</button>
             </div>
           </div>
           <a class="member-login-register" href="https://blackboxrepair.github.io/membership/register.html">還不是會員嗎？現在加入<br>會員註冊流程</a>
