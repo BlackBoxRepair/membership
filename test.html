@@ -456,6 +456,12 @@
       font-weight:1000;
       cursor:pointer;
     }
+
+    .member-login-form.line-only{gap:14px;text-align:center;}
+    .member-login-hint{margin:0;color:rgba(16,24,36,.55);font-weight:850;font-size:14px;line-height:1.5;}
+    .member-login-submit.line-login-real{display:flex;align-items:center;justify-content:center;gap:10px;}
+    .member-login-submit.line-login-real iconify-icon{font-size:24px;color:currentColor;}
+
     .member-login-register{
       margin:18px 0 0;
       color:#fff;
@@ -885,10 +891,10 @@
       }
     }
 
-    async function startLineLogin(){
+    async function startLineLogin(e){
       try{
-        const btn = event?.currentTarget;
-        if(btn){ btn.disabled = true; btn.textContent = 'LINE 連動中...'; }
+        const btn = e?.currentTarget || document.querySelector('.member-login-submit');
+        if(btn){ btn.disabled = true; btn.innerHTML = '<span>LINE 連動中...</span>'; }
         await ensureLiffReady();
         if(!liff.isLoggedIn()){
           liff.login({ redirectUri: getCleanRedirectUri() });
@@ -903,8 +909,8 @@
       }catch(err){
         console.error(err);
         alert('LINE 連動失敗：請確認 LIFF ID、Endpoint URL 與 LINE Developers 設定是否一致。');
-        const btn = event?.currentTarget;
-        if(btn){ btn.disabled = false; btn.textContent = 'LINE 連動登入'; }
+        const btn = e?.currentTarget || document.querySelector('.member-login-submit');
+        if(btn){ btn.disabled = false; btn.innerHTML = '<iconify-icon icon="ri:line-fill"></iconify-icon><span>LINE 連動登入</span>'; }
       }
     }
 
@@ -956,10 +962,12 @@
         <div class="member-login-screen">
           <div class="member-login-panel">
             <h3 class="member-login-title">會員登入</h3>
-            <div class="member-login-form">
-              <input class="member-login-input" type="text" placeholder="請輸入信箱或電話號碼" autocomplete="username">
-              <input class="member-login-input" type="password" placeholder="請輸入密碼" autocomplete="current-password">
-              <button class="member-login-submit" type="button" onclick="startLineLogin()">LINE 連動登入</button>
+            <div class="member-login-form line-only">
+              <p class="member-login-hint">請使用 LINE 帳號連動登入會員系統</p>
+              <button class="member-login-submit line-login-real" type="button" onclick="startLineLogin(event)">
+                <iconify-icon icon="ri:line-fill"></iconify-icon>
+                <span>LINE 連動登入</span>
+              </button>
             </div>
           </div>
           <a class="member-login-register" href="https://blackboxrepair.github.io/membership/register.html">還不是會員嗎？現在加入<br>會員註冊流程</a>
