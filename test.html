@@ -612,7 +612,7 @@
       return '/membership/test';
     }
 
-    const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','cases']);
+    const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','gift','cases']);
 
     function routeTo(id){
       const target = VALID_ROUTES.has(id) ? id : 'home';
@@ -626,7 +626,10 @@
       if(target === 'stores') loadStores();
       if(target === 'flow') showProcessImg('phone');
       if(target === 'quote') showPriceImg('memory');
-      if(target === 'wallet') loadWallet();
+      if(target === 'wallet') renderWalletPage();
+      if(target === 'reservation') renderReservationPage();
+      if(target === 'gift') renderGiftPage();
+      if(target === 'member') renderMemberArea();
 
       const baseUrl = getBaseUrl();
       if(location.pathname.replace(/\/$/, '') !== baseUrl){
@@ -762,18 +765,40 @@
       const lineId = profile?.userId;
       if(!lineId) return null;
       try{
-        let { data, error } = await supabaseClient.from('members').select('*').eq('line_user_id', lineId).maybeSingle();
-        if(error || !data){
-          const payload = { line_user_id: lineId, line_name: profile.displayName || '', avatar_url: profile.pictureUrl || '', points: 0, member_level: '一般會員' };
-          const created = await supabaseClient.from('members').insert(payload).select('*').single();
+        let { data, error } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('line_id', lineId)
+          .maybeSingle();
+
+        if(error) throw error;
+
+        // 舊版資料表 profiles 若尚未建立會員資料，先建立基本 LINE 會員資料。
+        // 若 phone / birthday 尚未補齊，會員專區會提示到門市或舊版會員頁補資料。
+        if(!data){
+          const payload = {
+            line_id: lineId,
+            full_name: profile.displayName || '',
+            total_points: 0
+          };
+          const created = await supabaseClient
+            .from('profiles')
+            .upsert(payload, { onConflict:'line_id' })
+            .select('*')
+            .single();
           data = created.data || payload;
         }
+
         currentMember = data;
         localStorage.setItem('bb_member', JSON.stringify(data));
         return data;
       }catch(err){
-        console.warn('member load fallback', err);
-        currentMember = { line_user_id:lineId, line_name:profile.displayName || 'BLACK BOX 會員', avatar_url:profile.pictureUrl || '', points:0, member_level:'一般會員' };
+        console.warn('profiles load fallback', err);
+        currentMember = {
+          line_id: lineId,
+          full_name: profile.displayName || 'BLACK BOX 會員',
+          total_points: 0
+        };
         localStorage.setItem('bb_member', JSON.stringify(currentMember));
         return currentMember;
       }
@@ -793,54 +818,173 @@
       const hc = $('#homeCoupons'); if(hc) hc.textContent = currentMember ? '載入中' : '尚未登入';
     }
 
+    function memberLineId(){
+      return currentMember?.line_id || currentMember?.line_user_id || currentLineProfile?.userId || '';
+    }
+
+    function memberPhone(){
+      return currentMember?.phone || currentMember?.mobile || currentMember?.tel || '';
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
-      const name = currentMember.name || currentMember.member_name || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
-      const avatar = currentMember.avatar_url || currentLineProfile?.pictureUrl || 'favicon.png';
-      const points = Number(currentMember.points || currentMember.point || 0).toLocaleString();
-      const level = currentMember.member_level || currentMember.level || '一般會員';
-      box.innerHTML = `<div class="member-card"><div class="member-profile"><img class="member-avatar" src="${avatar}" alt="會員頭像"><div><h3>${name}</h3><p>${level}</p></div></div><div class="member-grid"><div class="member-stat"><small>我的點數</small><b>${points} P</b></div><div class="member-stat"><small>會員狀態</small><b>已連動</b></div></div></div>`;
+      const name = currentMember.full_name || currentMember.name || currentMember.member_name || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
+      const avatar = currentLineProfile?.pictureUrl || currentMember.avatar_url || 'favicon.png';
+      const points = Number(currentMember.total_points ?? currentMember.points ?? currentMember.point ?? 0).toLocaleString();
+      const phone = memberPhone() || '尚未補齊';
+      const birthday = currentMember.birthday || '尚未補齊';
+      const email = currentMember.email || '尚未填寫';
+      const area = currentMember.area || '尚未填寫';
+      box.innerHTML = `
+        <div class="member-card">
+          <div class="member-profile">
+            <img class="member-avatar" src="${avatar}" alt="會員頭像">
+            <div><h3>${name}</h3><p>LINE 會員已連動</p></div>
+          </div>
+          <div class="member-grid">
+            <div class="member-stat"><small>我的點數</small><b>${points} P</b></div>
+            <div class="member-stat"><small>會員電話</small><b>${phone}</b></div>
+            <div class="member-stat"><small>會員生日</small><b>${birthday}</b></div>
+            <div class="member-stat"><small>常用門市</small><b>${area}</b></div>
+          </div>
+          <div class="data-panel" style="margin-top:14px"><h3>會員資料</h3><p>Email：${email}</p></div>
+        </div>`;
     }
+
 
     async function renderWalletPage(){
       const box = $('#walletList'); if(!box) return;
       if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
       box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+      const lineId = memberLineId();
+      const today = new Date().toISOString().split('T')[0];
       let coupons = [];
       try{
-        const lineId = currentMember.line_user_id || currentLineProfile?.userId;
-        const res = await supabaseClient.from('coupons').select('*').or(`line_user_id.eq.${lineId},member_id.eq.${currentMember.id || ''}`).order('created_at',{ascending:false});
-        coupons = res.data || [];
-      }catch(e){ coupons = []; }
-      const points = Number(currentMember.points || currentMember.point || 0).toLocaleString();
+        const { data, error } = await supabaseClient
+          .from('user_coupons')
+          .select('*')
+          .eq('line_id', lineId)
+          .eq('status', 'unused')
+          .order('created_at',{ ascending:false });
+        if(error) throw error;
+        coupons = (data || []).filter(c => !c.valid_until || c.valid_until >= today);
+        coupons.sort((a,b)=>{
+          if(a.valid_until && b.valid_until) return new Date(a.valid_until)-new Date(b.valid_until);
+          if(a.valid_until && !b.valid_until) return -1;
+          if(!a.valid_until && b.valid_until) return 1;
+          return 0;
+        });
+      }catch(e){
+        console.warn('user_coupons load failed', e);
+        coupons = [];
+      }
+
+      const points = Number(currentMember.total_points ?? currentMember.points ?? currentMember.point ?? 0).toLocaleString();
       const rows = [`<div class="data-row"><div><strong>我的點數</strong><span>目前可用點數</span></div><em class="data-badge">${points} P</em></div>`];
       if(coupons.length){
-        rows.push(...coupons.map(c=>`<div class="data-row"><div><strong>${c.title || c.name || '優惠券'}</strong><span>${c.description || c.expired_at || c.status || '可於門市使用'}</span></div><em class="data-badge">${c.status || '可使用'}</em></div>`));
+        rows.push(...coupons.map(c=>{
+          const dateText = c.valid_until ? `有效期限：${c.valid_until}` : '永久有效';
+          const actionText = c.type === 'cash' ? `可折抵 ${Number(c.discount_amount || 0).toLocaleString()} 元` : '憑券到門市兌換';
+          return `<div class="data-row"><div><strong>${c.coupon_name || c.title || c.name || '優惠券'}</strong><span>${actionText}<br>${dateText}</span></div><em class="data-badge">可使用</em></div>`;
+        }));
       }else{
-        rows.push('<div class="data-row"><div><strong>優惠券</strong><span>目前尚無可用優惠券</span></div><em class="data-badge">0 張</em></div>');
+        rows.push('<div class="data-row"><div><strong>優惠券</strong><span>目前沒有可用的優惠券</span></div><em class="data-badge">0 張</em></div>');
       }
       box.innerHTML = rows.join('');
       const hc = $('#homeCoupons'); if(hc) hc.textContent = `${coupons.length} 張`;
+      const hp = $('#homePoints'); if(hp) hp.textContent = `${points} P`;
     }
+
 
     async function renderReservationPage(){
       const box = $('#reservationList'); if(!box) return;
       if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+      const phone = memberPhone();
+      if(!phone){
+        box.innerHTML = '<div class="empty">會員電話尚未補齊，暫時無法讀取預約資料。</div>';
+        return;
+      }
       let rows=[];
       try{
-        const lineId = currentMember.line_user_id || currentLineProfile?.userId;
-        const res = await supabaseClient.from('reservations').select('*').or(`line_user_id.eq.${lineId},member_id.eq.${currentMember.id || ''}`).order('created_at',{ascending:false});
-        rows = res.data || [];
-      }catch(e){ rows=[]; }
-      box.innerHTML = rows.length ? rows.map(r=>`<div class="data-row"><div><strong>${r.store || r.store_name || '維修預約'}</strong><span>${r.date || r.booking_date || ''} ${r.time || r.booking_time || ''}<br>${r.model || ''} ${r.issue || ''}</span></div><em class="data-badge">${r.status || '已建立'}</em></div>`).join('') : '<div class="empty">目前沒有預約紀錄</div>';
+        const { data, error } = await supabaseClient
+          .from('booking')
+          .select('*')
+          .eq('phone', phone);
+        if(error) throw error;
+        const now = new Date();
+        rows = (data || []).filter(b=>{
+          if(!b.booking_date) return true;
+          const bookingDateTime = new Date(`${b.booking_date}T${b.booking_time || '00:00'}:00`);
+          return bookingDateTime >= now;
+        }).sort((a,b)=>{
+          const timeA = new Date(`${a.booking_date || '2999-12-31'}T${a.booking_time || '00:00'}:00`).getTime();
+          const timeB = new Date(`${b.booking_date || '2999-12-31'}T${b.booking_time || '00:00'}:00`).getTime();
+          return timeA - timeB;
+        });
+      }catch(e){
+        console.warn('booking load failed', e);
+        rows=[];
+      }
+      box.innerHTML = rows.length ? rows.map(r=>{
+        const dateText = `${r.booking_date || r.date || ''} ${r.booking_time || r.time || ''}`.trim();
+        const storeText = r.store || r.store_name || '黑盒子維修中心';
+        const deviceText = r.device || r.model || r.device_model || '';
+        const issueText = r.problem || r.issue || r.description || '';
+        return `<div class="data-row"><div><strong>${storeText}</strong><span>${dateText || '預約時間待確認'}<br>${deviceText} ${issueText}</span></div><em class="data-badge">${r.status || '已建立'}</em></div>`;
+      }).join('') : '<div class="empty">目前沒有未來的預約資料</div>';
     }
+
 
     async function renderGiftPage(){
       const box = $('#giftList'); if(!box) return;
       if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
-      box.innerHTML = `<div class="data-panel"><h3>盒芯禮遇暫未開啟</h3><p>此區未來會顯示會員專屬活動、兌換資格與限定福利。</p></div>`;
+      box.innerHTML = '<div class="skeleton"></div>';
+      const lineId = memberLineId();
+      const currentYear = new Date().getFullYear();
+      const startDate = `${currentYear}-01-01T00:00:00.000Z`;
+      let times = 0;
+      let claimed = [];
+      try{
+        const { count, error } = await supabaseClient
+          .from('point_logs')
+          .select('*', { count:'exact', head:true })
+          .eq('line_id', lineId)
+          .gte('created_at', startDate)
+          .neq('store_name', '年度達成禮');
+        if(error) throw error;
+        times = count || 0;
+
+        const { data: claimedData } = await supabaseClient
+          .from('point_logs')
+          .select('order_number')
+          .eq('line_id', lineId)
+          .like('order_number', `YR_${currentYear}_%`);
+        claimed = (claimedData || []).map(row=>Number(String(row.order_number || '').split('_')[2])).filter(Boolean);
+      }catch(e){
+        console.warn('point_logs load failed', e);
+      }
+      const milestones = [3,6,10,15];
+      const next = milestones.find(m=>times < m) || 15;
+      const percentage = Math.min(times / 15 * 100, 100);
+      const milestoneHTML = milestones.map(m=>{
+        const reached = times >= m;
+        const done = claimed.includes(m);
+        return `<div class="data-row"><div><strong>${m} 次禮遇</strong><span>${done ? '已領取' : reached ? '已達成，可洽門市確認' : `尚差 ${m-times} 次`}</span></div><em class="data-badge">${done ? '完成' : reached ? '可領' : '未達成'}</em></div>`;
+      }).join('');
+      box.innerHTML = `
+        <div class="data-panel">
+          <h3>${currentYear} 盒芯禮遇</h3>
+          <p>今年已累積 ${times} 次有效消費紀錄；最高年度目標 15 次。</p>
+          <div style="height:10px;background:rgba(15,23,42,.08);border-radius:999px;overflow:hidden;margin:14px 0 6px">
+            <div style="width:${percentage}%;height:100%;background:#42b9ff;border-radius:999px"></div>
+          </div>
+          <p style="font-size:12px;color:#667085;margin:0">下一階段：${times >= 15 ? '已達年度最高階段' : `${next} 次`}</p>
+        </div>
+        ${milestoneHTML}`;
     }
+
 
     document.addEventListener('DOMContentLoaded', initLiffMember);
 </script>
