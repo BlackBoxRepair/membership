@@ -349,6 +349,131 @@
     .login-card h3,.member-card h3,.data-panel h3{font-size:26px;margin:0;color:var(--deep);}
     .login-card p,.member-card p,.data-panel p{margin:0;color:var(--muted);font-weight:800;line-height:1.6;}
     .line-login-btn{border:0;border-radius:999px;background:#06c755;color:#fff;padding:14px 22px;font-weight:950;font-size:17px;display:inline-flex;gap:10px;align-items:center;box-shadow:0 12px 28px rgba(6,199,85,.24);}
+
+    /* 會員登入頁：參考使用者提供的玻璃登入卡樣式 */
+    #member.member-login-mode .page-head{display:none;}
+    #member.member-login-mode{
+      padding-top:28px;
+      min-height:calc(100dvh - 86px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .member-login-screen{
+      width:min(100%, 740px);
+      min-height:calc(100dvh - 210px);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:26px;
+      position:relative;
+      padding:16px 0 120px;
+    }
+    .member-login-panel{
+      width:100%;
+      max-width:720px;
+      border-radius:40px;
+      padding:58px 58px 66px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.82);
+      box-shadow:0 30px 70px rgba(16,24,36,.13);
+      backdrop-filter:blur(22px) saturate(150%);
+      -webkit-backdrop-filter:blur(22px) saturate(150%);
+      position:relative;
+      overflow:visible;
+    }
+    .member-login-panel::before{
+      content:'';
+      position:absolute;
+      left:50%;
+      top:-28px;
+      transform:translateX(-50%);
+      width:360px;
+      height:180px;
+      background:url('favicon.png') center/110px 110px no-repeat;
+      opacity:.055;
+      filter:grayscale(1);
+      pointer-events:none;
+    }
+    .member-login-title{
+      position:relative;
+      z-index:1;
+      margin:0 0 42px;
+      text-align:center;
+      font-size:48px;
+      line-height:1;
+      letter-spacing:.04em;
+      color:#063a5f;
+      font-weight:1000;
+    }
+    .member-login-form{display:grid;gap:24px;position:relative;z-index:1;}
+    .member-login-input{
+      width:100%;
+      height:72px;
+      border-radius:18px;
+      border:2px solid rgba(16,24,36,.18);
+      background:rgba(255,255,255,.72);
+      padding:0 28px;
+      font-size:24px;
+      color:#0b1828;
+      font-weight:800;
+      outline:none;
+    }
+    .member-login-input::placeholder{color:rgba(16,24,36,.36);font-weight:800;}
+    .member-login-input:focus{border-color:rgba(6,58,95,.45);box-shadow:0 0 0 4px rgba(55,170,235,.12);}
+    .member-login-submit{
+      height:48px;
+      border:0;
+      border-radius:0;
+      background:#073a5e;
+      color:#fff;
+      font-size:24px;
+      font-weight:950;
+      letter-spacing:.06em;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+    }
+    .member-line-pill{
+      margin:-66px auto 0;
+      position:relative;
+      z-index:2;
+      border:0;
+      min-width:320px;
+      height:96px;
+      border-radius:48px;
+      background:rgba(255,255,255,.94);
+      color:#063a5f;
+      box-shadow:0 22px 45px rgba(16,24,36,.10);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      font-size:34px;
+      font-weight:1000;
+      cursor:pointer;
+    }
+    .member-login-register{
+      margin:34px 0 0;
+      color:#fff;
+      text-align:center;
+      font-size:26px;
+      font-weight:900;
+      line-height:1.45;
+      text-shadow:0 2px 10px rgba(16,24,36,.18);
+      text-decoration:none;
+    }
+    @media (max-width:560px){
+      .member-login-screen{min-height:calc(100dvh - 150px);padding-bottom:108px;}
+      .member-login-panel{border-radius:30px;padding:42px 30px 58px;}
+      .member-login-title{font-size:40px;margin-bottom:32px;}
+      .member-login-input{height:60px;border-radius:14px;font-size:19px;padding:0 20px;}
+      .member-login-submit{height:44px;font-size:20px;}
+      .member-line-pill{min-width:260px;height:78px;border-radius:39px;font-size:28px;margin-top:-54px;}
+      .member-login-register{font-size:21px;}
+    }
     .member-profile{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;}
     .member-avatar{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#eaf4ff;}
     .member-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
@@ -805,7 +930,19 @@
     }
 
     function requireLoginHTML(){
-      return `<div class="login-card"><h3>請先連動 LINE 會員</h3><p>連動成功後，票券錢包、我的預約、盒芯禮遇與會員專區會顯示您的會員資料。</p><button class="line-login-btn" type="button" onclick="startLineLogin()"><iconify-icon icon="simple-icons:line"></iconify-icon> 使用 LINE 登入／連動會員</button></div>`;
+      return `
+        <div class="member-login-screen">
+          <div class="member-login-panel">
+            <h3 class="member-login-title">會員登入</h3>
+            <div class="member-login-form">
+              <input class="member-login-input" type="text" placeholder="請輸入信箱或電話號碼" autocomplete="username">
+              <input class="member-login-input" type="password" placeholder="請輸入密碼" autocomplete="current-password">
+              <button class="member-login-submit" type="button" onclick="startLineLogin()">登入</button>
+            </div>
+          </div>
+          <button class="member-line-pill" type="button" onclick="startLineLogin()">會員登入</button>
+          <a class="member-login-register" href="https://blackboxrepair.github.io/membership/register.html">還不是會員嗎？現在加入<br>會員註冊流程</a>
+        </div>`;
     }
 
     function renderMemberState(){
@@ -828,7 +965,13 @@
 
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
-      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      const memberSection = document.getElementById('member');
+      if(!currentMember){
+        memberSection?.classList.add('member-login-mode');
+        box.innerHTML = requireLoginHTML();
+        return;
+      }
+      memberSection?.classList.remove('member-login-mode');
       const name = currentMember.full_name || currentMember.name || currentMember.member_name || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
       const avatar = currentLineProfile?.pictureUrl || currentMember.avatar_url || 'favicon.png';
       const points = Number(currentMember.total_points ?? currentMember.points ?? currentMember.point ?? 0).toLocaleString();
