@@ -6,174 +6,9 @@
   <title>BLACK BOX 黑盒子維修中心 2.0</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    /* Hash Router：參考舊版網站寫法，使用 # 後綴切換頁面
-       目的：GitHub Pages 重新整理後不會 404，並且停留在原本頁面。
-       範例：test#home、test#flow、test#quote、test#booking */
-    (function(){
-      const ROUTE_ALIAS = {
-        process:'flow',
-        prices:'quote',
-        price:'quote',
-        products:'search',
-        accessories:'search',
-        accessory:'search',
-        locations:'stores',
-        store:'stores'
-      };
-
-      const VALID_ROUTES = new Set([
-        'home','flow','quote','search','stores','booking','wallet','member','reservation','cases'
-      ]);
-
-      function normalizeRoute(route){
-        const raw = String(route || 'home').replace('#','').trim();
-        return ROUTE_ALIAS[raw] || raw || 'home';
-      }
-
-      function showRoute(route, updateHash = true){
-        const normalized = normalizeRoute(route);
-        const target = VALID_ROUTES.has(normalized) ? normalized : 'home';
-
-        document.querySelectorAll('.section').forEach(section => {
-          section.classList.toggle('active', section.id === target);
-        });
-
-        document.querySelectorAll('.bottom-link').forEach(btn => {
-          btn.classList.toggle('active', normalizeRoute(btn.dataset.route) === target);
-        });
-
-        document.body.dataset.page = target;
-        window.scrollTo(0,0);
-
-        if(target === 'flow' && typeof showProcessImg === 'function') showProcessImg('phone');
-        if(target === 'quote' && typeof showPriceImg === 'function') showPriceImg('memory');
-        if(target === 'search' && typeof loadProducts === 'function') loadProducts();
-        if(target === 'stores' && typeof loadStores === 'function') loadStores();
-        if(target === 'wallet' && typeof loadWallet === 'function') loadWallet();
-
-        if(updateHash){
-          const nextHash = '#' + target;
-          if(location.hash !== nextHash){
-            location.hash = target;
-          }
-        }
-      }
-
-      window.routeTo = showRoute;
-      window.navigateTo = showRoute;
-      window.showSection = showRoute;
-
-      document.addEventListener('click', function(e){
-        const externalTrigger = e.target.closest('[data-external-link]');
-        if(externalTrigger){
-          e.preventDefault();
-          e.stopPropagation();
-          location.href = externalTrigger.dataset.externalLink;
-          return;
-        }
-
-        const trigger = e.target.closest('[data-route]');
-        if(!trigger) return;
-
-        const route = normalizeRoute(trigger.dataset.route);
-        
-        if(!VALID_ROUTES.has(route)) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-        showRoute(route, true);
-      }, true);
-
-      function openFromCurrentHash(){
-        const hashRoute = normalizeRoute(location.hash.replace('#','') || 'home');
-        showRoute(hashRoute, false);
-      }
-
-      window.addEventListener('hashchange', openFromCurrentHash);
-      window.addEventListener('DOMContentLoaded', openFromCurrentHash);
-      openFromCurrentHash();
-    })();
-
-    /* 盒芯禮遇提示彈窗 */
-    (function(){
-      function openGiftModal(e){
-        if(e){
-          e.preventDefault();
-          e.stopPropagation();
-          if(e.stopImmediatePropagation) e.stopImmediatePropagation();
-        }
-        const modal=document.getElementById('giftModal');
-        if(modal){
-          modal.classList.add('active');
-          modal.setAttribute('aria-hidden','false');
-        }
-      }
-      function closeGiftModal(){
-        const modal=document.getElementById('giftModal');
-        if(modal){
-          modal.classList.remove('active');
-          modal.setAttribute('aria-hidden','true');
-        }
-      }
-      function setupGiftButton(){
-        document.querySelectorAll('.bottom-link').forEach(btn=>{
-          const label=(btn.textContent||'').trim();
-          if(label.includes('盒芯禮遇') || label.includes('預約維修')){
-            btn.removeAttribute('data-route');
-            btn.removeAttribute('data-external-link');
-            btn.removeAttribute('onclick');
-            btn.removeAttribute('onpointerup');
-            btn.setAttribute('data-gift-modal','');
-            btn.setAttribute('aria-label','盒芯禮遇');
-            const icon=btn.querySelector('iconify-icon');
-            if(icon) icon.setAttribute('icon','mdi:key-star');
-            const span=btn.querySelector('span');
-            if(span) span.textContent='盒芯禮遇';
-          }
-        });
-      }
-      setupGiftButton();
-      window.addEventListener('DOMContentLoaded',setupGiftButton);
-      document.addEventListener('click',function(e){
-        const trigger=e.target.closest('[data-gift-modal]');
-        if(trigger){openGiftModal(e);return;}
-        if(e.target && e.target.id==='giftModal') closeGiftModal();
-      },true);
-    })();
-  
-    /* 移除首頁中段四格快捷選單：服務流程 / 維修報價 / 配件挑選 / 門市據點 */
-    (function(){
-      function cleanText(value){
-        return String(value || '').replaceAll(' ','').replaceAll('
-','').replaceAll('	','').replaceAll('
-','');
-      }
-
-      function removeHomeShortcutMenu(){
-        const home = document.querySelector('#home');
-        if(!home) return;
-
-        const targets = ['服務流程','維修報價','配件挑選','門市據點'];
-        const candidates = Array.from(home.querySelectorAll('nav, .quick-menu, .shortcut-menu, .home-menu, .hero-menu, .service-menu, div'));
-
-        const matched = candidates
-          .filter(el => {
-            const text = cleanText(el.textContent);
-            return targets.every(t => text.includes(t));
-          })
-          .sort((a,b) => (a.textContent || '').length - (b.textContent || '').length)[0];
-
-        if(matched){
-          matched.remove();
-        }
-      }
-
-      removeHomeShortcutMenu();
-      window.addEventListener('DOMContentLoaded', removeHomeShortcutMenu);
-      window.addEventListener('hashchange', removeHomeShortcutMenu);
-    })();
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     :root{
@@ -500,6 +335,33 @@
       padding:0!important;
       overflow:hidden!important;
     }
+
+
+    .member-card,.login-card,.data-panel{
+      background:rgba(255,255,255,.84);
+      border:1px solid rgba(255,255,255,.72);
+      border-radius:28px;
+      padding:26px;
+      box-shadow:0 18px 45px rgba(45,104,190,.12);
+      backdrop-filter:blur(18px);
+    }
+    .login-card{display:flex; flex-direction:column; gap:18px; align-items:flex-start;}
+    .login-card h3,.member-card h3,.data-panel h3{font-size:26px;margin:0;color:var(--deep);}
+    .login-card p,.member-card p,.data-panel p{margin:0;color:var(--muted);font-weight:800;line-height:1.6;}
+    .line-login-btn{border:0;border-radius:999px;background:#06c755;color:#fff;padding:14px 22px;font-weight:950;font-size:17px;display:inline-flex;gap:10px;align-items:center;box-shadow:0 12px 28px rgba(6,199,85,.24);}
+    .member-profile{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;}
+    .member-avatar{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#eaf4ff;}
+    .member-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+    .member-stat{background:rgba(255,255,255,.72);border-radius:22px;padding:18px;border:1px solid rgba(255,255,255,.72);}
+    .member-stat small{display:block;color:var(--muted);font-weight:900;margin-bottom:6px;}
+    .member-stat b{font-size:26px;color:var(--blue);}
+    .data-list{display:grid;gap:14px;}
+    .data-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:18px;}
+    .data-row strong{display:block;color:var(--deep);font-size:18px;}
+    .data-row span{display:block;color:var(--muted);font-weight:800;font-size:14px;margin-top:4px;}
+    .data-badge{border-radius:999px;padding:8px 12px;background:#eef6ff;color:var(--blue);font-weight:950;white-space:nowrap;}
+    .login-required{display:grid;gap:14px;}
+
 </style>
 </head>
 <body>
@@ -576,18 +438,18 @@
     </section>
 
     <section id="search" class="section">
-      <div class="page-head"><div class="page-title"><small>ACCESSORIES</small><h2>配件挑選</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="page-head"><div class="page-title"><small>ACCESSORIES</small><h2>配件挑選</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
       <div class="search-box"><input id="productKeyword" placeholder="搜尋型號、商品或維修項目"><select id="productType"><option value="">全部分類</option><option value="battery">電池</option><option value="screen">螢幕</option><option value="repair">維修</option></select></div>
       <div id="productList" class="list"></div>
     </section>
 
     <section id="stores" class="section">
-      <div class="page-head"><div class="page-title"><small>STORES</small><h2>門市據點</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="page-head"><div class="page-title"><small>STORES</small><h2>門市據點</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
       <div id="storeList" class="list"></div>
     </section>
 
     <section id="flow" class="section">
-      <div class="page-head"><div class="page-title"><small>SERVICE FLOW</small><h2>服務流程</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="page-head"><div class="page-title"><small>SERVICE FLOW</small><h2>服務流程</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
       <div class="process-page">
         <div class="process-tabs" aria-label="服務流程分類">
           <button type="button" class="process-tab active" data-process="phone">手機維修</button>
@@ -603,7 +465,7 @@
     </section>
 
     <section id="quote" class="section">
-      <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home">首頁</button></div>
+      <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
       <div class="price-page">
         <div class="price-tabs" aria-label="維修報價分類">
           <button type="button" class="price-tab active" data-price-img="memory">iPhone 擴容</button>
@@ -617,29 +479,38 @@
     </section>
 
     <section id="wallet" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER WALLET</small><h2>會員錢包</h2></div><button class="back-home" data-route="home">首頁</button></div>
-      <div id="walletList" class="list"></div>
+      <div class="page-head"><div class="page-title"><small>TICKET WALLET</small><h2>票券錢包</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div id="walletList" class="data-list"></div>
+    </section>
+
+    <section id="reservation" class="section">
+      <div class="page-head"><div class="page-title"><small>MY BOOKINGS</small><h2>我的預約</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div id="reservationList" class="data-list"></div>
+    </section>
+
+    <section id="gift" class="section">
+      <div class="page-head"><div class="page-title"><small>BLACK BOX PRIVILEGE</small><h2>盒芯禮遇</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div id="giftList" class="data-list"></div>
+    </section>
+
+    <section id="member" class="section">
+      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div id="memberArea" class="login-required"></div>
     </section>
 
     <section id="booking" class="section">
-      <div class="page-head"><div class="page-title"><small>ONLINE BOOKING</small><h2>線上預約</h2></div><button class="back-home" data-route="home">首頁</button></div>
-      <a class="booking-open-link" href="https://blackboxrepair.github.io/bookingonline/" target="_blank" rel="noopener">
-        另開預約頁 <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon>
-      </a>
-      <div class="booking-frame-wrap">
-        <iframe
-          src="https://blackboxrepair.github.io/bookingonline/"
-          class="booking-frame"
-          title="黑盒子線上預約"
-          loading="lazy">
-        </iframe>
+      <div class="page-head"><div class="page-title"><small>ONLINE BOOKING</small><h2>線上預約</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="login-card">
+        <h3>前往線上預約</h3>
+        <p>點擊後會直接開啟黑盒子線上預約系統。</p>
+        <a class="booking-open-link" href="https://blackboxrepair.github.io/bookingonline/">立即前往 <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon></a>
       </div>
     </section>
   </main>
 
   <nav class="bottom-nav" aria-label="底部選單">
     <div class="bottom-shell">
-      <button class="bottom-link" data-gift-modal aria-label="盒芯禮遇">
+      <button class="bottom-link" data-route="gift" aria-label="盒芯禮遇">
         <iconify-icon icon="mdi:key-star"></iconify-icon>
         <span>盒芯禮遇</span>
       </button>
@@ -847,7 +718,132 @@
         btn.textContent = old; btn.disabled = false;
       }
     });
-  </script>
+  
+
+    const LIFF_ID = '2007643127-1bJWbG3Q';
+    let currentMember = JSON.parse(localStorage.getItem('bb_member') || 'null');
+    let currentLineProfile = JSON.parse(localStorage.getItem('bb_line_profile') || 'null');
+
+    async function initLiffMember(){
+      try{
+        if(!window.liff) return;
+        await liff.init({ liffId: LIFF_ID });
+        if(liff.isLoggedIn()){
+          const profile = await liff.getProfile();
+          currentLineProfile = profile;
+          localStorage.setItem('bb_line_profile', JSON.stringify(profile));
+          await loadMemberByLine(profile);
+        }
+      }catch(err){
+        console.warn('LIFF init failed', err);
+      }finally{
+        renderMemberState();
+      }
+    }
+
+    async function startLineLogin(){
+      try{
+        if(!window.liff){ alert('LINE 連動功能尚未載入，請稍後再試。'); return; }
+        await liff.init({ liffId: LIFF_ID });
+        if(!liff.isLoggedIn()){ liff.login({ redirectUri: location.href }); return; }
+        const profile = await liff.getProfile();
+        currentLineProfile = profile;
+        localStorage.setItem('bb_line_profile', JSON.stringify(profile));
+        await loadMemberByLine(profile);
+        renderMemberState();
+        alert('LINE 會員連動成功');
+      }catch(err){
+        console.error(err);
+        alert('LINE 連動失敗，請稍後再試。');
+      }
+    }
+
+    async function loadMemberByLine(profile){
+      const lineId = profile?.userId;
+      if(!lineId) return null;
+      try{
+        let { data, error } = await supabaseClient.from('members').select('*').eq('line_user_id', lineId).maybeSingle();
+        if(error || !data){
+          const payload = { line_user_id: lineId, line_name: profile.displayName || '', avatar_url: profile.pictureUrl || '', points: 0, member_level: '一般會員' };
+          const created = await supabaseClient.from('members').insert(payload).select('*').single();
+          data = created.data || payload;
+        }
+        currentMember = data;
+        localStorage.setItem('bb_member', JSON.stringify(data));
+        return data;
+      }catch(err){
+        console.warn('member load fallback', err);
+        currentMember = { line_user_id:lineId, line_name:profile.displayName || 'BLACK BOX 會員', avatar_url:profile.pictureUrl || '', points:0, member_level:'一般會員' };
+        localStorage.setItem('bb_member', JSON.stringify(currentMember));
+        return currentMember;
+      }
+    }
+
+    function requireLoginHTML(){
+      return `<div class="login-card"><h3>請先連動 LINE 會員</h3><p>連動成功後，票券錢包、我的預約、盒芯禮遇與會員專區會顯示您的會員資料。</p><button class="line-login-btn" type="button" onclick="startLineLogin()"><iconify-icon icon="simple-icons:line"></iconify-icon> 使用 LINE 登入／連動會員</button></div>`;
+    }
+
+    function renderMemberState(){
+      renderMemberArea();
+      renderWalletPage();
+      renderReservationPage();
+      renderGiftPage();
+      const pointsText = currentMember ? `${Number(currentMember.points || currentMember.point || 0).toLocaleString()} P` : '尚未登入';
+      const hp = $('#homePoints'); if(hp) hp.textContent = pointsText;
+      const hc = $('#homeCoupons'); if(hc) hc.textContent = currentMember ? '載入中' : '尚未登入';
+    }
+
+    function renderMemberArea(){
+      const box = $('#memberArea'); if(!box) return;
+      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      const name = currentMember.name || currentMember.member_name || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
+      const avatar = currentMember.avatar_url || currentLineProfile?.pictureUrl || 'favicon.png';
+      const points = Number(currentMember.points || currentMember.point || 0).toLocaleString();
+      const level = currentMember.member_level || currentMember.level || '一般會員';
+      box.innerHTML = `<div class="member-card"><div class="member-profile"><img class="member-avatar" src="${avatar}" alt="會員頭像"><div><h3>${name}</h3><p>${level}</p></div></div><div class="member-grid"><div class="member-stat"><small>我的點數</small><b>${points} P</b></div><div class="member-stat"><small>會員狀態</small><b>已連動</b></div></div></div>`;
+    }
+
+    async function renderWalletPage(){
+      const box = $('#walletList'); if(!box) return;
+      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
+      let coupons = [];
+      try{
+        const lineId = currentMember.line_user_id || currentLineProfile?.userId;
+        const res = await supabaseClient.from('coupons').select('*').or(`line_user_id.eq.${lineId},member_id.eq.${currentMember.id || ''}`).order('created_at',{ascending:false});
+        coupons = res.data || [];
+      }catch(e){ coupons = []; }
+      const points = Number(currentMember.points || currentMember.point || 0).toLocaleString();
+      const rows = [`<div class="data-row"><div><strong>我的點數</strong><span>目前可用點數</span></div><em class="data-badge">${points} P</em></div>`];
+      if(coupons.length){
+        rows.push(...coupons.map(c=>`<div class="data-row"><div><strong>${c.title || c.name || '優惠券'}</strong><span>${c.description || c.expired_at || c.status || '可於門市使用'}</span></div><em class="data-badge">${c.status || '可使用'}</em></div>`));
+      }else{
+        rows.push('<div class="data-row"><div><strong>優惠券</strong><span>目前尚無可用優惠券</span></div><em class="data-badge">0 張</em></div>');
+      }
+      box.innerHTML = rows.join('');
+      const hc = $('#homeCoupons'); if(hc) hc.textContent = `${coupons.length} 張`;
+    }
+
+    async function renderReservationPage(){
+      const box = $('#reservationList'); if(!box) return;
+      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      let rows=[];
+      try{
+        const lineId = currentMember.line_user_id || currentLineProfile?.userId;
+        const res = await supabaseClient.from('reservations').select('*').or(`line_user_id.eq.${lineId},member_id.eq.${currentMember.id || ''}`).order('created_at',{ascending:false});
+        rows = res.data || [];
+      }catch(e){ rows=[]; }
+      box.innerHTML = rows.length ? rows.map(r=>`<div class="data-row"><div><strong>${r.store || r.store_name || '維修預約'}</strong><span>${r.date || r.booking_date || ''} ${r.time || r.booking_time || ''}<br>${r.model || ''} ${r.issue || ''}</span></div><em class="data-badge">${r.status || '已建立'}</em></div>`).join('') : '<div class="empty">目前沒有預約紀錄</div>';
+    }
+
+    async function renderGiftPage(){
+      const box = $('#giftList'); if(!box) return;
+      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      box.innerHTML = `<div class="data-panel"><h3>盒芯禮遇暫未開啟</h3><p>此區未來會顯示會員專屬活動、兌換資格與限定福利。</p></div>`;
+    }
+
+    document.addEventListener('DOMContentLoaded', initLiffMember);
+</script>
   <div class="gift-modal" id="giftModal" aria-hidden="true">
     <div class="gift-modal-card" role="dialog" aria-modal="true" aria-label="盒芯禮遇提示">
       <iconify-icon icon="mdi:key-star"></iconify-icon>
