@@ -747,10 +747,24 @@
     const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','gift','cases']);
 
     function routeTo(id){
-      const target = VALID_ROUTES.has(id) ? id : 'home';
+      let target = VALID_ROUTES.has(id) ? id : 'home';
+      const requestedTarget = target;
+
+      // 登入前保護：除了「首頁」之外，點擊底部選單的會員功能，都先引導到會員登入頁。
+      // 登入後才允許查看：我的預約、票券錢包、盒芯禮遇、會員專區。
+      const protectedRoutes = ['reservation','wallet','gift','member'];
+      if(protectedRoutes.includes(target) && !currentMember){
+        target = 'member';
+      }
 
       $$('.section').forEach(s => s.classList.toggle('active', s.id === target));
-      $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === target));
+      $$('.bottom-link').forEach(b => {
+        const route = b.dataset.route;
+        const shouldActive = (!currentMember && protectedRoutes.includes(requestedTarget))
+          ? route === 'member'
+          : route === target;
+        b.classList.toggle('active', shouldActive);
+      });
       document.body.dataset.page = target;
       window.scrollTo({top:0, behavior:'smooth'});
 
@@ -764,11 +778,7 @@
       if(target === 'member') renderMemberArea();
 
       const baseUrl = getBaseUrl();
-      if(location.pathname.replace(/\/$/, '') !== baseUrl){
-        history.replaceState({page:target}, '', baseUrl);
-      }else{
-        history.replaceState({page:target}, '', baseUrl);
-      }
+      history.replaceState({page:target}, '', baseUrl);
     }
 
     window.routeTo = routeTo;
@@ -976,9 +986,15 @@
 
     function renderMemberState(){
       renderMemberArea();
-      renderWalletPage();
-      renderReservationPage();
-      renderGiftPage();
+      if(currentMember){
+        renderWalletPage();
+        renderReservationPage();
+        renderGiftPage();
+      }else{
+        const wallet = $('#walletList'); if(wallet) wallet.innerHTML = '';
+        const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
+        const gift = $('#giftList'); if(gift) gift.innerHTML = '';
+      }
       const pointsText = currentMember ? `${Number(currentMember.points || currentMember.point || 0).toLocaleString()} P` : '尚未登入';
       const hp = $('#homePoints'); if(hp) hp.textContent = pointsText;
       const hc = $('#homeCoupons'); if(hc) hc.textContent = currentMember ? '載入中' : '尚未登入';
@@ -1027,7 +1043,7 @@
 
     async function renderWalletPage(){
       const box = $('#walletList'); if(!box) return;
-      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      if(!currentMember){ box.innerHTML = ''; return; }
       box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
       const lineId = memberLineId();
       const today = new Date().toISOString().split('T')[0];
@@ -1071,7 +1087,7 @@
 
     async function renderReservationPage(){
       const box = $('#reservationList'); if(!box) return;
-      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      if(!currentMember){ box.innerHTML = ''; return; }
       box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
       const phone = memberPhone();
       if(!phone){
@@ -1111,7 +1127,7 @@
 
     async function renderGiftPage(){
       const box = $('#giftList'); if(!box) return;
-      if(!currentMember){ box.innerHTML = requireLoginHTML(); return; }
+      if(!currentMember){ box.innerHTML = ''; return; }
       box.innerHTML = '<div class="skeleton"></div>';
       const lineId = memberLineId();
       const currentYear = new Date().getFullYear();
