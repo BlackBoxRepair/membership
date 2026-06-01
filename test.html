@@ -473,7 +473,7 @@
       .member-line-pill{display:none;}
     }
 
-    /* 會員專區：會員卡 Card.png */
+    /* 會員專區：會員卡 Card.png（參考會員卡排版） */
     .bb-member-card-wrap{display:grid;gap:16px;}
     .bb-member-card-face{
       position:relative;
@@ -481,7 +481,7 @@
       aspect-ratio:1.586/1;
       border-radius:26px;
       overflow:hidden;
-      background:url('Card.png') center/cover no-repeat, linear-gradient(135deg,#1b75ff,#8fc7ff);
+      background:url('Card.png') center/cover no-repeat, linear-gradient(135deg,#777,#5f6268);
       box-shadow:0 22px 48px rgba(20,82,154,.18);
       border:1px solid rgba(255,255,255,.72);
       color:#fff;
@@ -491,35 +491,101 @@
       content:'';
       position:absolute;
       inset:0;
-      background:linear-gradient(135deg,rgba(0,24,48,.10),rgba(255,255,255,.04));
+      background:linear-gradient(135deg,rgba(255,255,255,.05),rgba(0,0,0,.04));
       pointer-events:none;
       z-index:0;
     }
     .bb-card-field{
       position:absolute;
       z-index:1;
-      max-width:48%;
-      text-shadow:0 3px 12px rgba(0,0,0,.18);
-      line-height:1.15;
+      line-height:1.05;
+      text-shadow:none;
     }
-    .bb-card-field small{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;opacity:.72;margin-bottom:5px;}
-    .bb-card-field b{display:block;font-size:20px;font-weight:1000;letter-spacing:-.03em;word-break:break-word;}
-    .bb-card-name{left:24px;top:22px;text-align:left;}
-    .bb-card-points{right:24px;top:22px;text-align:right;}
-    .bb-card-phone{left:24px;bottom:22px;text-align:left;}
-    .bb-card-level{right:24px;bottom:22px;text-align:right;}
+    .bb-card-field small{
+      display:block;
+      color:#aeb6c1;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.18em;
+      line-height:1;
+      margin-bottom:16px;
+      text-transform:uppercase;
+    }
+    .bb-card-field b{
+      display:block;
+      color:#fff;
+      font-size:28px;
+      font-weight:1000;
+      letter-spacing:.02em;
+      line-height:1.08;
+      word-break:break-word;
+    }
+    .bb-card-name{
+      left:9%;
+      top:17%;
+      max-width:48%;
+      text-align:left;
+    }
+    .bb-card-points{
+      right:8%;
+      top:17%;
+      max-width:34%;
+      text-align:right;
+    }
+    .bb-card-points b{
+      color:#ffd51b;
+      font-size:54px;
+      line-height:.95;
+      letter-spacing:-.03em;
+    }
+    .bb-card-phone{
+      left:9%;
+      bottom:17%;
+      max-width:54%;
+      text-align:left;
+    }
+    .bb-card-phone b{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
+      font-size:23px;
+      font-weight:800;
+      letter-spacing:.08em;
+      color:rgba(255,255,255,.9);
+    }
+    .bb-card-level{
+      right:8%;
+      bottom:14%;
+      min-width:118px;
+      text-align:center;
+      padding:12px 22px;
+      border-radius:999px;
+      background:rgba(255,255,255,.13);
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .bb-card-level small{display:none;}
+    .bb-card-level b{
+      font-size:18px;
+      font-weight:1000;
+      letter-spacing:.12em;
+      color:#fff;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
     .bb-member-info-list{display:grid;gap:12px;}
     .bb-member-info-row{display:flex;justify-content:space-between;align-items:center;gap:14px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.74);border-radius:18px;padding:14px 16px;font-weight:900;color:var(--deep);}
     .bb-member-info-row span{color:var(--muted);font-size:13px;}
     .bb-member-info-row b{font-size:15px;text-align:right;}
     @media (max-width:560px){
       .bb-member-card-face{border-radius:22px;}
-      .bb-card-field small{font-size:10px;margin-bottom:4px;}
-      .bb-card-field b{font-size:17px;}
-      .bb-card-name{left:18px;top:18px;}
-      .bb-card-points{right:18px;top:18px;}
-      .bb-card-phone{left:18px;bottom:18px;}
-      .bb-card-level{right:18px;bottom:18px;}
+      .bb-card-field small{font-size:10px;margin-bottom:10px;letter-spacing:.16em;}
+      .bb-card-field b{font-size:21px;}
+      .bb-card-name{left:8.5%;top:16%;max-width:48%;}
+      .bb-card-points{right:8%;top:16%;}
+      .bb-card-points b{font-size:44px;}
+      .bb-card-phone{left:8.5%;bottom:16%;max-width:58%;}
+      .bb-card-phone b{font-size:16px;letter-spacing:.06em;}
+      .bb-card-level{right:8%;bottom:13%;min-width:92px;padding:10px 16px;}
+      .bb-card-level b{font-size:13px;letter-spacing:.10em;}
     }
 
     .member-profile{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;}
@@ -1075,8 +1141,8 @@
         <div class="bb-member-card-wrap">
           <div class="bb-member-card-face" aria-label="BLACK BOX 會員卡">
             <div class="bb-card-field bb-card-name"><small>MEMBER NAME</small><b>${escapeHTML(name)}</b></div>
-            <div class="bb-card-field bb-card-points"><small>POINTS</small><b>${escapeHTML(points)} P</b></div>
-            <div class="bb-card-field bb-card-phone"><small>PHONE</small><b>${escapeHTML(phone)}</b></div>
+            <div class="bb-card-field bb-card-points"><small>POINTS</small><b>${escapeHTML(points)}</b></div>
+            <div class="bb-card-field bb-card-phone"><small>PHONE NUMBER</small><b>${escapeHTML(phone)}</b></div>
             <div class="bb-card-field bb-card-level"><small>LEVEL</small><b>${escapeHTML(level)}</b></div>
           </div>
 
