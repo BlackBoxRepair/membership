@@ -472,6 +472,56 @@
       .member-login-submit{height:40px;font-size:16px;}
       .member-line-pill{display:none;}
     }
+
+    /* 會員專區：會員卡 Card.png */
+    .bb-member-card-wrap{display:grid;gap:16px;}
+    .bb-member-card-face{
+      position:relative;
+      width:100%;
+      aspect-ratio:1.586/1;
+      border-radius:26px;
+      overflow:hidden;
+      background:url('Card.png') center/cover no-repeat, linear-gradient(135deg,#1b75ff,#8fc7ff);
+      box-shadow:0 22px 48px rgba(20,82,154,.18);
+      border:1px solid rgba(255,255,255,.72);
+      color:#fff;
+      isolation:isolate;
+    }
+    .bb-member-card-face::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg,rgba(0,24,48,.10),rgba(255,255,255,.04));
+      pointer-events:none;
+      z-index:0;
+    }
+    .bb-card-field{
+      position:absolute;
+      z-index:1;
+      max-width:48%;
+      text-shadow:0 3px 12px rgba(0,0,0,.18);
+      line-height:1.15;
+    }
+    .bb-card-field small{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;opacity:.72;margin-bottom:5px;}
+    .bb-card-field b{display:block;font-size:20px;font-weight:1000;letter-spacing:-.03em;word-break:break-word;}
+    .bb-card-name{left:24px;top:22px;text-align:left;}
+    .bb-card-points{right:24px;top:22px;text-align:right;}
+    .bb-card-phone{left:24px;bottom:22px;text-align:left;}
+    .bb-card-level{right:24px;bottom:22px;text-align:right;}
+    .bb-member-info-list{display:grid;gap:12px;}
+    .bb-member-info-row{display:flex;justify-content:space-between;align-items:center;gap:14px;background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.74);border-radius:18px;padding:14px 16px;font-weight:900;color:var(--deep);}
+    .bb-member-info-row span{color:var(--muted);font-size:13px;}
+    .bb-member-info-row b{font-size:15px;text-align:right;}
+    @media (max-width:560px){
+      .bb-member-card-face{border-radius:22px;}
+      .bb-card-field small{font-size:10px;margin-bottom:4px;}
+      .bb-card-field b{font-size:17px;}
+      .bb-card-name{left:18px;top:18px;}
+      .bb-card-points{right:18px;top:18px;}
+      .bb-card-phone{left:18px;bottom:18px;}
+      .bb-card-level{right:18px;bottom:18px;}
+    }
+
     .member-profile{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;}
     .member-avatar{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#eaf4ff;}
     .member-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
@@ -998,6 +1048,10 @@
       return currentMember?.phone || currentMember?.mobile || currentMember?.tel || '';
     }
 
+    function escapeHTML(value){
+      return String(value ?? '').replace(/[&<>"]+/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       const memberSection = document.getElementById('member');
@@ -1007,26 +1061,37 @@
         return;
       }
       memberSection?.classList.remove('member-login-mode');
-      const name = currentMember.full_name || currentMember.name || currentMember.member_name || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
-      const avatar = currentLineProfile?.pictureUrl || currentMember.avatar_url || 'favicon.png';
-      const points = Number(currentMember.total_points ?? currentMember.points ?? currentMember.point ?? 0).toLocaleString();
-      const phone = memberPhone() || '尚未補齊';
-      const birthday = currentMember.birthday || '尚未補齊';
-      const email = currentMember.email || '尚未填寫';
-      const area = currentMember.area || '尚未填寫';
+
+      const name = currentMember.full_name || currentMember.name || currentMember.member_name || currentMember.memberName || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
+      const pointsRaw = currentMember.total_points ?? currentMember.points ?? currentMember.point ?? currentMember.member_points ?? 0;
+      const points = Number(pointsRaw || 0).toLocaleString();
+      const phone = memberPhone() || currentMember.member_phone || currentMember.phone_number || '尚未補齊';
+      const level = currentMember.member_level || currentMember.level || currentMember.rank || currentMember.member_rank || '一般會員';
+      const birthday = currentMember.birthday || currentMember.member_birthday || '尚未補齊';
+      const email = currentMember.email || currentMember.member_email || '尚未填寫';
+      const area = currentMember.area || currentMember.store || currentMember.join_store || currentMember.member_store || '尚未填寫';
+
       box.innerHTML = `
-        <div class="member-card">
-          <div class="member-profile">
-            <img class="member-avatar" src="${avatar}" alt="會員頭像">
-            <div><h3>${name}</h3><p>LINE 會員已連動</p></div>
+        <div class="bb-member-card-wrap">
+          <div class="bb-member-card-face" aria-label="BLACK BOX 會員卡">
+            <div class="bb-card-field bb-card-name"><small>MEMBER NAME</small><b>${escapeHTML(name)}</b></div>
+            <div class="bb-card-field bb-card-points"><small>POINTS</small><b>${escapeHTML(points)} P</b></div>
+            <div class="bb-card-field bb-card-phone"><small>PHONE</small><b>${escapeHTML(phone)}</b></div>
+            <div class="bb-card-field bb-card-level"><small>LEVEL</small><b>${escapeHTML(level)}</b></div>
           </div>
-          <div class="member-grid">
-            <div class="member-stat"><small>我的點數</small><b>${points} P</b></div>
-            <div class="member-stat"><small>會員電話</small><b>${phone}</b></div>
-            <div class="member-stat"><small>會員生日</small><b>${birthday}</b></div>
-            <div class="member-stat"><small>常用門市</small><b>${area}</b></div>
+
+          <div class="data-panel">
+            <h3>會員資料</h3>
+            <div class="bb-member-info-list" style="margin-top:14px">
+              <div class="bb-member-info-row"><span>會員姓名</span><b>${escapeHTML(name)}</b></div>
+              <div class="bb-member-info-row"><span>會員電話</span><b>${escapeHTML(phone)}</b></div>
+              <div class="bb-member-info-row"><span>會員積分</span><b>${escapeHTML(points)} P</b></div>
+              <div class="bb-member-info-row"><span>會員等級</span><b>${escapeHTML(level)}</b></div>
+              <div class="bb-member-info-row"><span>會員生日</span><b>${escapeHTML(birthday)}</b></div>
+              <div class="bb-member-info-row"><span>電子信箱</span><b>${escapeHTML(email)}</b></div>
+              <div class="bb-member-info-row"><span>常用門市</span><b>${escapeHTML(area)}</b></div>
+            </div>
           </div>
-          <div class="data-panel" style="margin-top:14px"><h3>會員資料</h3><p>Email：${email}</p></div>
         </div>`;
     }
 
