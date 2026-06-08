@@ -1101,7 +1101,7 @@
         const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
         const gift = $('#giftList'); if(gift) gift.innerHTML = '';
       }
-      const pointsText = currentMember ? `${Number(currentMember.points || currentMember.point || 0).toLocaleString()} P` : '尚未登入';
+      const pointsText = currentMember ? `${Number(currentMember.total_points || 0).toLocaleString()} P` : '尚未登入';
       const hp = $('#homePoints'); if(hp) hp.textContent = pointsText;
       const hc = $('#homeCoupons'); if(hc) hc.textContent = currentMember ? '載入中' : '尚未登入';
     }
@@ -1111,7 +1111,7 @@
     }
 
     function memberPhone(){
-      return currentMember?.phone || currentMember?.mobile || currentMember?.tel || '';
+      return currentMember?.phone || '';
     }
 
     function escapeHTML(value){
@@ -1128,11 +1128,10 @@
       }
       memberSection?.classList.remove('member-login-mode');
 
-      const name = currentMember.full_name || currentMember.name || currentMember.member_name || currentMember.memberName || currentMember.line_name || currentLineProfile?.displayName || 'BLACK BOX 會員';
-      const pointsRaw = currentMember.total_points ?? currentMember.points ?? currentMember.point ?? currentMember.member_points ?? 0;
-      const points = Number(pointsRaw || 0).toLocaleString();
-      const phone = memberPhone() || currentMember.member_phone || currentMember.phone_number || '尚未補齊';
-      const level = currentMember.member_level || currentMember.level || currentMember.rank || currentMember.member_rank || '一般會員';
+      const name = currentMember.full_name || '尚未補齊';
+      const points = Number(currentMember.total_points || 0).toLocaleString();
+      const phone = currentMember.phone || '尚未補齊';
+      const level = currentMember.member_level || 'MEMBER';
       const birthday = currentMember.birthday || currentMember.member_birthday || '尚未補齊';
       const email = currentMember.email || currentMember.member_email || '尚未填寫';
       const area = currentMember.area || currentMember.store || currentMember.join_store || currentMember.member_store || '尚未填寫';
@@ -1189,7 +1188,7 @@
         coupons = [];
       }
 
-      const points = Number(currentMember.total_points ?? currentMember.points ?? currentMember.point ?? 0).toLocaleString();
+      const points = Number(currentMember.total_points || 0).toLocaleString();
       const rows = [`<div class="data-row"><div><strong>我的點數</strong><span>目前可用點數</span></div><em class="data-badge">${points} P</em></div>`];
       if(coupons.length){
         rows.push(...coupons.map(c=>{
