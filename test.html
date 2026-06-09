@@ -219,24 +219,30 @@
     }
     .member-logout-btn:active,
     .member-info-btn:active{transform:translateY(0) scale(.98);}
-    /* 會員專區右上角按鈕：固定為圓形 icon-only */
-    .member-actions{gap:8px;}
-    .member-info-btn,
-    .member-logout-btn{
-      width:48px;
-      min-width:48px;
-      height:48px;
+    /* 會員專區右上角按鈕：會籍積分維持圓形 icon-only；登出改為小型膠囊按鈕 */
+    .member-actions{gap:7px;}
+    .member-info-btn{
+      width:42px;
+      min-width:42px;
+      height:42px;
       padding:0;
       border-radius:999px;
     }
-    .member-info-btn span,
-    .member-logout-btn span{display:none!important;}
+    .member-info-btn span{display:none!important;}
+    .member-logout-btn{
+      height:42px;
+      min-width:0;
+      width:auto;
+      padding:0 12px;
+      border-radius:999px;
+      gap:6px;
+    }
+    .member-logout-btn span{display:inline!important;}
     @media (max-width:390px){
       .member-actions{gap:6px;}
-      .member-info-btn span,
-      .member-logout-btn span{display:none;}
-      .member-info-btn,
-      .member-logout-btn{padding:0;width:48px;}
+      .member-info-btn{width:40px;min-width:40px;height:40px;padding:0;}
+      .member-logout-btn{height:40px;padding:0 10px;font-size:12px;}
+      .member-logout-btn span{display:inline!important;}
     }
 
     .bb-points-info-modal{
@@ -974,7 +980,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="solar:star-bold"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -1040,7 +1046,7 @@
         <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
       </button>
       <div class="bb-points-info-icon">
-        <iconify-icon icon="solar:star-bold"></iconify-icon>
+        <iconify-icon icon="flowbite:star-solid"></iconify-icon>
       </div>
       <h3 id="pointsInfoTitle">會籍積分</h3>
       <p class="points-main">每 10 積分<br>可折抵消費金額 10 元</p>
