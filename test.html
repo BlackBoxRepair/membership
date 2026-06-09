@@ -182,7 +182,15 @@
     .bottom-link.home-center{width:58px;height:58px;border-radius:999px;background:#fff;color:#728093;justify-self:center;box-shadow:0 14px 30px rgba(17,24,39,.18);transform:translateY(-10px)}
     .bottom-link.home-center iconify-icon{font-size:29px;color:currentColor}
 
-    .member-logout-btn{
+    .member-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      flex-shrink:0;
+    }
+    .member-logout-btn,
+    .member-info-btn{
       height:48px;
       min-width:48px;
       padding:0 14px;
@@ -192,6 +200,7 @@
       color:#0b4264;
       box-shadow:0 12px 26px rgba(16,24,36,.12);
       backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
       display:inline-flex;
       align-items:center;
       justify-content:center;
@@ -200,13 +209,72 @@
       font-weight:950;
       transition:transform .22s ease,color .22s ease,background .22s ease,box-shadow .22s ease;
     }
-    .member-logout-btn iconify-icon{font-size:24px;color:currentColor;}
-    .member-logout-btn:hover{
+    .member-logout-btn iconify-icon,
+    .member-info-btn iconify-icon{font-size:24px;color:currentColor;}
+    .member-logout-btn:hover,
+    .member-info-btn:hover{
       transform:translateY(-1px);
       background:rgba(255,255,255,.96);
       box-shadow:0 16px 30px rgba(16,24,36,.16);
     }
-    .member-logout-btn:active{transform:translateY(0) scale(.98);}
+    .member-logout-btn:active,
+    .member-info-btn:active{transform:translateY(0) scale(.98);}
+    @media (max-width:390px){
+      .member-actions{gap:6px;}
+      .member-info-btn span,
+      .member-logout-btn span{display:none;}
+      .member-info-btn,
+      .member-logout-btn{padding:0;width:48px;}
+    }
+
+    .bb-points-info-modal{
+      position:fixed;
+      inset:0;
+      z-index:2600;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.4);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      animation:fadeIn .2s ease-out;
+    }
+    .bb-points-info-modal.show{display:flex;}
+    .bb-points-info-card{
+      background:#fff;
+      border-radius:32px;
+      padding:32px 24px;
+      text-align:center;
+      width:100%;
+      max-width:320px;
+      box-shadow:0 20px 40px rgba(0,0,0,.1);
+    }
+    .bb-points-info-icon{
+      position:relative;
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      background:#F2F4F6;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 20px;
+      color:#191F28;
+    }
+    .bb-points-info-icon::before{
+      content:"";
+      position:absolute;
+      inset:4px;
+      border-radius:50%;
+      border:1.5px solid #191F28;
+    }
+    .bb-points-info-icon iconify-icon{font-size:27px;color:currentColor;position:relative;z-index:1;}
+    .bb-points-info-card h3{font-size:22px;font-weight:950;color:#191F28;margin:0 0 12px;}
+    .bb-points-info-card .points-main{font-size:15px;color:#4E5968;font-weight:650;line-height:1.65;margin:0 0 24px;}
+    .bb-points-info-rules{background:#F2F4F6;padding:16px;border-radius:16px;text-align:left;}
+    .bb-points-info-rules p{font-size:11px;color:#8B95A1;font-weight:650;line-height:1.55;margin:0 0 6px;}
+    .bb-points-info-rules p:last-child{margin-bottom:0;}
     .bottom-link.home-center.active{
       background:
         linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.36)),
@@ -874,7 +942,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div>
+      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="solar:star-bold"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -1029,6 +1097,23 @@
       history.replaceState({page:target}, '', baseUrl);
     }
 
+
+    function openPointsInfoModal(){
+      const modal = document.getElementById('pointsInfoModal');
+      if(!modal) return;
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    function closePointsInfoModal(){
+      const modal = document.getElementById('pointsInfoModal');
+      if(!modal) return;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    window.openPointsInfoModal = openPointsInfoModal;
+    window.closePointsInfoModal = closePointsInfoModal;
 
     function logoutMember(){
       try{
