@@ -275,6 +275,26 @@
     .bb-points-info-rules{background:#F2F4F6;padding:16px;border-radius:16px;text-align:left;}
     .bb-points-info-rules p{font-size:11px;color:#8B95A1;font-weight:650;line-height:1.55;margin:0 0 6px;}
     .bb-points-info-rules p:last-child{margin-bottom:0;}
+
+    .bb-points-info-close{
+      position:absolute;
+      top:14px;
+      right:14px;
+      width:38px;
+      height:38px;
+      border-radius:999px;
+      background:#F2F4F6;
+      color:#8B95A1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:transform .22s ease, background .22s ease, color .22s ease;
+    }
+    .bb-points-info-close:hover{background:#E5E8EB;color:#191F28;transform:translateY(-1px);}
+    .bb-points-info-close:active{transform:scale(.96);}
+    .bb-points-info-close iconify-icon{font-size:25px;color:currentColor;}
+    .bb-points-info-card{position:relative;}
+
     .bottom-link.home-center.active{
       background:
         linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.36)),
@@ -942,7 +962,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="solar:star-bold"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="solar:star-bold"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -999,7 +1019,28 @@
     </div>
   </div>
 
-  <script>
+  
+
+  <!-- 會籍積分說明彈窗：沿用舊版會員中心內容 -->
+  <div id="pointsInfoModal" class="bb-points-info-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pointsInfoTitle">
+    <div class="bb-points-info-card" onclick="event.stopPropagation()">
+      <button type="button" class="bb-points-info-close" aria-label="關閉會籍積分說明" onclick="closePointsInfoModal()">
+        <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+      </button>
+      <div class="bb-points-info-icon">
+        <iconify-icon icon="solar:star-bold"></iconify-icon>
+      </div>
+      <h3 id="pointsInfoTitle">會籍積分</h3>
+      <p class="points-main">每 10 積分<br>可折抵消費金額 10 元</p>
+      <div class="bb-points-info-rules">
+        <p>・若有違法使用或消費退款，系統會追回已發放之積分。</p>
+        <p>・本系統目前僅適用於勤美公益門市、沙鹿站前門市。</p>
+        <p>・會籍積分及票券是綁定會員 LINE 帳號，若更換 LINE 使用帳號所有積分及票券不予保留。</p>
+        <p>・積分及票券使用不與特約優惠疊加使用。</p>
+      </div>
+    </div>
+  </div>
+<script>
     const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1100,8 +1141,12 @@
 
     function openPointsInfoModal(){
       const modal = document.getElementById('pointsInfoModal');
-      if(!modal) return;
+      if(!modal){
+        console.warn('[BB DEBUG] pointsInfoModal not found');
+        return;
+      }
       modal.classList.add('show');
+      modal.style.display = 'flex';
       modal.setAttribute('aria-hidden','false');
     }
 
@@ -1109,11 +1154,26 @@
       const modal = document.getElementById('pointsInfoModal');
       if(!modal) return;
       modal.classList.remove('show');
+      modal.style.display = 'none';
       modal.setAttribute('aria-hidden','true');
     }
 
     window.openPointsInfoModal = openPointsInfoModal;
     window.closePointsInfoModal = closePointsInfoModal;
+
+    document.addEventListener('click', function(e){
+      const infoBtn = e.target.closest('.member-info-btn, [data-open-points-info]');
+      if(!infoBtn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openPointsInfoModal();
+    }, true);
+
+    document.addEventListener('click', function(e){
+      const modal = document.getElementById('pointsInfoModal');
+      if(!modal || !modal.classList.contains('show')) return;
+      if(e.target === modal) closePointsInfoModal();
+    });
 
     function logoutMember(){
       try{
