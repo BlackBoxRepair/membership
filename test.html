@@ -1284,6 +1284,10 @@
       return String(value ?? '').replace(/[&<>"]+/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
     }
 
+    function escapeAttr(value){
+      return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       const memberSection = document.getElementById('member');
@@ -1364,12 +1368,19 @@
         rows.push(...coupons.map(c=>{
           const dateText = c.valid_until ? `有效期限：${c.valid_until}` : '永久有效';
           const actionText = c.type === 'cash' ? `可折抵 ${Number(c.discount_amount || 0).toLocaleString()} 元` : '憑券到門市兌換';
-          return `<button type="button" class="data-row coupon-row" onclick="openCouponDetail('${String(c.id || '').replace(/'/g,'\\'')}')"><div><strong>${escapeHTML(c.coupon_name || c.title || c.name || '優惠券')}</strong><span>${escapeHTML(actionText)}<br>${escapeHTML(dateText)}</span></div><em class="data-badge">可使用</em></button>`;
+          return `<button type="button" class="data-row coupon-row" data-coupon-id="${escapeAttr(c.id || '')}"><div><strong>${escapeHTML(c.coupon_name || c.title || c.name || '優惠券')}</strong><span>${escapeHTML(actionText)}<br>${escapeHTML(dateText)}</span></div><em class="data-badge">可使用</em></button>`;
         }));
       }else{
         rows.push('<div class="data-row"><div><strong>優惠券</strong><span>目前沒有可用的優惠券</span></div><em class="data-badge">0 張</em></div>');
       }
       box.innerHTML = rows.join('');
+      $$('.coupon-row', box).forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openCouponDetail(btn.dataset.couponId || '');
+        });
+      });
       const hc = $('#homeCoupons'); if(hc) hc.textContent = `${coupons.length} 張`;
       const hp = $('#homePoints'); if(hp) hp.textContent = `${points} P`;
     }
