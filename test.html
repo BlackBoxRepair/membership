@@ -9,7 +9,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
   <style>
     :root{
       --bg:#eaf4ff;
@@ -601,6 +600,22 @@
     .data-badge{border-radius:999px;padding:8px 12px;background:#eef6ff;color:var(--blue);font-weight:950;white-space:nowrap;}
     .login-required{display:grid;gap:14px;}
 
+
+    .member-debug-box{
+      width:min(100%,320px);
+      margin:14px auto 0;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.86);
+      box-shadow:0 10px 24px rgba(15,23,42,.08);
+      color:#344054;
+      font-size:12px;
+      line-height:1.6;
+      font-weight:700;
+      text-align:left;
+    }
+    .member-debug-box small{display:block;margin-top:4px;color:#667085;font-weight:650;word-break:break-all}
 </style>
 </head>
 <body>
@@ -973,8 +988,13 @@
   
 
     const LIFF_ID = '2008733642-8wMmnKuw';
-    let currentMember = JSON.parse(localStorage.getItem('bb_member') || 'null');
-    let currentLineProfile = JSON.parse(localStorage.getItem('bb_line_profile') || 'null');
+    let currentMember = null;
+    let currentLineProfile = null;
+    let memberLookupStatus = 'idle';
+    let memberLookupMessage = '';
+
+    // 重要：會員資料不再優先讀取 localStorage 舊快取，避免顯示到錯誤會員資料。
+    localStorage.removeItem('bb_member');
 
     let liffReadyPromise = null;
 
@@ -1022,7 +1042,11 @@
         localStorage.setItem('bb_line_profile', JSON.stringify(profile));
         await loadMemberByLine(profile);
         renderMemberState();
-        alert('LINE 會員連動成功');
+        if(currentMember){
+          alert('LINE 會員連動成功');
+        }else{
+          alert(memberLookupMessage || 'LINE 已連動，但查無對應會員資料。');
+        }
       }catch(err){
         console.error(err);
         alert('LINE 連動失敗：請確認 LIFF ID、Endpoint URL 與 LINE Developers 設定是否一致。');
@@ -1033,44 +1057,50 @@
 
     async function loadMemberByLine(profile){
       const lineId = profile?.userId;
-      if(!lineId) return null;
+      console.log('[BB DEBUG] LINE profile =', profile);
+      console.log('[BB DEBUG] LINE userId =', lineId);
+
+      currentMember = null;
+      memberLookupStatus = 'loading';
+      memberLookupMessage = '';
+      localStorage.removeItem('bb_member');
+
+      if(!lineId){
+        memberLookupStatus = 'error';
+        memberLookupMessage = 'LINE 未回傳 userId，無法查詢會員資料。';
+        console.warn('[BB DEBUG] LINE userId is empty');
+        return null;
+      }
+
       try{
-        let { data, error } = await supabaseClient
+        const { data, error } = await supabaseClient
           .from('profiles')
-          .select('*')
+          .select('line_id, full_name, total_points, phone, member_level')
           .eq('line_id', lineId)
           .maybeSingle();
 
+        console.log('[BB DEBUG] profiles query line_id =', lineId);
+        console.log('[BB DEBUG] profiles result =', { data, error });
+
         if(error) throw error;
 
-        // 舊版資料表 profiles 若尚未建立會員資料，先建立基本 LINE 會員資料。
-        // 若 phone / birthday 尚未補齊，會員專區會提示到門市或舊版會員頁補資料。
         if(!data){
-          const payload = {
-            line_id: lineId,
-            full_name: profile.displayName || '',
-            total_points: 0
-          };
-          const created = await supabaseClient
-            .from('profiles')
-            .upsert(payload, { onConflict:'line_id' })
-            .select('*')
-            .single();
-          data = created.data || payload;
+          memberLookupStatus = 'not_found';
+          memberLookupMessage = `找不到對應的會員資料。請確認 Supabase profiles.line_id 是否等於：${lineId}`;
+          console.warn('[BB DEBUG] 找不到 profiles 對應資料，line_id =', lineId);
+          return null;
         }
 
         currentMember = data;
-        localStorage.setItem('bb_member', JSON.stringify(data));
+        memberLookupStatus = 'found';
+        memberLookupMessage = '';
+        localStorage.setItem('bb_member_line_id', lineId);
         return data;
       }catch(err){
-        console.warn('profiles load fallback', err);
-        currentMember = {
-          line_id: lineId,
-          full_name: profile.displayName || 'BLACK BOX 會員',
-          total_points: 0
-        };
-        localStorage.setItem('bb_member', JSON.stringify(currentMember));
-        return currentMember;
+        memberLookupStatus = 'error';
+        memberLookupMessage = `會員資料查詢失敗：${err.message || err}`;
+        console.error('[BB DEBUG] profiles query failed', err);
+        return null;
       }
     }
 
@@ -1123,7 +1153,10 @@
       const memberSection = document.getElementById('member');
       if(!currentMember){
         memberSection?.classList.add('member-login-mode');
-        box.innerHTML = requireLoginHTML();
+        const debugMessage = (currentLineProfile && memberLookupStatus !== 'idle')
+          ? `<div class="member-debug-box"><b>會員資料狀態</b><br>${escapeHTML(memberLookupMessage || '尚未取得 profiles 會員資料')}<br><small>LINE userId：${escapeHTML(currentLineProfile.userId || '')}</small></div>`
+          : '';
+        box.innerHTML = requireLoginHTML() + debugMessage;
         return;
       }
       memberSection?.classList.remove('member-login-mode');
@@ -1142,7 +1175,7 @@
             <div class="bb-card-field bb-card-name"><small>MEMBER NAME</small><b>${escapeHTML(name)}</b></div>
             <div class="bb-card-field bb-card-points"><small>POINTS</small><b>${escapeHTML(points)}</b></div>
             <div class="bb-card-field bb-card-phone"><small>PHONE NUMBER</small><b>${escapeHTML(phone)}</b></div>
-            <div class="bb-card-field bb-card-level"><small>LEVEL</small><b>${escapeHTML(level)}</b></div>
+            <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
 
           <div class="data-panel">
