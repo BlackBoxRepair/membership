@@ -728,6 +728,20 @@
     .bb-coupon-footer{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 16px calc(14px + var(--safe-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.03);z-index:3001;}
     .bb-coupon-footer button{width:min(100%,448px);height:52px;margin:0 auto;display:block;border-radius:12px;background:#2ba769;color:#fff;font-size:17px;font-weight:950;}
 
+  
+
+    /* 2026-06-09 穩定修正：避免各頁右上角 favicon 圖片以原始尺寸溢出，蓋到頁面與底部選單 */
+    .back-home{overflow:hidden!important;position:relative!important;}
+    .back-home img{display:none!important;width:0!important;height:0!important;max-width:0!important;max-height:0!important;}
+
+    /* 2026-06-09 穩定修正：底部選單始終位於一般頁面最上層，只有真正開啟的彈窗可覆蓋 */
+    .bottom-nav{z-index:1200!important;pointer-events:none!important;}
+    .bottom-shell,.bottom-link{pointer-events:auto!important;}
+
+    /* 2026-06-09 穩定修正：票券詳情頁未開啟時完全不佔點擊層，避免擋住底部選單 */
+    .bb-coupon-detail-modal{display:none!important;pointer-events:none!important;}
+    .bb-coupon-detail-modal.show{display:flex!important;pointer-events:auto!important;}
+
   </style>
 </head>
 <body>
@@ -1049,6 +1063,16 @@
       e.stopPropagation();
       routeTo(btn.dataset.route);
     }));
+
+
+    // 2026-06-09 穩定修正：使用 capture 階段的委派事件，避免後續動態內容或溢出圖層讓底部選單失效。
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('button[data-route], .member-item[data-route]');
+      if(!btn) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      routeTo(btn.dataset.route);
+    }, true);
 
     async function loadStores(){
       const el = $('#storeList'); showSkeleton(el,2);
@@ -1515,14 +1539,21 @@
         new QRious({ element: canvas, value: makeQrValue('CPN', coupon.id), size: 160, level: 'H' });
       }
       const modal = document.getElementById('coupon-detail-modal');
-      modal?.classList.add('show');
-      modal?.setAttribute('aria-hidden','false');
+      if(modal){
+        modal.style.display = 'flex';
+        modal.setAttribute('aria-hidden','false');
+        requestAnimationFrame(() => modal.classList.add('show'));
+      }
     }
 
     function closeCouponDetail(){
       const modal = document.getElementById('coupon-detail-modal');
-      modal?.classList.remove('show');
-      modal?.setAttribute('aria-hidden','true');
+      if(!modal) return;
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden','true');
+      setTimeout(() => {
+        if(!modal.classList.contains('show')) modal.style.display = 'none';
+      }, 320);
     }
 
     window.openQrSheet = openQrSheet;
@@ -1564,7 +1595,7 @@
     </div>
   </div>
 
-  <div id="coupon-detail-modal" class="bb-coupon-detail-modal" aria-hidden="true">
+  <div id="coupon-detail-modal" class="bb-coupon-detail-modal" aria-hidden="true" style="display:none;">
     <div class="bb-coupon-head">
       <button type="button" onclick="closeCouponDetail()" aria-label="返回票券錢包"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></button>
       <h2>我的票券</h2>
