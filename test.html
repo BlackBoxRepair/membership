@@ -219,6 +219,18 @@
     }
     .member-logout-btn:active,
     .member-info-btn:active{transform:translateY(0) scale(.98);}
+    /* 會員專區右上角按鈕：固定為圓形 icon-only */
+    .member-actions{gap:8px;}
+    .member-info-btn,
+    .member-logout-btn{
+      width:48px;
+      min-width:48px;
+      height:48px;
+      padding:0;
+      border-radius:999px;
+    }
+    .member-info-btn span,
+    .member-logout-btn span{display:none!important;}
     @media (max-width:390px){
       .member-actions{gap:6px;}
       .member-info-btn span,
@@ -1036,6 +1048,7 @@
         <p>・若有違法使用或消費退款，系統會追回已發放之積分。</p>
         <p>・本系統目前僅適用於勤美公益門市、沙鹿站前門市。</p>
         <p>・會籍積分及票券是綁定會員 LINE 帳號，若更換 LINE 使用帳號所有積分及票券不予保留。</p>
+        <p>・積分無法透過空機 / 二手機選購方式取得，亦無法用於此類金額折抵。</p>
         <p>・積分及票券使用不與特約優惠疊加使用。</p>
       </div>
     </div>
