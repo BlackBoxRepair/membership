@@ -733,14 +733,12 @@
       display:flex;
       flex-direction:column;
       align-items:center;
-      cursor:pointer;
-      transition:transform .18s ease, box-shadow .18s ease;
+      cursor:default;
       user-select:none;
       -webkit-user-select:none;
       touch-action:manipulation;
       -webkit-tap-highlight-color:transparent;
     }
-    .bb-yearly-card:active{transform:scale(.98);}
     .bb-yearly-visual{
       width:100%;
       max-width:260px;
@@ -1195,6 +1193,12 @@
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
+      // 盒芯禮遇暫時上鎖：不進入獨立頁面，也不與年度消費次數連動。
+      if(requestedTarget === 'gift'){
+        openGiftLockedModal();
+        return;
+      }
+
       // 登入前保護：除了「首頁」之外，點擊底部選單的會員功能，都先引導到會員登入頁。
       // 登入後才允許查看：我的預約、票券錢包、盒芯禮遇、會員專區。
       const protectedRoutes = ['reservation','wallet','gift','member'];
@@ -1245,6 +1249,27 @@
       modal.style.display = 'none';
       modal.setAttribute('aria-hidden','true');
     }
+
+
+
+    function openGiftLockedModal(){
+      const modal = document.getElementById('giftModal');
+      if(!modal) return;
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    function closeGiftLockedModal(){
+      const modal = document.getElementById('giftModal');
+      if(!modal) return;
+      modal.classList.remove('active');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    window.openGiftLockedModal = openGiftLockedModal;
+    window.closeGiftLockedModal = closeGiftLockedModal;
 
     window.openPointsInfoModal = openPointsInfoModal;
     window.closePointsInfoModal = closePointsInfoModal;
@@ -1575,7 +1600,7 @@
             <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
 
-          <div id="memberYearlyCard" class="bb-yearly-card" role="button" tabindex="0" onclick="routeTo('gift')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();routeTo('gift');}" aria-label="查看年度消費次數與盒芯禮遇">
+          <div id="memberYearlyCard" class="bb-yearly-card" aria-label="年度消費次數">
             <div class="bb-yearly-visual">
               <svg viewBox="0 0 200 120" aria-hidden="true">
                 <defs>
@@ -1594,7 +1619,7 @@
               </svg>
               <div class="bb-yearly-center">
                 <span id="memberYearlyCount" class="bb-yearly-count">0</span>
-                <div class="bb-yearly-label">本年度消費次數 <iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></div>
+                <div class="bb-yearly-label">本年度消費次數</div>
               </div>
             </div>
           </div>
@@ -1750,51 +1775,13 @@
 
     async function renderGiftPage(){
       const box = $('#giftList'); if(!box) return;
-      if(!currentMember){ box.innerHTML = ''; return; }
-      box.innerHTML = '<div class="skeleton"></div>';
-      const lineId = memberLineId();
-      const currentYear = new Date().getFullYear();
-      const startDate = `${currentYear}-01-01T00:00:00.000Z`;
-      let times = 0;
-      let claimed = [];
-      try{
-        const { count, error } = await supabaseClient
-          .from('point_logs')
-          .select('*', { count:'exact', head:true })
-          .eq('line_id', lineId)
-          .gte('created_at', startDate)
-          .neq('store_name', '年度達成禮');
-        if(error) throw error;
-        times = count || 0;
-
-        const { data: claimedData } = await supabaseClient
-          .from('point_logs')
-          .select('order_number')
-          .eq('line_id', lineId)
-          .like('order_number', `YR_${currentYear}_%`);
-        claimed = (claimedData || []).map(row=>Number(String(row.order_number || '').split('_')[2])).filter(Boolean);
-      }catch(e){
-        console.warn('point_logs load failed', e);
-      }
-      const milestones = [3,6,10,15];
-      const next = milestones.find(m=>times < m) || 15;
-      const percentage = Math.min(times / 15 * 100, 100);
-      const milestoneHTML = milestones.map(m=>{
-        const reached = times >= m;
-        const done = claimed.includes(m);
-        return `<div class="data-row"><div><strong>${m} 次禮遇</strong><span>${done ? '已領取' : reached ? '已達成，可洽門市確認' : `尚差 ${m-times} 次`}</span></div><em class="data-badge">${done ? '完成' : reached ? '可領' : '未達成'}</em></div>`;
-      }).join('');
       box.innerHTML = `
         <div class="data-panel">
-          <h3>${currentYear} 盒芯禮遇</h3>
-          <p>今年已累積 ${times} 次有效消費紀錄；最高年度目標 15 次。</p>
-          <div style="height:10px;background:rgba(15,23,42,.08);border-radius:999px;overflow:hidden;margin:14px 0 6px">
-            <div style="width:${percentage}%;height:100%;background:#42b9ff;border-radius:999px"></div>
-          </div>
-          <p style="font-size:12px;color:#667085;margin:0">下一階段：${times >= 15 ? '已達年度最高階段' : `${next} 次`}</p>
-        </div>
-        ${milestoneHTML}`;
+          <h3>盒芯禮遇暫未開啟</h3>
+          <p>此頁面功能暫時上鎖，敬請期待更多會員專屬服務。</p>
+        </div>`;
     }
+
 
 
 
@@ -1876,8 +1863,8 @@
 
     document.addEventListener('DOMContentLoaded', initLiffMember);
 </script>
-  <div class="gift-modal" id="giftModal" aria-hidden="true">
-    <div class="gift-modal-card" role="dialog" aria-modal="true" aria-label="盒芯禮遇提示">
+  <div class="gift-modal" id="giftModal" aria-hidden="true" onclick="closeGiftLockedModal()">
+    <div class="gift-modal-card" role="dialog" aria-modal="true" aria-label="盒芯禮遇提示" onclick="event.stopPropagation()">
       <iconify-icon icon="mdi:key-star"></iconify-icon>
       <h3>盒芯禮遇暫未開啟</h3>
       <p>敬請期待更多會員專屬服務。</p>
