@@ -1653,17 +1653,21 @@
 
 
 
-    function makeQrValue(prefix, id){
-      return `${prefix}-${id || memberLineId() || 'BLACKBOX'}`;
+    function makeMemberQrValue(){
+      return 'BBX-' + (memberLineId() || 'BLACKBOX');
+    }
+
+    function makeCouponQrValue(couponId){
+      return 'CPN-' + (couponId || 'BLACKBOXCOUPON');
     }
 
     function openQrSheet(){
       const sheet = document.getElementById('qr-bottom-sheet');
       const canvas = document.getElementById('qr-code');
       if(!sheet || !canvas) return;
-      const value = makeQrValue('MBR', memberLineId());
+      const value = makeMemberQrValue();
       if(window.QRious){
-        new QRious({ element: canvas, value, size: 190, level: 'H' });
+        new QRious({ element: canvas, value, size: 200, level: 'M' });
       }
       sheet.classList.remove('closing');
       sheet.classList.add('show');
@@ -1700,7 +1704,7 @@
       }
       const canvas = document.getElementById('cd-qrcode');
       if(canvas && window.QRious){
-        new QRious({ element: canvas, value: makeQrValue('CPN', coupon.id), size: 160, level: 'H' });
+        new QRious({ element: canvas, value: makeCouponQrValue(coupon.id), size: 160, level: 'H' });
       }
       const modal = document.getElementById('coupon-detail-modal');
       if(modal){
