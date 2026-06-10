@@ -1026,7 +1026,38 @@
     .bb-sheet-info-row h4{margin:0 0 4px;color:#fff;font-size:16px;font-weight:950;letter-spacing:.03em;}
     .bb-sheet-info-row p{margin:0;color:#a0a0a0;font-size:13px;line-height:1.55;font-weight:700;}
     .bb-sheet-done{width:100%;height:52px;border-radius:14px;background:#fff;color:#191f28;font-size:17px;font-weight:950;}
-    .coupon-row{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;}
+    .coupon-row{width:100%;border:0;text-align:left;font-family:inherit;cursor:pointer;background:none;padding:0;}
+    .wallet-points-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.76));border:1px solid rgba(255,255,255,.88);box-shadow:0 14px 34px rgba(15,23,42,.08);margin-bottom:12px;}
+    .wallet-points-card .wallet-points-kicker{display:block;color:#8b95a1;font-size:12px;font-weight:900;letter-spacing:.12em;margin-bottom:6px;}
+    .wallet-points-card strong{display:block;color:var(--deep);font-size:20px;}
+    .wallet-points-card span{display:block;color:var(--muted);font-size:14px;font-weight:800;margin-top:4px;}
+    .wallet-points-chip{display:inline-flex;align-items:center;justify-content:center;min-width:92px;height:40px;padding:0 14px;border-radius:999px;background:rgba(247,181,0,.12);color:#bc8600;font-size:16px;font-weight:950;white-space:nowrap;}
+    .coupon-ticket{position:relative;display:block;width:100%;padding:0;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,#fffdf7 0%,#ffffff 58%,#fffbef 100%);border:1px solid rgba(247,181,0,.24);box-shadow:0 12px 32px rgba(15,23,42,.08);transition:transform .18s ease, box-shadow .18s ease;}
+    .coupon-ticket + .coupon-ticket{margin-top:14px;}
+    .coupon-ticket:hover{transform:translateY(-1px);box-shadow:0 16px 36px rgba(15,23,42,.1);}
+    .coupon-ticket:active{transform:scale(.99);}
+    .coupon-ticket::before,.coupon-ticket::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--bg);z-index:2;}
+    .coupon-ticket::before{top:101px;}
+    .coupon-ticket::after{top:101px;left:auto;right:-11px;transform:none;display:none;}
+    .coupon-ticket-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:16px 18px 10px;background:linear-gradient(135deg,rgba(247,181,0,.16),rgba(247,181,0,.06));}
+    .coupon-ticket-brand small{display:block;color:#bc8600;font-size:11px;font-weight:950;letter-spacing:.16em;margin-bottom:6px;}
+    .coupon-ticket-brand strong{display:block;color:#191f28;font-size:18px;line-height:1.35;}
+    .coupon-ticket-status{display:inline-flex;align-items:center;justify-content:center;min-width:68px;height:30px;padding:0 12px;border-radius:999px;background:#fff;color:#2ba769;font-size:12px;font-weight:950;box-shadow:0 4px 12px rgba(0,0,0,.05);white-space:nowrap;}
+    .coupon-ticket-main{padding:14px 18px 10px;}
+    .coupon-ticket-value{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:rgba(43,167,105,.10);color:#2ba769;font-size:13px;font-weight:950;margin-bottom:10px;}
+    .coupon-ticket-desc{color:#4e5968;font-size:14px;line-height:1.6;font-weight:800;}
+    .coupon-ticket-divider{height:22px;position:relative;display:flex;align-items:center;}
+    .coupon-ticket-divider::before,.coupon-ticket-divider::after{content:"";position:absolute;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:var(--bg);}
+    .coupon-ticket-divider::before{left:-11px;}
+    .coupon-ticket-divider::after{right:-11px;}
+    .coupon-ticket-divider i{display:block;width:100%;border-top:2px dashed #e6dbc0;margin:0 16px;}
+    .coupon-ticket-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 18px 16px;}
+    .coupon-ticket-foot small{display:block;color:#8b95a1;font-size:12px;font-weight:900;}
+    .coupon-ticket-foot b{display:block;color:#191f28;font-size:13px;font-weight:900;margin-top:2px;}
+    .coupon-ticket-arrow{display:inline-flex;align-items:center;gap:4px;color:#bc8600;font-size:12px;font-weight:950;white-space:nowrap;}
+    .coupon-ticket-arrow iconify-icon{font-size:16px;color:currentColor;}
+    .wallet-empty-ticket{padding:26px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.76));border:1px dashed rgba(15,23,42,.14);text-align:center;color:#667085;font-weight:800;}
+    .wallet-empty-ticket strong{display:block;color:#191f28;font-size:18px;margin-bottom:6px;}
     .bb-coupon-detail-modal{
       position:fixed;
       inset:0;
@@ -2130,16 +2161,38 @@
 
       currentCoupons = coupons;
       const points = Number(currentMember.total_points || 0).toLocaleString();
-      const rows = [`<div class="data-row"><div><strong>我的點數</strong><span>目前可用點數</span></div><em class="data-badge">${points} P</em></div>`];
+      const rows = [`<div class="wallet-points-card"><div><small class="wallet-points-kicker">POINTS WALLET</small><strong>我的點數</strong><span>目前可用點數</span></div><em class="wallet-points-chip">${points} P</em></div>`];
       if(coupons.length){
         rows.push(...coupons.map(c=>{
-          const dateText = c.valid_until ? `有效期限：${c.valid_until}` : '永久有效';
+          const couponName = escapeHTML(c.coupon_name || c.title || c.name || '優惠券');
+          const dateText = c.valid_until ? c.valid_until : '永久有效';
           const actionText = c.type === 'cash' ? `可折抵 ${Number(c.discount_amount || 0).toLocaleString()} 元` : '憑券到門市兌換';
+          const detailText = escapeHTML(c.description || '點擊查看票券使用方式、核銷 QR 碼與活動說明');
           const couponId = escapeHTML(String(c.id || ''));
-          return `<button type="button" class="data-row coupon-row" data-coupon-id="${couponId}"><div><strong>${escapeHTML(c.coupon_name || c.title || c.name || '優惠券')}</strong><span>${escapeHTML(actionText)}<br>${escapeHTML(dateText)}</span></div><em class="data-badge">可使用</em></button>`;
+          return `<button type="button" class="coupon-row coupon-ticket" data-coupon-id="${couponId}">
+            <div class="coupon-ticket-top">
+              <div class="coupon-ticket-brand">
+                <small>BLACKBOX COUPON</small>
+                <strong>${couponName}</strong>
+              </div>
+              <span class="coupon-ticket-status">可使用</span>
+            </div>
+            <div class="coupon-ticket-main">
+              <div class="coupon-ticket-value">${escapeHTML(actionText)}</div>
+              <div class="coupon-ticket-desc">${detailText}</div>
+            </div>
+            <div class="coupon-ticket-divider"><i></i></div>
+            <div class="coupon-ticket-foot">
+              <div>
+                <small>使用期限</small>
+                <b>${escapeHTML(dateText)}</b>
+              </div>
+              <span class="coupon-ticket-arrow">查看詳情 <iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></span>
+            </div>
+          </button>`;
         }));
       }else{
-        rows.push('<div class="data-row"><div><strong>優惠券</strong><span>目前沒有可用的優惠券</span></div><em class="data-badge">0 張</em></div>');
+        rows.push('<div class="wallet-empty-ticket"><strong>目前沒有可用的票券</strong><span>之後取得的會員票券都會顯示在這裡。</span></div>');
       }
       box.innerHTML = rows.join('');
       $$('.coupon-row', box).forEach(btn => {
