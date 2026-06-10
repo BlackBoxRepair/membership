@@ -2168,7 +2168,7 @@
 
       currentCoupons = coupons;
       const points = Number(currentMember.total_points || 0).toLocaleString();
-      const rows = [`<div class="wallet-points-card"><div><small class="wallet-points-kicker">POINTS WALLET</small><strong>我的點數</strong><span>目前可用點數</span></div><em class="wallet-points-chip">${points} P</em></div>`];
+      const rows = [];
       if(coupons.length){
         rows.push(...coupons.map(c=>{
           const couponName = escapeHTML(c.coupon_name || c.title || c.name || '優惠券');
