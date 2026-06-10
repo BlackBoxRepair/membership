@@ -1032,31 +1032,28 @@
     .wallet-points-card strong{display:block;color:var(--deep);font-size:20px;}
     .wallet-points-card span{display:block;color:var(--muted);font-size:14px;font-weight:800;margin-top:4px;}
     .wallet-points-chip{display:inline-flex;align-items:center;justify-content:center;min-width:92px;height:40px;padding:0 14px;border-radius:999px;background:rgba(247,181,0,.12);color:#bc8600;font-size:16px;font-weight:950;white-space:nowrap;}
-    .coupon-ticket{position:relative;display:flex;align-items:center;gap:16px;width:100%;padding:18px 18px;border-radius:28px;overflow:hidden;background:linear-gradient(90deg,#111317 0%,#181b20 100%);border:1px solid rgba(255,255,255,.06);box-shadow:0 16px 36px rgba(7,10,18,.18);transition:transform .18s ease, box-shadow .18s ease;margin-top:14px;}
-    .coupon-ticket:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(7,10,18,.22);}
+    .coupon-ticket{display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;border-radius:24px;overflow:hidden;background:#ffffff;border:1px solid rgba(15,23,42,.06);box-shadow:0 10px 24px rgba(15,23,42,.06);transition:transform .18s ease, box-shadow .18s ease;margin-top:14px;}
+    .coupon-ticket:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(15,23,42,.08);}
     .coupon-ticket:active{transform:scale(.99);}
-    .coupon-ticket-icon{width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(106,214,99,.14);color:#66d663;box-shadow:inset 0 0 0 1px rgba(106,214,99,.12);}
-    .coupon-ticket-icon iconify-icon{font-size:38px;color:currentColor;}
-    .coupon-ticket-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
-    .coupon-ticket-title{display:block;color:#ffffff;font-size:17px;font-weight:950;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .coupon-ticket-subtitle{display:block;color:rgba(255,255,255,.62);font-size:13px;font-weight:700;line-height:1.45;}
-    .coupon-ticket-note{display:block;color:rgba(255,255,255,.48);font-size:12px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .coupon-ticket-meta{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:10px;flex-shrink:0;text-align:right;min-width:112px;}
-    .coupon-ticket-amount{display:block;color:#66d663;font-size:26px;line-height:1;font-weight:950;letter-spacing:-.03em;white-space:nowrap;}
-    .coupon-ticket-date{display:block;color:rgba(255,255,255,.56);font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;}
-    .coupon-ticket-arrow{display:inline-flex;align-items:center;justify-content:flex-end;gap:4px;color:rgba(255,255,255,.76);font-size:12px;font-weight:900;white-space:nowrap;}
-    .coupon-ticket-arrow iconify-icon{font-size:15px;color:currentColor;}
+    .coupon-ticket-icon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .coupon-ticket-icon.cash{background:rgba(247,181,0,.14);color:#d19100;}
+    .coupon-ticket-icon.service{background:rgba(59,130,246,.10);color:#4a7dff;}
+    .coupon-ticket-icon iconify-icon{font-size:30px;color:currentColor;}
+    .coupon-ticket-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
+    .coupon-ticket-title{display:block;color:#111827;font-size:17px;font-weight:950;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .coupon-ticket-date{display:block;color:#6b7280;font-size:13px;font-weight:800;line-height:1.45;}
+    .coupon-ticket-arrow{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:34px;height:34px;border-radius:999px;background:rgba(15,23,42,.04);color:#667085;}
+    .coupon-ticket-arrow iconify-icon{font-size:18px;color:currentColor;}
     .wallet-empty-ticket{padding:26px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.76));border:1px dashed rgba(15,23,42,.14);text-align:center;color:#667085;font-weight:800;margin-top:14px;}
     .wallet-empty-ticket strong{display:block;color:#191f28;font-size:18px;margin-bottom:6px;}
     @media (max-width:390px){
-      .coupon-ticket{padding:16px 14px;gap:12px;border-radius:24px;}
-      .coupon-ticket-icon{width:56px;height:56px;border-radius:18px;}
-      .coupon-ticket-icon iconify-icon{font-size:32px;}
+      .coupon-ticket{padding:14px 15px;gap:12px;border-radius:22px;}
+      .coupon-ticket-icon{width:50px;height:50px;border-radius:16px;}
+      .coupon-ticket-icon iconify-icon{font-size:28px;}
       .coupon-ticket-title{font-size:16px;}
-      .coupon-ticket-subtitle,.coupon-ticket-note{font-size:12px;}
-      .coupon-ticket-meta{min-width:96px;gap:8px;}
-      .coupon-ticket-amount{font-size:22px;}
-      .coupon-ticket-date,.coupon-ticket-arrow{font-size:11px;}
+      .coupon-ticket-date{font-size:12px;}
+      .coupon-ticket-arrow{width:30px;height:30px;}
+      .coupon-ticket-arrow iconify-icon{font-size:16px;}
     }
     .bb-coupon-detail-modal{
       position:fixed;
@@ -2136,32 +2133,12 @@
       const name = String(c.coupon_name || c.title || c.name || '').toLowerCase();
       const desc = String(c.description || '').toLowerCase();
       const combined = `${name} ${desc}`;
-      let icon = 'mdi:ticket-confirmation';
-      if(c.type === 'cash' || /折|現金|折抵|金額|優惠金/.test(combined)) icon = 'solar:wallet-money-bold';
-      else if(/保貼|貼膜|玻璃貼|螢幕貼/.test(combined)) icon = 'mdi:cellphone-shield';
-      else if(/清潔|保養|鍍膜/.test(combined)) icon = 'mdi:spray-bottle';
-      else if(/配件|耳機|線材|充電/.test(combined)) icon = 'mdi:headphones';
-      else if(/生日|壽星/.test(combined)) icon = 'mdi:cake-variant';
-      else if(/會員|vip|禮遇/.test(combined)) icon = 'mdi:star-circle';
-
-      let amountText = '可使用';
-      if(c.type === 'cash' && Number(c.discount_amount || 0) > 0){
-        amountText = `$${Number(c.discount_amount || 0).toLocaleString()}`;
-      }else{
-        const source = `${c.coupon_name || ''} ${c.title || ''} ${c.name || ''}`;
-        const percentMatch = source.match(/(\d+)\s?%/);
-        if(percentMatch){
-          amountText = `${percentMatch[1]}%`;
-        }else if(/免費|free|兌換/.test(combined)){
-          amountText = 'FREE';
-        }
-      }
-
-      let subtitle = c.type === 'cash' ? `可折抵 ${Number(c.discount_amount || 0).toLocaleString()} 元` : '憑券到門市兌換';
-      if(c.description && c.description.trim()) subtitle = c.description.trim();
-      subtitle = escapeHTML(subtitle);
-      const note = escapeHTML(c.valid_until ? `使用期限：${c.valid_until}` : '使用期限：永久有效');
-      return { icon, amountText: escapeHTML(amountText), subtitle, note };
+      const isCashLike = c.type === 'cash' || /折|現金|折抵|金額|優惠金|回饋金/.test(combined);
+      return {
+        icon: isCashLike ? 'solar:wallet-money-bold' : 'mdi:ticket-confirmation',
+        iconClass: isCashLike ? 'cash' : 'service',
+        dateText: escapeHTML(c.valid_until ? `票券期限：${c.valid_until}` : '票券期限：永久有效')
+      };
     }
 
     async function renderWalletPage(){
@@ -2200,16 +2177,12 @@
           const couponId = escapeHTML(String(c.id || ''));
           const meta = getWalletCouponMeta(c);
           return `<button type="button" class="coupon-row coupon-ticket" data-coupon-id="${couponId}">
-            <div class="coupon-ticket-icon"><iconify-icon icon="${meta.icon}"></iconify-icon></div>
+            <div class="coupon-ticket-icon ${meta.iconClass}"><iconify-icon icon="${meta.icon}"></iconify-icon></div>
             <div class="coupon-ticket-content">
               <strong class="coupon-ticket-title">${couponName}</strong>
-              <span class="coupon-ticket-subtitle">${meta.subtitle}</span>
-              <span class="coupon-ticket-note">${meta.note}</span>
+              <span class="coupon-ticket-date">${meta.dateText}</span>
             </div>
-            <div class="coupon-ticket-meta">
-              <span class="coupon-ticket-amount">${meta.amountText}</span>
-              <span class="coupon-ticket-arrow">查看詳情 <iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></span>
-            </div>
+            <span class="coupon-ticket-arrow"><iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></span>
           </button>`;
         }));
       }else{
