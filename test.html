@@ -2130,13 +2130,11 @@
 
 
     function getWalletCouponMeta(c){
-      const name = String(c.coupon_name || c.title || c.name || '').toLowerCase();
-      const desc = String(c.description || '').toLowerCase();
-      const combined = `${name} ${desc}`;
-      const isCashLike = c.type === 'cash' || /折|現金|折抵|金額|優惠金|回饋金/.test(combined);
+      const type = String(c.type || '').toLowerCase();
+      const isCash = type === 'cash';
       return {
-        icon: isCashLike ? 'solar:wallet-money-bold' : 'mdi:ticket-confirmation',
-        iconClass: isCashLike ? 'cash' : 'service',
+        icon: isCash ? 'nimbus:gift-card' : 'tabler:gift-filled',
+        iconClass: isCash ? 'cash' : 'service',
         dateText: escapeHTML(c.valid_until ? `票券期限：${c.valid_until}` : '票券期限：永久有效')
       };
     }
