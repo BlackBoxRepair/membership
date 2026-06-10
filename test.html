@@ -787,6 +787,168 @@
       .bb-yearly-count{font-size:56px;}
     }
 
+
+
+    /* 年度消費次數：舊版開箱與鎖定彈窗 */
+    .bb-yearly-card{
+      cursor:pointer;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .bb-yearly-card:active{
+      transform:scale(.98);
+    }
+    .bb-yearly-modal{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:4000;
+      background:rgba(0,0,0,.42);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
+      padding:20px;
+      align-items:center;
+      justify-content:center;
+      animation:bbYearlyFadeIn .2s ease-out;
+    }
+    .bb-yearly-modal-card{
+      width:min(100%,320px);
+      background:#fff;
+      border-radius:32px;
+      padding:32px 24px;
+      text-align:center;
+      box-shadow:0 22px 50px rgba(0,0,0,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .bb-yearly-lock-icon{
+      width:56px;
+      height:56px;
+      margin:0 auto 16px;
+      border-radius:50%;
+      background:#F2F4F6;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#8B95A1;
+    }
+    .bb-yearly-lock-icon iconify-icon{font-size:26px;color:currentColor;}
+    .bb-yearly-modal-card h3{
+      margin:0 0 8px;
+      color:#191F28;
+      font-size:20px;
+      font-weight:950;
+      letter-spacing:-.03em;
+    }
+    .bb-yearly-modal-card p{
+      margin:0;
+      color:#8B95A1;
+      font-size:13px;
+      font-weight:750;
+      line-height:1.65;
+    }
+    .bb-yearly-modal-card .bb-yearly-primary{
+      width:100%;
+      height:48px;
+      margin-top:22px;
+      border-radius:16px;
+      background:#191F28;
+      color:#fff;
+      font-size:15px;
+      font-weight:950;
+      transition:transform .18s ease, opacity .18s ease;
+    }
+    .bb-yearly-modal-card .bb-yearly-primary:active{transform:scale(.96);}
+    .bb-surprise-title{
+      font-size:22px!important;
+      margin-bottom:2px!important;
+    }
+    .bb-surprise-subtitle{
+      display:block;
+      color:#8B95A1;
+      font-size:10px;
+      font-weight:950;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      margin-bottom:22px;
+    }
+    .bb-sp-box-container{
+      position:relative;
+      width:100%;
+      height:190px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .bb-sp-box-img{
+      width:160px;
+      height:160px;
+      object-fit:contain;
+      cursor:pointer;
+      position:relative;
+      z-index:2;
+      transition:transform .2s ease;
+    }
+    .bb-sp-box-img:active{transform:scale(.95);}
+    .bb-sp-instruction{
+      color:#F7B500!important;
+      font-size:15px!important;
+      font-weight:950!important;
+      animation:bbYearlyPulse 1.2s ease-in-out infinite;
+    }
+    .bb-sp-reward-info{display:none;width:100%;}
+    .bb-sp-reward-box{
+      background:#F2F4F6;
+      border:1px solid #E5E8EB;
+      border-radius:20px;
+      padding:16px;
+      margin-bottom:14px;
+    }
+    .bb-sp-reward-box small{
+      display:block;
+      color:#8B95A1;
+      font-size:11px;
+      font-weight:950;
+      margin-bottom:6px;
+    }
+    .bb-sp-reward-box b{
+      display:block;
+      color:#191F28;
+      font-size:20px;
+      font-weight:1000;
+      letter-spacing:.04em;
+    }
+    .bb-sp-claim-btn{
+      width:100%;
+      height:52px;
+      border-radius:16px;
+      background:#F7B500;
+      color:#fff;
+      font-size:16px;
+      font-weight:950;
+      box-shadow:0 4px 12px rgba(247,181,0,.30);
+      transition:transform .18s ease, opacity .18s ease;
+    }
+    .bb-sp-claim-btn:active{transform:scale(.96);}
+    .bb-sp-claim-btn:disabled{opacity:.65;cursor:not-allowed;}
+    .bb-box-animating{
+      animation:bbBoxGlow 1.8s forwards ease-in-out;
+      pointer-events:none;
+    }
+    .bb-bubble{
+      position:absolute;
+      border-radius:50%;
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(247,181,0,.62));
+      box-shadow:0 0 10px rgba(247,181,0,.48);
+      animation:bbFloatUp 1.5s ease-in forwards;
+      opacity:0;
+      z-index:1;
+    }
+    @keyframes bbYearlyFadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes bbYearlyPulse{0%,100%{opacity:.55}50%{opacity:1}}
+    @keyframes bbBoxGlow{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1.1)}}
+    @keyframes bbFloatUp{0%{transform:translateY(0) scale(.5);opacity:0}20%{opacity:1}100%{transform:translateY(-90px) scale(1.8);opacity:0}}
+
     .member-profile{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:center;}
     .member-avatar{width:62px;height:62px;border-radius:50%;object-fit:cover;background:#eaf4ff;}
     .member-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
@@ -1106,6 +1268,37 @@
 
   
 
+
+
+  <!-- 年度消費次數：未達成提示（沿用舊版模式） -->
+  <div id="yearlyLockedModal" class="bb-yearly-modal" onclick="closeYearlyLockedModal()" aria-hidden="true">
+    <div class="bb-yearly-modal-card" role="dialog" aria-modal="true" aria-label="成就尚未達成" onclick="event.stopPropagation()">
+      <div class="bb-yearly-lock-icon"><iconify-icon icon="solar:lock-keyhole-bold"></iconify-icon></div>
+      <h3>成就尚未達成</h3>
+      <p>透過取得配件或玻璃貼更換服務<br>加速取得年度達成禮</p>
+      <button type="button" class="bb-yearly-primary" onclick="closeYearlyLockedModal()">我知道了</button>
+    </div>
+  </div>
+
+  <!-- 年度消費次數：驚喜盒彈窗（沿用舊版模式） -->
+  <div id="yearlySurpriseModal" class="bb-yearly-modal" onclick="closeYearlySurpriseModal()" aria-hidden="true">
+    <div class="bb-yearly-modal-card" id="yearlySurpriseContent" role="dialog" aria-modal="true" aria-label="年度達成禮" onclick="event.stopPropagation()">
+      <h3 class="bb-surprise-title">年度達成禮</h3>
+      <span class="bb-surprise-subtitle">Milestone Reward</span>
+      <div id="yearlyBoxContainer" class="bb-sp-box-container">
+        <img id="yearlyBoxImg" class="bb-sp-box-img" src="SP BOX.png" alt="Surprise Box" onclick="triggerYearlyBoxAnimation()">
+      </div>
+      <p id="yearlyBoxInstruction" class="bb-sp-instruction">點擊開啟驚喜盒！</p>
+      <div id="yearlyRewardInfo" class="bb-sp-reward-info">
+        <div class="bb-sp-reward-box">
+          <small>恭喜獲得</small>
+          <b id="yearlyRewardTitle">---</b>
+        </div>
+        <button id="yearlyClaimBtn" type="button" class="bb-sp-claim-btn" onclick="claimYearlyReward()">領取獎勵</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 會籍積分說明彈窗：沿用舊版會員中心內容 -->
   <div id="pointsInfoModal" class="bb-points-info-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="pointsInfoTitle">
     <div class="bb-points-info-card" onclick="event.stopPropagation()">
@@ -1410,6 +1603,7 @@
     let currentCoupons = [];
     let memberLookupStatus = 'idle';
     let memberLookupMessage = '';
+    let currentClaimingMilestone = 0;
 
     // 重要：會員資料不再優先讀取 localStorage 舊快取，避免顯示到錯誤會員資料。
     localStorage.removeItem('bb_member');
@@ -1600,7 +1794,7 @@
             <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
 
-          <div id="memberYearlyCard" class="bb-yearly-card" aria-label="年度消費次數">
+          <div id="memberYearlyCard" class="bb-yearly-card" role="button" tabindex="0" onclick="handleYearlyCardClick()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleYearlyCardClick();}" aria-label="年度消費次數，點擊查看年度達成禮">
             <div class="bb-yearly-visual">
               <svg viewBox="0 0 200 120" aria-hidden="true">
                 <defs>
@@ -1678,6 +1872,233 @@
         node.classList.toggle('done', claimed.includes(milestone));
       });
     }
+
+
+    function closeYearlyLockedModal(){
+      const modal = document.getElementById('yearlyLockedModal');
+      if(!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    function openYearlyLockedModal(){
+      const modal = document.getElementById('yearlyLockedModal');
+      if(!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    function closeYearlySurpriseModal(){
+      const modal = document.getElementById('yearlySurpriseModal');
+      if(!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    function resetYearlySurpriseBox(){
+      const boxImg = document.getElementById('yearlyBoxImg');
+      const instruction = document.getElementById('yearlyBoxInstruction');
+      const rewardInfo = document.getElementById('yearlyRewardInfo');
+      if(boxImg){
+        boxImg.classList.remove('bb-box-animating');
+        boxImg.style.transform = 'scale(1)';
+        boxImg.style.filter = 'none';
+        boxImg.src = 'SP BOX.png';
+        boxImg.onclick = triggerYearlyBoxAnimation;
+      }
+      document.querySelectorAll('#yearlyBoxContainer .bb-bubble').forEach(e => e.remove());
+      if(instruction) instruction.style.display = 'block';
+      if(rewardInfo) rewardInfo.style.display = 'none';
+    }
+
+    function openYearlySurpriseModal(){
+      resetYearlySurpriseBox();
+      const modal = document.getElementById('yearlySurpriseModal');
+      if(!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+    }
+
+    async function handleYearlyCardClick(){
+      if(!currentMember){ routeTo('member'); return; }
+      const milestones = [3, 6, 10, 15];
+      const currentYear = new Date().getFullYear();
+      try{
+        const status = await getYearlyMemberStatus();
+        const yearlyTimes = Number(status.times || 0);
+        const claimedMilestones = status.claimed || [];
+        let targetMilestone = null;
+        for(const milestone of milestones){
+          if(yearlyTimes >= milestone && !claimedMilestones.includes(milestone)){
+            targetMilestone = milestone;
+            break;
+          }
+        }
+        if(targetMilestone){
+          currentClaimingMilestone = targetMilestone;
+          openYearlySurpriseModal();
+        }else{
+          openYearlyLockedModal();
+        }
+      }catch(err){
+        console.warn('yearly card click failed', err);
+        openYearlyLockedModal();
+      }
+    }
+
+    function triggerYearlyBoxAnimation(){
+      const boxImg = document.getElementById('yearlyBoxImg');
+      const instruction = document.getElementById('yearlyBoxInstruction');
+      const container = document.getElementById('yearlyBoxContainer');
+      if(!boxImg || !container) return;
+      boxImg.onclick = null;
+      boxImg.classList.add('bb-box-animating');
+      if(instruction) instruction.style.display = 'none';
+
+      document.querySelectorAll('#yearlyBoxContainer .bb-bubble').forEach(e => e.remove());
+      for(let i = 0; i < 20; i++){
+        const bubble = document.createElement('div');
+        bubble.className = 'bb-bubble';
+        const size = Math.random() * 15 + 10;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.left = (Math.random() * 80 + 10) + '%';
+        bubble.style.top = (Math.random() * 80 + 10) + '%';
+        bubble.style.animationDelay = (Math.random() * .8) + 's';
+        container.appendChild(bubble);
+      }
+
+      setTimeout(() => {
+        boxImg.classList.remove('bb-box-animating');
+        boxImg.style.transform = 'scale(1.1)';
+        boxImg.src = 'SP BOX２.png';
+        showYearlyRewardInfo(currentClaimingMilestone);
+      }, 1800);
+    }
+
+    function showYearlyRewardInfo(milestone){
+      const rewardInfo = document.getElementById('yearlyRewardInfo');
+      const title = document.getElementById('yearlyRewardTitle');
+      if(!rewardInfo || !title) return;
+      const rewardMap = {
+        3: '會籍積分 +25',
+        6: '會籍積分 +50',
+        10: '會籍積分 +100',
+        15: '保貼兌換券 x1'
+      };
+      title.textContent = rewardMap[milestone] || '年度達成禮';
+      rewardInfo.style.display = 'block';
+    }
+
+    async function claimYearlyReward(){
+      if(!currentMember) return;
+      const btn = document.getElementById('yearlyClaimBtn');
+      const milestone = Number(currentClaimingMilestone || 0);
+      const currentYear = new Date().getFullYear();
+      const rewardKey = `YR_${currentYear}_${milestone}`;
+      const lineId = memberLineId();
+      if(!milestone || !lineId) return;
+
+      if(btn){ btn.disabled = true; btn.textContent = '處理中...'; }
+      try{
+        const { data: alreadyClaimed, error: checkError } = await supabaseClient
+          .from('point_logs')
+          .select('id')
+          .eq('line_id', lineId)
+          .eq('order_number', rewardKey)
+          .limit(1);
+        if(checkError) throw checkError;
+        if((alreadyClaimed || []).length){
+          closeYearlySurpriseModal();
+          alert('此年度達成禮已領取過。');
+          renderMemberYearlyCard();
+          return;
+        }
+
+        let pointsToAdd = 0;
+        let couponIdToIssue = null;
+        if(milestone === 3) pointsToAdd = 25;
+        if(milestone === 6) pointsToAdd = 50;
+        if(milestone === 10) pointsToAdd = 100;
+        if(milestone === 15) couponIdToIssue = '531aae11-184f-4f86-bf53-41e35974d5ae';
+
+        if(pointsToAdd > 0){
+          const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('total_points')
+            .eq('line_id', lineId)
+            .maybeSingle();
+          if(profileError) throw profileError;
+          const newPoints = Number(profile?.total_points || 0) + pointsToAdd;
+          const { error: updateError } = await supabaseClient
+            .from('profiles')
+            .update({ total_points: newPoints })
+            .eq('line_id', lineId);
+          if(updateError) throw updateError;
+        }
+
+        if(couponIdToIssue){
+          const { data: couponTemp, error: couponError } = await supabaseClient
+            .from('coupons')
+            .select('*')
+            .eq('id', couponIdToIssue)
+            .maybeSingle();
+          if(couponError) throw couponError;
+          if(couponTemp){
+            let expiryDate = null;
+            if(couponTemp.validity_days && Number(couponTemp.validity_days) > 0){
+              const d = new Date();
+              d.setDate(d.getDate() + Number(couponTemp.validity_days));
+              expiryDate = d.toISOString().split('T')[0];
+            }else{
+              expiryDate = couponTemp.valid_until || null;
+            }
+            const { error: insertCouponError } = await supabaseClient
+              .from('user_coupons')
+              .insert({
+                line_id: lineId,
+                coupon_name: couponTemp.name,
+                description: couponTemp.description || '',
+                valid_until: expiryDate,
+                status: 'unused',
+                type: couponTemp.type || 'exchange',
+                discount_amount: couponTemp.discount_amount || 0
+              });
+            if(insertCouponError) throw insertCouponError;
+          }
+        }
+
+        const { error: logError } = await supabaseClient
+          .from('point_logs')
+          .insert({
+            line_id: lineId,
+            staff_name: '系統發送',
+            store_name: '年度達成禮',
+            order_number: rewardKey,
+            amount: 0,
+            points_change: pointsToAdd,
+            points_redeemed: 0,
+            coupon_discount: 0
+          });
+        if(logError) throw logError;
+
+        closeYearlySurpriseModal();
+        alert('獎勵已成功發放至您的帳戶！\n若為票券請至「票券錢包」查看。');
+        if(currentLineProfile) await loadMemberByLine(currentLineProfile);
+        renderMemberState();
+      }catch(err){
+        console.error('claim yearly reward failed', err);
+        alert('領取失敗，請聯繫客服或稍後再試。');
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = '領取獎勵'; }
+      }
+    }
+
+    window.handleYearlyCardClick = handleYearlyCardClick;
+    window.triggerYearlyBoxAnimation = triggerYearlyBoxAnimation;
+    window.claimYearlyReward = claimYearlyReward;
+    window.closeYearlyLockedModal = closeYearlyLockedModal;
+    window.closeYearlySurpriseModal = closeYearlySurpriseModal;
 
 
     async function renderWalletPage(){
