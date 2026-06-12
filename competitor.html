@@ -48,7 +48,9 @@
       text-rendering: optimizeLegibility;
     }
 
-    select {
+    input,
+    select,
+    button {
       font-family: inherit;
     }
 
@@ -68,14 +70,16 @@
 
     h1 {
       margin: 0 auto;
-      max-width: 360px;
-      font-size: clamp(38px, 11vw, 52px);
-      line-height: 0.98;
-      letter-spacing: -0.065em;
+      max-width: 100%;
+      font-size: clamp(22px, 6.4vw, 28px);
+      line-height: 1.1;
+      letter-spacing: -0.045em;
       font-weight: 800;
       color: var(--text);
+      white-space: nowrap;
     }
 
+    .dealer-card,
     .selector-card {
       margin: 18px 0 16px;
       background: rgba(255, 255, 255, 0.92);
@@ -85,6 +89,88 @@
       padding: 18px;
       animation: fadeUp 0.55s 0.08s ease both;
       backdrop-filter: blur(18px);
+    }
+
+    .dealer-title {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: -0.045em;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .dealer-desc {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .dealer-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dealer-input {
+      width: 100%;
+      height: 54px;
+      border-radius: 17px;
+      border: 1px solid var(--line);
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      padding: 0 16px;
+      font-size: 16px;
+      font-weight: 800;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .dealer-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-soft);
+      transform: translateY(-1px);
+    }
+
+    .dealer-button {
+      width: 100%;
+      height: 54px;
+      border-radius: 17px;
+      border: none;
+      outline: none;
+      background: var(--blue);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .dealer-button:active {
+      transform: scale(0.98);
+    }
+
+    .dealer-error {
+      display: none;
+      margin: 2px 0 0;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .dealer-card.error-shake {
+      animation: shake 0.34s ease both;
+    }
+
+    .selector-card {
+      display: none;
+    }
+
+    .selector-card.unlocked {
+      display: block;
+      animation: popIn 0.46s cubic-bezier(.2, .9, .2, 1) both;
     }
 
     .selector-label {
@@ -232,6 +318,7 @@
     }
 
     .status {
+      display: none;
       padding: 36px 22px;
       text-align: center;
       color: var(--muted);
@@ -244,6 +331,10 @@
       animation: fadeUp 0.46s 0.14s ease both;
     }
 
+    .status.show {
+      display: block;
+    }
+
     .status.error {
       color: var(--danger);
       border-color: rgba(215, 0, 21, 0.18);
@@ -251,6 +342,7 @@
     }
 
     .footer-note {
+      display: none;
       margin: 18px auto 0;
       color: var(--muted);
       font-size: 12px;
@@ -258,6 +350,10 @@
       text-align: center;
       max-width: 360px;
       animation: fadeUp 0.55s 0.18s ease both;
+    }
+
+    .footer-note.unlocked {
+      display: block;
     }
 
     @keyframes fadeUp {
@@ -300,6 +396,14 @@
       }
     }
 
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(7px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(4px); }
+    }
+
     @media (min-width: 768px) {
       body {
         background:
@@ -328,10 +432,28 @@
 <body>
   <main class="page">
     <section class="hero">
-      <h1>黑盒子iPhone<br />同行維修報價</h1>
+      <h1>黑盒子iPhone 同行維修報價</h1>
     </section>
 
-    <section class="selector-card">
+    <section id="dealerGate" class="dealer-card">
+      <h2 class="dealer-title">請輸入經銷商代碼</h2>
+      <p class="dealer-desc">輸入正確代碼後，才可以查看同行 iPhone 維修報價。</p>
+
+      <form id="dealerForm" class="dealer-form">
+        <input
+          id="dealerCodeInput"
+          class="dealer-input"
+          type="password"
+          inputmode="text"
+          autocomplete="off"
+          placeholder="輸入經銷商代碼"
+        />
+        <button class="dealer-button" type="submit">開始查看報價</button>
+        <div id="dealerError" class="dealer-error">代碼錯誤，請重新輸入。</div>
+      </form>
+    </section>
+
+    <section id="selectorCard" class="selector-card">
       <label class="selector-label" for="modelSelect">選擇 iPhone 型號</label>
       <div class="select-wrap">
         <select id="modelSelect">
@@ -358,12 +480,10 @@
       <div id="priceList" class="price-list"></div>
     </section>
 
-    <p class="footer-note">
-      備註：價格為同行維修報價資料，實際金額可能依零件版本、機況、保固條件與現場檢測結果而異。
-    </p>
   </main>
 
   <script>
+    const DEALER_CODE = "blk";
     const SUPABASE_URL = "https://hkygeqtxtvnslyrmfiux.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ";
     const TABLE_NAME = "competitor_iphone_price_matrix";
@@ -382,6 +502,13 @@
     ];
 
     let allRows = [];
+    let hasLoadedData = false;
+
+    const dealerGate = document.getElementById("dealerGate");
+    const dealerForm = document.getElementById("dealerForm");
+    const dealerCodeInput = document.getElementById("dealerCodeInput");
+    const dealerError = document.getElementById("dealerError");
+    const selectorCard = document.getElementById("selectorCard");
 
     const modelSelect = document.getElementById("modelSelect");
     const statusBox = document.getElementById("statusBox");
@@ -454,11 +581,20 @@
       modelSelect.value = "";
     }
 
+    function showStatus(message, isError = false) {
+      statusBox.className = isError ? "status show error" : "status show";
+      statusBox.textContent = message;
+    }
+
+    function hideStatus() {
+      statusBox.classList.remove("show");
+      statusBox.style.display = "none";
+    }
+
     function showPricePanel() {
       pricePanel.style.display = "block";
       pricePanel.classList.remove("show");
 
-      // 重新觸發彈出動畫
       void pricePanel.offsetWidth;
 
       requestAnimationFrame(() => {
@@ -474,12 +610,11 @@
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
         statusBox.style.display = "block";
-        statusBox.className = "status";
-        statusBox.textContent = "請先選擇 iPhone 型號查看報價。";
+        showStatus("請先選擇 iPhone 型號查看報價。");
         return;
       }
 
-      statusBox.style.display = "none";
+      hideStatus();
 
       selectedModel.textContent = row["型號"] || "未命名型號";
 
@@ -507,8 +642,7 @@
     async function loadData() {
       try {
         statusBox.style.display = "block";
-        statusBox.className = "status";
-        statusBox.textContent = "資料載入中...";
+        showStatus("資料載入中...");
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
         resultCount.textContent = "正在讀取資料...";
@@ -525,6 +659,7 @@
         if (error) throw error;
 
         allRows = Array.isArray(data) ? data : [];
+        hasLoadedData = true;
 
         const now = new Date();
         updatedAt.textContent = "最後更新：" + now.toLocaleString("zh-TW", {
@@ -540,16 +675,12 @@
         populateModelSelect();
 
         if (allRows.length === 0) {
-          statusBox.style.display = "block";
-          statusBox.className = "status";
-          statusBox.textContent = "目前資料表沒有可顯示的報價資料。";
+          showStatus("目前資料表沒有可顯示的報價資料。");
           pricePanel.style.display = "none";
           return;
         }
 
-        statusBox.style.display = "block";
-        statusBox.className = "status";
-        statusBox.textContent = "請先選擇 iPhone 型號查看報價。";
+        showStatus("請先選擇 iPhone 型號查看報價。");
         pricePanel.style.display = "none";
       } catch (error) {
         console.error(error);
@@ -560,7 +691,7 @@
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
         statusBox.style.display = "block";
-        statusBox.className = "status error";
+        statusBox.className = "status show error";
         statusBox.innerHTML = `
           <strong>資料讀取失敗</strong><br />
           ${escapeHtml(error.message || "請確認 Supabase Key、RLS 權限與資料表名稱是否正確。")}
@@ -570,9 +701,38 @@
       }
     }
 
+    function unlockDealerArea() {
+      dealerGate.style.display = "none";
+      selectorCard.classList.add("unlocked");
+
+      if (!hasLoadedData) {
+        loadData();
+      }
+    }
+
+    dealerForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const code = dealerCodeInput.value.trim().toLowerCase();
+
+      if (code === DEALER_CODE) {
+        dealerError.style.display = "none";
+        unlockDealerArea();
+        return;
+      }
+
+      dealerError.style.display = "block";
+      dealerCodeInput.value = "";
+      dealerCodeInput.focus();
+
+      dealerGate.classList.remove("error-shake");
+      void dealerGate.offsetWidth;
+      dealerGate.classList.add("error-shake");
+    });
+
     modelSelect.addEventListener("change", renderSelectedPrice);
 
-    loadData();
+    dealerCodeInput.focus();
   </script>
 </body>
 </html>
