@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>黑盒子 iPhone 同行維修報價</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: #d2d2d7;
+      --soft-line: #ececf0;
+      --blue: #0071e3;
+      --blue-soft: rgba(0, 113, 227, 0.12);
+      --danger: #d70015;
+      --radius: 26px;
+      --shadow: 0 18px 42px rgba(0, 0, 0, 0.07);
+      --shadow-strong: 0 24px 60px rgba(0, 0, 0, 0.11);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    select {
+      font-family: inherit;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+    }
+
+    .hero {
+      padding: 26px 4px 18px;
+      text-align: center;
+      animation: fadeUp 0.55s ease both;
+    }
+
+    h1 {
+      margin: 0 auto;
+      max-width: 360px;
+      font-size: clamp(38px, 11vw, 52px);
+      line-height: 0.98;
+      letter-spacing: -0.065em;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .selector-card {
+      margin: 18px 0 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(210, 210, 215, 0.62);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      animation: fadeUp 0.55s 0.08s ease both;
+      backdrop-filter: blur(18px);
+    }
+
+    .selector-label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .select-wrap {
+      position: relative;
+    }
+
+    select {
+      appearance: none;
+      width: 100%;
+      height: 56px;
+      border-radius: 17px;
+      border: 1px solid var(--line);
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      padding: 0 48px 0 16px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-soft);
+      transform: translateY(-1px);
+    }
+
+    .select-arrow {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      border-right: 2px solid #86868b;
+      border-bottom: 2px solid #86868b;
+      transform: translateY(-65%) rotate(45deg);
+      pointer-events: none;
+      transition: transform 0.2s ease;
+    }
+
+    select:focus + .select-arrow {
+      transform: translateY(-35%) rotate(225deg);
+    }
+
+    .summary {
+      display: none;
+    }
+
+    .price-panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid rgba(210, 210, 215, 0.62);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transform: translateY(18px) scale(0.96);
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .price-panel.show {
+      display: block;
+      animation: popIn 0.48s cubic-bezier(.2, .9, .2, 1) both;
+    }
+
+    .selected-cover {
+      padding: 24px 20px 20px;
+      background:
+        radial-gradient(circle at right top, rgba(0, 113, 227, 0.08), transparent 42%),
+        #ffffff;
+      border-bottom: 1px solid var(--soft-line);
+      text-align: center;
+    }
+
+    .selected-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      letter-spacing: 0.04em;
+    }
+
+    .selected-model {
+      font-size: clamp(28px, 8vw, 38px);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.055em;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .selected-note {
+      display: none;
+    }
+
+    .price-list {
+      padding: 2px 20px 10px;
+      display: grid;
+      gap: 0;
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--soft-line);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: rowUp 0.42s ease both;
+    }
+
+    .price-row:last-child {
+      border-bottom: none;
+    }
+
+    .repair-name {
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .repair-price {
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 800;
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+
+    .repair-price.empty {
+      color: #a1a1a6;
+    }
+
+    .status {
+      padding: 36px 22px;
+      text-align: center;
+      color: var(--muted);
+      background: #ffffff;
+      border-radius: var(--radius);
+      border: 1px solid rgba(210, 210, 215, 0.62);
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      line-height: 1.7;
+      animation: fadeUp 0.46s 0.14s ease both;
+    }
+
+    .status.error {
+      color: var(--danger);
+      border-color: rgba(215, 0, 21, 0.18);
+      background: #fffafa;
+    }
+
+    .footer-note {
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.65;
+      text-align: center;
+      max-width: 360px;
+      animation: fadeUp 0.55s 0.18s ease both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.94);
+        box-shadow: var(--shadow);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(-3px) scale(1.012);
+        box-shadow: var(--shadow-strong);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        box-shadow: var(--shadow);
+      }
+    }
+
+    @keyframes rowUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (min-width: 768px) {
+      body {
+        background:
+          radial-gradient(circle at top, rgba(255,255,255,0.85), transparent 32%),
+          var(--bg);
+      }
+
+      .page {
+        padding-top: 42px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>黑盒子iPhone<br />同行維修報價</h1>
+    </section>
+
+    <section class="selector-card">
+      <label class="selector-label" for="modelSelect">選擇 iPhone 型號</label>
+      <div class="select-wrap">
+        <select id="modelSelect">
+          <option value="">請選擇 iPhone 型號</option>
+        </select>
+        <span class="select-arrow"></span>
+      </div>
+    </section>
+
+    <div class="summary">
+      <div id="resultCount">正在讀取資料...</div>
+      <div id="updatedAt">資料來源：competitor_iphone_price_matrix</div>
+    </div>
+
+    <section id="statusBox" class="status">資料載入中...</section>
+
+    <section id="pricePanel" class="price-panel">
+      <div class="selected-cover">
+        <div class="selected-label">目前選擇</div>
+        <h2 id="selectedModel" class="selected-model">請選擇型號</h2>
+        <p id="selectedNote" class="selected-note"></p>
+      </div>
+
+      <div id="priceList" class="price-list"></div>
+    </section>
+
+    <p class="footer-note">
+      備註：價格為同行維修報價資料，實際金額可能依零件版本、機況、保固條件與現場檢測結果而異。
+    </p>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://hkygeqtxtvnslyrmfiux.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ";
+    const TABLE_NAME = "competitor_iphone_price_matrix";
+
+    const repairColumns = [
+      "蘋果原廠電池",
+      "BSMI認證電池",
+      "蘋果原廠螢幕",
+      "原裝螢幕",
+      "副廠螢幕",
+      "後相機",
+      "後鏡頭玻璃",
+      "充電孔",
+      "聽筒/喇叭",
+      "後蓋玻璃"
+    ];
+
+    let allRows = [];
+
+    const modelSelect = document.getElementById("modelSelect");
+    const statusBox = document.getElementById("statusBox");
+    const pricePanel = document.getElementById("pricePanel");
+    const resultCount = document.getElementById("resultCount");
+    const updatedAt = document.getElementById("updatedAt");
+    const selectedModel = document.getElementById("selectedModel");
+    const selectedNote = document.getElementById("selectedNote");
+    const priceList = document.getElementById("priceList");
+
+    const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function isEmptyPrice(value) {
+      return value === null || value === undefined || value === "";
+    }
+
+    function formatPrice(value) {
+      if (isEmptyPrice(value)) return "—";
+
+      const numberValue = Number(value);
+
+      if (!Number.isNaN(numberValue)) {
+        return "$" + numberValue.toLocaleString("zh-TW");
+      }
+
+      return String(value);
+    }
+
+    function countAvailablePrices(row) {
+      return repairColumns.filter((column) => !isEmptyPrice(row[column])).length;
+    }
+
+    function getRowId(row) {
+      return row["編號"] || row.id || row["型號"];
+    }
+
+    function populateModelSelect() {
+      modelSelect.innerHTML = "";
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "請選擇 iPhone 型號";
+      placeholder.selected = true;
+      modelSelect.appendChild(placeholder);
+
+      if (allRows.length === 0) {
+        placeholder.textContent = "目前沒有可選擇的型號";
+        modelSelect.disabled = true;
+        return;
+      }
+
+      modelSelect.disabled = false;
+
+      allRows.forEach((row, index) => {
+        const option = document.createElement("option");
+        option.value = String(getRowId(row));
+        option.textContent = row["型號"] || `未命名型號 ${index + 1}`;
+        modelSelect.appendChild(option);
+      });
+
+      modelSelect.value = "";
+    }
+
+    function showPricePanel() {
+      pricePanel.style.display = "block";
+      pricePanel.classList.remove("show");
+
+      // 重新觸發彈出動畫
+      void pricePanel.offsetWidth;
+
+      requestAnimationFrame(() => {
+        pricePanel.classList.add("show");
+      });
+    }
+
+    function renderSelectedPrice() {
+      const selectedId = modelSelect.value;
+      const row = allRows.find((item) => String(getRowId(item)) === String(selectedId));
+
+      if (!row) {
+        pricePanel.classList.remove("show");
+        pricePanel.style.display = "none";
+        statusBox.style.display = "block";
+        statusBox.className = "status";
+        statusBox.textContent = "請先選擇 iPhone 型號查看報價。";
+        return;
+      }
+
+      statusBox.style.display = "none";
+
+      selectedModel.textContent = row["型號"] || "未命名型號";
+
+      const availableCount = countAvailablePrices(row);
+      selectedNote.textContent = availableCount > 0
+        ? `目前共有 ${availableCount} 個維修項目有填寫價格。`
+        : "這個型號目前尚未填寫任何維修價格。";
+
+      priceList.innerHTML = repairColumns.map((column, index) => {
+        const value = row[column];
+        const emptyClass = isEmptyPrice(value) ? " empty" : "";
+        const delay = 80 + index * 35;
+
+        return `
+          <div class="price-row" style="animation-delay:${delay}ms">
+            <div class="repair-name">${escapeHtml(column)}</div>
+            <div class="repair-price${emptyClass}">${escapeHtml(formatPrice(value))}</div>
+          </div>
+        `;
+      }).join("");
+
+      showPricePanel();
+    }
+
+    async function loadData() {
+      try {
+        statusBox.style.display = "block";
+        statusBox.className = "status";
+        statusBox.textContent = "資料載入中...";
+        pricePanel.classList.remove("show");
+        pricePanel.style.display = "none";
+        resultCount.textContent = "正在讀取資料...";
+        modelSelect.innerHTML = `<option value="">資料載入中...</option>`;
+        modelSelect.disabled = true;
+
+        const { data, error } = await client
+          .from(TABLE_NAME)
+          .select("*")
+          .eq("是否啟用", true)
+          .order("排序", { ascending: true, nullsFirst: false })
+          .order("型號", { ascending: true });
+
+        if (error) throw error;
+
+        allRows = Array.isArray(data) ? data : [];
+
+        const now = new Date();
+        updatedAt.textContent = "最後更新：" + now.toLocaleString("zh-TW", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+
+        resultCount.innerHTML = `共讀取 <strong>${allRows.length}</strong> 筆型號資料`;
+
+        populateModelSelect();
+
+        if (allRows.length === 0) {
+          statusBox.style.display = "block";
+          statusBox.className = "status";
+          statusBox.textContent = "目前資料表沒有可顯示的報價資料。";
+          pricePanel.style.display = "none";
+          return;
+        }
+
+        statusBox.style.display = "block";
+        statusBox.className = "status";
+        statusBox.textContent = "請先選擇 iPhone 型號查看報價。";
+        pricePanel.style.display = "none";
+      } catch (error) {
+        console.error(error);
+
+        modelSelect.innerHTML = `<option value="">讀取失敗</option>`;
+        modelSelect.disabled = true;
+
+        pricePanel.classList.remove("show");
+        pricePanel.style.display = "none";
+        statusBox.style.display = "block";
+        statusBox.className = "status error";
+        statusBox.innerHTML = `
+          <strong>資料讀取失敗</strong><br />
+          ${escapeHtml(error.message || "請確認 Supabase Key、RLS 權限與資料表名稱是否正確。")}
+        `;
+
+        resultCount.textContent = "無法讀取資料";
+      }
+    }
+
+    modelSelect.addEventListener("change", renderSelectedPrice);
+
+    loadData();
+  </script>
+</body>
+</html>
