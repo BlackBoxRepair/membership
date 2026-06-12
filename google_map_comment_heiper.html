@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>黑盒子維修心得小幫手</title>
+  <meta name="description" content="黑盒子維修中心維修心得小幫手，協助客戶依照實際維修體驗整理 Google 評論文字。" />
+  <meta name="theme-color" content="#f7b500" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand: #f7b500;
+      --brand-soft: rgba(247, 181, 0, 0.16);
+      --brand-line: rgba(247, 181, 0, 0.28);
+      --brand-dark: #8a6200;
+      --black: #111111;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --card: rgba(255, 255, 255, 0.9);
+      --danger: #b91c1c;
+      --success: #15803d;
+      --shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(247, 181, 0, 0.18), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 48%, #eef2f7 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    button,
+    select,
+    textarea {
+      font-family: inherit;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 8px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(229, 231, 235, 0.88);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      backdrop-filter: blur(14px);
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: var(--black);
+      color: var(--brand);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: -0.04em;
+    }
+
+    .logo-text {
+      font-size: 13px;
+      font-weight: 900;
+      color: #111827;
+      letter-spacing: 0.02em;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 12px 4px 20px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--brand-soft);
+      color: var(--brand-dark);
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #0f172a;
+      font-size: clamp(30px, 8vw, 46px);
+      line-height: 1.08;
+      letter-spacing: -0.055em;
+      font-weight: 900;
+    }
+
+    .subtitle {
+      max-width: 560px;
+      margin: 14px auto 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+      font-weight: 500;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid rgba(229, 231, 235, 0.92);
+      border-radius: 28px;
+      padding: 22px;
+      margin-top: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .card-title {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #111827;
+    }
+
+    .card-desc {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .field {
+      margin-top: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    select {
+      width: 100%;
+      height: 50px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0 42px 0 14px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+      font-size: 15px;
+      font-weight: 700;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #6b7280 50%),
+        linear-gradient(135deg, #6b7280 50%, transparent 50%);
+      background-position:
+        calc(100% - 20px) 21px,
+        calc(100% - 14px) 21px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+    }
+
+    select:focus,
+    textarea:focus {
+      border-color: rgba(247, 181, 0, 0.95);
+      box-shadow: 0 0 0 4px rgba(247, 181, 0, 0.14);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+    }
+
+    .chip {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 800;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+      user-select: none;
+    }
+
+    .chip input:checked + span {
+      border-color: rgba(247, 181, 0, 0.95);
+      background: rgba(247, 181, 0, 0.18);
+      color: #765300;
+      font-weight: 900;
+    }
+
+    .chip:active span {
+      transform: scale(0.97);
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      background: var(--brand-soft);
+      border: 1px solid var(--brand-line);
+      color: #765300;
+      font-size: 13px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 54px;
+      border: none;
+      border-radius: 18px;
+      background: var(--black);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.985);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #ffffff;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .error,
+    .success {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 800;
+      display: none;
+    }
+
+    .error {
+      background: #fef2f2;
+      color: var(--danger);
+    }
+
+    .success {
+      background: #f0fdf4;
+      color: var(--success);
+    }
+
+    .result-card {
+      display: none;
+    }
+
+    .result-card.show {
+      display: block;
+    }
+
+    .review-box {
+      margin-top: 14px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.94);
+    }
+
+    .review-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .review-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .review-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: #111827;
+    }
+
+    .review-hint {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #ffffff;
+      padding: 13px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.75;
+      resize: vertical;
+      outline: none;
+      font-weight: 500;
+    }
+
+    .copy-btn {
+      flex: 0 0 auto;
+      border: none;
+      border-radius: 999px;
+      background: rgba(247, 181, 0, 0.2);
+      color: #755300;
+      padding: 8px 13px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .google-btn {
+      display: none;
+      width: 100%;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 18px;
+      background: var(--brand);
+      color: #111111;
+      font-weight: 950;
+      margin-top: 14px;
+    }
+
+    .google-btn.show {
+      display: flex;
+    }
+
+    .footer-note {
+      margin: 18px auto 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .loading-dot::after {
+      content: "";
+      display: inline-block;
+      width: 1.2em;
+      text-align: left;
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+      100% { content: ""; }
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        padding: 22px 14px 44px;
+      }
+
+      .card {
+        padding: 19px;
+        border-radius: 24px;
+      }
+
+      .chips {
+        gap: 8px;
+      }
+
+      .chip span {
+        min-height: 38px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <div class="topbar">
+      <div class="logo-pill">
+        <div class="logo-mark">BB</div>
+        <div class="logo-text">黑盒子維修中心</div>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">維修後專屬服務</div>
+      <h1>維修心得<br>小幫手</h1>
+      <p class="subtitle">
+        選擇這次的實際維修內容，系統會協助您整理成一段自然的心得文字。
+        送出評論前，您可以自由修改成最符合自己感受的內容。
+      </p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">這次維修資訊</h2>
+      <p class="card-desc">請依照這次實際維修情況選擇，系統只會根據您選擇的內容產生文字。</p>
+
+      <div class="field">
+        <label for="store">維修門市</label>
+        <select id="store">
+          <option value="">請選擇門市</option>
+          <option value="勤美公益店">勤美公益店</option>
+          <option value="沙鹿站前店">沙鹿站前店</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="device">設備型號</label>
+        <select id="device">
+          <option value="">請選擇型號</option>
+          <option>iPhone 17 Pro Max</option>
+          <option>iPhone 17 Pro</option>
+          <option>iPhone 17</option>
+          <option>iPhone 16 Pro Max</option>
+          <option>iPhone 16 Pro</option>
+          <option>iPhone 16 Plus</option>
+          <option>iPhone 16</option>
+          <option>iPhone 15 Pro Max</option>
+          <option>iPhone 15 Pro</option>
+          <option>iPhone 15 Plus</option>
+          <option>iPhone 15</option>
+          <option>iPhone 14 Pro Max</option>
+          <option>iPhone 14 Pro</option>
+          <option>iPhone 14 Plus</option>
+          <option>iPhone 14</option>
+          <option>iPhone 13 Pro Max</option>
+          <option>iPhone 13 Pro</option>
+          <option>iPhone 13</option>
+          <option>iPhone 12 / 12 Pro</option>
+          <option>iPhone 11</option>
+          <option>iPad</option>
+          <option>MacBook</option>
+          <option>Apple Watch</option>
+          <option>Samsung 手機</option>
+          <option>VIVO 手機</option>
+          <option>其他手機</option>
+          <option>Dyson 吸塵器</option>
+          <option>Dyson 吹風機</option>
+          <option>Nintendo Switch</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="repair">維修項目</label>
+        <select id="repair">
+          <option value="">請選擇維修項目</option>
+          <option>電池更換</option>
+          <option>螢幕維修</option>
+          <option>鏡頭玻璃維修</option>
+          <option>背蓋維修</option>
+          <option>泡水檢測</option>
+          <option>資料救援</option>
+          <option>容量擴充</option>
+          <option>充電異常維修</option>
+          <option>主機板維修</option>
+          <option>MacBook 清潔保養</option>
+          <option>Dyson 深層清潔</option>
+          <option>其他維修</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>這次遇到的問題，可複選</label>
+        <div class="chips" id="problems">
+          <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
+          <label class="chip"><input type="checkbox" value="手機發燙"><span>手機發燙</span></label>
+          <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
+          <label class="chip"><input type="checkbox" value="螢幕破裂"><span>螢幕破裂</span></label>
+          <label class="chip"><input type="checkbox" value="觸控異常"><span>觸控異常</span></label>
+          <label class="chip"><input type="checkbox" value="無法開機"><span>無法開機</span></label>
+          <label class="chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
+          <label class="chip"><input type="checkbox" value="資料很重要"><span>資料很重要</span></label>
+          <label class="chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
+          <label class="chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
+          <label class="chip"><input type="checkbox" value="吸力變弱"><span>吸力變弱</span></label>
+          <label class="chip"><input type="checkbox" value="運轉異音"><span>運轉異音</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>這次體驗感受，可複選</label>
+        <div class="chips" id="experiences">
+          <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
+          <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
+          <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
+          <label class="chip"><input type="checkbox" value="價格透明"><span>價格透明</span></label>
+          <label class="chip"><input type="checkbox" value="服務親切"><span>服務親切</span></label>
+          <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span>安心</span></label>
+          <label class="chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
+          <label class="chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="tone">文字語氣</label>
+        <select id="tone">
+          <option value="自然">自然</option>
+          <option value="簡短">簡短</option>
+          <option value="詳細">詳細</option>
+          <option value="口語">口語</option>
+        </select>
+      </div>
+
+      <div class="notice">
+        產生的文字只是草稿，請依照您的真實感受自行修改。請不要留下與實際體驗不符的內容。
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="generateBtn">幫我整理心得</button>
+        <button class="btn-secondary" id="templateBtn">先用固定模板產生</button>
+      </div>
+
+      <div class="error" id="errorBox"></div>
+      <div class="success" id="successBox"></div>
+    </section>
+
+    <section class="card result-card" id="resultCard">
+      <h2 class="card-title">產生的評論草稿</h2>
+      <p class="card-desc">可以直接修改文字，確認後再複製到 Google 評論。</p>
+
+      <div class="review-box">
+        <div class="review-head">
+          <div class="review-label">
+            <div class="review-title">簡短版</div>
+            <div class="review-hint">適合想快速留下心得</div>
+          </div>
+          <button class="copy-btn" data-target="shortText">複製</button>
+        </div>
+        <textarea id="shortText"></textarea>
+      </div>
+
+      <div class="review-box">
+        <div class="review-head">
+          <div class="review-label">
+            <div class="review-title">自然版</div>
+            <div class="review-hint">最推薦使用</div>
+          </div>
+          <button class="copy-btn" data-target="naturalText">複製</button>
+        </div>
+        <textarea id="naturalText"></textarea>
+      </div>
+
+      <div class="review-box">
+        <div class="review-head">
+          <div class="review-label">
+            <div class="review-title">詳細版</div>
+            <div class="review-hint">適合想多分享一點的人</div>
+          </div>
+          <button class="copy-btn" data-target="detailedText">複製</button>
+        </div>
+        <textarea id="detailedText"></textarea>
+      </div>
+
+      <a class="google-btn" id="googleReviewBtn" href="#" target="_blank" rel="noopener">
+        前往 Google 留下評論
+      </a>
+
+      <button class="btn-secondary" id="regenerateBtn">重新生成一次</button>
+    </section>
+
+    <p class="footer-note">
+      黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。
+    </p>
+  </main>
+
+  <script>
+    /*
+      第二步完成後，把 Supabase Edge Function 網址貼在這裡。
+      重要：不要把 Gemini API Key 放在 HTML / GitHub 裡。
+      範例：
+      const FUNCTION_URL = "https://xxxx.supabase.co/functions/v1/generate-review";
+    */
+    const FUNCTION_URL = "請貼上你的 Supabase Edge Function 網址";
+
+    /*
+      Google 評論連結請之後換成真實連結。
+      取得方式：Google 商家後台 > 要求更多評論 / 分享評論表單
+    */
+    const REVIEW_LINKS = {
+      "勤美公益店": "請貼上勤美公益店 Google 評論連結",
+      "沙鹿站前店": "請貼上沙鹿站前店 Google 評論連結"
+    };
+
+    const generateBtn = document.getElementById("generateBtn");
+    const templateBtn = document.getElementById("templateBtn");
+    const regenerateBtn = document.getElementById("regenerateBtn");
+    const resultCard = document.getElementById("resultCard");
+    const errorBox = document.getElementById("errorBox");
+    const successBox = document.getElementById("successBox");
+    const googleReviewBtn = document.getElementById("googleReviewBtn");
+
+    function getValue(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function getCheckedValues(containerId) {
+      return Array.from(document.querySelectorAll(`#${containerId} input:checked`))
+        .map(input => input.value.trim())
+        .filter(Boolean);
+    }
+
+    function getPayload() {
+      return {
+        store: getValue("store"),
+        device: getValue("device"),
+        repair: getValue("repair"),
+        problems: getCheckedValues("problems"),
+        experiences: getCheckedValues("experiences"),
+        tone: getValue("tone")
+      };
+    }
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+      successBox.style.display = "none";
+    }
+
+    function showSuccess(message) {
+      successBox.textContent = message;
+      successBox.style.display = "block";
+      errorBox.style.display = "none";
+    }
+
+    function clearMessage() {
+      errorBox.textContent = "";
+      successBox.textContent = "";
+      errorBox.style.display = "none";
+      successBox.style.display = "none";
+    }
+
+    function validatePayload(payload) {
+      if (!payload.store) return "請先選擇維修門市。";
+      if (!payload.device) return "請先選擇設備型號。";
+      if (!payload.repair) return "請先選擇維修項目。";
+      if (payload.problems.length === 0) return "請至少選擇一個遇到的問題。";
+      if (payload.experiences.length === 0) return "請至少選擇一個體驗感受。";
+      return "";
+    }
+
+    function joinList(items) {
+      if (!items || items.length === 0) return "";
+      if (items.length === 1) return items[0];
+      return items.slice(0, -1).join("、") + "，還有" + items[items.length - 1];
+    }
+
+    function createTemplateReviews(payload) {
+      const problemText = joinList(payload.problems);
+      const experienceText = joinList(payload.experiences);
+
+      const short = `這次我的 ${payload.device} 因為${problemText}，到黑盒子${payload.store}處理${payload.repair}。現場人員${experienceText}，整體體驗蠻安心的。`;
+
+      const natural = `這次我的 ${payload.device} 出現${problemText}的狀況，所以到黑盒子${payload.store}處理${payload.repair}。現場人員有先說明維修內容，過程中感覺${experienceText}，整體來說是一次很安心的維修體驗。`;
+
+      const detailed = `我的 ${payload.device} 最近有${problemText}的問題，後來選擇到黑盒子${payload.store}處理${payload.repair}。現場人員有先確認狀況並說明維修內容，過程中讓我覺得${experienceText}。維修完成後整體感受不錯，也比較安心。`;
+
+      if (payload.tone === "簡短") {
+        return {
+          short,
+          natural: short,
+          detailed: natural
+        };
+      }
+
+      if (payload.tone === "口語") {
+        return {
+          short: `我的 ${payload.device} 因為${problemText}拿到黑盒子${payload.store}處理，這次做的是${payload.repair}，整體感覺不錯。`,
+          natural: `這次 ${payload.device} 有${problemText}的狀況，就拿去黑盒子${payload.store}處理${payload.repair}。現場說明蠻清楚，也覺得${experienceText}，整體來說蠻安心的。`,
+          detailed
+        };
+      }
+
+      return { short, natural, detailed };
+    }
+
+    function renderReviews(reviews, sourceText) {
+      document.getElementById("shortText").value = reviews.short || "";
+      document.getElementById("naturalText").value = reviews.natural || "";
+      document.getElementById("detailedText").value = reviews.detailed || "";
+
+      const payload = getPayload();
+      const reviewLink = REVIEW_LINKS[payload.store];
+
+      if (reviewLink && !reviewLink.includes("請貼上")) {
+        googleReviewBtn.href = reviewLink;
+        googleReviewBtn.classList.add("show");
+      } else {
+        googleReviewBtn.classList.remove("show");
+      }
+
+      resultCard.classList.add("show");
+      resultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+
+      if (sourceText) {
+        showSuccess(sourceText);
+      }
+    }
+
+    async function generateByAI() {
+      clearMessage();
+
+      const payload = getPayload();
+      const error = validatePayload(payload);
+
+      if (error) {
+        showError(error);
+        return;
+      }
+
+      if (!FUNCTION_URL || FUNCTION_URL.includes("請貼上")) {
+        const fallback = createTemplateReviews(payload);
+        renderReviews(fallback, "目前尚未設定 AI 後端，已先使用固定模板產生草稿。");
+        return;
+      }
+
+      generateBtn.disabled = true;
+      templateBtn.disabled = true;
+      if (regenerateBtn) regenerateBtn.disabled = true;
+
+      generateBtn.innerHTML = `<span class="loading-dot">正在整理心得</span>`;
+
+      try {
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          throw new Error(data.error || "AI 產生失敗，請稍後再試。");
+        }
+
+        renderReviews(data.reviews, "已使用 AI 產生評論草稿。");
+      } catch (err) {
+        console.error(err);
+
+        const fallback = createTemplateReviews(payload);
+        renderReviews(fallback, "AI 暫時無法使用，已改用固定模板產生草稿。");
+      } finally {
+        generateBtn.disabled = false;
+        templateBtn.disabled = false;
+        if (regenerateBtn) regenerateBtn.disabled = false;
+
+        generateBtn.textContent = "幫我整理心得";
+      }
+    }
+
+    function generateByTemplate() {
+      clearMessage();
+
+      const payload = getPayload();
+      const error = validatePayload(payload);
+
+      if (error) {
+        showError(error);
+        return;
+      }
+
+      const reviews = createTemplateReviews(payload);
+      renderReviews(reviews, "已使用固定模板產生評論草稿。");
+    }
+
+    generateBtn.addEventListener("click", generateByAI);
+    templateBtn.addEventListener("click", generateByTemplate);
+    regenerateBtn.addEventListener("click", generateByAI);
+
+    document.querySelectorAll(".copy-btn").forEach(button => {
+      button.addEventListener("click", async () => {
+        const targetId = button.dataset.target;
+        const textarea = document.getElementById(targetId);
+        const text = textarea.value.trim();
+
+        if (!text) {
+          showError("目前沒有可以複製的文字。");
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(text);
+
+          const originalText = button.textContent;
+          button.textContent = "已複製";
+
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 1200);
+
+          showSuccess("已複製評論文字，可以貼到 Google 評論中。");
+        } catch (err) {
+          textarea.focus();
+          textarea.select();
+          showError("自動複製失敗，請手動選取文字複製。");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
