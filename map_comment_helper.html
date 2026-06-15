@@ -1033,6 +1033,49 @@
       flex: 0 0 auto !important;
     }
 
+  
+    .ai-source-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 7px 12px;
+      margin: 0 0 12px;
+      border-radius: 999px;
+      background: #ffc542;
+      color: #111111;
+      font-size: 12px;
+      font-weight: 900;
+      border: 1px solid #ffc542;
+    }
+
+    .ai-source-badge iconify-icon {
+      flex: 0 0 auto;
+    }
+
+  
+    .ai-confirm-line {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 7px 12px;
+      margin: 0 0 12px;
+      border-radius: 999px;
+      background: #ffc542;
+      color: #111111;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    #sourceBadge {
+      background: #ffc542 !important;
+      color: #111111 !important;
+      border-color: #ffc542 !important;
+    }
+
   </style>
 </head>
 
@@ -1234,6 +1277,11 @@
       </section>
 
       <div class="glass-card form-panel">
+        <div class="ai-confirm-line">
+          <iconify-icon icon="mdi:sparkles" width="15"></iconify-icon>
+          本次內容由 Gemini AI 生成
+        </div>
+
         <div class="result-tabs" role="tablist">
           <button class="tab-btn active" data-version="short" type="button">簡短</button>
           <button class="tab-btn" data-version="natural" type="button">自然</button>
@@ -1246,7 +1294,7 @@
               <strong id="activeTitle">簡短版</strong><br>
               <span id="activeHint">適合想快速留下心得</span>
             </div>
-            <span id="sourceBadge">TEMPLATE</span>
+            <span id="sourceBadge">Gemini AI</span>
           </div>
           <textarea id="reviewText" aria-label="評論草稿"></textarea>
         </div>
@@ -1456,6 +1504,7 @@
       return items.slice(0, -1).join("、") + "，也有" + items[items.length - 1];
     }
 
+    /* 固定模板函式目前只保留備用，不會在 AI 失敗時自動使用，避免誤判為 AI 生成。 */
     function createTemplateReviews(payload) {
       const problemText = joinList(payload.problems);
       const experienceText = joinList(payload.experiences);
@@ -1520,15 +1569,14 @@
       }
 
       if (!FUNCTION_URL || FUNCTION_URL.includes("請貼上")) {
-        const fallback = createTemplateReviews(payload);
-        renderReviews(fallback, "目前尚未設定 AI 後端，已先使用固定模板產生草稿。", "TEMPLATE");
+        showMessage("尚未設定 AI 後端網址，無法使用 AI 生成。", "error");
         return;
       }
 
       generateBtn.disabled = true;
       if (templateBtn) templateBtn.disabled = true;
       regenerateBtn.disabled = true;
-      generateBtn.innerHTML = `<span class="loading-dot">整理中</span>`;
+      generateBtn.innerHTML = `<span class="loading-dot">Gemini AI 生成中</span>`;
 
       try {
         const response = await fetch(FUNCTION_URL, {
@@ -1542,11 +1590,10 @@
           throw new Error(data.error || "AI 產生失敗，請稍後再試。");
         }
 
-        renderReviews(data.reviews, "已使用 AI 產生評論草稿。", "AI");
+        renderReviews(data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
       } catch (err) {
         console.error(err);
-        const fallback = createTemplateReviews(payload);
-        renderReviews(fallback, "AI 暫時無法使用，已改用固定模板產生草稿。", "TEMPLATE");
+        showMessage(err.message || "AI 生成失敗，請稍後再試。", "error");
       } finally {
         generateBtn.disabled = false;
         if (templateBtn) templateBtn.disabled = false;
