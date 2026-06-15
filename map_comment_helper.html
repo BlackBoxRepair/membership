@@ -1000,6 +1000,27 @@
       }
     }
 
+  
+    .ai-generate-panel {
+      padding: 12px !important;
+      margin-top: 14px !important;
+    }
+
+    .inline-ai-action {
+      width: 100%;
+      min-height: 56px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .inline-ai-action iconify-icon {
+      margin-right: 6px;
+    }
+
+    .fixed-actions {
+      display: none !important;
+    }
+
   </style>
 </head>
 
@@ -1191,6 +1212,13 @@
       </button>
     </section>
 
+    <section class="glass-card form-panel ai-generate-panel">
+      <button class="main-action inline-ai-action" id="generateBtn" type="button">
+        <iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>
+        AI 生成
+      </button>
+    </section>
+
     <section class="result-panel" id="resultPanel">
       <section class="section-head">
         <div>
@@ -1236,21 +1264,7 @@
       </div>
     </section>
   </main>
-
-  <div class="fixed-actions">
-    <div class="action-shell">
-      <button class="ghost-action" id="templateBtn" type="button">
-        <iconify-icon icon="mdi:text-box-edit-outline" width="18"></iconify-icon>
-        模板產生
-      </button>
-      <button class="main-action" id="generateBtn" type="button">
-        <iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>
-        AI 整理
-      </button>
-    </div>
-  </div>
-
-  <script>
+<script>
     /*
       第二步完成後，把 Supabase Edge Function 網址貼在這裡。
       重要：不要把 Gemini API Key 放在 HTML / GitHub 裡。
@@ -1269,7 +1283,7 @@
     };
 
     const generateBtn = document.getElementById("generateBtn");
-    const templateBtn = document.getElementById("templateBtn");
+    const templateBtn = null;
     const regenerateBtn = document.getElementById("regenerateBtn");
     const resultPanel = document.getElementById("resultPanel");
     const messageBox = document.getElementById("messageBox");
@@ -1507,7 +1521,7 @@
       }
 
       generateBtn.disabled = true;
-      templateBtn.disabled = true;
+      if (templateBtn) templateBtn.disabled = true;
       regenerateBtn.disabled = true;
       generateBtn.innerHTML = `<span class="loading-dot">整理中</span>`;
 
@@ -1530,9 +1544,9 @@
         renderReviews(fallback, "AI 暫時無法使用，已改用固定模板產生草稿。", "TEMPLATE");
       } finally {
         generateBtn.disabled = false;
-        templateBtn.disabled = false;
+        if (templateBtn) templateBtn.disabled = false;
         regenerateBtn.disabled = false;
-        generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 整理`;
+        generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 生成`;
       }
     }
 
@@ -1560,8 +1574,7 @@
     reviewText.addEventListener("input", syncActiveTextBack);
 
     generateBtn.addEventListener("click", generateByAI);
-    templateBtn.addEventListener("click", generateByTemplate);
-    regenerateBtn.addEventListener("click", generateByAI);
+        regenerateBtn.addEventListener("click", generateByAI);
 
     copyBtn.addEventListener("click", async () => {
       syncActiveTextBack();
