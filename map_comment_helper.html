@@ -882,6 +882,93 @@
       transform: rotate(180deg);
     }
 
+  
+    /* Mobile width refinement: avoid edge-to-edge layout */
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden !important;
+    }
+
+    .page {
+      width: 100% !important;
+      max-width: 430px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+    }
+
+    .hero-card,
+    .hero-banner,
+    .black-card,
+    .glass-card,
+    .form-panel,
+    .result-card,
+    .card {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .hero-card,
+    .hero-banner,
+    .black-card {
+      border-radius: 32px !important;
+    }
+
+    .bottom-actions,
+    .action-bar,
+    .fixed-actions,
+    .sticky-actions {
+      width: calc(100% - 28px) !important;
+      max-width: 402px !important;
+      left: 50% !important;
+      right: auto !important;
+      transform: translateX(-50%) !important;
+      border-radius: 28px !important;
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        max-width: 430px !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+      }
+
+      .hero-card,
+      .hero-banner,
+      .black-card {
+        border-radius: 30px !important;
+      }
+
+      .store-grid,
+      .store-options,
+      .repair-options {
+        gap: 12px !important;
+      }
+
+      .store-option,
+      .store-btn {
+        min-width: 0 !important;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .page {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+
+      .bottom-actions,
+      .action-bar,
+      .fixed-actions,
+      .sticky-actions {
+        width: calc(100% - 22px) !important;
+      }
+    }
+
   </style>
 </head>
 
