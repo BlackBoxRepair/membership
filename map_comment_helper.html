@@ -1021,6 +1021,18 @@
       display: none !important;
     }
 
+  
+    /* Center option chips in problem and experience sections */
+    #problems,
+    #experiences {
+      justify-content: center !important;
+    }
+
+    #problems .chip,
+    #experiences .chip {
+      flex: 0 0 auto !important;
+    }
+
   </style>
 </head>
 
@@ -1085,14 +1097,7 @@
           <input id="device" class="text-field" type="text" inputmode="text" autocomplete="off" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch" />
         </div>
       </div>
-
-      <div class="notice">
-        <div class="notice-icon"><iconify-icon icon="mdi:information-outline" width="20"></iconify-icon></div>
-        <div>
-          <strong>請依照實際體驗選擇</strong>
-          <p>系統只會協助整理文字，不會代替您捏造心得。送出評論前，請自行修改成符合真實感受的內容。</p>
-        </div>
-      </div>
+</div>
 
       <div id="messageBox" class="message"></div>
     </section>
