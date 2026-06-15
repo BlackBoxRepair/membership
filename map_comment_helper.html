@@ -1076,6 +1076,69 @@
       border-color: #ffc542 !important;
     }
 
+  
+    /* AI button spacing and single result screen */
+    .ai-generate-panel {
+      padding: 14px !important;
+      margin-top: 18px !important;
+      margin-bottom: 110px !important;
+    }
+
+    .inline-ai-action {
+      width: 100%;
+      min-height: 60px;
+      border: none;
+      border-radius: 22px;
+      cursor: pointer;
+      font-size: 17px;
+    }
+
+    .app.result-mode > header,
+    .app.result-mode > .hero-card,
+    .app.result-mode > .section-head,
+    .app.result-mode > .glass-card:not(.result-screen-card),
+    .app.result-mode > .ai-generate-panel {
+      display: none !important;
+    }
+
+    .app.result-mode {
+      padding-top: 18px !important;
+    }
+
+    .result-only-head {
+      margin-top: 8px !important;
+    }
+
+    .result-screen-card {
+      margin-top: 14px !important;
+    }
+
+    .single-review-text {
+      min-height: 260px !important;
+      font-size: 16px !important;
+      line-height: 1.85 !important;
+      border-radius: 24px !important;
+    }
+
+    .single-result-actions {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 10px !important;
+      margin-top: 14px !important;
+    }
+
+    .single-result-actions .copy-btn,
+    .single-result-actions .map-btn {
+      width: 100% !important;
+      min-height: 54px !important;
+    }
+
+    .back-edit-btn {
+      width: 100% !important;
+      margin-top: 10px !important;
+      min-height: 48px !important;
+    }
+
   </style>
 </head>
 
@@ -1267,52 +1330,36 @@
       </button>
     </section>
 
-    <section class="result-panel" id="resultPanel">
-      <section class="section-head">
+    <section class="result-panel" id="resultPanel" aria-live="polite">
+      <section class="section-head result-only-head">
         <div>
-          <span class="section-kicker">COMMENT DRAFT</span>
-          <h2 class="section-title">評論草稿</h2>
+          <span class="section-kicker">AI COMMENT</span>
+          <h2 class="section-title">AI 生成內容</h2>
         </div>
-        <span class="step-pill">STEP 05</span>
+        <span class="step-pill">DONE</span>
       </section>
 
-      <div class="glass-card form-panel">
+      <div class="glass-card form-panel result-screen-card">
         <div class="ai-confirm-line">
           <iconify-icon icon="mdi:sparkles" width="15"></iconify-icon>
           本次內容由 Gemini AI 生成
         </div>
 
-        <div class="result-tabs" role="tablist">
-          <button class="tab-btn active" data-version="short" type="button">簡短</button>
-          <button class="tab-btn" data-version="natural" type="button">自然</button>
-          <button class="tab-btn" data-version="detailed" type="button">詳細</button>
-        </div>
+        <textarea id="reviewText" class="single-review-text" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡"></textarea>
 
-        <div class="review-card">
-          <div class="review-meta">
-            <div>
-              <strong id="activeTitle">簡短版</strong><br>
-              <span id="activeHint">適合想快速留下心得</span>
-            </div>
-            <span id="sourceBadge">Gemini AI</span>
-          </div>
-          <textarea id="reviewText" aria-label="評論草稿"></textarea>
-        </div>
-
-        <div class="result-actions">
+        <div class="result-actions single-result-actions">
           <button class="copy-btn" id="copyBtn" type="button">
             <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
-            複製文字
+            複製
           </button>
-          <a class="map-btn" id="googleReviewBtn" href="#" target="_blank" rel="noopener">
+          <a class="map-btn show" id="googleReviewBtn" href="#" target="_blank" rel="noopener">
             <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
-            前往評論
+            前往門市 Google 地圖
           </a>
         </div>
 
-        <button class="secondary-btn" id="regenerateBtn" type="button" style="width:100%;margin-top:10px;">
-          <iconify-icon icon="mdi:refresh" width="18"></iconify-icon>
-          重新生成一次
+        <button class="secondary-btn back-edit-btn" id="backEditBtn" type="button">
+          返回修改內容
         </button>
       </div>
     </section>
@@ -1331,21 +1378,23 @@
       取得方式：Google 商家後台 > 要求更多評論 / 分享評論表單
     */
     const REVIEW_LINKS = {
-      "勤美公益店": "請貼上勤美公益店 Google 評論連結",
-      "沙鹿站前店": "請貼上沙鹿站前店 Google 評論連結"
+      "勤美公益店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E5%8B%A4%E7%BE%8E%E5%85%AC%E7%9B%8A%E5%BA%97",
+      "沙鹿站前店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E6%B2%99%E9%B9%BF%E7%AB%99%E5%89%8D%E5%BA%97"
     };
 
     const generateBtn = document.getElementById("generateBtn");
     const templateBtn = null;
-    const regenerateBtn = document.getElementById("regenerateBtn");
+    const regenerateBtn = null;
     const resultPanel = document.getElementById("resultPanel");
     const messageBox = document.getElementById("messageBox");
     const googleReviewBtn = document.getElementById("googleReviewBtn");
     const reviewText = document.getElementById("reviewText");
-    const sourceBadge = document.getElementById("sourceBadge");
-    const activeTitle = document.getElementById("activeTitle");
-    const activeHint = document.getElementById("activeHint");
+    const sourceBadge = null;
+    const activeTitle = null;
+    const activeHint = null;
     const copyBtn = document.getElementById("copyBtn");
+    const backEditBtn = document.getElementById("backEditBtn");
+    const app = document.querySelector(".app");
 
     let currentReviews = { short: "", natural: "", detailed: "" };
     let activeVersion = "short";
@@ -1518,48 +1567,47 @@
     }
 
     function updateReviewView() {
-      const meta = versionMeta[activeVersion];
-      activeTitle.textContent = meta.title;
-      activeHint.textContent = meta.hint;
-      reviewText.value = currentReviews[activeVersion] || "";
-
-      document.querySelectorAll(".tab-btn").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.version === activeVersion);
-      });
+      reviewText.value = currentReviews.natural || currentReviews.review || "";
     }
 
-    function renderReviews(reviews, sourceText, sourceType = "TEMPLATE") {
+    function renderReviews(reviews, sourceText, sourceType = "Gemini AI") {
+      const naturalText =
+        reviews.review ||
+        reviews.natural ||
+        reviews.short ||
+        reviews.detailed ||
+        "";
+
       currentReviews = {
-        short: reviews.short || "",
-        natural: reviews.natural || "",
-        detailed: reviews.detailed || ""
+        short: naturalText,
+        natural: naturalText,
+        detailed: naturalText,
+        review: naturalText
       };
 
       activeVersion = "natural";
-      sourceBadge.textContent = sourceType;
       updateReviewView();
 
       const payload = getPayload();
-      const reviewLink = REVIEW_LINKS[payload.store];
+      const mapLink = REVIEW_LINKS[payload.store];
 
-      if (reviewLink && !reviewLink.includes("請貼上")) {
-        googleReviewBtn.href = reviewLink;
+      if (mapLink) {
+        googleReviewBtn.href = mapLink;
+        googleReviewBtn.innerHTML = `<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往${payload.store} Google 地圖`;
         googleReviewBtn.classList.add("show");
-      } else {
-        googleReviewBtn.classList.remove("show");
       }
 
       resultPanel.classList.add("show");
-      resultPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-
-      if (sourceText) showMessage(sourceText, "success");
+      if (app) app.classList.add("result-mode");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function syncActiveTextBack() {
-      currentReviews[activeVersion] = reviewText.value;
+      currentReviews.natural = reviewText.value;
+      currentReviews.review = reviewText.value;
     }
 
-    async function generateByAI() {
+async function generateByAI() {
       clearMessage();
       const payload = getPayload();
       const error = validatePayload(payload);
@@ -1575,7 +1623,7 @@
 
       generateBtn.disabled = true;
       if (templateBtn) templateBtn.disabled = true;
-      regenerateBtn.disabled = true;
+      if (regenerateBtn) regenerateBtn.disabled = true;
       generateBtn.innerHTML = `<span class="loading-dot">Gemini AI 生成中</span>`;
 
       try {
@@ -1590,14 +1638,14 @@
           throw new Error(data.error || "AI 產生失敗，請稍後再試。");
         }
 
-        renderReviews(data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
+        renderReviews(data.review ? { review: data.review } : data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
       } catch (err) {
         console.error(err);
         showMessage(err.message || "AI 生成失敗，請稍後再試。", "error");
       } finally {
         generateBtn.disabled = false;
         if (templateBtn) templateBtn.disabled = false;
-        regenerateBtn.disabled = false;
+        if (regenerateBtn) regenerateBtn.disabled = false;
         generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 生成`;
       }
     }
@@ -1614,19 +1662,17 @@
       const reviews = createTemplateReviews(payload);
       renderReviews(reviews, "已使用固定模板產生評論草稿。", "TEMPLATE");
     }
-
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        syncActiveTextBack();
-        activeVersion = btn.dataset.version;
-        updateReviewView();
-      });
     });
 
     reviewText.addEventListener("input", syncActiveTextBack);
 
     generateBtn.addEventListener("click", generateByAI);
-        regenerateBtn.addEventListener("click", generateByAI);
+
+    backEditBtn.addEventListener("click", () => {
+      if (app) app.classList.remove("result-mode");
+      resultPanel.classList.remove("show");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 
     copyBtn.addEventListener("click", async () => {
       syncActiveTextBack();
