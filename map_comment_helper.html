@@ -852,6 +852,36 @@
       border-color: #ffc542 !important;
     }
 
+  
+    .collapsed-list[data-collapsed="true"] .more-chip {
+      display: none;
+    }
+
+    .more-toggle {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 14px;
+      border: 1px solid #dddddd;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #111111;
+      font-size: 13px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .more-toggle iconify-icon {
+      transition: transform 0.18s ease;
+    }
+
+    .more-toggle.active iconify-icon {
+      transform: rotate(180deg);
+    }
+
   </style>
 </head>
 
@@ -972,20 +1002,38 @@
     </section>
 
     <section class="glass-card form-panel">
-      <div class="chips" id="problems">
+      <div class="chips collapsed-list" id="problems" data-collapsed="true">
         <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
-        <label class="chip"><input type="checkbox" value="手機發燙"><span>手機發燙</span></label>
+        <label class="chip"><input type="checkbox" value="異常發燙"><span>異常發燙</span></label>
         <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
+        <label class="chip"><input type="checkbox" value="電池膨脹"><span>電池膨脹</span></label>
         <label class="chip"><input type="checkbox" value="螢幕破裂"><span>螢幕破裂</span></label>
+        <label class="chip"><input type="checkbox" value="顯示異常"><span>顯示異常</span></label>
         <label class="chip"><input type="checkbox" value="觸控異常"><span>觸控異常</span></label>
         <label class="chip"><input type="checkbox" value="無法開機"><span>無法開機</span></label>
-        <label class="chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
-        <label class="chip"><input type="checkbox" value="資料很重要"><span>資料很重要</span></label>
-        <label class="chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
-        <label class="chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
-        <label class="chip"><input type="checkbox" value="吸力變弱"><span>吸力變弱</span></label>
-        <label class="chip"><input type="checkbox" value="運轉異音"><span>運轉異音</span></label>
+
+        <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span>反覆重啟</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span>資料遺失</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span>聲音破音</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span>沒有聲音</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法上網"><span>無法上網</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span>無法連接wifi</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span>無法連接藍牙</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span>無法打電話</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span>沒有訊號</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span>無法拍照</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span>相機抖動</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span>無法對焦</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span>重摔變形</span></label>
       </div>
+
+      <button class="more-toggle" type="button" data-target="problems" data-more="查看更多問題選項" data-less="收合問題選項">
+        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+        查看更多問題選項
+      </button>
     </section>
 
     <section class="section-head">
@@ -997,16 +1045,32 @@
     </section>
 
     <section class="glass-card form-panel">
-      <div class="chips" id="experiences">
+      <div class="chips collapsed-list" id="experiences" data-collapsed="true">
         <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
         <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
         <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
         <label class="chip"><input type="checkbox" value="價格透明"><span>價格透明</span></label>
         <label class="chip"><input type="checkbox" value="服務親切"><span>服務親切</span></label>
         <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span>安心</span></label>
-        <label class="chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
-        <label class="chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
+
+        <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span>檢測仔細</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="處理專業"><span>處理專業</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span>流程清楚</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="預約方便"><span>預約方便</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span>服務有耐心</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span>原廠零件</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="非常專業"><span>非常專業</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="效率高"><span>效率高</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span>技術優秀</span></label>
+        <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span>面對面維修</span></label>
       </div>
+
+      <button class="more-toggle" type="button" data-target="experiences" data-more="查看更多體驗選項" data-less="收合體驗選項">
+        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+        查看更多體驗選項
+      </button>
     </section>
 
     <section class="result-panel" id="resultPanel">
@@ -1107,6 +1171,27 @@
       detailed: { title: "詳細版", hint: "適合想完整分享維修經驗" }
     };
 
+
+
+    function setupMoreToggles() {
+      document.querySelectorAll(".more-toggle").forEach(button => {
+        const targetId = button.dataset.target;
+        const target = document.getElementById(targetId);
+        const moreText = button.dataset.more || "查看更多";
+        const lessText = button.dataset.less || "收合選項";
+
+        if (!target) return;
+
+        button.addEventListener("click", () => {
+          const isCollapsed = target.dataset.collapsed !== "false";
+          target.dataset.collapsed = isCollapsed ? "false" : "true";
+          button.classList.toggle("active", isCollapsed);
+          button.innerHTML = `<iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>${isCollapsed ? lessText : moreText}`;
+        });
+      });
+    }
+
+    setupMoreToggles();
 
     function setupSingleSelectButtons(buttonSelector, inputId) {
       const buttons = document.querySelectorAll(buttonSelector);
