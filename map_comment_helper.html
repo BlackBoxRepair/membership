@@ -10,9 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-
-  <style>
+<style>
     :root {
       --brand: #ffc542;
       --brand-soft: rgba(255, 197, 66, 0.16);
@@ -312,7 +310,7 @@
       box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.03);
     }
 
-    .select-wrap iconify-icon {
+    .select-wrap .bb-icon {
       position: absolute;
       right: 16px;
       top: 50%;
@@ -874,11 +872,11 @@
       cursor: pointer;
     }
 
-    .more-toggle iconify-icon {
+    .more-toggle .bb-icon {
       transition: transform 0.18s ease;
     }
 
-    .more-toggle.active iconify-icon {
+    .more-toggle.active .bb-icon {
       transform: rotate(180deg);
     }
 
@@ -1000,6 +998,105 @@
       }
     }
 
+  
+    /* Local CSS icons: prevents iOS Safari disappearing icons on scroll */
+    .bb-icon {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: var(--icon-size, 18px) !important;
+      height: var(--icon-size, 18px) !important;
+      min-width: var(--icon-size, 18px) !important;
+      min-height: var(--icon-size, 18px) !important;
+      flex: 0 0 auto !important;
+      color: currentColor !important;
+      font-size: calc(var(--icon-size, 18px) * 0.86) !important;
+      line-height: 1 !important;
+      font-weight: 900 !important;
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mini-pill .bb-icon,
+    .eyebrow .bb-icon,
+    .hero-badge .bb-icon,
+    .choice-button .bb-icon,
+    .repair-option .bb-icon,
+    .copy-btn .bb-icon,
+    .map-btn .bb-icon,
+    .secondary-btn .bb-icon,
+    .ghost-action .bb-icon,
+    .main-action .bb-icon,
+    .more-toggle .bb-icon {
+      margin-right: 6px;
+    }
+
+    .notice-icon .bb-icon {
+      margin-right: 0;
+    }
+
+    .bb-icon-info {
+      border: 2px solid currentColor;
+      border-radius: 999px;
+      font-size: calc(var(--icon-size, 18px) * 0.58) !important;
+      font-weight: 900 !important;
+    }
+
+    .bb-icon-store,
+    .bb-icon-screen,
+    .bb-icon-phone,
+    .bb-icon-text {
+      border: 2px solid currentColor;
+      border-radius: 4px;
+      font-size: 0 !important;
+      position: relative;
+    }
+
+    .bb-icon-store::before,
+    .bb-icon-screen::before,
+    .bb-icon-phone::before,
+    .bb-icon-text::before {
+      content: "";
+      width: 55%;
+      height: 55%;
+      border: 2px solid currentColor;
+      border-left: none;
+      border-right: none;
+      display: block;
+    }
+
+    .bb-icon-copy {
+      position: relative;
+      font-size: 0 !important;
+    }
+
+    .bb-icon-copy::before,
+    .bb-icon-copy::after {
+      content: "";
+      position: absolute;
+      width: 58%;
+      height: 68%;
+      border: 2px solid currentColor;
+      border-radius: 3px;
+      background: transparent;
+    }
+
+    .bb-icon-copy::before {
+      left: 18%;
+      top: 18%;
+    }
+
+    .bb-icon-copy::after {
+      left: 32%;
+      top: 6%;
+    }
+
+    .more-toggle.active .bb-icon-chevron-down {
+      transform: rotate(180deg) translateZ(0);
+    }
+
   </style>
 </head>
 
@@ -1014,7 +1111,7 @@
         </div>
       </div>
       <div class="mini-pill">
-        <iconify-icon icon="mdi:google-maps" width="16"></iconify-icon>
+        <span class="bb-icon bb-icon-map" style="--icon-size:16px" aria-hidden="true">⌖</span>
         評論輔助
       </div>
     </header>
@@ -1022,14 +1119,14 @@
     <section class="hero-card" aria-labelledby="page-title">
       <div class="hero-content">
         <div class="eyebrow">
-          <iconify-icon icon="mdi:message-draw" width="15"></iconify-icon>
+          <span class="bb-icon bb-icon-message" style="--icon-size:15px" aria-hidden="true">▰</span>
           GOOGLE MAP COMMENT
         </div>
         <h1 id="page-title">維修心得<br>一鍵整理</h1>
         <p class="hero-copy">選擇這次的實際維修內容，幫您整理成自然、不誇張、可自行修改的評論草稿。</p>
         <div class="hero-badge-row">
-          <span class="hero-badge"><iconify-icon icon="mdi:shield-check" width="15"></iconify-icon>真實體驗</span>
-          <span class="hero-badge"><iconify-icon icon="mdi:content-copy" width="15"></iconify-icon>快速複製</span>
+          <span class="hero-badge"><span class="bb-icon bb-icon-shield" style="--icon-size:15px" aria-hidden="true">✓</span>真實體驗</span>
+          <span class="hero-badge"><span class="bb-icon bb-icon-copy" style="--icon-size:15px" aria-hidden="true">▣</span>快速複製</span>
         </div>
       </div>
     </section>
@@ -1049,11 +1146,11 @@
           <input id="store" type="hidden" value="">
           <div class="store-choice-grid" role="group" aria-label="維修門市">
             <button class="choice-button store-option" type="button" data-value="勤美公益店">
-              <iconify-icon icon="mdi:storefront-outline" width="18"></iconify-icon>
+              <span class="bb-icon bb-icon-store" style="--icon-size:18px" aria-hidden="true">▤</span>
               勤美公益店
             </button>
             <button class="choice-button store-option" type="button" data-value="沙鹿站前店">
-              <iconify-icon icon="mdi:storefront-outline" width="18"></iconify-icon>
+              <span class="bb-icon bb-icon-store" style="--icon-size:18px" aria-hidden="true">▤</span>
               沙鹿站前店
             </button>
           </div>
@@ -1066,7 +1163,7 @@
       </div>
 
       <div class="notice">
-        <div class="notice-icon"><iconify-icon icon="mdi:information-outline" width="20"></iconify-icon></div>
+        <div class="notice-icon"><span class="bb-icon bb-icon-info" style="--icon-size:20px" aria-hidden="true">i</span></div>
         <div>
           <strong>請依照實際體驗選擇</strong>
           <p>系統只會協助整理文字，不會代替您捏造心得。送出評論前，請自行修改成符合真實感受的內容。</p>
@@ -1087,22 +1184,22 @@
     <section class="glass-card form-panel">
       <input id="repair" type="hidden" value="">
       <div class="repair-options" id="repairOptions" role="group" aria-label="維修項目，可複選">
-        <button class="repair-option" type="button" data-value="電池更換" aria-pressed="false"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon>電池更換</button>
-        <button class="repair-option" type="button" data-value="螢幕維修" aria-pressed="false"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon>螢幕維修</button>
-        <button class="repair-option" type="button" data-value="前後相機" aria-pressed="false"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon>前後相機</button>
-        <button class="repair-option" type="button" data-value="背蓋維修" aria-pressed="false"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon>背蓋維修</button>
-        <button class="repair-option" type="button" data-value="受潮清潔" aria-pressed="false"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon>受潮清潔</button>
-        <button class="repair-option" type="button" data-value="資料救援" aria-pressed="false"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon>資料救援</button>
-        <button class="repair-option" type="button" data-value="容量擴充" aria-pressed="false"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon>容量擴充</button>
-        <button class="repair-option" type="button" data-value="充電孔維修" aria-pressed="false"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon>充電孔維修</button>
-        <button class="repair-option" type="button" data-value="主機板維修" aria-pressed="false"><iconify-icon icon="mdi:chip" width="18"></iconify-icon>主機板維修</button>
-        <button class="repair-option" type="button" data-value="全機清潔" aria-pressed="false"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon>全機清潔</button>
-        <button class="repair-option" type="button" data-value="聽筒維修" aria-pressed="false"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon>聽筒維修</button>
-        <button class="repair-option" type="button" data-value="喇叭維修" aria-pressed="false"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon>喇叭維修</button>
-        <button class="repair-option" type="button" data-value="按鍵維修" aria-pressed="false"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon>按鍵維修</button>
-        <button class="repair-option" type="button" data-value="臉部辨識" aria-pressed="false"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon>臉部辨識</button>
-        <button class="repair-option" type="button" data-value="系統修復" aria-pressed="false"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon>系統修復</button>
-        <button class="repair-option" type="button" data-value="其他維修" aria-pressed="false"><iconify-icon icon="mdi:tools" width="18"></iconify-icon>其他維修</button>
+        <button class="repair-option" type="button" data-value="電池更換" aria-pressed="false"><span class="bb-icon bb-icon-battery" style="--icon-size:18px" aria-hidden="true">▮</span>電池更換</button>
+        <button class="repair-option" type="button" data-value="螢幕維修" aria-pressed="false"><span class="bb-icon bb-icon-screen" style="--icon-size:18px" aria-hidden="true">▯</span>螢幕維修</button>
+        <button class="repair-option" type="button" data-value="前後相機" aria-pressed="false"><span class="bb-icon bb-icon-camera" style="--icon-size:18px" aria-hidden="true">◉</span>前後相機</button>
+        <button class="repair-option" type="button" data-value="背蓋維修" aria-pressed="false"><span class="bb-icon bb-icon-phone" style="--icon-size:18px" aria-hidden="true">▯</span>背蓋維修</button>
+        <button class="repair-option" type="button" data-value="受潮清潔" aria-pressed="false"><span class="bb-icon bb-icon-water" style="--icon-size:18px" aria-hidden="true">≈</span>受潮清潔</button>
+        <button class="repair-option" type="button" data-value="資料救援" aria-pressed="false"><span class="bb-icon bb-icon-data" style="--icon-size:18px" aria-hidden="true">▦</span>資料救援</button>
+        <button class="repair-option" type="button" data-value="容量擴充" aria-pressed="false"><span class="bb-icon bb-icon-storage" style="--icon-size:18px" aria-hidden="true">▣</span>容量擴充</button>
+        <button class="repair-option" type="button" data-value="充電孔維修" aria-pressed="false"><span class="bb-icon bb-icon-plug" style="--icon-size:18px" aria-hidden="true">⌁</span>充電孔維修</button>
+        <button class="repair-option" type="button" data-value="主機板維修" aria-pressed="false"><span class="bb-icon bb-icon-chip" style="--icon-size:18px" aria-hidden="true">▦</span>主機板維修</button>
+        <button class="repair-option" type="button" data-value="全機清潔" aria-pressed="false"><span class="bb-icon bb-icon-clean" style="--icon-size:18px" aria-hidden="true">✧</span>全機清潔</button>
+        <button class="repair-option" type="button" data-value="聽筒維修" aria-pressed="false"><span class="bb-icon bb-icon-ear" style="--icon-size:18px" aria-hidden="true">◔</span>聽筒維修</button>
+        <button class="repair-option" type="button" data-value="喇叭維修" aria-pressed="false"><span class="bb-icon bb-icon-speaker" style="--icon-size:18px" aria-hidden="true">◖</span>喇叭維修</button>
+        <button class="repair-option" type="button" data-value="按鍵維修" aria-pressed="false"><span class="bb-icon bb-icon-button" style="--icon-size:18px" aria-hidden="true">●</span>按鍵維修</button>
+        <button class="repair-option" type="button" data-value="臉部辨識" aria-pressed="false"><span class="bb-icon bb-icon-face" style="--icon-size:18px" aria-hidden="true">◎</span>臉部辨識</button>
+        <button class="repair-option" type="button" data-value="系統修復" aria-pressed="false"><span class="bb-icon bb-icon-system" style="--icon-size:18px" aria-hidden="true">⚙</span>系統修復</button>
+        <button class="repair-option" type="button" data-value="其他維修" aria-pressed="false"><span class="bb-icon bb-icon-tools" style="--icon-size:18px" aria-hidden="true">⌘</span>其他維修</button>
       </div>
 
       <div class="other-repair-panel" id="otherRepairPanel" hidden>
@@ -1149,7 +1246,7 @@
       </div>
 
       <button class="more-toggle" type="button" data-target="problems" data-more="查看更多問題選項" data-less="收合問題選項">
-        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+        <span class="bb-icon bb-icon-chevron-down" style="--icon-size:18px" aria-hidden="true">⌄</span>
         查看更多問題選項
       </button>
     </section>
@@ -1186,7 +1283,7 @@
       </div>
 
       <button class="more-toggle" type="button" data-target="experiences" data-more="查看更多體驗選項" data-less="收合體驗選項">
-        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+        <span class="bb-icon bb-icon-chevron-down" style="--icon-size:18px" aria-hidden="true">⌄</span>
         查看更多體驗選項
       </button>
     </section>
@@ -1220,17 +1317,17 @@
 
         <div class="result-actions">
           <button class="copy-btn" id="copyBtn" type="button">
-            <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
+            <span class="bb-icon bb-icon-copy" style="--icon-size:18px" aria-hidden="true">▣</span>
             複製文字
           </button>
           <a class="map-btn" id="googleReviewBtn" href="#" target="_blank" rel="noopener">
-            <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
+            <span class="bb-icon bb-icon-map" style="--icon-size:18px" aria-hidden="true">⌖</span>
             前往評論
           </a>
         </div>
 
         <button class="secondary-btn" id="regenerateBtn" type="button" style="width:100%;margin-top:10px;">
-          <iconify-icon icon="mdi:refresh" width="18"></iconify-icon>
+          <span class="bb-icon bb-icon-refresh" style="--icon-size:18px" aria-hidden="true">↻</span>
           重新生成一次
         </button>
       </div>
@@ -1240,11 +1337,11 @@
   <div class="fixed-actions">
     <div class="action-shell">
       <button class="ghost-action" id="templateBtn" type="button">
-        <iconify-icon icon="mdi:text-box-edit-outline" width="18"></iconify-icon>
+        <span class="bb-icon bb-icon-text" style="--icon-size:18px" aria-hidden="true">▤</span>
         模板產生
       </button>
       <button class="main-action" id="generateBtn" type="button">
-        <iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>
+        <span class="bb-icon bb-icon-sparkles" style="--icon-size:18px" aria-hidden="true">✦</span>
         AI 整理
       </button>
     </div>
@@ -1304,7 +1401,7 @@
           const isCollapsed = target.dataset.collapsed !== "false";
           target.dataset.collapsed = isCollapsed ? "false" : "true";
           button.classList.toggle("active", isCollapsed);
-          button.innerHTML = `<iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>${isCollapsed ? lessText : moreText}`;
+          button.innerHTML = `<span class="bb-icon bb-icon-chevron-down" style="--icon-size:18px" aria-hidden="true">⌄</span>${isCollapsed ? lessText : moreText}`;
         });
       });
     }
@@ -1532,7 +1629,7 @@
         generateBtn.disabled = false;
         templateBtn.disabled = false;
         regenerateBtn.disabled = false;
-        generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 整理`;
+        generateBtn.innerHTML = `<span class="bb-icon bb-icon-sparkles" style="--icon-size:18px" aria-hidden="true">✦</span>AI 整理`;
       }
     }
 
@@ -1574,7 +1671,7 @@
       try {
         await navigator.clipboard.writeText(text);
         const oldHTML = copyBtn.innerHTML;
-        copyBtn.innerHTML = `<iconify-icon icon="mdi:check" width="18"></iconify-icon>已複製`;
+        copyBtn.innerHTML = `<span class="bb-icon bb-icon-check" style="--icon-size:18px" aria-hidden="true">✓</span>已複製`;
         showMessage("已複製評論文字，可以貼到 Google 評論中。", "success");
         setTimeout(() => copyBtn.innerHTML = oldHTML, 1200);
       } catch (err) {
