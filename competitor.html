@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>黑盒子 iPhone 同行維修報價</title>
+  <title>iPhone 同行維修報價</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -71,7 +71,7 @@
     h1 {
       margin: 0 auto;
       max-width: 100%;
-      font-size: clamp(22px, 6.4vw, 28px);
+      font-size: clamp(24px, 6.8vw, 30px);
       line-height: 1.1;
       letter-spacing: -0.045em;
       font-weight: 800;
@@ -342,6 +342,17 @@
       background: #fffafa;
     }
 
+    .store-footer {
+      margin: 28px auto 0;
+      padding: 18px 10px 4px;
+      text-align: center;
+      color: #86868b;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      animation: fadeUp 0.55s 0.18s ease both;
+    }
+
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -404,7 +415,7 @@
 
     @media (max-width: 390px) {
       h1 {
-        font-size: 21px;
+        font-size: 23px;
       }
 
       .repair-name {
@@ -432,7 +443,7 @@
 <body>
   <main class="page">
     <section class="hero">
-      <h1>黑盒子iPhone 同行維修報價</h1>
+      <h1>iPhone 同行維修報價</h1>
     </section>
 
     <section id="dealerGate" class="dealer-card">
@@ -479,6 +490,10 @@
 
       <div id="priceList" class="price-list"></div>
     </section>
+
+    <footer class="store-footer">
+      黑盒子維修中心-沙鹿站前店
+    </footer>
   </main>
 
   <script>
@@ -800,18 +815,6 @@
         modelSelect.innerHTML = `<option value="">資料載入中...</option>`;
         modelSelect.disabled = true;
 
-        /*
-          重要：
-          這裡不再使用 .eq("是否啟用", true)
-          也不再使用 .order("排序") 或 .order("型號")
-          因為你的欄位名稱可能已經改掉。
-
-          改成先 select("*")，再由前端自動辨識：
-          1. 哪個欄位是型號
-          2. 哪個欄位是排序
-          3. 哪個欄位是是否啟用
-          4. 剩下欄位自動當成維修項目
-        */
         const { data, error } = await client
           .from(TABLE_NAME)
           .select("*");
