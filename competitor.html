@@ -277,9 +277,52 @@
     }
 
     .price-list {
-      padding: 2px 20px 10px;
+      padding: 16px;
       display: grid;
-      gap: 0;
+      gap: 14px;
+      background: #f5f5f7;
+    }
+
+    .price-category-card {
+      background: #ffffff;
+      border: 1px solid rgba(210, 210, 215, 0.72);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.045);
+      opacity: 0;
+      transform: translateY(10px);
+      animation: rowUp 0.42s ease both;
+    }
+
+    .price-category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 16px 6px;
+    }
+
+    .price-category-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .price-category-body {
+      padding: 0 16px 2px;
+    }
+
+    .price-category-note {
+      margin: 0;
+      padding: 0 16px 16px;
+      color: #d70015;
+      font-size: 12px;
+      line-height: 1.6;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
     .price-row {
@@ -287,7 +330,7 @@
       grid-template-columns: 1fr auto;
       gap: 14px;
       align-items: center;
-      padding: 17px 0;
+      padding: 15px 0;
       border-bottom: 1px solid var(--soft-line);
       opacity: 0;
       transform: translateY(10px);
@@ -296,6 +339,14 @@
 
     .price-row:last-child {
       border-bottom: none;
+    }
+
+    .price-row.empty-row {
+      grid-template-columns: 1fr;
+      color: #a1a1a6;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.5;
     }
 
     .repair-name {
@@ -507,7 +558,7 @@
       false = 直接顯示 Supabase 欄位名稱
       true = 自動拿掉第一個 "-" 前面的分類
     */
-    const STRIP_CATEGORY_PREFIX = false;
+    const STRIP_CATEGORY_PREFIX = true;
 
     /*
       這裡是非報價欄位的對照表。
@@ -563,6 +614,29 @@
       "remarks",
       "description",
       "說明"
+    ];
+
+    const PRICE_GROUPS = [
+      {
+        id: "battery",
+        title: "電池",
+        emptyText: "目前沒有電池報價欄位",
+        keywords: ["電池", "battery"],
+        note: "更換 [蘋果原廠零件] 需關閉尋找，或提供蘋果帳號密碼"
+      },
+      {
+        id: "screen",
+        title: "螢幕",
+        emptyText: "目前沒有螢幕報價欄位",
+        keywords: ["螢幕", "屏幕", "面板", "總成", "觸控", "display", "screen", "lcd", "oled"],
+        note: "更換 [蘋果原廠零件] 需關閉尋找，或提供蘋果帳號密碼"
+      },
+      {
+        id: "other",
+        title: "其他維修項目",
+        emptyText: "目前沒有其他維修項目",
+        keywords: []
+      }
     ];
 
     let allRows = [];
@@ -693,6 +767,88 @@
       return repairItems.filter((item) => !isEmptyPrice(getRepairPrice(row, item))).length;
     }
 
+    function getItemSearchText(item) {
+      return `${item.key} ${item.label}`.toLowerCase();
+    }
+
+    function matchesGroup(item, group) {
+      if (!group.keywords || group.keywords.length === 0) return false;
+
+      const searchText = getItemSearchText(item);
+      return group.keywords.some((keyword) => searchText.includes(String(keyword).toLowerCase()));
+    }
+
+    function getGroupedRepairItems() {
+      const batteryGroup = PRICE_GROUPS.find((group) => group.id === "battery");
+      const screenGroup = PRICE_GROUPS.find((group) => group.id === "screen");
+
+      const grouped = PRICE_GROUPS.map((group) => {
+        return {
+          ...group,
+          items: []
+        };
+      });
+
+      repairItems.forEach((item) => {
+        if (matchesGroup(item, batteryGroup)) {
+          grouped.find((group) => group.id === "battery").items.push(item);
+          return;
+        }
+
+        if (matchesGroup(item, screenGroup)) {
+          grouped.find((group) => group.id === "screen").items.push(item);
+          return;
+        }
+
+        grouped.find((group) => group.id === "other").items.push(item);
+      });
+
+      return grouped;
+    }
+
+    function countGroupAvailablePrices(row, items) {
+      return items.filter((item) => !isEmptyPrice(getRepairPrice(row, item))).length;
+    }
+
+    function renderPriceRows(row, group, groupIndex) {
+      if (!group.items || group.items.length === 0) {
+        return `
+          <div class="price-row empty-row" style="animation-delay:${140 + groupIndex * 90}ms">
+            ${escapeHtml(group.emptyText)}
+          </div>
+        `;
+      }
+
+      return group.items.map((item, itemIndex) => {
+        const value = getRepairPrice(row, item);
+        const emptyClass = isEmptyPrice(value) ? " empty" : "";
+        const delay = 140 + groupIndex * 90 + itemIndex * 35;
+
+        return `
+          <div class="price-row" style="animation-delay:${delay}ms">
+            <div class="repair-name">${escapeHtml(item.label)}</div>
+            <div class="repair-price${emptyClass}">${escapeHtml(formatPrice(value))}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderPriceGroupCard(row, group, groupIndex) {
+      const cardDelay = 80 + groupIndex * 70;
+
+      return `
+        <section class="price-category-card" style="animation-delay:${cardDelay}ms">
+          <div class="price-category-header">
+            <h3 class="price-category-title">${escapeHtml(group.title)}</h3>
+          </div>
+          <div class="price-category-body">
+            ${renderPriceRows(row, group, groupIndex)}
+          </div>
+          ${group.note ? `<p class="price-category-note">${escapeHtml(group.note)}</p>` : ""}
+        </section>
+      `;
+    }
+
     function getModelName(row, index = 0) {
       return getField(row, "model") || `未命名型號 ${index + 1}`;
     }
@@ -777,30 +933,11 @@
         ? `目前共有 ${availableCount} 個維修項目有填寫價格。`
         : "這個型號目前尚未填寫任何維修價格。";
 
-      if (repairItems.length === 0) {
-        priceList.innerHTML = `
-          <div class="price-row" style="animation-delay:80ms">
-            <div class="repair-name">目前沒有可顯示的維修項目</div>
-            <div class="repair-price empty">—</div>
-          </div>
-        `;
+      const groupedRepairItems = getGroupedRepairItems();
 
-        showPricePanel();
-        return;
-      }
-
-      priceList.innerHTML = repairItems.map((item, index) => {
-        const value = getRepairPrice(row, item);
-        const emptyClass = isEmptyPrice(value) ? " empty" : "";
-        const delay = 80 + index * 35;
-
-        return `
-          <div class="price-row" style="animation-delay:${delay}ms">
-            <div class="repair-name">${escapeHtml(item.label)}</div>
-            <div class="repair-price${emptyClass}">${escapeHtml(formatPrice(value))}</div>
-          </div>
-        `;
-      }).join("");
+      priceList.innerHTML = groupedRepairItems
+        .map((group, groupIndex) => renderPriceGroupCard(row, group, groupIndex))
+        .join("");
 
       showPricePanel();
     }
