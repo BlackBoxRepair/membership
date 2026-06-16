@@ -970,7 +970,12 @@
         </div>
 
         <a class="ads-banner-link" href="https://blackboxrepair.github.io/membership/" aria-label="前往黑盒子會員頁">
-          <img class="ads-banner-img" src="./ads banner.png" alt="黑盒子會員活動">
+          <img
+            class="ads-banner-img"
+            id="adsBannerImg"
+            src="/membership/map_comment_helper/ads%20banner.png"
+            alt="黑盒子會員活動"
+          >
         </a>
       </section>
 
@@ -1175,6 +1180,7 @@
       const copyBtn = document.getElementById("copyBtn");
       const mapBtn = document.getElementById("mapBtn");
       const backBtn = document.getElementById("backBtn");
+      const adsBannerImg = document.getElementById("adsBannerImg");
       const languageBtn = document.getElementById("languageBtn");
       const languageMenu = document.getElementById("languageMenu");
       const languageSwitcher = document.querySelector(".language-switcher");
@@ -1184,6 +1190,30 @@
       const otherProblemText = document.getElementById("otherProblemText");
 
       let selectedStore = "";
+
+      if (adsBannerImg) {
+        const bannerSources = [
+          "/membership/map_comment_helper/ads%20banner.png",
+          "/membership/map_comment_helper/ads banner.png",
+          "/membership/google_map_comment_helper/ads%20banner.png",
+          "/membership/google_map_comment_helper/ads banner.png",
+          "./ads%20banner.png",
+          "./ads banner.png",
+          "../map_comment_helper/ads%20banner.png",
+          "../map_comment_helper/ads banner.png"
+        ];
+
+        let bannerIndex = 0;
+
+        adsBannerImg.addEventListener("error", function () {
+          bannerIndex += 1;
+
+          if (bannerIndex < bannerSources.length) {
+            adsBannerImg.src = bannerSources[bannerIndex];
+          }
+        });
+      }
+
 
       let currentLanguage = "zh";
 
