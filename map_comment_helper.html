@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>黑盒子｜Google 評論小幫手</title>
-  <meta name="description" content="黑盒子維修中心 Google Map 評論小幫手，協助客戶依照實際維修體驗整理心得文字。" />
+  <meta name="description" content="黑盒子維修中心 Google 評論小幫手，協助依照實際維修體驗整理評論文字。" />
   <meta name="theme-color" content="#ffc542" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,19 +14,17 @@
 
   <style>
     :root {
-      --brand: #ffc542;
-      --brand-soft: rgba(255, 197, 66, 0.16);
-      --brand-line: rgba(255, 197, 66, 0.34);
-      --brand-dark: #111111;
+      --yellow: #ffc542;
       --black: #111111;
-      --text: #111111;
-      --muted: #666666;
-      --soft: #f5f5f5;
-      --line: #dddddd;
-      --card: #ffffff;
-      --danger: #111111;
-      --success: #111111;
-      --shadow: 0 18px 42px rgba(0, 0, 0, 0.08);
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #eeeeee;
+      --gray-300: #dddddd;
+      --gray-500: #888888;
+      --gray-700: #555555;
+      --gray-900: #222222;
+      --shadow: 0 20px 44px rgba(0, 0, 0, 0.08);
     }
 
     * {
@@ -37,33 +35,29 @@
     html,
     body {
       margin: 0;
-      min-height: 100%;
       width: 100%;
-      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
-      color: var(--text);
-      background: #ffffff;
+      min-height: 100%;
       overflow-x: hidden;
+      background: var(--white);
+      color: var(--black);
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
     }
 
     button,
     input,
-    textarea,
-    select {
+    textarea {
       font: inherit;
     }
 
     button {
-      border: 0;
-      cursor: pointer;
+      touch-action: manipulation;
     }
 
     .app {
-      position: relative;
       width: 100%;
-      max-width: 460px;
-      min-height: 100vh;
+      max-width: 430px;
       margin: 0 auto;
-      padding: 18px 16px calc(104px + var(--safe-bottom));
+      padding: 22px 18px 48px;
     }
 
     .topbar {
@@ -71,330 +65,284 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 18px;
     }
 
-    .brand-lockup {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      min-width: 0;
     }
 
     .brand-mark {
-      width: 38px;
-      height: 38px;
-      border-radius: 15px;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--black);
+      color: var(--yellow);
       display: grid;
       place-items: center;
-      background: #111111;
-      color: var(--brand);
+      font-size: 17px;
       font-weight: 900;
-      letter-spacing: -0.05em;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+      letter-spacing: -0.04em;
+      flex: 0 0 auto;
     }
 
     .hello {
-      line-height: 1.1;
-    }
-
-    .hello strong {
-      display: block;
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 900;
-      letter-spacing: -0.02em;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
     }
 
-    .hello span {
-      display: block;
+    .subhello {
       margin-top: 4px;
+      color: var(--gray-700);
       font-size: 12px;
-      font-weight: 800;
-      color: var(--muted);
+      font-weight: 900;
       letter-spacing: 0.08em;
+      white-space: nowrap;
     }
 
-    .mini-pill {
-      height: 36px;
+    .assist-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 0 12px;
+      min-height: 38px;
+      padding: 9px 12px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      color: #111111;
-      font-size: 12px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-100);
+      font-size: 13px;
       font-weight: 900;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-      backdrop-filter: blur(16px);
+      white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     .hero-card {
       position: relative;
       overflow: hidden;
-      min-height: 210px;
-      padding: 22px;
+      min-height: 286px;
       border-radius: 34px;
       background:
-        linear-gradient(135deg, #111111 0%, #333333 54%, #333333 100%);
-      color: #ffffff;
-      box-shadow: 0 22px 48px rgba(0, 0, 0, 0.18);
-    }
-
-    .hero-card::before {
-      content: "";
-      position: absolute;
-      width: 160px;
-      height: 160px;
-      right: -54px;
-      top: -42px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255, 197, 66, 0.58), rgba(255, 197, 66, 0) 70%);
-    }
-
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      width: 190px;
-      height: 190px;
-      right: -46px;
-      bottom: -78px;
-      border-radius: 48px;
-      transform: rotate(-18deg);
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      height: 30px;
-      padding: 0 11px;
-      border-radius: 999px;
-      background: rgba(255, 197, 66, 0.24);
-      color: #eeeeee;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-    }
-
-    h1 {
-      margin: 16px 0 0;
-      font-size: 38px;
-      line-height: 1.03;
-      letter-spacing: -0.06em;
-      font-weight: 900;
-    }
-
-    .hero-copy {
-      max-width: 260px;
-      margin: 12px 0 0;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 14px;
-      line-height: 1.65;
-      font-weight: 600;
-    }
-
-    .hero-badge-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+        radial-gradient(circle at 92% 14%, rgba(255, 197, 66, 0.32), transparent 26%),
+        linear-gradient(135deg, #111111 0%, #222222 62%, #333333 100%);
+      color: var(--white);
+      padding: 24px;
+      box-shadow: var(--shadow);
     }
 
     .hero-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      height: 32px;
-      padding: 0 11px;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 15px;
+      border-radius: 999px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-card h1 {
+      margin: 28px 0 16px;
+      font-size: 46px;
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      font-weight: 900;
+    }
+
+    .hero-card p {
+      margin: 0;
+      max-width: 320px;
+      color: var(--gray-300);
+      font-size: 17px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.86);
-      font-size: 12px;
-      font-weight: 800;
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 900;
     }
 
     .section-head {
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      margin: 26px 2px 12px;
+      gap: 12px;
+      margin: 30px 0 12px;
     }
 
     .section-kicker {
       display: block;
-      color: var(--muted);
-      font-size: 11px;
+      color: var(--gray-700);
+      font-size: 13px;
       font-weight: 900;
       letter-spacing: 0.14em;
-      text-transform: uppercase;
+      margin-bottom: 4px;
     }
 
     .section-title {
-      margin: 4px 0 0;
-      font-size: 24px;
-      line-height: 1.15;
-      letter-spacing: -0.045em;
+      margin: 0;
+      color: var(--black);
+      font-size: 28px;
+      line-height: 1.05;
       font-weight: 900;
+      letter-spacing: -0.05em;
     }
 
     .step-pill {
       display: inline-flex;
       align-items: center;
-      height: 30px;
-      padding: 0 10px;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 13px;
       border-radius: 999px;
-      background: #ffffff;
-      border: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 12px;
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      font-size: 13px;
       font-weight: 900;
+      white-space: nowrap;
     }
 
-    .glass-card {
-      overflow: hidden;
-      border-radius: var(--radius-xl);
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.74);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .form-panel {
+    .form-panel,
+    .result-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: 26px;
       padding: 20px;
+      box-shadow: var(--shadow);
     }
 
-    .form-grid {
-      display: grid;
-      gap: 12px;
+    .field-row {
+      margin-bottom: 18px;
+    }
+
+    .field-row:last-child {
+      margin-bottom: 0;
     }
 
     .field-label {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-      color: #111111;
-      font-size: 13px;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--black);
+      font-size: 15px;
       font-weight: 900;
     }
 
     .field-label small {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 800;
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 900;
     }
 
-    .select-wrap {
-      position: relative;
-    }
-
-    select {
-      width: 100%;
-      height: 54px;
-      appearance: none;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      outline: 0;
-      background: rgba(255, 255, 255, 0.94);
-      color: #111111;
-      padding: 0 46px 0 15px;
-      font-size: 15px;
-      font-weight: 800;
-      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-    }
-
-    .select-wrap iconify-icon {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      pointer-events: none;
-    }
-
-
-    .text-field {
-      width: 100%;
-      height: 54px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      outline: 0;
-      background: rgba(255, 255, 255, 0.94);
-      color: #111111;
-      padding: 0 15px;
-      font-size: 15px;
-      font-weight: 800;
-      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-    }
-
-    .text-field::placeholder {
-      color: rgba(0, 0, 0, 0.35);
-      font-weight: 700;
-    }
-
-    .store-choice-grid,
-    .repair-options {
+    .store-options {
       display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
     }
 
-    .store-choice-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .repair-options {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .choice-button,
-    .repair-option {
-      min-height: 50px;
+    .store-option,
+    .repair-option,
+    .more-toggle,
+    .main-action,
+    .secondary-action,
+    .copy-action,
+    .map-action {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 7px;
-      border-radius: 20px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.94);
-      color: #333333;
-      font-size: 14px;
+      gap: 8px;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      cursor: pointer;
       font-weight: 900;
-      box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+      text-decoration: none;
+      user-select: none;
     }
 
-    .choice-button:active,
-    .repair-option:active {
-      transform: scale(0.98);
+    .store-option.active,
+    .repair-option.active,
+    .chip input:checked + span {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
     }
 
-    .choice-button.active,
-    .repair-option.active {
-      border-color: rgba(255, 197, 66, 0.96);
-      background: var(--brand-soft);
-      color: #333333;
-      box-shadow: 0 10px 24px rgba(255, 197, 66, 0.18);
+    .text-field {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 18px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      outline: none;
+      font-size: 16px;
+      font-weight: 800;
     }
 
-    select:focus,
+    .text-field::placeholder,
+    textarea::placeholder {
+      color: var(--gray-500);
+    }
+
     .text-field:focus,
     textarea:focus {
-      border-color: rgba(255, 197, 66, 0.9);
-      box-shadow: 0 0 0 4px rgba(255, 197, 66, 0.12);
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 4px rgba(255, 197, 66, 0.22);
+    }
+
+    .repair-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .repair-option {
+      min-height: 50px;
+      padding: 10px 8px;
+      font-size: 14px;
+    }
+
+    .other-repair-panel {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .other-repair-panel.show {
+      display: block;
     }
 
     .chips {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 9px;
     }
 
@@ -410,80 +358,58 @@
     }
 
     .chip span {
-      min-height: 42px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      min-height: 40px;
       padding: 9px 13px;
       border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, 0.9);
-      color: #333333;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
       font-size: 13px;
-      font-weight: 800;
-      transition: 0.18s ease;
+      font-weight: 900;
+      cursor: pointer;
       user-select: none;
     }
 
-    .chip input:checked + span {
-      background: var(--brand);
-      border-color: var(--brand);
-      color: #111111;
-      box-shadow: 0 10px 22px rgba(255, 197, 66, 0.22);
+    .collapsed[data-collapsed="true"] .more-chip {
+      display: none;
     }
 
-    .chip input:checked + span::before {
-      content: "✓";
-      display: inline-grid;
-      place-items: center;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #111111;
-      color: var(--brand);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .chip:active span {
-      transform: scale(0.97);
-    }
-
-    .notice {
-      display: grid;
-      grid-template-columns: 34px 1fr;
-      gap: 10px;
-      align-items: start;
-      margin-top: 18px;
-      padding: 14px;
-      border-radius: 22px;
-      background: var(--brand-soft);
-      border: 1px solid var(--brand-line);
-      color: var(--brand-deep);
-    }
-
-    .notice-icon {
-      width: 34px;
-      height: 34px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: rgba(255, 197, 66, 0.22);
-    }
-
-    .notice strong {
-      display: block;
-      margin-bottom: 3px;
+    .more-toggle {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 14px;
+      border-radius: 999px;
+      background: var(--gray-100);
+      border-color: var(--gray-100);
       font-size: 13px;
-      font-weight: 900;
     }
 
-    .notice p {
-      margin: 0;
-      font-size: 12px;
-      line-height: 1.65;
-      font-weight: 700;
+    .more-toggle.active iconify-icon {
+      transform: rotate(180deg);
+    }
+
+    .ai-action-panel {
+      margin-top: 18px;
+      margin-bottom: 46px;
+    }
+
+    .main-action {
+      width: 100%;
+      min-height: 60px;
+      border: none;
+      border-radius: 22px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 18px;
+      box-shadow: 0 14px 28px rgba(255, 197, 66, 0.28);
+    }
+
+    .main-action:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
 
     .message {
@@ -491,195 +417,103 @@
       margin-top: 12px;
       padding: 13px 14px;
       border-radius: 18px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-300);
       font-size: 13px;
       line-height: 1.6;
       font-weight: 800;
     }
 
-    .message.error,
-    .message.success {
+    .message.show {
       display: block;
-      background: var(--brand-soft);
-      color: var(--brand-deep);
-      border: 1px solid var(--brand-line);
     }
 
-    .result-panel {
+    .result-page {
       display: none;
-      margin-top: 18px;
     }
 
-    .result-panel.show {
+    .app.result-mode .input-page {
+      display: none;
+    }
+
+    .app.result-mode .result-page {
       display: block;
     }
 
-    .result-tabs {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 8px;
-      border-radius: 999px;
-      background: rgba(255, 197, 66, 0.16);
-      margin-bottom: 12px;
+    .result-card {
+      margin-top: 14px;
     }
 
-    .tab-btn {
-      height: 38px;
-      border-radius: 999px;
-      background: transparent;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .tab-btn.active {
-      background: var(--brand);
-      color: #111111;
-      box-shadow: 0 8px 18px rgba(255, 197, 66, 0.22);
-    }
-
-    .review-card {
-      padding: 16px;
-      border-radius: 26px;
-      background: #ffffff;
-      border: 1px solid var(--line);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
-    }
-
-    .review-meta {
-      display: flex;
+    .ai-badge {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .review-meta strong {
-      font-size: 15px;
-      font-weight: 900;
-    }
-
-    .review-meta span {
-      color: var(--muted);
+      gap: 6px;
+      min-height: 34px;
+      padding: 7px 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: var(--yellow);
+      color: var(--black);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 900;
     }
 
     textarea {
       width: 100%;
-      min-height: 190px;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      outline: 0;
-      background: #ffffff;
-      color: #111111;
-      padding: 14px;
-      font-size: 15px;
-      line-height: 1.78;
-      font-weight: 600;
+      min-height: 260px;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      outline: none;
       resize: vertical;
+      font-size: 16px;
+      line-height: 1.85;
+      font-weight: 700;
     }
 
     .result-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
-    .copy-btn,
-    .map-btn,
-    .secondary-btn {
-      min-height: 48px;
-      border-radius: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      font-size: 14px;
-      font-weight: 900;
-      text-decoration: none;
-    }
-
-    .copy-btn {
-      background: var(--brand);
-      color: #111111;
-    }
-
-    .map-btn {
-      display: none;
-      background: var(--brand);
-      color: #111111;
-    }
-
-    .map-btn.show {
-      display: inline-flex;
-    }
-
-    .secondary-btn {
-      background: #ffffff;
-      color: #111111;
-      border: 1px solid var(--line);
-    }
-
-    .fixed-actions {
-      position: fixed;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      z-index: 20;
+    .copy-action,
+    .map-action {
       width: 100%;
-      max-width: 460px;
-      padding: 12px 16px calc(12px + var(--safe-bottom));
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.94) 22%, rgba(255, 255, 255, 0.98));
-      backdrop-filter: blur(16px);
-    }
-
-    .action-shell {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      padding: 8px;
-      border-radius: 26px;
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.76);
-      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.12);
-    }
-
-    .main-action,
-    .ghost-action {
       min-height: 54px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      border-radius: 18px;
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
       font-size: 15px;
-      font-weight: 900;
     }
 
-    .main-action {
-      background: var(--brand);
-      color: #111111;
-      box-shadow: 0 10px 24px rgba(255, 197, 66, 0.24);
+    .secondary-action {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 10px;
+      background: var(--white);
+      border-color: var(--gray-300);
+      font-size: 14px;
     }
 
-    .ghost-action {
-      background: #ffffff;
-      color: #111111;
-      border: 1px solid var(--line);
-    }
-
-    .main-action:disabled,
-    .ghost-action:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
+    .footer-note {
+      margin: 28px 0 0;
+      text-align: center;
+      color: var(--gray-700);
+      font-size: 12px;
+      line-height: 1.6;
+      font-weight: 700;
     }
 
     .loading-dot::after {
       content: "";
       display: inline-block;
-      width: 1.1em;
+      width: 1.2em;
       text-align: left;
       animation: dots 1.2s steps(4, end) infinite;
     }
@@ -693,645 +527,216 @@
     }
 
     @media (max-width: 390px) {
-      .store-choice-grid,
-      .repair-options {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (min-width: 720px) {
       .app {
-        padding-top: 26px;
-      }
-    }
-  
-    .store-option.active,
-    .store-option.is-active,
-    .store-btn.active,
-    .store-btn.is-active,
-    .option-btn.active,
-    .option-btn.is-active {
-      background: var(--brand) !important;
-      border-color: var(--brand) !important;
-      color: #111111 !important;
-      box-shadow: 0 10px 22px rgba(255, 197, 66, 0.24);
-    }
-
-    .btn,
-    .primary-btn,
-    #generateBtn {
-      background: var(--brand) !important;
-      color: #111111 !important;
-      box-shadow: 0 12px 26px rgba(255, 197, 66, 0.26);
-    }
-
-    .btn-secondary,
-    #templateBtn,
-    #regenerateBtn {
-      border-color: rgba(255, 197, 66, 0.48) !important;
-      color: #333333 !important;
-      background: rgba(255, 197, 66, 0.08) !important;
-    }
-
-    .copy-btn,
-    .google-btn,
-    .eyebrow,
-    .badge,
-    .logo-mark {
-      background: var(--brand) !important;
-      color: #111111 !important;
-    }
-
-    .notice,
-    .success,
-    .error {
-      background: rgba(255, 197, 66, 0.12) !important;
-      border: 1px solid rgba(255, 197, 66, 0.32) !important;
-      color: #666666 !important;
-    }
-
-  
-    /* Palette lock: only white, black, gray, and #ffc542 */
-    body {
-      background: #ffffff !important;
-      color: #111111 !important;
-    }
-
-    .page,
-    .card,
-    .review-box,
-    select,
-    input,
-    textarea,
-    .btn-secondary,
-    .logo-pill {
-      background-color: #ffffff !important;
-      color: #111111 !important;
-      border-color: #dddddd !important;
-    }
-
-    .subtitle,
-    .card-desc,
-    .review-hint,
-    .footer-note {
-      color: #666666 !important;
-    }
-
-    .eyebrow,
-    .badge,
-    .logo-mark,
-    .btn,
-    .primary-btn,
-    #generateBtn,
-    .copy-btn,
-    .google-btn {
-      background: #ffc542 !important;
-      color: #111111 !important;
-      border-color: #ffc542 !important;
-    }
-
-    .chip span,
-    .store-option,
-    .store-btn,
-    .option-btn {
-      background: #ffffff !important;
-      color: #111111 !important;
-      border-color: #dddddd !important;
-    }
-
-    .chip input:checked + span,
-    .store-option.active,
-    .store-option.is-active,
-    .store-btn.active,
-    .store-btn.is-active,
-    .option-btn.active,
-    .option-btn.is-active {
-      background: #ffc542 !important;
-      color: #111111 !important;
-      border-color: #ffc542 !important;
-    }
-
-    .notice,
-    .success,
-    .error {
-      background: #f5f5f5 !important;
-      color: #111111 !important;
-      border: 1px solid #dddddd !important;
-    }
-
-    .btn-secondary,
-    #templateBtn,
-    #regenerateBtn {
-      background: #ffffff !important;
-      color: #111111 !important;
-      border-color: #aaaaaa !important;
-    }
-
-    .bottom-actions,
-    .action-bar,
-    .fixed-actions {
-      background: #ffffff !important;
-      border-color: #dddddd !important;
-    }
-
-  
-    .other-repair-panel {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid #dddddd;
-    }
-
-    .other-repair-panel[hidden] {
-      display: none !important;
-    }
-
-  
-    .repair-option.active {
-      background: #ffc542 !important;
-      color: #111111 !important;
-      border-color: #ffc542 !important;
-    }
-
-  
-    .collapsed-list[data-collapsed="true"] .more-chip {
-      display: none;
-    }
-
-    .more-toggle {
-      width: 100%;
-      min-height: 44px;
-      margin-top: 14px;
-      border: 1px solid #dddddd;
-      border-radius: 999px;
-      background: #ffffff;
-      color: #111111;
-      font-size: 13px;
-      font-weight: 900;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .more-toggle iconify-icon {
-      transition: transform 0.18s ease;
-    }
-
-    .more-toggle.active iconify-icon {
-      transform: rotate(180deg);
-    }
-
-  
-    /* Compact mobile layout */
-    html,
-    body {
-      width: 100%;
-      overflow-x: hidden !important;
-      background: #ffffff !important;
-    }
-
-    .app {
-      width: 100% !important;
-      max-width: 390px !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-      padding-left: 18px !important;
-      padding-right: 18px !important;
-    }
-
-    .topbar,
-    .hero-card,
-    .glass-card,
-    .form-panel,
-    .result-panel,
-    .result-card,
-    .section-head {
-      width: 100% !important;
-      max-width: 100% !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-    }
-
-    .hero-card {
-      min-height: 198px !important;
-      padding: 20px !important;
-      border-radius: 28px !important;
-    }
-
-    .hero-copy h1,
-    .hero-title,
-    .hero-card h1 {
-      font-size: clamp(38px, 12vw, 50px) !important;
-      line-height: 0.98 !important;
-    }
-
-    .hero-copy p,
-    .hero-card p {
-      max-width: 300px !important;
-      font-size: 15px !important;
-      line-height: 1.7 !important;
-    }
-
-    .form-panel {
-      padding: 18px !important;
-      border-radius: 24px !important;
-    }
-
-    .store-choice-grid {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 10px !important;
-    }
-
-    .store-option {
-      padding-left: 10px !important;
-      padding-right: 10px !important;
-      min-width: 0 !important;
-    }
-
-    .fixed-actions {
-      width: min(390px, calc(100% - 40px)) !important;
-      max-width: 390px !important;
-      left: 50% !important;
-      right: auto !important;
-      transform: translateX(-50%) !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      background: #ffffff !important;
-      border-radius: 30px !important;
-    }
-
-    .action-shell {
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-      border-radius: 28px !important;
-    }
-
-    @media (min-width: 431px) {
-      .app {
-        max-width: 390px !important;
+        padding-left: 15px;
+        padding-right: 15px;
       }
 
-      .fixed-actions {
-        width: 390px !important;
-      }
-    }
-
-    @media (max-width: 430px) {
-      .app {
-        max-width: 390px !important;
-        padding-left: 18px !important;
-        padding-right: 18px !important;
+      .hero-card {
+        min-height: 270px;
+        padding: 21px;
       }
 
-      .fixed-actions {
-        width: calc(100% - 40px) !important;
-      }
-    }
-
-    @media (max-width: 390px) {
-      .app {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
+      .hero-card h1 {
+        font-size: 40px;
       }
 
-      .fixed-actions {
-        width: calc(100% - 32px) !important;
+      .form-panel,
+      .result-card {
+        padding: 18px;
       }
     }
-
-  
-    .ai-generate-panel {
-      padding: 12px !important;
-      margin-top: 14px !important;
-    }
-
-    .inline-ai-action {
-      width: 100%;
-      min-height: 56px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .inline-ai-action iconify-icon {
-      margin-right: 6px;
-    }
-
-    .fixed-actions {
-      display: none !important;
-    }
-
-  
-    /* Center option chips in problem and experience sections */
-    #problems,
-    #experiences {
-      justify-content: center !important;
-    }
-
-    #problems .chip,
-    #experiences .chip {
-      flex: 0 0 auto !important;
-    }
-
-  
-    .ai-source-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 34px;
-      padding: 7px 12px;
-      margin: 0 0 12px;
-      border-radius: 999px;
-      background: #ffc542;
-      color: #111111;
-      font-size: 12px;
-      font-weight: 900;
-      border: 1px solid #ffc542;
-    }
-
-    .ai-source-badge iconify-icon {
-      flex: 0 0 auto;
-    }
-
-  
-    .ai-confirm-line {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      min-height: 34px;
-      padding: 7px 12px;
-      margin: 0 0 12px;
-      border-radius: 999px;
-      background: #ffc542;
-      color: #111111;
-      font-size: 12px;
-      font-weight: 900;
-    }
-
-    #sourceBadge {
-      background: #ffc542 !important;
-      color: #111111 !important;
-      border-color: #ffc542 !important;
-    }
-
-  
-    /* Safer AI button placement and single result screen */
-    .ai-generate-panel {
-      padding: 14px !important;
-      margin-top: 18px !important;
-      margin-bottom: 110px !important;
-    }
-
-    .inline-ai-action {
-      width: 100%;
-      min-height: 60px;
-      border: none;
-      border-radius: 22px;
-      cursor: pointer;
-      font-size: 17px;
-    }
-
-    .app.result-mode > header,
-    .app.result-mode > .hero-card,
-    .app.result-mode > .section-head,
-    .app.result-mode > .glass-card:not(.result-screen-card),
-    .app.result-mode > .ai-generate-panel {
-      display: none !important;
-    }
-
-    .app.result-mode {
-      padding-top: 18px !important;
-    }
-
-    .result-only-head {
-      margin-top: 8px !important;
-    }
-
-    .result-screen-card {
-      margin-top: 14px !important;
-    }
-
-    .single-review-text {
-      min-height: 260px !important;
-      font-size: 16px !important;
-      line-height: 1.85 !important;
-      border-radius: 24px !important;
-    }
-
-    .single-result-actions {
-      display: grid !important;
-      grid-template-columns: 1fr !important;
-      gap: 10px !important;
-      margin-top: 14px !important;
-    }
-
-    .single-result-actions .copy-btn,
-    .single-result-actions .map-btn {
-      width: 100% !important;
-      min-height: 54px !important;
-    }
-
-    .back-edit-btn {
-      width: 100% !important;
-      margin-top: 10px !important;
-      min-height: 48px !important;
-    }
-
   </style>
 </head>
 
 <body>
-  <main class="app">
-    <header class="topbar">
-      <div class="brand-lockup">
-        <div class="brand-mark">BB</div>
-        <div class="hello">
-          <strong>您好！</strong>
-          <span>BLACK BOX MEMBER SERVICE</span>
+  <main class="app" id="app">
+    <div class="input-page">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">BB</div>
+          <div>
+            <div class="hello">您好！</div>
+            <div class="subhello">BLACK BOX MEMBER SERVICE</div>
+          </div>
         </div>
-      </div>
-      <div class="mini-pill">
-        <iconify-icon icon="mdi:google-maps" width="16"></iconify-icon>
-        評論輔助
-      </div>
-    </header>
+        <div class="assist-pill">
+          <iconify-icon icon="mdi:map-marker" width="17"></iconify-icon>
+          評論輔助
+        </div>
+      </header>
 
-    <section class="hero-card" aria-labelledby="page-title">
-      <div class="hero-content">
-        <div class="eyebrow">
-          <iconify-icon icon="mdi:message-draw" width="15"></iconify-icon>
+      <section class="hero-card">
+        <div class="hero-badge">
+          <iconify-icon icon="mdi:message-draw" width="18"></iconify-icon>
           GOOGLE MAP COMMENT
         </div>
-        <h1 id="page-title">維修心得<br>一鍵整理</h1>
-        <p class="hero-copy">選擇這次的實際維修內容，幫您整理成自然、不誇張、可自行修改的評論草稿。</p>
-        <div class="hero-badge-row">
-          <span class="hero-badge"><iconify-icon icon="mdi:shield-check" width="15"></iconify-icon>真實體驗</span>
-          <span class="hero-badge"><iconify-icon icon="mdi:content-copy" width="15"></iconify-icon>快速複製</span>
+        <h1>維修心得<br>一鍵整理</h1>
+        <p>選擇這次的實際維修內容，幫您整理成自然、不誇張、可自行修改的評論草稿。</p>
+        <div class="hero-tags">
+          <div class="hero-tag"><iconify-icon icon="mdi:shield-check" width="18"></iconify-icon>真實體驗</div>
+          <div class="hero-tag"><iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>快速複製</div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="section-head">
-      <div>
-        <span class="section-kicker">SERVICE INFO</span>
-        <h2 class="section-title">本次維修</h2>
-      </div>
-      <span class="step-pill">STEP 01</span>
-    </section>
-
-    <section class="glass-card form-panel">
-      <div class="form-grid">
+      <section class="section-head">
         <div>
-          <div class="field-label"><span>維修門市</span><small>必填</small></div>
-          <input id="store" type="hidden" value="">
-          <div class="store-choice-grid" role="group" aria-label="維修門市">
-            <button class="choice-button store-option" type="button" data-value="勤美公益店">
-              <iconify-icon icon="mdi:storefront-outline" width="18"></iconify-icon>
+          <span class="section-kicker">SERVICE INFO</span>
+          <h2 class="section-title">本次維修</h2>
+        </div>
+        <span class="step-pill">STEP 01</span>
+      </section>
+
+      <section class="form-panel">
+        <div class="field-row">
+          <div class="field-label">
+            <span>維修門市</span>
+            <small>必填</small>
+          </div>
+          <div class="store-options">
+            <button class="store-option" type="button" data-value="勤美公益店">
+              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
               勤美公益店
             </button>
-            <button class="choice-button store-option" type="button" data-value="沙鹿站前店">
-              <iconify-icon icon="mdi:storefront-outline" width="18"></iconify-icon>
+            <button class="store-option" type="button" data-value="沙鹿站前店">
+              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
               沙鹿站前店
             </button>
           </div>
+          <input id="store" type="hidden" value="">
         </div>
 
+        <div class="field-row">
+          <div class="field-label">
+            <span>設備型號</span>
+            <small>必填</small>
+          </div>
+          <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch">
+        </div>
+      </section>
+
+      <section class="section-head">
         <div>
-          <div class="field-label"><span>設備型號</span><small>必填</small></div>
-          <input id="device" class="text-field" type="text" inputmode="text" autocomplete="off" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch" />
+          <span class="section-kicker">REPAIR ITEM</span>
+          <h2 class="section-title">維修項目</h2>
         </div>
-      </div>
-</div>
+        <span class="step-pill">STEP 02</span>
+      </section>
 
-      <div id="messageBox" class="message"></div>
-    </section>
+      <section class="form-panel">
+        <div class="repair-options" id="repairOptions">
+          <button class="repair-option" type="button" data-value="電池更換"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon>電池更換</button>
+          <button class="repair-option" type="button" data-value="螢幕維修"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon>螢幕維修</button>
+          <button class="repair-option" type="button" data-value="前後相機"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon>前後相機</button>
+          <button class="repair-option" type="button" data-value="背蓋維修"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon>背蓋維修</button>
+          <button class="repair-option" type="button" data-value="受潮清潔"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon>受潮清潔</button>
+          <button class="repair-option" type="button" data-value="資料救援"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon>資料救援</button>
+          <button class="repair-option" type="button" data-value="容量擴充"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon>容量擴充</button>
+          <button class="repair-option" type="button" data-value="充電孔維修"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon>充電孔維修</button>
+          <button class="repair-option" type="button" data-value="主機板維修"><iconify-icon icon="mdi:chip" width="18"></iconify-icon>主機板維修</button>
+          <button class="repair-option" type="button" data-value="全機清潔"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon>全機清潔</button>
+          <button class="repair-option" type="button" data-value="聽筒維修"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon>聽筒維修</button>
+          <button class="repair-option" type="button" data-value="喇叭維修"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon>喇叭維修</button>
+          <button class="repair-option" type="button" data-value="按鍵維修"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon>按鍵維修</button>
+          <button class="repair-option" type="button" data-value="臉部辨識"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon>臉部辨識</button>
+          <button class="repair-option" type="button" data-value="系統修復"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon>系統修復</button>
+          <button class="repair-option" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon>其他維修</button>
+        </div>
+        <input id="repair" type="hidden" value="">
+        <div class="other-repair-panel" id="otherRepairPanel">
+          <input id="otherRepairText" class="text-field" type="text" placeholder="其他維修內容，可填可不填">
+        </div>
+      </section>
 
-    <section class="section-head">
-      <div>
-        <span class="section-kicker">REPAIR ITEM</span>
-        <h2 class="section-title">維修項目</h2>
-      </div>
-      <span class="step-pill">STEP 02</span>
-    </section>
+      <section class="section-head">
+        <div>
+          <span class="section-kicker">PROBLEM</span>
+          <h2 class="section-title">遇到的問題</h2>
+        </div>
+        <span class="step-pill">STEP 03</span>
+      </section>
 
-    <section class="glass-card form-panel">
-      <input id="repair" type="hidden" value="">
-      <div class="repair-options" id="repairOptions" role="group" aria-label="維修項目，可複選">
-        <button class="repair-option" type="button" data-value="電池更換" aria-pressed="false"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon>電池更換</button>
-        <button class="repair-option" type="button" data-value="螢幕維修" aria-pressed="false"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon>螢幕維修</button>
-        <button class="repair-option" type="button" data-value="前後相機" aria-pressed="false"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon>前後相機</button>
-        <button class="repair-option" type="button" data-value="背蓋維修" aria-pressed="false"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon>背蓋維修</button>
-        <button class="repair-option" type="button" data-value="受潮清潔" aria-pressed="false"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon>受潮清潔</button>
-        <button class="repair-option" type="button" data-value="資料救援" aria-pressed="false"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon>資料救援</button>
-        <button class="repair-option" type="button" data-value="容量擴充" aria-pressed="false"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon>容量擴充</button>
-        <button class="repair-option" type="button" data-value="充電孔維修" aria-pressed="false"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon>充電孔維修</button>
-        <button class="repair-option" type="button" data-value="主機板維修" aria-pressed="false"><iconify-icon icon="mdi:chip" width="18"></iconify-icon>主機板維修</button>
-        <button class="repair-option" type="button" data-value="全機清潔" aria-pressed="false"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon>全機清潔</button>
-        <button class="repair-option" type="button" data-value="聽筒維修" aria-pressed="false"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon>聽筒維修</button>
-        <button class="repair-option" type="button" data-value="喇叭維修" aria-pressed="false"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon>喇叭維修</button>
-        <button class="repair-option" type="button" data-value="按鍵維修" aria-pressed="false"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon>按鍵維修</button>
-        <button class="repair-option" type="button" data-value="臉部辨識" aria-pressed="false"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon>臉部辨識</button>
-        <button class="repair-option" type="button" data-value="系統修復" aria-pressed="false"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon>系統修復</button>
-        <button class="repair-option" type="button" data-value="其他維修" aria-pressed="false"><iconify-icon icon="mdi:tools" width="18"></iconify-icon>其他維修</button>
-      </div>
+      <section class="form-panel">
+        <div class="chips collapsed" id="problems" data-collapsed="true">
+          <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
+          <label class="chip"><input type="checkbox" value="異常發燙"><span>異常發燙</span></label>
+          <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
+          <label class="chip"><input type="checkbox" value="電池膨脹"><span>電池膨脹</span></label>
+          <label class="chip"><input type="checkbox" value="螢幕破裂"><span>螢幕破裂</span></label>
+          <label class="chip"><input type="checkbox" value="顯示異常"><span>顯示異常</span></label>
+          <label class="chip"><input type="checkbox" value="觸控異常"><span>觸控異常</span></label>
+          <label class="chip"><input type="checkbox" value="無法開機"><span>無法開機</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span>反覆重啟</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span>資料遺失</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span>聲音破音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span>沒有聲音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法上網"><span>無法上網</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span>無法連接wifi</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span>無法連接藍牙</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span>無法打電話</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span>沒有訊號</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span>無法拍照</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span>相機抖動</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span>無法對焦</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span>重摔變形</span></label>
+        </div>
+        <button class="more-toggle" type="button" data-target="problems" data-more="查看更多問題選項" data-less="收合問題選項">
+          <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+          查看更多問題選項
+        </button>
+      </section>
 
-      <div class="other-repair-panel" id="otherRepairPanel" hidden>
-        <div class="field-label"><span>其他維修說明</span><small>選填</small></div>
-        <input id="otherRepairText" class="text-field" type="text" inputmode="text" autocomplete="off" placeholder="可填寫其他維修內容，例如：震動異常、聽不見聲音" />
-      </div>
-    </section>
+      <section class="section-head">
+        <div>
+          <span class="section-kicker">EXPERIENCE</span>
+          <h2 class="section-title">體驗感受</h2>
+        </div>
+        <span class="step-pill">STEP 04</span>
+      </section>
 
-    <section class="section-head">
-      <div>
-        <span class="section-kicker">REPAIR SYMPTOM</span>
-        <h2 class="section-title">遇到的問題</h2>
-      </div>
-      <span class="step-pill">STEP 03</span>
-    </section>
+      <section class="form-panel">
+        <div class="chips collapsed" id="experiences" data-collapsed="true">
+          <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
+          <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
+          <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
+          <label class="chip"><input type="checkbox" value="價格透明"><span>價格透明</span></label>
+          <label class="chip"><input type="checkbox" value="服務親切"><span>服務親切</span></label>
+          <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span>安心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span>檢測仔細</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="處理專業"><span>處理專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span>流程清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="預約方便"><span>預約方便</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span>服務有耐心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span>面對面維修</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span>原廠零件</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="非常專業"><span>非常專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="效率高"><span>效率高</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span>技術優秀</span></label>
+        </div>
+        <button class="more-toggle" type="button" data-target="experiences" data-more="查看更多體驗選項" data-less="收合體驗選項">
+          <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
+          查看更多體驗選項
+        </button>
+      </section>
 
-    <section class="glass-card form-panel">
-      <div class="chips collapsed-list" id="problems" data-collapsed="true">
-        <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
-        <label class="chip"><input type="checkbox" value="異常發燙"><span>異常發燙</span></label>
-        <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
-        <label class="chip"><input type="checkbox" value="電池膨脹"><span>電池膨脹</span></label>
-        <label class="chip"><input type="checkbox" value="螢幕破裂"><span>螢幕破裂</span></label>
-        <label class="chip"><input type="checkbox" value="顯示異常"><span>顯示異常</span></label>
-        <label class="chip"><input type="checkbox" value="觸控異常"><span>觸控異常</span></label>
-        <label class="chip"><input type="checkbox" value="無法開機"><span>無法開機</span></label>
+      <section class="ai-action-panel">
+        <button class="main-action" id="generateBtn" type="button">
+          <iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>
+          AI 生成
+        </button>
+        <div class="message" id="messageBox"></div>
+      </section>
 
-        <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span>反覆重啟</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span>資料遺失</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span>聲音破音</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span>沒有聲音</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法上網"><span>無法上網</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span>無法連接wifi</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span>無法連接藍牙</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span>無法打電話</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span>沒有訊號</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span>無法拍照</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span>相機抖動</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span>無法對焦</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span>重摔變形</span></label>
-      </div>
+      <p class="footer-note">黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。</p>
+    </div>
 
-      <button class="more-toggle" type="button" data-target="problems" data-more="查看更多問題選項" data-less="收合問題選項">
-        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
-        查看更多問題選項
-      </button>
-    </section>
-
-    <section class="section-head">
-      <div>
-        <span class="section-kicker">EXPERIENCE</span>
-        <h2 class="section-title">體驗感受</h2>
-      </div>
-      <span class="step-pill">STEP 04</span>
-    </section>
-
-    <section class="glass-card form-panel">
-      <div class="chips collapsed-list" id="experiences" data-collapsed="true">
-        <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
-        <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
-        <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
-        <label class="chip"><input type="checkbox" value="價格透明"><span>價格透明</span></label>
-        <label class="chip"><input type="checkbox" value="服務親切"><span>服務親切</span></label>
-        <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span>安心</span></label>
-
-        <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span>檢測仔細</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="處理專業"><span>處理專業</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span>流程清楚</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="預約方便"><span>預約方便</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span>服務有耐心</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span>原廠零件</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="非常專業"><span>非常專業</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="效率高"><span>效率高</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span>技術優秀</span></label>
-        <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span>面對面維修</span></label>
-      </div>
-
-      <button class="more-toggle" type="button" data-target="experiences" data-more="查看更多體驗選項" data-less="收合體驗選項">
-        <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
-        查看更多體驗選項
-      </button>
-    </section>
-
-    <section class="glass-card form-panel ai-generate-panel">
-      <button class="main-action inline-ai-action" id="generateBtn" type="button">
-        <iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>
-        AI 生成
-      </button>
-    </section>
-
-    <section class="result-panel" id="resultPanel" aria-live="polite">
-      <section class="section-head result-only-head">
+    <div class="result-page">
+      <section class="section-head">
         <div>
           <span class="section-kicker">AI COMMENT</span>
           <h2 class="section-title">AI 生成內容</h2>
@@ -1339,381 +744,239 @@
         <span class="step-pill">DONE</span>
       </section>
 
-      <div class="glass-card form-panel result-screen-card">
-        <div class="ai-confirm-line">
+      <section class="result-card">
+        <div class="ai-badge">
           <iconify-icon icon="mdi:sparkles" width="15"></iconify-icon>
           本次內容由 Gemini AI 生成
         </div>
-
-        <textarea id="reviewText" class="single-review-text" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡"></textarea>
-
-        <div class="result-actions single-result-actions">
-          <button class="copy-btn" id="copyBtn" type="button">
+        <textarea id="reviewText" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡"></textarea>
+        <div class="result-actions">
+          <button class="copy-action" id="copyBtn" type="button">
             <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
             複製
           </button>
-          <a class="map-btn show" id="googleReviewBtn" href="#" target="_blank" rel="noopener">
+          <a class="map-action" id="mapBtn" href="#" target="_blank" rel="noopener">
             <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
             前往門市 Google 地圖
           </a>
+          <button class="secondary-action" id="backBtn" type="button">
+            返回修改內容
+          </button>
         </div>
-
-        <button class="secondary-btn back-edit-btn" id="backEditBtn" type="button">
-          返回修改內容
-        </button>
-
-        <!-- Keep legacy elements hidden so older JS references never break -->
-        <div style="display:none">
-          <span id="sourceBadge"></span>
-          <span id="activeTitle"></span>
-          <span id="activeHint"></span>
-          <button class="tab-btn active" data-version="natural" type="button"></button>
-          <button id="regenerateBtn" type="button"></button>
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
-<script>
-    /*
-      第二步完成後，把 Supabase Edge Function 網址貼在這裡。
-      重要：不要把 Gemini API Key 放在 HTML / GitHub 裡。
-      範例：
-      const FUNCTION_URL = "https://xxxx.supabase.co/functions/v1/generate-review";
-    */
+
+  <script>
     const FUNCTION_URL = "https://nszwpwimwxvjguoalzwt.supabase.co/functions/v1/generate-review";
 
-    /*
-      Google 評論連結請之後換成真實連結。
-      取得方式：Google 商家後台 > 要求更多評論 / 分享評論表單
-    */
-    const REVIEW_LINKS = {
+    const MAP_LINKS = {
       "勤美公益店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E5%8B%A4%E7%BE%8E%E5%85%AC%E7%9B%8A%E5%BA%97",
       "沙鹿站前店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E6%B2%99%E9%B9%BF%E7%AB%99%E5%89%8D%E5%BA%97"
     };
 
-    const generateBtn = document.getElementById("generateBtn");
-    const templateBtn = null;
-    const regenerateBtn = document.getElementById("regenerateBtn");
-    const resultPanel = document.getElementById("resultPanel");
-    const messageBox = document.getElementById("messageBox");
-    const googleReviewBtn = document.getElementById("googleReviewBtn");
-    const app = document.querySelector(".app");
-    const backEditBtn = document.getElementById("backEditBtn");
-    const reviewText = document.getElementById("reviewText");
-    const sourceBadge = document.getElementById("sourceBadge");
-    const activeTitle = document.getElementById("activeTitle");
-    const activeHint = document.getElementById("activeHint");
-    const copyBtn = document.getElementById("copyBtn");
-
-    let currentReviews = { short: "", natural: "", detailed: "" };
-    let activeVersion = "short";
-
-    const versionMeta = {
-      short: { title: "簡短版", hint: "適合想快速留下心得" },
-      natural: { title: "自然版", hint: "最推薦使用，口吻自然不過度業配" },
-      detailed: { title: "詳細版", hint: "適合想完整分享維修經驗" }
-    };
-
-
-
-    function setupMoreToggles() {
-      document.querySelectorAll(".more-toggle").forEach(button => {
-        const targetId = button.dataset.target;
-        const target = document.getElementById(targetId);
-        const moreText = button.dataset.more || "查看更多";
-        const lessText = button.dataset.less || "收合選項";
-
-        if (!target) return;
-
-        button.addEventListener("click", () => {
-          const isCollapsed = target.dataset.collapsed !== "false";
-          target.dataset.collapsed = isCollapsed ? "false" : "true";
-          button.classList.toggle("active", isCollapsed);
-          button.innerHTML = `<iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>${isCollapsed ? lessText : moreText}`;
-        });
-      });
-    }
-
-    setupMoreToggles();
-
-    function setupSingleSelectButtons(buttonSelector, inputId) {
-      const buttons = document.querySelectorAll(buttonSelector);
-      const input = document.getElementById(inputId);
-
-      buttons.forEach(button => {
-        button.addEventListener("click", () => {
-          const value = button.dataset.value || "";
-          input.value = value;
-
-          buttons.forEach(item => {
-            item.classList.toggle("active", item === button);
-            item.setAttribute("aria-pressed", item === button ? "true" : "false");
-          });
-
-          clearMessage();
-        });
-      });
-    }
-
-    function setupRepairMultiSelect() {
-      const buttons = Array.from(document.querySelectorAll(".repair-option"));
-      const input = document.getElementById("repair");
+    document.addEventListener("DOMContentLoaded", function () {
+      const app = document.getElementById("app");
+      const storeInput = document.getElementById("store");
+      const repairInput = document.getElementById("repair");
       const otherPanel = document.getElementById("otherRepairPanel");
       const otherText = document.getElementById("otherRepairText");
+      const generateBtn = document.getElementById("generateBtn");
+      const messageBox = document.getElementById("messageBox");
+      const reviewText = document.getElementById("reviewText");
+      const copyBtn = document.getElementById("copyBtn");
+      const mapBtn = document.getElementById("mapBtn");
+      const backBtn = document.getElementById("backBtn");
+
+      let selectedStore = "";
+
+      function showMessage(text) {
+        messageBox.textContent = text;
+        messageBox.classList.add("show");
+      }
+
+      function clearMessage() {
+        messageBox.textContent = "";
+        messageBox.classList.remove("show");
+      }
+
+      function getCheckedValues(containerId) {
+        return Array.from(document.querySelectorAll("#" + containerId + " input:checked"))
+          .map(function (input) {
+            return input.value.trim();
+          })
+          .filter(Boolean);
+      }
 
       function updateRepairValue() {
-        let selected = buttons
-          .filter(button => button.classList.contains("active"))
-          .map(button => button.dataset.value || button.textContent.trim())
+        const selectedButtons = Array.from(document.querySelectorAll(".repair-option.active"));
+        let repairs = selectedButtons
+          .map(function (button) {
+            return button.dataset.value || "";
+          })
           .filter(Boolean);
 
-        const otherSelected = selected.includes("其他維修");
+        const hasOther = repairs.indexOf("其他維修") !== -1;
+        otherPanel.classList.toggle("show", hasOther);
 
-        if (otherPanel) {
-          otherPanel.hidden = !otherSelected;
-        }
-
-        if (!otherSelected && otherText) {
+        if (!hasOther) {
           otherText.value = "";
         }
 
-        if (otherSelected && otherText && otherText.value.trim()) {
-          selected = selected.map(item => {
-            if (item === "其他維修") {
-              return `其他維修：${otherText.value.trim()}`;
-            }
-            return item;
+        repairs = repairs.map(function (item) {
+          if (item === "其他維修" && otherText.value.trim()) {
+            return "其他維修：" + otherText.value.trim();
+          }
+          return item;
+        });
+
+        repairInput.value = repairs.join("、");
+        return repairs;
+      }
+
+      function getPayload() {
+        const repairs = updateRepairValue();
+
+        return {
+          store: selectedStore,
+          device: document.getElementById("device").value.trim(),
+          repair: repairInput.value.trim(),
+          repairs: repairs,
+          otherRepairText: otherText.value.trim(),
+          problems: getCheckedValues("problems"),
+          experiences: getCheckedValues("experiences")
+        };
+      }
+
+      function validate(payload) {
+        if (!payload.store) return "請先選擇維修門市。";
+        if (!payload.device) return "請先輸入設備型號。";
+        if (!payload.repair) return "請至少選擇一個維修項目。";
+        if (payload.problems.length === 0) return "請至少選擇一個遇到的問題。";
+        if (payload.experiences.length === 0) return "請至少選擇一個體驗感受。";
+        return "";
+      }
+
+      document.querySelectorAll(".store-option").forEach(function (button) {
+        button.addEventListener("click", function () {
+          selectedStore = button.dataset.value || "";
+          storeInput.value = selectedStore;
+
+          document.querySelectorAll(".store-option").forEach(function (item) {
+            item.classList.toggle("active", item === button);
           });
-        }
 
-        input.value = selected.join("、");
-      }
+          clearMessage();
+        });
+      });
 
-      buttons.forEach(button => {
-        button.addEventListener("click", () => {
-          const isActive = button.classList.toggle("active");
-          button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      document.querySelectorAll(".repair-option").forEach(function (button) {
+        button.addEventListener("click", function () {
+          button.classList.toggle("active");
           updateRepairValue();
           clearMessage();
         });
       });
 
-      if (otherText) {
-        otherText.addEventListener("input", () => {
-          updateRepairValue();
-          clearMessage();
+      otherText.addEventListener("input", function () {
+        updateRepairValue();
+        clearMessage();
+      });
+
+      document.querySelectorAll(".more-toggle").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const target = document.getElementById(button.dataset.target);
+          if (!target) return;
+
+          const isCollapsed = target.dataset.collapsed !== "false";
+          target.dataset.collapsed = isCollapsed ? "false" : "true";
+          button.classList.toggle("active", isCollapsed);
+          button.innerHTML = '<iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>' + (isCollapsed ? button.dataset.less : button.dataset.more);
         });
-      }
-    }
+      });
 
-    setupSingleSelectButtons(".store-option", "store");
-    setupRepairMultiSelect();
+      document.querySelectorAll("#problems input, #experiences input").forEach(function (input) {
+        input.addEventListener("change", clearMessage);
+      });
 
-    function getValue(id) {
-      return document.getElementById(id).value.trim();
-    }
+      generateBtn.addEventListener("click", async function () {
+        clearMessage();
 
-    function getCheckedValues(containerId) {
-      return Array.from(document.querySelectorAll(`#${containerId} input:checked`))
-        .map(input => input.value.trim())
-        .filter(Boolean);
-    }
+        const payload = getPayload();
+        const error = validate(payload);
 
-    function getPayload() {
-      const repairText = getValue("repair");
-      const repairs = repairText
-        ? repairText.split("、").map(item => item.trim()).filter(Boolean)
-        : [];
-
-      return {
-        store: getValue("store"),
-        device: getValue("device"),
-        repair: repairText,
-        repairs,
-        otherRepairText: getValue("otherRepairText"),
-        problems: getCheckedValues("problems"),
-        experiences: getCheckedValues("experiences")
-      };
-    }
-
-    function showMessage(message, type = "success") {
-      messageBox.textContent = message;
-      messageBox.className = `message ${type}`;
-    }
-
-    function clearMessage() {
-      messageBox.textContent = "";
-      messageBox.className = "message";
-    }
-
-    function validatePayload(payload) {
-      if (!payload.store) return "請先選擇維修門市。";
-      if (!payload.device) return "請先選擇設備型號。";
-      if (!payload.repair) return "請先選擇維修項目。";
-      if (payload.problems.length === 0) return "請至少選擇一個遇到的問題。";
-      if (payload.experiences.length === 0) return "請至少選擇一個體驗感受。";
-      return "";
-    }
-
-    function joinList(items) {
-      if (!items || items.length === 0) return "";
-      if (items.length === 1) return items[0];
-      if (items.length === 2) return items.join("和");
-      return items.slice(0, -1).join("、") + "，也有" + items[items.length - 1];
-    }
-
-    /* 固定模板函式目前只保留備用，不會在 AI 失敗時自動使用，避免誤判為 AI 生成。 */
-    function createTemplateReviews(payload) {
-      const problemText = joinList(payload.problems);
-      const experienceText = joinList(payload.experiences);
-      const storeName = `黑盒子${payload.store}`;
-
-      let short = `這次我的 ${payload.device} 因為${problemText}，到${storeName}處理${payload.repair}。現場${experienceText}，整體體驗蠻安心。`;
-      let natural = `這次我的 ${payload.device} 出現${problemText}的狀況，所以到${storeName}處理${payload.repair}。現場人員有先確認狀況並說明維修內容，過程中感覺${experienceText}，整體來說是一次很安心的維修體驗。`;
-      let detailed = `我的 ${payload.device} 最近有${problemText}的問題，後來選擇到${storeName}處理${payload.repair}。現場人員有先確認設備狀況，也有說明接下來的處理方式，過程中讓我覺得${experienceText}。維修完成後整體感受不錯，也比較安心。`;
-
-      return { short, natural, detailed };
-    }
-
-    function updateReviewView() {
-      const finalText =
-        currentReviews.review ||
-        currentReviews.natural ||
-        currentReviews.short ||
-        currentReviews.detailed ||
-        "";
-      reviewText.value = finalText;
-    });
-    }
-
-    function renderReviews(reviews, sourceText, sourceType = "TEMPLATE") {
-      currentReviews = {
-        short: reviews.short || "",
-        natural: reviews.natural || "",
-        detailed: reviews.detailed || ""
-      };
-
-      activeVersion = "natural";
-      if (sourceBadge) sourceBadge.textContent = "Gemini AI";
-      updateReviewView();
-
-      const payload = getPayload();
-      const reviewLink = REVIEW_LINKS[payload.store];
-
-      if (reviewLink && !reviewLink.includes("請貼上")) {
-        googleReviewBtn.href = reviewLink;
-          googleReviewBtn.innerHTML = `<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往${payload.store} Google 地圖`;
-          googleReviewBtn.classList.add("show");
-      } else {
-        googleReviewBtn.classList.remove("show");
-      }
-
-      resultPanel.classList.add("show");
-      if (app) app.classList.add("result-mode");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-
-      if (sourceText) showMessage(sourceText, "success");
-    }
-
-    function syncActiveTextBack() {
-      currentReviews[activeVersion] = reviewText.value;
-    }
-
-    async function generateByAI() {
-      clearMessage();
-      const payload = getPayload();
-      const error = validatePayload(payload);
-      if (error) {
-        showMessage(error, "error");
-        return;
-      }
-
-      if (!FUNCTION_URL || FUNCTION_URL.includes("請貼上")) {
-        showMessage("尚未設定 AI 後端網址，無法使用 AI 生成。", "error");
-        return;
-      }
-
-      generateBtn.disabled = true;
-      if (templateBtn) if (templateBtn) templateBtn.disabled = true;
-      regenerateBtn.disabled = true;
-      generateBtn.innerHTML = `<span class="loading-dot">Gemini AI 生成中</span>`;
-
-      try {
-        const response = await fetch(FUNCTION_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          throw new Error(data.error || "AI 產生失敗，請稍後再試。");
+        if (error) {
+          showMessage(error);
+          return;
         }
 
-        renderReviews(data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
-      } catch (err) {
-        console.error(err);
-        showMessage(err.message || "AI 生成失敗，請稍後再試。", "error");
-      } finally {
-        generateBtn.disabled = false;
-        if (templateBtn) if (templateBtn) templateBtn.disabled = false;
-        regenerateBtn.disabled = false;
-        generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 生成`;
-      }
-    }
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<span class="loading-dot">Gemini AI 生成中</span>';
 
-    function generateByTemplate() {
-      clearMessage();
-      const payload = getPayload();
-      const error = validatePayload(payload);
-      if (error) {
-        showMessage(error, "error");
-        return;
-      }
+        try {
+          const response = await fetch(FUNCTION_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
 
-      const reviews = createTemplateReviews(payload);
-      renderReviews(reviews, "已使用固定評論草稿。", "TEMPLATE");
-    }
+          const data = await response.json();
 
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        syncActiveTextBack();
-        activeVersion = btn.dataset.version;
-        updateReviewView();
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || "AI 生成失敗，請稍後再試。");
+          }
+
+          const generatedText =
+            data.review ||
+            (data.reviews && data.reviews.natural) ||
+            (data.reviews && data.reviews.short) ||
+            (data.reviews && data.reviews.detailed) ||
+            "";
+
+          if (!generatedText) {
+            throw new Error("AI 沒有回傳可用內容，請稍後再試。");
+          }
+
+          reviewText.value = generatedText;
+
+          const mapLink = MAP_LINKS[payload.store] || "#";
+          mapBtn.href = mapLink;
+          mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往' + payload.store + ' Google 地圖';
+
+          app.classList.add("result-mode");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+        } catch (error) {
+          console.error(error);
+          showMessage(error.message || "AI 生成失敗，請稍後再試。");
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = '<iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>AI 生成';
+        }
       });
-    });
 
-    reviewText.addEventListener("input", syncActiveTextBack);
+      copyBtn.addEventListener("click", async function () {
+        const text = reviewText.value.trim();
+        if (!text) return;
 
-    generateBtn.addEventListener("click", generateByAI);
-    if (backEditBtn) {
-      backEditBtn.addEventListener("click", () => {
-        if (app) app.classList.remove("result-mode");
-        resultPanel.classList.remove("show");
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.innerHTML = '<iconify-icon icon="mdi:check" width="18"></iconify-icon>已複製';
+          setTimeout(function () {
+            copyBtn.innerHTML = '<iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>複製';
+          }, 1200);
+        } catch (error) {
+          reviewText.focus();
+          reviewText.select();
+        }
+      });
+
+      backBtn.addEventListener("click", function () {
+        app.classList.remove("result-mode");
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
-    }
-        regenerateBtn.addEventListener("click", generateByAI);
-
-    copyBtn.addEventListener("click", async () => {
-      syncActiveTextBack();
-      const text = reviewText.value.trim();
-      if (!text) {
-        showMessage("目前沒有可以複製的文字。", "error");
-        return;
-      }
-
-      try {
-        await navigator.clipboard.writeText(text);
-        const oldHTML = copyBtn.innerHTML;
-        copyBtn.innerHTML = `<iconify-icon icon="mdi:check" width="18"></iconify-icon>已複製`;
-        showMessage("已複製評論文字，可以貼到 Google 評論中。", "success");
-        setTimeout(() => copyBtn.innerHTML = oldHTML, 1200);
-      } catch (err) {
-        reviewText.focus();
-        reviewText.select();
-        showMessage("自動複製失敗，請手動選取文字複製。", "error");
-      }
     });
   </script>
 </body>
