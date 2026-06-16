@@ -546,6 +546,190 @@
         padding: 18px;
       }
     }
+
+    /* Wizard page flow */
+    .wizard-status {
+      margin: 18px 0 14px;
+      padding: 14px 14px 13px;
+      border-radius: 22px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+    }
+
+    .wizard-status-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .wizard-status-top span {
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .wizard-status-top strong {
+      color: var(--black);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--gray-300);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 25%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--yellow);
+      transition: width 0.25s ease;
+    }
+
+    .wizard-message {
+      margin-top: 12px !important;
+      margin-bottom: 0 !important;
+      background: var(--white) !important;
+    }
+
+    .wizard-page {
+      display: none;
+      animation: pageIn 0.22s ease both;
+    }
+
+    .wizard-page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .wizard-page .hero-card {
+      margin-bottom: 28px;
+    }
+
+    .wizard-page .section-head:first-of-type {
+      margin-top: 0;
+    }
+
+    .wizard-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 26px;
+    }
+
+    .wizard-actions.two {
+      grid-template-columns: 0.78fr 1fr;
+    }
+
+    .next-action,
+    .prev-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      cursor: pointer;
+      font-weight: 900;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .next-action {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
+      box-shadow: 0 12px 24px rgba(255, 197, 66, 0.22);
+    }
+
+    .prev-action {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .ai-action-panel {
+      margin-bottom: 12px !important;
+    }
+
+    @media (max-width: 390px) {
+      .wizard-actions.two {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    /* Header logo version */
+    .brand-logo {
+      display: block;
+      width: auto;
+      height: 38px;
+      max-width: 168px;
+      object-fit: contain;
+    }
+
+    /* Four-segment progress line */
+    .wizard-status {
+      padding: 12px 0 0 !important;
+      margin: 12px 0 20px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .wizard-status-top,
+    .progress-track,
+    .progress-fill {
+      display: none !important;
+    }
+
+    .progress-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      width: 100%;
+    }
+
+    .progress-step {
+      display: block;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--gray-300);
+      transition: background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .progress-step.active,
+    .progress-step.done {
+      background: var(--yellow);
+    }
+
+    .wizard-message {
+      margin-top: 12px !important;
+    }
+
+    /* Show all step 3 / 4 options */
+    #problems .more-chip,
+    #experiences .more-chip {
+      display: inline-flex !important;
+    }
+
   </style>
 </head>
 
@@ -554,32 +738,26 @@
     <div class="input-page">
       <header class="topbar">
         <div class="brand">
-          <div class="brand-mark">BB</div>
-          <div>
-            <div class="hello">您好！</div>
-            <div class="subhello">BLACK BOX MEMBER SERVICE</div>
-          </div>
+          <img class="brand-logo" src="../site logo.png" alt="黑盒子維修中心" onerror="this.onerror=null; this.src='./site logo.png';">
         </div>
         <div class="assist-pill">
           <iconify-icon icon="mdi:map-marker" width="17"></iconify-icon>
-          評論輔助
+          智能心意
         </div>
       </header>
 
-      <section class="hero-card">
-        <div class="hero-badge">
-          <iconify-icon icon="mdi:message-draw" width="18"></iconify-icon>
-          GOOGLE MAP COMMENT
+      <section class="wizard-status">
+        <div class="progress-steps" id="progressSteps" aria-label="填寫進度">
+          <span class="progress-step active"></span>
+          <span class="progress-step"></span>
+          <span class="progress-step"></span>
+          <span class="progress-step"></span>
         </div>
-        <h1>維修心得<br>一鍵整理</h1>
-        <p>選擇這次的實際維修內容，幫您整理成自然、不誇張、可自行修改的評論草稿。</p>
-        <div class="hero-tags">
-          <div class="hero-tag"><iconify-icon icon="mdi:shield-check" width="18"></iconify-icon>真實體驗</div>
-          <div class="hero-tag"><iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>快速複製</div>
-        </div>
+        <div class="message wizard-message" id="messageBox"></div>
       </section>
 
-      <section class="section-head">
+      <section class="wizard-page active" data-page="1" data-title="本次維修">
+<section class="section-head">
         <div>
           <span class="section-kicker">SERVICE INFO</span>
           <h2 class="section-title">本次維修</h2>
@@ -614,8 +792,16 @@
           <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch">
         </div>
       </section>
+        <div class="wizard-actions">
+          <button class="next-action next-btn" type="button" data-next="2">
+            下一步
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
+      </section>
 
-      <section class="section-head">
+      <section class="wizard-page" data-page="2" data-title="維修項目">
+        <section class="section-head">
         <div>
           <span class="section-kicker">REPAIR ITEM</span>
           <h2 class="section-title">維修項目</h2>
@@ -647,8 +833,20 @@
           <input id="otherRepairText" class="text-field" type="text" placeholder="其他維修內容，可填可不填">
         </div>
       </section>
+        <div class="wizard-actions two">
+          <button class="prev-action prev-btn" type="button" data-prev="1">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            上一步
+          </button>
+          <button class="next-action next-btn" type="button" data-next="3">
+            下一步
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
+      </section>
 
-      <section class="section-head">
+      <section class="wizard-page" data-page="3" data-title="遇到的問題">
+        <section class="section-head">
         <div>
           <span class="section-kicker">PROBLEM</span>
           <h2 class="section-title">遇到的問題</h2>
@@ -657,7 +855,7 @@
       </section>
 
       <section class="form-panel">
-        <div class="chips collapsed" id="problems" data-collapsed="true">
+        <div class="chips" id="problems">
           <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
           <label class="chip"><input type="checkbox" value="異常發燙"><span>異常發燙</span></label>
           <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
@@ -683,13 +881,21 @@
           <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span>無法對焦</span></label>
           <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span>重摔變形</span></label>
         </div>
-        <button class="more-toggle" type="button" data-target="problems" data-more="查看更多問題選項" data-less="收合問題選項">
-          <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
-          查看更多問題選項
-        </button>
+      </section>
+        <div class="wizard-actions two">
+          <button class="prev-action prev-btn" type="button" data-prev="2">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            上一步
+          </button>
+          <button class="next-action next-btn" type="button" data-next="4">
+            下一步
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
       </section>
 
-      <section class="section-head">
+      <section class="wizard-page" data-page="4" data-title="體驗感受">
+        <section class="section-head">
         <div>
           <span class="section-kicker">EXPERIENCE</span>
           <h2 class="section-title">體驗感受</h2>
@@ -698,7 +904,7 @@
       </section>
 
       <section class="form-panel">
-        <div class="chips collapsed" id="experiences" data-collapsed="true">
+        <div class="chips" id="experiences">
           <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
           <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
           <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
@@ -718,18 +924,19 @@
           <label class="chip more-chip"><input type="checkbox" value="效率高"><span>效率高</span></label>
           <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span>技術優秀</span></label>
         </div>
-        <button class="more-toggle" type="button" data-target="experiences" data-more="查看更多體驗選項" data-less="收合體驗選項">
-          <iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>
-          查看更多體驗選項
-        </button>
       </section>
-
-      <section class="ai-action-panel">
+        <section class="ai-action-panel">
         <button class="main-action" id="generateBtn" type="button">
           <iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>
           AI 生成
         </button>
-        <div class="message" id="messageBox"></div>
+      </section>
+        <div class="wizard-actions">
+          <button class="prev-action prev-btn" type="button" data-prev="3">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            上一步
+          </button>
+        </div>
       </section>
 
       <p class="footer-note">黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。</p>
@@ -857,6 +1064,65 @@
         return "";
       }
 
+      const wizardPages = Array.from(document.querySelectorAll(".wizard-page"));
+      const progressSteps = Array.from(document.querySelectorAll(".progress-step"));
+      let currentPage = 1;
+
+      function showPage(page) {
+        currentPage = page;
+
+        wizardPages.forEach(function (item) {
+          const isActive = Number(item.dataset.page) === page;
+          item.classList.toggle("active", isActive);
+        });
+
+        progressSteps.forEach(function (step, index) {
+          step.classList.toggle("active", index + 1 === page);
+          step.classList.toggle("done", index + 1 < page);
+        });
+
+        clearMessage();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function validateStep(page) {
+        const payload = getPayload();
+
+        if (page === 1) {
+          if (!payload.store) return "請先選擇維修門市。";
+          if (!payload.device) return "請先輸入設備型號。";
+        }
+
+        if (page === 2 && !payload.repair) {
+          return "請至少選擇一個維修項目。";
+        }
+
+        if (page === 3 && payload.problems.length === 0) {
+          return "請至少選擇一個遇到的問題。";
+        }
+
+        return "";
+      }
+
+      document.querySelectorAll(".next-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const error = validateStep(currentPage);
+
+          if (error) {
+            showMessage(error);
+            return;
+          }
+
+          showPage(Number(button.dataset.next));
+        });
+      });
+
+      document.querySelectorAll(".prev-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+          showPage(Number(button.dataset.prev));
+        });
+      });
+
       document.querySelectorAll(".store-option").forEach(function (button) {
         button.addEventListener("click", function () {
           selectedStore = button.dataset.value || "";
@@ -975,7 +1241,7 @@
 
       backBtn.addEventListener("click", function () {
         app.classList.remove("result-mode");
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        showPage(4);
       });
     });
   </script>
