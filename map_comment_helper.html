@@ -45,6 +45,18 @@
 
     button,
     input,
+    textarea,
+    select,
+    a,
+    label,
+    span,
+    small,
+    em {
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    }
+
+    button,
+    input,
     textarea {
       font: inherit;
     }
@@ -325,7 +337,7 @@
     }
 
     .repair-option {
-      min-height: 50px;
+      min-height: 62px;
       padding: 10px 8px;
       font-size: 14px;
     }
@@ -682,7 +694,7 @@
       display: block;
       width: auto;
       height: 50px;
-      max-width: 220px;
+      max-width: 280px;
       object-fit: contain;
     }
 
@@ -762,6 +774,104 @@
       box-shadow: 0 20px 44px rgba(217, 48, 37, 0.08);
     }
 
+
+    /* Larger logo + language switcher */
+    .topbar {
+      align-items: center;
+    }
+
+    .language-switcher {
+      position: relative;
+      flex: 0 0 auto;
+      z-index: 20;
+    }
+
+    .language-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-100);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .language-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 156px;
+      padding: 8px;
+      border-radius: 18px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+      display: none;
+    }
+
+    .language-switcher.open .language-menu {
+      display: grid;
+      gap: 4px;
+    }
+
+    .language-menu button {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 10px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--black);
+      text-align: left;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .language-menu button.active,
+    .language-menu button:hover {
+      background: var(--yellow);
+    }
+
+    .progress-steps {
+      width: 76% !important;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      padding-left: 14px;
+    }
+
+    .result-page .section-head {
+      padding-left: 14px;
+    }
+
+    @media (max-width: 390px) {
+      .brand-logo {
+        height: 56px;
+        max-width: 240px;
+      }
+
+      .language-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .progress-steps {
+        width: 82% !important;
+      }
+
+      .section-head {
+        padding-left: 10px;
+      }
+    }
+
   </style>
 </head>
 
@@ -772,9 +882,19 @@
         <div class="brand">
           <img class="brand-logo" src="../site logo.png" alt="黑盒子維修中心" onerror="this.onerror=null; this.src='./site logo.png';">
         </div>
-        <div class="assist-pill">
-          <iconify-icon icon="mdi:map-marker" width="17"></iconify-icon>
-          智能心意
+        <div class="language-switcher">
+          <button class="language-btn" id="languageBtn" type="button">
+            <iconify-icon icon="mdi:translate" width="17"></iconify-icon>
+            <span id="currentLanguageLabel">中文</span>
+          </button>
+          <div class="language-menu" id="languageMenu" aria-label="Language options">
+            <button type="button" data-lang="zh">中文</button>
+            <button type="button" data-lang="en">English</button>
+            <button type="button" data-lang="ja">日本語</button>
+            <button type="button" data-lang="vi">Tiếng Việt</button>
+            <button type="button" data-lang="th">ภาษาไทย</button>
+            <button type="button" data-lang="id">Bahasa Indonesia</button>
+          </div>
         </div>
       </header>
 
@@ -791,8 +911,8 @@
       <section class="wizard-page active" data-page="1" data-title="本次維修">
 <section class="section-head">
         <div>
-          <span class="section-kicker">SERVICE INFO</span>
-          <h2 class="section-title">本次維修</h2>
+          <span class="section-kicker" data-i18n="kickerService">SERVICE INFO</span>
+          <h2 class="section-title" data-i18n="titleService">本次維修</h2>
         </div>
         <span class="step-pill">STEP 01</span>
       </section>
@@ -800,17 +920,17 @@
       <section class="form-panel">
         <div class="field-row">
           <div class="field-label">
-            <span>維修門市<em class="field-error" id="storeError">請選擇門市</em></span>
-            <small>必填</small>
+            <span><span data-i18n="labelStore">維修門市</span><em class="field-error" id="storeError" data-i18n="errStore">請選擇門市</em></span>
+            <small data-i18n="required">必填</small>
           </div>
           <div class="store-options">
             <button class="store-option" type="button" data-value="勤美公益店">
               <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
-              勤美公益店
+              <span data-i18n="storeQinmei">勤美公益店</span>
             </button>
             <button class="store-option" type="button" data-value="沙鹿站前店">
               <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
-              沙鹿站前店
+              <span data-i18n="storeShalu">沙鹿站前店</span>
             </button>
           </div>
           <input id="store" type="hidden" value="">
@@ -818,15 +938,15 @@
 
         <div class="field-row">
           <div class="field-label">
-            <span>設備型號<em class="field-error" id="deviceError">請輸入型號</em></span>
-            <small>必填</small>
+            <span><span data-i18n="labelDevice">設備型號</span><em class="field-error" id="deviceError" data-i18n="errDevice">請輸入型號</em></span>
+            <small data-i18n="required">必填</small>
           </div>
-          <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch">
+          <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch" data-i18n-placeholder="devicePlaceholder">
         </div>
       </section>
         <div class="wizard-actions">
           <button class="next-action next-btn" type="button" data-next="2">
-            下一步
+            <span data-i18n="next">下一步</span>
             <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
           </button>
         </div>
@@ -835,43 +955,43 @@
       <section class="wizard-page" data-page="2" data-title="維修項目">
         <section class="section-head">
         <div>
-          <span class="section-kicker">REPAIR ITEM</span>
-          <h2 class="section-title">維修項目<em class="field-error" id="repairError">請選擇項目</em></h2>
+          <span class="section-kicker" data-i18n="kickerRepair">REPAIR ITEM</span>
+          <h2 class="section-title"><span data-i18n="titleRepair">維修項目</span><em class="field-error" id="repairError" data-i18n="errRepair">請選擇項目</em></h2>
         </div>
         <span class="step-pill">STEP 02</span>
       </section>
 
       <section class="form-panel">
         <div class="repair-options" id="repairOptions">
-          <button class="repair-option" type="button" data-value="電池更換"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon>電池更換</button>
-          <button class="repair-option" type="button" data-value="螢幕維修"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon>螢幕維修</button>
-          <button class="repair-option" type="button" data-value="前後相機"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon>前後相機</button>
-          <button class="repair-option" type="button" data-value="背蓋維修"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon>背蓋維修</button>
-          <button class="repair-option" type="button" data-value="受潮清潔"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon>受潮清潔</button>
-          <button class="repair-option" type="button" data-value="資料救援"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon>資料救援</button>
-          <button class="repair-option" type="button" data-value="容量擴充"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon>容量擴充</button>
-          <button class="repair-option" type="button" data-value="充電孔維修"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon>充電孔維修</button>
-          <button class="repair-option" type="button" data-value="主機板維修"><iconify-icon icon="mdi:chip" width="18"></iconify-icon>主機板維修</button>
-          <button class="repair-option" type="button" data-value="全機清潔"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon>全機清潔</button>
-          <button class="repair-option" type="button" data-value="聽筒維修"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon>聽筒維修</button>
-          <button class="repair-option" type="button" data-value="喇叭維修"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon>喇叭維修</button>
-          <button class="repair-option" type="button" data-value="按鍵維修"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon>按鍵維修</button>
-          <button class="repair-option" type="button" data-value="臉部辨識"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon>臉部辨識</button>
-          <button class="repair-option" type="button" data-value="系統修復"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon>系統修復</button>
-          <button class="repair-option" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon>其他維修</button>
+          <button class="repair-option" type="button" data-value="電池更換"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon><span data-i18n="repairBattery">電池更換</span></button>
+          <button class="repair-option" type="button" data-value="螢幕維修"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon><span data-i18n="repairScreen">螢幕維修</span></button>
+          <button class="repair-option" type="button" data-value="前後相機"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon><span data-i18n="repairCamera">前後相機</span></button>
+          <button class="repair-option" type="button" data-value="背蓋維修"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon><span data-i18n="repairBackGlass">背蓋維修</span></button>
+          <button class="repair-option" type="button" data-value="受潮清潔"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon><span data-i18n="repairWater">受潮清潔</span></button>
+          <button class="repair-option" type="button" data-value="資料救援"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon><span data-i18n="repairData">資料救援</span></button>
+          <button class="repair-option" type="button" data-value="容量擴充"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon><span data-i18n="repairStorage">容量擴充</span></button>
+          <button class="repair-option" type="button" data-value="充電孔維修"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon><span data-i18n="repairCharging">充電孔維修</span></button>
+          <button class="repair-option" type="button" data-value="主機板維修"><iconify-icon icon="mdi:chip" width="18"></iconify-icon><span data-i18n="repairBoard">主機板維修</span></button>
+          <button class="repair-option" type="button" data-value="全機清潔"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon><span data-i18n="repairClean">全機清潔</span></button>
+          <button class="repair-option" type="button" data-value="聽筒維修"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon><span data-i18n="repairEarpiece">聽筒維修</span></button>
+          <button class="repair-option" type="button" data-value="喇叭維修"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon><span data-i18n="repairSpeaker">喇叭維修</span></button>
+          <button class="repair-option" type="button" data-value="按鍵維修"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon><span data-i18n="repairButton">按鍵維修</span></button>
+          <button class="repair-option" type="button" data-value="臉部辨識"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon><span data-i18n="repairFace">臉部辨識</span></button>
+          <button class="repair-option" type="button" data-value="系統修復"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon><span data-i18n="repairSystem">系統修復</span></button>
+          <button class="repair-option" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon><span data-i18n="repairOther">其他維修</span></button>
         </div>
         <input id="repair" type="hidden" value="">
         <div class="other-repair-panel" id="otherRepairPanel">
-          <input id="otherRepairText" class="text-field" type="text" placeholder="其他維修內容，可填可不填">
+          <input id="otherRepairText" class="text-field" type="text" placeholder="其他維修內容，可填可不填" data-i18n-placeholder="otherRepairPlaceholder">
         </div>
       </section>
         <div class="wizard-actions two">
           <button class="prev-action prev-btn" type="button" data-prev="1">
             <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
-            上一步
+            <span data-i18n="prev">上一步</span>
           </button>
           <button class="next-action next-btn" type="button" data-next="3">
-            下一步
+            <span data-i18n="next">下一步</span>
             <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
           </button>
         </div>
@@ -880,47 +1000,52 @@
       <section class="wizard-page" data-page="3" data-title="遇到的問題">
         <section class="section-head">
         <div>
-          <span class="section-kicker">PROBLEM</span>
-          <h2 class="section-title">遇到的問題<em class="field-error" id="problemsError">請至少選一項</em></h2>
+          <span class="section-kicker" data-i18n="kickerProblem">PROBLEM</span>
+          <h2 class="section-title"><span data-i18n="titleProblem">遇到的問題</span><em class="field-error" id="problemsError" data-i18n="errProblems">請至少選一項</em></h2>
         </div>
         <span class="step-pill">STEP 03</span>
       </section>
 
       <section class="form-panel">
         <div class="chips" id="problems">
-          <label class="chip"><input type="checkbox" value="耗電很快"><span>耗電很快</span></label>
-          <label class="chip"><input type="checkbox" value="異常發燙"><span>異常發燙</span></label>
-          <label class="chip"><input type="checkbox" value="電池健康度下降"><span>電池健康度下降</span></label>
-          <label class="chip"><input type="checkbox" value="電池膨脹"><span>電池膨脹</span></label>
-          <label class="chip"><input type="checkbox" value="螢幕破裂"><span>螢幕破裂</span></label>
-          <label class="chip"><input type="checkbox" value="顯示異常"><span>顯示異常</span></label>
-          <label class="chip"><input type="checkbox" value="觸控異常"><span>觸控異常</span></label>
-          <label class="chip"><input type="checkbox" value="無法開機"><span>無法開機</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span>反覆重啟</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span>泡水受潮</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span>資料遺失</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="容量不足"><span>容量不足</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span>充電不穩</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span>聲音破音</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span>沒有聲音</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法上網"><span>無法上網</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span>無法連接wifi</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span>無法連接藍牙</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span>無法打電話</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span>沒有訊號</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span>無法拍照</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span>相機抖動</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span>無法對焦</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span>重摔變形</span></label>
+          <label class="chip"><input type="checkbox" value="耗電很快"><span data-i18n="problemDrain">耗電很快</span></label>
+          <label class="chip"><input type="checkbox" value="異常發燙"><span data-i18n="problemHeat">異常發燙</span></label>
+          <label class="chip"><input type="checkbox" value="電池健康度下降"><span data-i18n="problemHealth">電池健康度下降</span></label>
+          <label class="chip"><input type="checkbox" value="電池膨脹"><span data-i18n="problemSwollen">電池膨脹</span></label>
+          <label class="chip"><input type="checkbox" value="螢幕破裂"><span data-i18n="problemCrack">螢幕破裂</span></label>
+          <label class="chip"><input type="checkbox" value="顯示異常"><span data-i18n="problemDisplay">顯示異常</span></label>
+          <label class="chip"><input type="checkbox" value="觸控異常"><span data-i18n="problemTouch">觸控異常</span></label>
+          <label class="chip"><input type="checkbox" value="無法開機"><span data-i18n="problemPower">無法開機</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span data-i18n="problemRestart">反覆重啟</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span data-i18n="problemWater">泡水受潮</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span data-i18n="problemData">資料遺失</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="容量不足"><span data-i18n="problemStorage">容量不足</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span data-i18n="problemCharging">充電不穩</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span data-i18n="problemDistortion">聲音破音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span data-i18n="problemNoSound">沒有聲音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法上網"><span data-i18n="problemInternet">無法上網</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span data-i18n="problemWifi">無法連接wifi</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span data-i18n="problemBluetooth">無法連接藍牙</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span data-i18n="problemCall">無法打電話</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span data-i18n="problemSignal">沒有訊號</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span data-i18n="problemPhoto">無法拍照</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span data-i18n="problemShake">相機抖動</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span data-i18n="problemFocus">無法對焦</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span data-i18n="problemBent">重摔變形</span></label>
+          <label class="chip more-chip"><input id="otherProblemCheck" type="checkbox" value="其他問題"><span data-i18n="problemOther">其他</span></label>
+        </div>
+      
+        <div class="other-repair-panel" id="otherProblemPanel">
+          <input id="otherProblemText" class="text-field" type="text" placeholder="其他遇到的問題，可填可不填" data-i18n-placeholder="otherProblemPlaceholder">
         </div>
       </section>
         <div class="wizard-actions two">
           <button class="prev-action prev-btn" type="button" data-prev="2">
             <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
-            上一步
+            <span data-i18n="prev">上一步</span>
           </button>
           <button class="next-action next-btn" type="button" data-next="4">
-            下一步
+            <span data-i18n="next">下一步</span>
             <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
           </button>
         </div>
@@ -929,77 +1054,77 @@
       <section class="wizard-page" data-page="4" data-title="體驗感受">
         <section class="section-head">
         <div>
-          <span class="section-kicker">EXPERIENCE</span>
-          <h2 class="section-title">體驗感受<em class="field-error" id="experiencesError">請至少選一項</em></h2>
+          <span class="section-kicker" data-i18n="kickerExperience">EXPERIENCE</span>
+          <h2 class="section-title"><span data-i18n="titleExperience">體驗感受</span><em class="field-error" id="experiencesError" data-i18n="errExperiences">請至少選一項</em></h2>
         </div>
         <span class="step-pill">STEP 04</span>
       </section>
 
       <section class="form-panel">
         <div class="chips" id="experiences">
-          <label class="chip"><input type="checkbox" value="人員說明清楚"><span>說明清楚</span></label>
-          <label class="chip"><input type="checkbox" value="維修速度快"><span>維修快速</span></label>
-          <label class="chip"><input type="checkbox" value="資料沒有不見"><span>資料保留</span></label>
-          <label class="chip"><input type="checkbox" value="價格透明"><span>價格透明</span></label>
-          <label class="chip"><input type="checkbox" value="服務親切"><span>服務親切</span></label>
-          <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span>安心</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span>環境舒適</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span>保固說明清楚</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span>檢測仔細</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="處理專業"><span>處理專業</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span>流程清楚</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="預約方便"><span>預約方便</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span>服務有耐心</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span>面對面維修</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span>原廠零件</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="非常專業"><span>非常專業</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="效率高"><span>效率高</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span>技術優秀</span></label>
+          <label class="chip"><input type="checkbox" value="人員說明清楚"><span data-i18n="expExplain">說明清楚</span></label>
+          <label class="chip"><input type="checkbox" value="維修速度快"><span data-i18n="expFast">維修快速</span></label>
+          <label class="chip"><input type="checkbox" value="資料沒有不見"><span data-i18n="expDataSafe">資料保留</span></label>
+          <label class="chip"><input type="checkbox" value="價格透明"><span data-i18n="expPrice">價格透明</span></label>
+          <label class="chip"><input type="checkbox" value="服務親切"><span data-i18n="expFriendly">服務親切</span></label>
+          <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span data-i18n="expAssured">安心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span data-i18n="expEnv">環境舒適</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span data-i18n="expWarranty">保固說明清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span data-i18n="expCheck">檢測仔細</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="處理專業"><span data-i18n="expProfessional">處理專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span data-i18n="expProcess">流程清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="預約方便"><span data-i18n="expBooking">預約方便</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span data-i18n="expPatient">服務有耐心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span data-i18n="expFace">面對面維修</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span data-i18n="expOriginal">原廠零件</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="非常專業"><span data-i18n="expVeryPro">非常專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="效率高"><span data-i18n="expEfficient">效率高</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span data-i18n="expSkill">技術優秀</span></label>
         </div>
       </section>
         <section class="ai-action-panel">
         <button class="main-action" id="generateBtn" type="button">
           <iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>
-          AI 生成
+          <span data-i18n="generate">AI 生成</span>
         </button>
       </section>
         <div class="wizard-actions">
           <button class="prev-action prev-btn" type="button" data-prev="3">
             <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
-            上一步
+            <span data-i18n="prev">上一步</span>
           </button>
         </div>
       </section>
 
-      <p class="footer-note">黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。</p>
+      <p class="footer-note"><span data-i18n="footerNote">黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。</span></p>
     </div>
 
     <div class="result-page">
       <section class="section-head">
         <div>
-          <span class="section-kicker">AI COMMENT</span>
-          <h2 class="section-title">AI 生成內容</h2>
+          <span class="section-kicker" data-i18n="kickerResult">AI COMMENT</span>
+          <h2 class="section-title" data-i18n="titleResult">AI 生成內容</h2>
         </div>
-        <span class="step-pill">DONE</span>
+        <span class="step-pill" data-i18n="done">DONE</span>
       </section>
 
       <section class="result-card">
         <div class="ai-badge">
           <iconify-icon icon="mdi:sparkles" width="15"></iconify-icon>
-          本次內容由 Gemini AI 生成
+          <span data-i18n="aiBadge">本次內容由 Gemini AI 生成</span>
         </div>
-        <textarea id="reviewText" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡"></textarea>
+        <textarea id="reviewText" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡" data-i18n-placeholder="resultPlaceholder"></textarea>
         <div class="result-actions">
           <button class="copy-action" id="copyBtn" type="button">
             <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
-            複製
+            <span data-i18n="copy">複製</span>
           </button>
           <a class="map-action" id="mapBtn" href="#" target="_blank" rel="noopener">
             <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
             前往門市 Google 地圖
           </a>
           <button class="secondary-action" id="backBtn" type="button">
-            返回修改內容
+            <span data-i18n="backEdit">返回修改內容</span>
           </button>
         </div>
       </section>
@@ -1026,8 +1151,321 @@
       const copyBtn = document.getElementById("copyBtn");
       const mapBtn = document.getElementById("mapBtn");
       const backBtn = document.getElementById("backBtn");
+      const languageBtn = document.getElementById("languageBtn");
+      const languageMenu = document.getElementById("languageMenu");
+      const languageSwitcher = document.querySelector(".language-switcher");
+      const currentLanguageLabel = document.getElementById("currentLanguageLabel");
+      const otherProblemCheck = document.getElementById("otherProblemCheck");
+      const otherProblemPanel = document.getElementById("otherProblemPanel");
+      const otherProblemText = document.getElementById("otherProblemText");
 
       let selectedStore = "";
+
+      let currentLanguage = "zh";
+
+      const LANGUAGE_NAMES = {
+        zh: "中文",
+        en: "English",
+        ja: "日本語",
+        vi: "Tiếng Việt",
+        th: "ภาษาไทย",
+        id: "Bahasa Indonesia"
+      };
+
+      const LANGUAGE_LABELS = {
+        zh: "繁體中文",
+        en: "English",
+        ja: "日本語",
+        vi: "Tiếng Việt",
+        th: "ภาษาไทย",
+        id: "Bahasa Indonesia"
+      };
+
+      const I18N = {
+        zh: {
+          languageButton: "語言切換",
+          kickerService: "SERVICE INFO",
+          titleService: "本次維修",
+          kickerRepair: "REPAIR ITEM",
+          titleRepair: "維修項目",
+          kickerProblem: "PROBLEM",
+          titleProblem: "遇到的問題",
+          kickerExperience: "EXPERIENCE",
+          titleExperience: "體驗感受",
+          kickerResult: "AI COMMENT",
+          titleResult: "AI 生成內容",
+          done: "DONE",
+          labelStore: "維修門市",
+          labelDevice: "設備型號",
+          required: "必填",
+          errStore: "請選擇門市",
+          errDevice: "請輸入型號",
+          errRepair: "請選擇項目",
+          errProblems: "請至少選一項",
+          errExperiences: "請至少選一項",
+          next: "下一步",
+          prev: "上一步",
+          generate: "AI 生成",
+          aiGenerating: "Gemini AI 生成中",
+          aiBadge: "本次內容由 Gemini AI 生成",
+          copy: "複製",
+          copied: "已複製",
+          backEdit: "返回修改內容",
+          mapPrefix: "前往",
+          mapSuffix: " Google 地圖",
+          footerNote: "黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。",
+          devicePlaceholder: "例如：iPhone 15 Pro、VIVO X100、Switch",
+          otherRepairPlaceholder: "其他維修內容，可填可不填",
+          resultPlaceholder: "AI 生成內容會顯示在這裡",
+          storeQinmei: "勤美公益店",
+          storeShalu: "沙鹿站前店",
+          repairBattery: "電池更換",
+          repairScreen: "螢幕維修",
+          repairCamera: "前後相機",
+          repairBackGlass: "背蓋維修",
+          repairWater: "受潮清潔",
+          repairData: "資料救援",
+          repairStorage: "容量擴充",
+          repairCharging: "充電孔維修",
+          repairBoard: "主機板維修",
+          repairClean: "全機清潔",
+          repairEarpiece: "聽筒維修",
+          repairSpeaker: "喇叭維修",
+          repairButton: "按鍵維修",
+          repairFace: "臉部辨識",
+          repairSystem: "系統修復",
+          repairOther: "其他維修",
+          problemDrain: "耗電很快",
+          problemHeat: "異常發燙",
+          problemHealth: "電池健康度下降",
+          problemSwollen: "電池膨脹",
+          problemCrack: "螢幕破裂",
+          problemDisplay: "顯示異常",
+          problemTouch: "觸控異常",
+          problemPower: "無法開機",
+          problemRestart: "反覆重啟",
+          problemWater: "泡水受潮",
+          problemData: "資料遺失",
+          problemStorage: "容量不足",
+          problemCharging: "充電不穩",
+          problemDistortion: "聲音破音",
+          problemNoSound: "沒有聲音",
+          problemInternet: "無法上網",
+          problemWifi: "無法連接wifi",
+          problemBluetooth: "無法連接藍牙",
+          problemCall: "無法打電話",
+          problemSignal: "沒有訊號",
+          problemPhoto: "無法拍照",
+          problemShake: "相機抖動",
+          problemFocus: "無法對焦",
+          problemBent: "重摔變形",
+          problemOther: "其他",
+          otherProblemPlaceholder: "其他遇到的問題，可填可不填",
+          expExplain: "說明清楚",
+          expFast: "維修快速",
+          expDataSafe: "資料保留",
+          expPrice: "價格透明",
+          expFriendly: "服務親切",
+          expAssured: "安心",
+          expEnv: "環境舒適",
+          expWarranty: "保固說明清楚",
+          expCheck: "檢測仔細",
+          expProfessional: "處理專業",
+          expProcess: "流程清楚",
+          expBooking: "預約方便",
+          expPatient: "服務有耐心",
+          expFace: "面對面維修",
+          expOriginal: "原廠零件",
+          expVeryPro: "非常專業",
+          expEfficient: "效率高",
+          expSkill: "技術優秀"
+        },
+        en: {
+          languageButton: "Language",
+          kickerService: "SERVICE INFO",
+          titleService: "Repair details",
+          kickerRepair: "REPAIR ITEM",
+          titleRepair: "Repair item",
+          kickerProblem: "PROBLEM",
+          titleProblem: "Problems",
+          kickerExperience: "EXPERIENCE",
+          titleExperience: "Experience",
+          kickerResult: "AI COMMENT",
+          titleResult: "AI result",
+          done: "DONE",
+          labelStore: "Store",
+          labelDevice: "Device model",
+          required: "Required",
+          errStore: "Select a store",
+          errDevice: "Enter model",
+          errRepair: "Select item",
+          errProblems: "Select at least one",
+          errExperiences: "Select at least one",
+          next: "Next",
+          prev: "Back",
+          generate: "Generate",
+          aiGenerating: "Gemini AI generating",
+          aiBadge: "Generated by Gemini AI",
+          copy: "Copy",
+          copied: "Copied",
+          backEdit: "Edit again",
+          mapPrefix: "Open ",
+          mapSuffix: " on Google Maps",
+          footerNote: "Black Box Repair Center｜This tool only helps organize your wording. Please make sure the review matches your real experience.",
+          devicePlaceholder: "e.g. iPhone 15 Pro, VIVO X100, Switch",
+          otherRepairPlaceholder: "Other repair details, optional",
+          resultPlaceholder: "The AI-generated content will appear here",
+          storeQinmei: "Qinmei Gongyi Store",
+          storeShalu: "Shalu Station Store",
+          repairBattery: "Battery replacement",
+          repairScreen: "Screen repair",
+          repairCamera: "Camera repair",
+          repairBackGlass: "Back glass repair",
+          repairWater: "Moisture cleaning",
+          repairData: "Data recovery",
+          repairStorage: "Storage upgrade",
+          repairCharging: "Charging port repair",
+          repairBoard: "Logic board repair",
+          repairClean: "Deep cleaning",
+          repairEarpiece: "Earpiece repair",
+          repairSpeaker: "Speaker repair",
+          repairButton: "Button repair",
+          repairFace: "Face ID repair",
+          repairSystem: "System repair",
+          repairOther: "Other repair",
+          problemDrain: "Battery drains fast",
+          problemHeat: "Overheating",
+          problemHealth: "Battery health dropped",
+          problemSwollen: "Battery swollen",
+          problemCrack: "Screen cracked",
+          problemDisplay: "Display issue",
+          problemTouch: "Touch issue",
+          problemPower: "Cannot power on",
+          problemRestart: "Repeated restart",
+          problemWater: "Water damage",
+          problemData: "Data loss",
+          problemStorage: "Low storage",
+          problemCharging: "Unstable charging",
+          problemDistortion: "Distorted sound",
+          problemNoSound: "No sound",
+          problemInternet: "Cannot use internet",
+          problemWifi: "Cannot connect Wi‑Fi",
+          problemBluetooth: "Cannot connect Bluetooth",
+          problemCall: "Cannot make calls",
+          problemSignal: "No signal",
+          problemPhoto: "Cannot take photos",
+          problemShake: "Camera shaking",
+          problemFocus: "Cannot focus",
+          problemBent: "Bent after drop",
+          problemOther: "Other",
+          otherProblemPlaceholder: "Other problem details, optional",
+          expExplain: "Clear explanation",
+          expFast: "Fast repair",
+          expDataSafe: "Data kept safe",
+          expPrice: "Transparent price",
+          expFriendly: "Friendly service",
+          expAssured: "Reassuring",
+          expEnv: "Comfortable environment",
+          expWarranty: "Clear warranty",
+          expCheck: "Careful inspection",
+          expProfessional: "Professional handling",
+          expProcess: "Clear process",
+          expBooking: "Easy booking",
+          expPatient: "Patient service",
+          expFace: "Face-to-face repair",
+          expOriginal: "Original parts",
+          expVeryPro: "Very professional",
+          expEfficient: "Efficient",
+          expSkill: "Skilled technician"
+        },
+        ja: {
+          languageButton: "言語切替",
+          titleService: "今回の修理", titleRepair: "修理内容", titleProblem: "発生した問題", titleExperience: "体験内容", titleResult: "AI生成内容",
+          labelStore: "修理店舗", labelDevice: "機種", required: "必須", errStore: "店舗を選択", errDevice: "機種を入力", errRepair: "項目を選択", errProblems: "1つ以上選択", errExperiences: "1つ以上選択",
+          next: "次へ", prev: "戻る", generate: "AI生成", aiGenerating: "Gemini AI 生成中", aiBadge: "Gemini AI によって生成", copy: "コピー", copied: "コピー済み", backEdit: "内容を修正",
+          mapPrefix: "", mapSuffix: "のGoogleマップへ", footerNote: "Black Box修理センター｜このツールは文章整理を補助するものです。実際の体験に合う内容にしてください。",
+          devicePlaceholder: "例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder: "その他の修理内容（任意）", resultPlaceholder: "AI生成内容がここに表示されます",
+          storeQinmei: "勤美公益店", storeShalu: "沙鹿駅前店",
+          problemOther: "その他",
+          otherProblemPlaceholder: "その他の問題（任意）"
+        },
+        vi: {
+          languageButton: "Ngôn ngữ",
+          titleService: "Thông tin sửa chữa", titleRepair: "Hạng mục sửa", titleProblem: "Vấn đề gặp phải", titleExperience: "Trải nghiệm", titleResult: "Nội dung AI",
+          labelStore: "Cửa hàng", labelDevice: "Model thiết bị", required: "Bắt buộc", errStore: "Chọn cửa hàng", errDevice: "Nhập model", errRepair: "Chọn hạng mục", errProblems: "Chọn ít nhất một", errExperiences: "Chọn ít nhất một",
+          next: "Tiếp theo", prev: "Quay lại", generate: "Tạo bằng AI", aiGenerating: "Gemini AI đang tạo", aiBadge: "Nội dung được tạo bởi Gemini AI", copy: "Sao chép", copied: "Đã sao chép", backEdit: "Sửa lại",
+          mapPrefix: "Mở ", mapSuffix: " trên Google Maps", footerNote: "Black Box Repair Center｜Công cụ chỉ hỗ trợ sắp xếp câu chữ. Vui lòng chỉnh sửa theo trải nghiệm thực tế của bạn.",
+          devicePlaceholder: "VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Nội dung sửa khác, không bắt buộc", resultPlaceholder: "Nội dung AI sẽ hiển thị ở đây",
+          storeQinmei: "Cửa hàng Qinmei Gongyi", storeShalu: "Cửa hàng Shalu Station",
+          problemOther: "Khác",
+          otherProblemPlaceholder: "Vấn đề khác, không bắt buộc"
+        },
+        th: {
+          languageButton: "ภาษา",
+          titleService: "ข้อมูลการซ่อม", titleRepair: "รายการซ่อม", titleProblem: "ปัญหาที่พบ", titleExperience: "ประสบการณ์", titleResult: "ข้อความจาก AI",
+          labelStore: "สาขา", labelDevice: "รุ่นอุปกรณ์", required: "จำเป็น", errStore: "เลือกสาขา", errDevice: "กรอกรุ่น", errRepair: "เลือกรายการ", errProblems: "เลือกอย่างน้อยหนึ่งข้อ", errExperiences: "เลือกอย่างน้อยหนึ่งข้อ",
+          next: "ถัดไป", prev: "ย้อนกลับ", generate: "สร้างด้วย AI", aiGenerating: "Gemini AI กำลังสร้าง", aiBadge: "สร้างโดย Gemini AI", copy: "คัดลอก", copied: "คัดลอกแล้ว", backEdit: "แก้ไขอีกครั้ง",
+          mapPrefix: "เปิด ", mapSuffix: " ใน Google Maps", footerNote: "Black Box Repair Center｜เครื่องมือนี้ช่วยเรียบเรียงข้อความเท่านั้น กรุณาปรับให้ตรงกับประสบการณ์จริงของคุณ",
+          devicePlaceholder: "เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "รายละเอียดอื่น ๆ ไม่บังคับ", resultPlaceholder: "ข้อความจาก AI จะแสดงที่นี่",
+          storeQinmei: "สาขา Qinmei Gongyi", storeShalu: "สาขา Shalu Station",
+          problemOther: "อื่น ๆ",
+          otherProblemPlaceholder: "ปัญหาอื่น ๆ ไม่บังคับ"
+        },
+        id: {
+          languageButton: "Bahasa",
+          titleService: "Detail perbaikan", titleRepair: "Jenis perbaikan", titleProblem: "Masalah", titleExperience: "Pengalaman", titleResult: "Konten AI",
+          labelStore: "Toko", labelDevice: "Model perangkat", required: "Wajib", errStore: "Pilih toko", errDevice: "Masukkan model", errRepair: "Pilih perbaikan", errProblems: "Pilih minimal satu", errExperiences: "Pilih minimal satu",
+          next: "Lanjut", prev: "Kembali", generate: "Buat AI", aiGenerating: "Gemini AI membuat", aiBadge: "Dibuat oleh Gemini AI", copy: "Salin", copied: "Disalin", backEdit: "Edit lagi",
+          mapPrefix: "Buka ", mapSuffix: " di Google Maps", footerNote: "Black Box Repair Center｜Alat ini hanya membantu merapikan kata-kata. Pastikan ulasan sesuai pengalaman nyata Anda.",
+          devicePlaceholder: "cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Detail perbaikan lain, opsional", resultPlaceholder: "Konten AI akan muncul di sini",
+          storeQinmei: "Toko Qinmei Gongyi", storeShalu: "Toko Shalu Station",
+          problemOther: "Lainnya",
+          otherProblemPlaceholder: "Masalah lainnya, opsional"
+        }
+      };
+
+      const BASE_TRANSLATION = I18N.zh;
+      ["ja", "vi", "th", "id"].forEach(function (lang) {
+        I18N[lang] = Object.assign({}, BASE_TRANSLATION, I18N[lang]);
+      });
+
+      function t(key) {
+        return (I18N[currentLanguage] && I18N[currentLanguage][key]) || I18N.zh[key] || key;
+      }
+
+      function applyLanguage(lang) {
+        currentLanguage = lang;
+
+        document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          const key = el.dataset.i18n;
+          el.textContent = t(key);
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+          const key = el.dataset.i18nPlaceholder;
+          el.placeholder = t(key);
+        });
+
+        document.querySelectorAll(".language-menu button").forEach(function (button) {
+          button.classList.toggle("active", button.dataset.lang === lang);
+        });
+
+        if (currentLanguageLabel) {
+          currentLanguageLabel.textContent = LANGUAGE_NAMES[lang] || "中文";
+        }
+
+        updateMapButtonText();
+        clearFieldErrors();
+        clearMessage();
+      }
+
+      function updateMapButtonText() {
+        if (!mapBtn || !selectedStore) return;
+        const storeDisplayKey = selectedStore === "勤美公益店" ? "storeQinmei" : "storeShalu";
+        mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>' + t("mapPrefix") + t(storeDisplayKey) + t("mapSuffix");
+      }
 
       function showMessage(text) {
         messageBox.textContent = text;
@@ -1045,6 +1483,34 @@
             return input.value.trim();
           })
           .filter(Boolean);
+      }
+
+      function updateOtherProblemPanel() {
+        const checked = otherProblemCheck && otherProblemCheck.checked;
+
+        if (otherProblemPanel) {
+          otherProblemPanel.classList.toggle("show", Boolean(checked));
+        }
+
+        if (!checked && otherProblemText) {
+          otherProblemText.value = "";
+        }
+      }
+
+      function getProblemValues() {
+        const values = getCheckedValues("problems");
+
+        if (otherProblemCheck && otherProblemCheck.checked && otherProblemText && otherProblemText.value.trim()) {
+          const index = values.indexOf("其他問題");
+
+          if (index !== -1) {
+            values[index] = "其他問題：" + otherProblemText.value.trim();
+          } else {
+            values.push("其他問題：" + otherProblemText.value.trim());
+          }
+        }
+
+        return values;
       }
 
       function updateRepairValue() {
@@ -1082,8 +1548,10 @@
           repair: repairInput.value.trim(),
           repairs: repairs,
           otherRepairText: otherText.value.trim(),
-          problems: getCheckedValues("problems"),
-          experiences: getCheckedValues("experiences")
+          problems: getProblemValues(),
+          experiences: getCheckedValues("experiences"),
+          language: currentLanguage,
+          languageLabel: LANGUAGE_LABELS[currentLanguage] || "繁體中文"
         };
       }
 
@@ -1212,6 +1680,26 @@
         });
       });
 
+      languageBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        languageSwitcher.classList.toggle("open");
+      });
+
+      languageMenu.querySelectorAll("button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          applyLanguage(button.dataset.lang || "zh");
+          languageSwitcher.classList.remove("open");
+        });
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!languageSwitcher.contains(event.target)) {
+          languageSwitcher.classList.remove("open");
+        }
+      });
+
+      applyLanguage("zh");
+
       document.querySelectorAll(".store-option").forEach(function (button) {
         button.addEventListener("click", function () {
           selectedStore = button.dataset.value || "";
@@ -1254,8 +1742,21 @@
       });
 
       document.querySelectorAll("#problems input, #experiences input").forEach(function (input) {
-        input.addEventListener("change", clearMessage);
+        input.addEventListener("change", function () {
+          clearMessage();
+          clearFieldErrors();
+          updateOtherProblemPanel();
+        });
       });
+
+      if (otherProblemText) {
+        otherProblemText.addEventListener("input", function () {
+          clearMessage();
+          clearFieldErrors();
+        });
+      }
+
+      updateOtherProblemPanel();
 
       generateBtn.addEventListener("click", async function () {
         clearMessage();
@@ -1268,7 +1769,7 @@
         }
 
         generateBtn.disabled = true;
-        generateBtn.innerHTML = '<span class="loading-dot">Gemini AI 生成中</span>';
+        generateBtn.innerHTML = '<span class="loading-dot">' + t("aiGenerating") + '</span>';
 
         try {
           const response = await fetch(FUNCTION_URL, {
@@ -1300,7 +1801,7 @@
 
           const mapLink = MAP_LINKS[payload.store] || "#";
           mapBtn.href = mapLink;
-          mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往' + payload.store + ' Google 地圖';
+          updateMapButtonText();
 
           app.classList.add("result-mode");
           window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1310,7 +1811,7 @@
           showMessage(error.message || "AI 生成失敗，請稍後再試。");
         } finally {
           generateBtn.disabled = false;
-          generateBtn.innerHTML = '<iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>AI 生成';
+          generateBtn.innerHTML = '<iconify-icon icon="mdi:sparkles" width="20"></iconify-icon><span data-i18n="generate">' + t("generate") + '</span>';
         }
       });
 
@@ -1320,9 +1821,9 @@
 
         try {
           await navigator.clipboard.writeText(text);
-          copyBtn.innerHTML = '<iconify-icon icon="mdi:check" width="18"></iconify-icon>已複製';
+          copyBtn.innerHTML = '<iconify-icon icon="mdi:check" width="18"></iconify-icon>' + t("copied");
           setTimeout(function () {
-            copyBtn.innerHTML = '<iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>複製';
+            copyBtn.innerHTML = '<iconify-icon icon="mdi:content-copy" width="18"></iconify-icon><span data-i18n="copy">' + t("copy") + '</span>';
           }, 1200);
         } catch (error) {
           reviewText.focus();
