@@ -204,10 +204,10 @@
     .section-title {
       margin: 0;
       color: var(--black);
-      font-size: 28px;
-      line-height: 1.05;
+      font-size: 22px;
+      line-height: 1.12;
       font-weight: 900;
-      letter-spacing: -0.05em;
+      letter-spacing: -0.035em;
     }
 
     .step-pill {
@@ -681,8 +681,8 @@
     .brand-logo {
       display: block;
       width: auto;
-      height: 38px;
-      max-width: 168px;
+      height: 50px;
+      max-width: 220px;
       object-fit: contain;
     }
 
@@ -730,6 +730,38 @@
       display: inline-flex !important;
     }
 
+
+    .field-error {
+      display: none;
+      margin-left: 6px;
+      color: #d93025;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 900;
+      letter-spacing: 0;
+      vertical-align: baseline;
+    }
+
+    .field-error.show {
+      display: inline;
+    }
+
+    .field-label.has-error,
+    .section-title.has-error {
+      color: var(--black);
+    }
+
+    .field-label.has-error + .store-options,
+    .field-label.has-error + .text-field,
+    .section-title.has-error ~ * {
+      border-color: #d93025;
+    }
+
+    .form-panel.error-panel {
+      border-color: rgba(217, 48, 37, 0.45);
+      box-shadow: 0 20px 44px rgba(217, 48, 37, 0.08);
+    }
+
   </style>
 </head>
 
@@ -768,7 +800,7 @@
       <section class="form-panel">
         <div class="field-row">
           <div class="field-label">
-            <span>維修門市</span>
+            <span>維修門市<em class="field-error" id="storeError">請選擇門市</em></span>
             <small>必填</small>
           </div>
           <div class="store-options">
@@ -786,7 +818,7 @@
 
         <div class="field-row">
           <div class="field-label">
-            <span>設備型號</span>
+            <span>設備型號<em class="field-error" id="deviceError">請輸入型號</em></span>
             <small>必填</small>
           </div>
           <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch">
@@ -804,7 +836,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker">REPAIR ITEM</span>
-          <h2 class="section-title">維修項目</h2>
+          <h2 class="section-title">維修項目<em class="field-error" id="repairError">請選擇項目</em></h2>
         </div>
         <span class="step-pill">STEP 02</span>
       </section>
@@ -849,7 +881,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker">PROBLEM</span>
-          <h2 class="section-title">遇到的問題</h2>
+          <h2 class="section-title">遇到的問題<em class="field-error" id="problemsError">請至少選一項</em></h2>
         </div>
         <span class="step-pill">STEP 03</span>
       </section>
@@ -898,7 +930,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker">EXPERIENCE</span>
-          <h2 class="section-title">體驗感受</h2>
+          <h2 class="section-title">體驗感受<em class="field-error" id="experiencesError">請至少選一項</em></h2>
         </div>
         <span class="step-pill">STEP 04</span>
       </section>
@@ -1055,12 +1087,60 @@
         };
       }
 
+      function clearFieldErrors() {
+        document.querySelectorAll(".field-error").forEach(function (item) {
+          item.classList.remove("show");
+        });
+
+        document.querySelectorAll(".form-panel").forEach(function (panel) {
+          panel.classList.remove("error-panel");
+        });
+      }
+
+      function showFieldError(errorId, panelSelector) {
+        const errorEl = document.getElementById(errorId);
+        if (errorEl) {
+          errorEl.classList.add("show");
+        }
+
+        if (panelSelector) {
+          const target = document.querySelector(panelSelector);
+          const panel = target ? target.closest(".form-panel") : null;
+
+          if (panel) {
+            panel.classList.add("error-panel");
+          }
+        }
+      }
+
       function validate(payload) {
-        if (!payload.store) return "請先選擇維修門市。";
-        if (!payload.device) return "請先輸入設備型號。";
-        if (!payload.repair) return "請至少選擇一個維修項目。";
-        if (payload.problems.length === 0) return "請至少選擇一個遇到的問題。";
-        if (payload.experiences.length === 0) return "請至少選擇一個體驗感受。";
+        clearFieldErrors();
+
+        if (!payload.store) {
+          showFieldError("storeError", '.store-options');
+          return "store";
+        }
+
+        if (!payload.device) {
+          showFieldError("deviceError", '#device');
+          return "device";
+        }
+
+        if (!payload.repair) {
+          showFieldError("repairError", '#repairOptions');
+          return "repair";
+        }
+
+        if (payload.problems.length === 0) {
+          showFieldError("problemsError", '#problems');
+          return "problems";
+        }
+
+        if (payload.experiences.length === 0) {
+          showFieldError("experiencesError", '#experiences');
+          return "experiences";
+        }
+
         return "";
       }
 
@@ -1086,19 +1166,29 @@
       }
 
       function validateStep(page) {
+        clearFieldErrors();
         const payload = getPayload();
 
         if (page === 1) {
-          if (!payload.store) return "請先選擇維修門市。";
-          if (!payload.device) return "請先輸入設備型號。";
+          if (!payload.store) {
+            showFieldError("storeError", ".store-options");
+            return "store";
+          }
+
+          if (!payload.device) {
+            showFieldError("deviceError", "#device");
+            return "device";
+          }
         }
 
         if (page === 2 && !payload.repair) {
-          return "請至少選擇一個維修項目。";
+          showFieldError("repairError", "#repairOptions");
+          return "repair";
         }
 
         if (page === 3 && payload.problems.length === 0) {
-          return "請至少選擇一個遇到的問題。";
+          showFieldError("problemsError", "#problems");
+          return "problems";
         }
 
         return "";
@@ -1109,7 +1199,6 @@
           const error = validateStep(currentPage);
 
           if (error) {
-            showMessage(error);
             return;
           }
 
@@ -1133,6 +1222,7 @@
           });
 
           clearMessage();
+          clearFieldErrors();
         });
       });
 
@@ -1141,12 +1231,14 @@
           button.classList.toggle("active");
           updateRepairValue();
           clearMessage();
+          clearFieldErrors();
         });
       });
 
       otherText.addEventListener("input", function () {
         updateRepairValue();
         clearMessage();
+        clearFieldErrors();
       });
 
       document.querySelectorAll(".more-toggle").forEach(function (button) {
@@ -1172,7 +1264,6 @@
         const error = validate(payload);
 
         if (error) {
-          showMessage(error);
           return;
         }
 
