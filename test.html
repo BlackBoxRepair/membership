@@ -1414,14 +1414,8 @@
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
-      // 盒芯禮遇暫時上鎖：不進入獨立頁面，也不與年度消費次數連動。
-      if(requestedTarget === 'gift'){
-        openGiftLockedModal();
-        return;
-      }
-
       // 登入前保護：除了「首頁」之外，點擊底部選單的會員功能，都先引導到會員登入頁。
-      // 登入後才允許查看：我的預約、票券錢包、盒芯禮遇、會員專區。
+      // 盒芯禮遇雖然暫時上鎖，但仍切換到「盒芯禮遇」頁面後才顯示上鎖彈窗。
       const protectedRoutes = ['reservation','wallet','gift','member'];
       if(protectedRoutes.includes(target) && !currentMember){
         target = 'member';
@@ -1446,6 +1440,13 @@
       if(target === 'reservation') renderReservationPage();
       if(target === 'gift') renderGiftPage();
       if(target === 'member') renderMemberArea();
+
+      // 上鎖提示只允許存在於「盒芯禮遇」頁面；離開該頁時自動關閉。
+      if(target === 'gift'){
+        openGiftLockedModal();
+      }else{
+        closeGiftLockedModal();
+      }
 
       const baseUrl = getBaseUrl();
       history.replaceState({page:target}, '', baseUrl);
