@@ -1077,7 +1077,7 @@
     }
 
   
-    /* AI button spacing and single result screen */
+    /* Safer AI button placement and single result screen */
     .ai-generate-panel {
       padding: 14px !important;
       margin-top: 18px !important;
@@ -1361,6 +1361,15 @@
         <button class="secondary-btn back-edit-btn" id="backEditBtn" type="button">
           返回修改內容
         </button>
+
+        <!-- Keep legacy elements hidden so older JS references never break -->
+        <div style="display:none">
+          <span id="sourceBadge"></span>
+          <span id="activeTitle"></span>
+          <span id="activeHint"></span>
+          <button class="tab-btn active" data-version="natural" type="button"></button>
+          <button id="regenerateBtn" type="button"></button>
+        </div>
       </div>
     </section>
   </main>
@@ -1384,17 +1393,17 @@
 
     const generateBtn = document.getElementById("generateBtn");
     const templateBtn = null;
-    const regenerateBtn = null;
+    const regenerateBtn = document.getElementById("regenerateBtn");
     const resultPanel = document.getElementById("resultPanel");
     const messageBox = document.getElementById("messageBox");
     const googleReviewBtn = document.getElementById("googleReviewBtn");
-    const reviewText = document.getElementById("reviewText");
-    const sourceBadge = null;
-    const activeTitle = null;
-    const activeHint = null;
-    const copyBtn = document.getElementById("copyBtn");
-    const backEditBtn = document.getElementById("backEditBtn");
     const app = document.querySelector(".app");
+    const backEditBtn = document.getElementById("backEditBtn");
+    const reviewText = document.getElementById("reviewText");
+    const sourceBadge = document.getElementById("sourceBadge");
+    const activeTitle = document.getElementById("activeTitle");
+    const activeHint = document.getElementById("activeHint");
+    const copyBtn = document.getElementById("copyBtn");
 
     let currentReviews = { short: "", natural: "", detailed: "" };
     let activeVersion = "short";
@@ -1567,47 +1576,50 @@
     }
 
     function updateReviewView() {
-      reviewText.value = currentReviews.natural || currentReviews.review || "";
+      const finalText =
+        currentReviews.review ||
+        currentReviews.natural ||
+        currentReviews.short ||
+        currentReviews.detailed ||
+        "";
+      reviewText.value = finalText;
+    });
     }
 
-    function renderReviews(reviews, sourceText, sourceType = "Gemini AI") {
-      const naturalText =
-        reviews.review ||
-        reviews.natural ||
-        reviews.short ||
-        reviews.detailed ||
-        "";
-
+    function renderReviews(reviews, sourceText, sourceType = "TEMPLATE") {
       currentReviews = {
-        short: naturalText,
-        natural: naturalText,
-        detailed: naturalText,
-        review: naturalText
+        short: reviews.short || "",
+        natural: reviews.natural || "",
+        detailed: reviews.detailed || ""
       };
 
       activeVersion = "natural";
+      if (sourceBadge) sourceBadge.textContent = "Gemini AI";
       updateReviewView();
 
       const payload = getPayload();
-      const mapLink = REVIEW_LINKS[payload.store];
+      const reviewLink = REVIEW_LINKS[payload.store];
 
-      if (mapLink) {
-        googleReviewBtn.href = mapLink;
-        googleReviewBtn.innerHTML = `<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往${payload.store} Google 地圖`;
-        googleReviewBtn.classList.add("show");
+      if (reviewLink && !reviewLink.includes("請貼上")) {
+        googleReviewBtn.href = reviewLink;
+          googleReviewBtn.innerHTML = `<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>前往${payload.store} Google 地圖`;
+          googleReviewBtn.classList.add("show");
+      } else {
+        googleReviewBtn.classList.remove("show");
       }
 
       resultPanel.classList.add("show");
       if (app) app.classList.add("result-mode");
       window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (sourceText) showMessage(sourceText, "success");
     }
 
     function syncActiveTextBack() {
-      currentReviews.natural = reviewText.value;
-      currentReviews.review = reviewText.value;
+      currentReviews[activeVersion] = reviewText.value;
     }
 
-async function generateByAI() {
+    async function generateByAI() {
       clearMessage();
       const payload = getPayload();
       const error = validatePayload(payload);
@@ -1622,8 +1634,8 @@ async function generateByAI() {
       }
 
       generateBtn.disabled = true;
-      if (templateBtn) templateBtn.disabled = true;
-      if (regenerateBtn) regenerateBtn.disabled = true;
+      if (templateBtn) if (templateBtn) templateBtn.disabled = true;
+      regenerateBtn.disabled = true;
       generateBtn.innerHTML = `<span class="loading-dot">Gemini AI 生成中</span>`;
 
       try {
@@ -1638,14 +1650,14 @@ async function generateByAI() {
           throw new Error(data.error || "AI 產生失敗，請稍後再試。");
         }
 
-        renderReviews(data.review ? { review: data.review } : data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
+        renderReviews(data.reviews, "Gemini AI 已生成評論草稿。", "Gemini AI");
       } catch (err) {
         console.error(err);
         showMessage(err.message || "AI 生成失敗，請稍後再試。", "error");
       } finally {
         generateBtn.disabled = false;
-        if (templateBtn) templateBtn.disabled = false;
-        if (regenerateBtn) regenerateBtn.disabled = false;
+        if (templateBtn) if (templateBtn) templateBtn.disabled = false;
+        regenerateBtn.disabled = false;
         generateBtn.innerHTML = `<iconify-icon icon="mdi:sparkles" width="18"></iconify-icon>AI 生成`;
       }
     }
@@ -1660,19 +1672,28 @@ async function generateByAI() {
       }
 
       const reviews = createTemplateReviews(payload);
-      renderReviews(reviews, "已使用固定模板產生評論草稿。", "TEMPLATE");
+      renderReviews(reviews, "已使用固定評論草稿。", "TEMPLATE");
     }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        syncActiveTextBack();
+        activeVersion = btn.dataset.version;
+        updateReviewView();
+      });
     });
 
     reviewText.addEventListener("input", syncActiveTextBack);
 
     generateBtn.addEventListener("click", generateByAI);
-
-    backEditBtn.addEventListener("click", () => {
-      if (app) app.classList.remove("result-mode");
-      resultPanel.classList.remove("show");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    if (backEditBtn) {
+      backEditBtn.addEventListener("click", () => {
+        if (app) app.classList.remove("result-mode");
+        resultPanel.classList.remove("show");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+        regenerateBtn.addEventListener("click", generateByAI);
 
     copyBtn.addEventListener("click", async () => {
       syncActiveTextBack();
