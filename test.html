@@ -959,6 +959,32 @@
     .data-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:18px;}
     .data-row strong{display:block;color:var(--deep);font-size:18px;}
     .data-row span{display:block;color:var(--muted);font-weight:800;font-size:14px;margin-top:4px;}
+    .booking-list{display:grid;gap:18px;}
+    .booking-card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.72);border-radius:30px;padding:28px 24px 24px;box-shadow:var(--soft-shadow);display:grid;gap:18px;}
+    .booking-card-logo{display:flex;justify-content:center;}
+    .booking-card-logo img{width:96px;height:96px;object-fit:contain;display:block;}
+    .booking-card-title{font-size:28px;font-weight:950;line-height:1.2;color:var(--deep);text-align:center;}
+    .booking-store-panel{background:#ece4c8;border-radius:28px;padding:24px 20px;display:grid;gap:10px;text-align:center;}
+    .booking-store-name{font-size:30px;font-weight:950;color:var(--deep);line-height:1.2;}
+    .booking-date-time{font-size:26px;font-weight:950;color:#e5b43b;line-height:1.2;letter-spacing:.02em;}
+    .booking-info{border-top:1px solid rgba(17,22,34,.08);padding-top:18px;display:grid;gap:14px;}
+    .booking-info-row{display:grid;grid-template-columns:116px 1fr;align-items:start;gap:16px;}
+    .booking-info-label{font-size:18px;font-weight:900;color:#a2a2a8;line-height:1.25;}
+    .booking-info-value{font-size:18px;font-weight:950;color:var(--deep);line-height:1.35;text-align:right;word-break:break-word;}
+    .booking-edit-btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:68px;border-radius:22px;background:#e5b43b;color:#fff;text-decoration:none;font-size:24px;font-weight:900;letter-spacing:.02em;box-shadow:0 10px 24px rgba(229,180,59,.22);}
+    .booking-edit-btn:hover{filter:brightness(1.03);}
+    @media (max-width: 640px){
+      .booking-card{border-radius:26px;padding:22px 18px 18px;gap:16px;}
+      .booking-card-logo img{width:84px;height:84px;}
+      .booking-card-title{font-size:24px;}
+      .booking-store-panel{padding:20px 16px;border-radius:24px;}
+      .booking-store-name{font-size:24px;}
+      .booking-date-time{font-size:21px;}
+      .booking-info-row{grid-template-columns:86px 1fr;gap:10px;}
+      .booking-info-label{font-size:16px;}
+      .booking-info-value{font-size:16px;}
+      .booking-edit-btn{min-height:58px;font-size:20px;border-radius:18px;}
+    }
     .data-badge{border-radius:999px;padding:8px 12px;background:#eef6ff;color:var(--blue);font-weight:950;white-space:nowrap;}
     .login-required{display:grid;gap:8px;}
 
@@ -1112,7 +1138,7 @@
 
     <header class="topbar">
       <a class="brand" href="#home" data-route="home" aria-label="BLACK BOX 首頁">
-        <img class="brand-logo" src="site logo.png" alt="BLACK BOX Fix My Device" />
+        <img class="brand-logo" src="favicon.png" alt="BLACK BOX Fix My Device" />
       </a>
 
     </header>
@@ -2230,13 +2256,44 @@
         console.warn('booking load failed', e);
         rows=[];
       }
-      box.innerHTML = rows.length ? rows.map(r=>{
-        const dateText = `${r.booking_date || r.date || ''} ${r.booking_time || r.time || ''}`.trim();
+      if(!rows.length){
+        box.innerHTML = '<div class="empty">目前沒有未來的預約資料</div>';
+        return;
+      }
+      box.classList.add('booking-list');
+      const escapeHtml = (value='') => String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+      box.innerHTML = rows.map(r=>{
+        const dateRaw = r.booking_date || r.date || '';
+        const timeRaw = r.booking_time || r.time || '';
+        const dateText = `${dateRaw} ${timeRaw}`.trim() || '預約時間待確認';
         const storeText = r.store || r.store_name || '黑盒子維修中心';
-        const deviceText = r.device || r.model || r.device_model || '';
-        const issueText = r.problem || r.issue || r.description || '';
-        return `<div class="data-row"><div><strong>${storeText}</strong><span>${dateText || '預約時間待確認'}<br>${deviceText} ${issueText}</span></div><em class="data-badge">${r.status || '已建立'}</em></div>`;
-      }).join('') : '<div class="empty">目前沒有未來的預約資料</div>';
+        const nameText = r.name || r.customer_name || currentMember?.full_name || '未填寫';
+        const phoneText = r.phone || currentMember?.phone || '未填寫';
+        const deviceText = r.device || r.model || r.device_model || '未填寫';
+        const issueText = r.problem || r.issue || r.description || r.note || '未填寫';
+        const editHref = 'https://blackboxrepair.github.io/bookingonline/';
+        return `
+          <article class="booking-card">
+            <div class="booking-card-logo"><img src="favicon.png" alt="BLACK BOX"></div>
+            <div class="booking-card-title">新的預約來囉！</div>
+            <div class="booking-store-panel">
+              <div class="booking-store-name">${escapeHtml(storeText)}</div>
+              <div class="booking-date-time">${escapeHtml(dateText)}</div>
+            </div>
+            <div class="booking-info">
+              <div class="booking-info-row"><div class="booking-info-label">預約姓名</div><div class="booking-info-value">${escapeHtml(nameText)}</div></div>
+              <div class="booking-info-row"><div class="booking-info-label">聯絡電話</div><div class="booking-info-value">${escapeHtml(phoneText)}</div></div>
+              <div class="booking-info-row"><div class="booking-info-label">設備型號</div><div class="booking-info-value">${escapeHtml(deviceText)}</div></div>
+              <div class="booking-info-row"><div class="booking-info-label">狀況描述</div><div class="booking-info-value">${escapeHtml(issueText)}</div></div>
+            </div>
+            <a class="booking-edit-btn" href="${editHref}">修改預約資料</a>
+          </article>`;
+      }).join('');
     }
 
 
