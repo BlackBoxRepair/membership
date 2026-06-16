@@ -303,6 +303,7 @@
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -0.02em;
+      word-break: break-word;
     }
 
     .repair-price {
@@ -339,21 +340,6 @@
       color: var(--danger);
       border-color: rgba(215, 0, 21, 0.18);
       background: #fffafa;
-    }
-
-    .footer-note {
-      display: none;
-      margin: 18px auto 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.65;
-      text-align: center;
-      max-width: 360px;
-      animation: fadeUp 0.55s 0.18s ease both;
-    }
-
-    .footer-note.unlocked {
-      display: block;
     }
 
     @keyframes fadeUp {
@@ -413,6 +399,20 @@
 
       .page {
         padding-top: 42px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      h1 {
+        font-size: 21px;
+      }
+
+      .repair-name {
+        font-size: 14px;
+      }
+
+      .repair-price {
+        font-size: 15px;
       }
     }
 
@@ -479,7 +479,6 @@
 
       <div id="priceList" class="price-list"></div>
     </section>
-
   </main>
 
   <script>
@@ -488,20 +487,71 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ";
     const TABLE_NAME = "competitor_iphone_price_matrix";
 
-    const repairColumns = [
-      "蘋果原廠電池",
-      "BSMI認證電池",
-      "蘋果原廠螢幕",
-      "原裝螢幕",
-      "副廠螢幕",
-      "後相機",
-      "後鏡頭玻璃",
-      "充電孔",
-      "聽筒/喇叭",
-      "後蓋玻璃"
+    /*
+      是否把「電池-蘋果原廠電池」顯示成「蘋果原廠電池」
+      false = 直接顯示 Supabase 欄位名稱
+      true = 自動拿掉第一個 "-" 前面的分類
+    */
+    const STRIP_CATEGORY_PREFIX = false;
+
+    /*
+      這裡是非報價欄位的對照表。
+      程式會自動排除這些欄位，不會把它們顯示成維修項目。
+    */
+    const FIELD_ALIASES = {
+      id: [
+        "編號",
+        "id"
+      ],
+      model: [
+        "型號",
+        "model",
+        "iphone_model",
+        "phone_model",
+        "model_name",
+        "phone_name",
+        "device_model"
+      ],
+      enabled: [
+        "是否啟用",
+        "is_enabled",
+        "is_active",
+        "enabled",
+        "active",
+        "status",
+        "visible"
+      ],
+      sort: [
+        "排序",
+        "sort_order",
+        "display_order",
+        "sort",
+        "order",
+        "position"
+      ]
+    };
+
+    const EXTRA_EXCLUDED_COLUMNS = [
+      "created_at",
+      "updated_at",
+      "createdAt",
+      "updatedAt",
+      "deleted_at",
+      "deletedAt",
+      "建立時間",
+      "更新時間",
+      "刪除時間",
+      "備註",
+      "note",
+      "notes",
+      "remark",
+      "remarks",
+      "description",
+      "說明"
     ];
 
     let allRows = [];
+    let repairItems = [];
     let hasLoadedData = false;
 
     const dealerGate = document.getElementById("dealerGate");
@@ -530,6 +580,80 @@
         .replaceAll("'", "&#039;");
     }
 
+    function getValue(row, keys, fallback = "") {
+      for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(row, key)) {
+          return row[key];
+        }
+      }
+
+      return fallback;
+    }
+
+    function getField(row, fieldName, fallback = "") {
+      return getValue(row, FIELD_ALIASES[fieldName] || [fieldName], fallback);
+    }
+
+    function getExcludedColumnNames() {
+      const names = [];
+
+      Object.values(FIELD_ALIASES).forEach((aliases) => {
+        aliases.forEach((name) => names.push(name));
+      });
+
+      EXTRA_EXCLUDED_COLUMNS.forEach((name) => names.push(name));
+
+      return new Set(names);
+    }
+
+    function formatRepairLabel(columnName) {
+      if (!STRIP_CATEGORY_PREFIX) {
+        return columnName;
+      }
+
+      if (!columnName.includes("-")) {
+        return columnName;
+      }
+
+      return columnName.split("-").slice(1).join("-");
+    }
+
+    function buildRepairItemsFromRows(rows) {
+      const excludedColumns = getExcludedColumnNames();
+      const columns = [];
+
+      rows.forEach((row) => {
+        Object.keys(row).forEach((columnName) => {
+          if (excludedColumns.has(columnName)) return;
+          if (columns.includes(columnName)) return;
+
+          columns.push(columnName);
+        });
+      });
+
+      repairItems = columns.map((columnName) => {
+        return {
+          label: formatRepairLabel(columnName),
+          key: columnName
+        };
+      });
+    }
+
+    function isTrueValue(value) {
+      if (value === true) return true;
+      if (value === 1) return true;
+      if (value === "1") return true;
+
+      const normalized = String(value).trim().toLowerCase();
+
+      return normalized === "true" ||
+        normalized === "yes" ||
+        normalized === "y" ||
+        normalized === "on" ||
+        normalized === "啟用" ||
+        normalized === "顯示";
+    }
+
     function isEmptyPrice(value) {
       return value === null || value === undefined || value === "";
     }
@@ -546,12 +670,27 @@
       return String(value);
     }
 
-    function countAvailablePrices(row) {
-      return repairColumns.filter((column) => !isEmptyPrice(row[column])).length;
+    function getRepairPrice(row, item) {
+      return row[item.key];
     }
 
-    function getRowId(row) {
-      return row["編號"] || row.id || row["型號"];
+    function countAvailablePrices(row) {
+      return repairItems.filter((item) => !isEmptyPrice(getRepairPrice(row, item))).length;
+    }
+
+    function getModelName(row, index = 0) {
+      return getField(row, "model") || `未命名型號 ${index + 1}`;
+    }
+
+    function getSortValue(row) {
+      const value = getField(row, "sort", 999999);
+      const numberValue = Number(value);
+
+      if (Number.isNaN(numberValue)) {
+        return 999999;
+      }
+
+      return numberValue;
     }
 
     function populateModelSelect() {
@@ -573,8 +712,8 @@
 
       allRows.forEach((row, index) => {
         const option = document.createElement("option");
-        option.value = String(getRowId(row));
-        option.textContent = row["型號"] || `未命名型號 ${index + 1}`;
+        option.value = String(index);
+        option.textContent = getModelName(row, index);
         modelSelect.appendChild(option);
       });
 
@@ -603,10 +742,10 @@
     }
 
     function renderSelectedPrice() {
-      const selectedId = modelSelect.value;
-      const row = allRows.find((item) => String(getRowId(item)) === String(selectedId));
+      const selectedIndex = Number(modelSelect.value);
+      const row = allRows[selectedIndex];
 
-      if (!row) {
+      if (!row || Number.isNaN(selectedIndex)) {
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
         statusBox.style.display = "block";
@@ -616,21 +755,33 @@
 
       hideStatus();
 
-      selectedModel.textContent = row["型號"] || "未命名型號";
+      selectedModel.textContent = getModelName(row, selectedIndex);
 
       const availableCount = countAvailablePrices(row);
       selectedNote.textContent = availableCount > 0
         ? `目前共有 ${availableCount} 個維修項目有填寫價格。`
         : "這個型號目前尚未填寫任何維修價格。";
 
-      priceList.innerHTML = repairColumns.map((column, index) => {
-        const value = row[column];
+      if (repairItems.length === 0) {
+        priceList.innerHTML = `
+          <div class="price-row" style="animation-delay:80ms">
+            <div class="repair-name">目前沒有可顯示的維修項目</div>
+            <div class="repair-price empty">—</div>
+          </div>
+        `;
+
+        showPricePanel();
+        return;
+      }
+
+      priceList.innerHTML = repairItems.map((item, index) => {
+        const value = getRepairPrice(row, item);
         const emptyClass = isEmptyPrice(value) ? " empty" : "";
         const delay = 80 + index * 35;
 
         return `
           <div class="price-row" style="animation-delay:${delay}ms">
-            <div class="repair-name">${escapeHtml(column)}</div>
+            <div class="repair-name">${escapeHtml(item.label)}</div>
             <div class="repair-price${emptyClass}">${escapeHtml(formatPrice(value))}</div>
           </div>
         `;
@@ -649,16 +800,52 @@
         modelSelect.innerHTML = `<option value="">資料載入中...</option>`;
         modelSelect.disabled = true;
 
+        /*
+          重要：
+          這裡不再使用 .eq("是否啟用", true)
+          也不再使用 .order("排序") 或 .order("型號")
+          因為你的欄位名稱可能已經改掉。
+
+          改成先 select("*")，再由前端自動辨識：
+          1. 哪個欄位是型號
+          2. 哪個欄位是排序
+          3. 哪個欄位是是否啟用
+          4. 剩下欄位自動當成維修項目
+        */
         const { data, error } = await client
           .from(TABLE_NAME)
-          .select("*")
-          .eq("是否啟用", true)
-          .order("排序", { ascending: true, nullsFirst: false })
-          .order("型號", { ascending: true });
+          .select("*");
 
         if (error) throw error;
 
-        allRows = Array.isArray(data) ? data : [];
+        const rawRows = Array.isArray(data) ? data : [];
+
+        buildRepairItemsFromRows(rawRows);
+
+        allRows = rawRows
+          .filter((row) => {
+            const enabledValue = getField(row, "enabled", true);
+
+            if (enabledValue === "" || enabledValue === null || enabledValue === undefined) {
+              return true;
+            }
+
+            return isTrueValue(enabledValue);
+          })
+          .sort((a, b) => {
+            const sortA = getSortValue(a);
+            const sortB = getSortValue(b);
+
+            if (sortA !== sortB) {
+              return sortA - sortB;
+            }
+
+            return String(getField(a, "model")).localeCompare(
+              String(getField(b, "model")),
+              "zh-Hant"
+            );
+          });
+
         hasLoadedData = true;
 
         const now = new Date();
@@ -682,6 +869,7 @@
 
         showStatus("請先選擇 iPhone 型號查看報價。");
         pricePanel.style.display = "none";
+
       } catch (error) {
         console.error(error);
 
