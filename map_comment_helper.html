@@ -1526,6 +1526,62 @@
         I18N[lang] = Object.assign({}, BASE_TRANSLATION, I18N[lang]);
       });
 
+
+      const PATCH_I18N = {
+        ja: {
+          kickerService:"SERVICE INFO", kickerRepair:"REPAIR ITEM", kickerProblem:"PROBLEM", kickerExperience:"EXPERIENCE", kickerResult:"REVIEW",
+          titleService:"今回の修理", titleRepair:"修理内容", titleProblem:"困っていた症状", titleExperience:"体験・感想", titleResult:"修理体験の感想",
+          labelStore:"修理店舗", labelDevice:"機種", required:"必須", next:"次へ", prev:"戻る", generate:"レビュー", aiGenerating:"スマートAI生成中",
+          copy:"コピー", copied:"コピー済み", backEdit:"ホームに戻る",
+          devicePlaceholder:"例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder:"その他の修理内容（任意）", otherProblemPlaceholder:"その他の症状（任意）", resultPlaceholder:"作成されたレビュー文がここに表示されます",
+          copyReminder:"先にコピーを押してください。レビュー時に写真も一緒に投稿していただけると嬉しいです～～",
+          storeQinmei:"勤美公益店", storeShalu:"沙鹿駅前店",
+          repairBattery:"バッテリー交換", repairScreen:"画面修理", repairCamera:"カメラ修理", repairBackGlass:"背面ガラス修理", repairWater:"水濡れ清掃", repairData:"データ復旧", repairStorage:"容量アップグレード", repairCharging:"充電口修理", repairBoard:"基板修理", repairClean:"本体クリーニング", repairEarpiece:"受話スピーカー修理", repairSpeaker:"スピーカー修理", repairButton:"ボタン修理", repairFace:"Face ID 修理", repairSystem:"システム修復", repairOther:"その他の修理",
+          problemDrain:"電池の減りが早い", problemHeat:"異常に熱くなる", problemHealth:"バッテリー状態が低下", problemSwollen:"バッテリー膨張", problemCrack:"画面割れ", problemDisplay:"表示異常", problemTouch:"タッチ不良", problemPower:"電源が入らない", problemRestart:"再起動を繰り返す", problemWater:"水濡れ・湿気", problemData:"データ消失", problemStorage:"容量不足", problemCharging:"充電が不安定", problemDistortion:"音割れ", problemNoSound:"音が出ない", problemInternet:"ネット接続不可", problemWifi:"Wi‑Fi 接続不可", problemBluetooth:"Bluetooth 接続不可", problemCall:"通話できない", problemSignal:"電波がない", problemPhoto:"写真が撮れない", problemShake:"カメラが震える", problemFocus:"ピントが合わない", problemBent:"落下で変形", problemOther:"その他",
+          expExplain:"詳しい説明", expFast:"修理が早い", expDataSafe:"データが残った", expPrice:"料金が明確", expReasonablePrice:"適正な価格", expSolved:"問題がしっかり解決", expNoHardSell:"無理な営業なし", expFriendly:"親切な対応", expAssured:"安心できた", expEnv:"快適な環境", expWarranty:"保証説明が明確", expCheck:"丁寧な検査", expProfessional:"専門的な対応", expProcess:"流れが分かりやすい", expBooking:"予約が便利", expPatient:"丁寧で根気強い対応", expFace:"対面修理", expOriginal:"純正部品", expVeryPro:"とても専門的", expEfficient:"効率が良い", expSkill:"技術が高い"
+        },
+        vi: {
+          kickerService:"THÔNG TIN", kickerRepair:"HẠNG MỤC", kickerProblem:"VẤN ĐỀ", kickerExperience:"TRẢI NGHIỆM", kickerResult:"CẢM NHẬN",
+          titleService:"Thông tin sửa chữa", titleRepair:"Hạng mục sửa", titleProblem:"Vấn đề gặp phải", titleExperience:"Trải nghiệm", titleResult:"Cảm nhận sửa chữa",
+          labelStore:"Cửa hàng", labelDevice:"Model thiết bị", required:"Bắt buộc", next:"Tiếp theo", prev:"Quay lại", generate:"Đánh giá", aiGenerating:"AI thông minh đang tạo",
+          copy:"Sao chép", copied:"Đã sao chép", backEdit:"Về trang đầu",
+          devicePlaceholder:"VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Nội dung sửa khác, không bắt buộc", otherProblemPlaceholder:"Vấn đề khác, không bắt buộc", resultPlaceholder:"Nội dung đánh giá sẽ hiển thị ở đây",
+          copyReminder:"Vui lòng bấm sao chép trước. Khi đánh giá, bạn có thể chia sẻ thêm một tấm ảnh được không? Cảm ơn nhiều～～",
+          storeQinmei:"Cửa hàng Qinmei Gongyi", storeShalu:"Cửa hàng Shalu Station",
+          repairBattery:"Thay pin", repairScreen:"Sửa màn hình", repairCamera:"Sửa camera", repairBackGlass:"Sửa kính lưng", repairWater:"Vệ sinh ẩm nước", repairData:"Cứu dữ liệu", repairStorage:"Nâng cấp dung lượng", repairCharging:"Sửa cổng sạc", repairBoard:"Sửa bo mạch", repairClean:"Vệ sinh máy", repairEarpiece:"Sửa loa thoại", repairSpeaker:"Sửa loa ngoài", repairButton:"Sửa nút bấm", repairFace:"Sửa Face ID", repairSystem:"Sửa hệ thống", repairOther:"Sửa khác",
+          problemDrain:"Hao pin nhanh", problemHeat:"Nóng bất thường", problemHealth:"Tình trạng pin giảm", problemSwollen:"Pin bị phồng", problemCrack:"Vỡ màn hình", problemDisplay:"Lỗi hiển thị", problemTouch:"Lỗi cảm ứng", problemPower:"Không mở nguồn", problemRestart:"Tự khởi động lại", problemWater:"Vào nước / ẩm", problemData:"Mất dữ liệu", problemStorage:"Thiếu dung lượng", problemCharging:"Sạc không ổn định", problemDistortion:"Âm thanh rè", problemNoSound:"Không có âm thanh", problemInternet:"Không vào mạng", problemWifi:"Không kết nối Wi‑Fi", problemBluetooth:"Không kết nối Bluetooth", problemCall:"Không gọi được", problemSignal:"Không có sóng", problemPhoto:"Không chụp ảnh được", problemShake:"Camera bị rung", problemFocus:"Không lấy nét được", problemBent:"Rơi làm cong máy", problemOther:"Khác",
+          expExplain:"Giải thích chi tiết", expFast:"Sửa nhanh", expDataSafe:"Dữ liệu được giữ lại", expPrice:"Giá rõ ràng", expReasonablePrice:"Giá hợp lý", expSolved:"Vấn đề được giải quyết tốt", expNoHardSell:"Không ép mua thêm", expFriendly:"Dịch vụ thân thiện", expAssured:"Yên tâm", expEnv:"Môi trường thoải mái", expWarranty:"Bảo hành rõ ràng", expCheck:"Kiểm tra kỹ", expProfessional:"Xử lý chuyên nghiệp", expProcess:"Quy trình rõ ràng", expBooking:"Đặt lịch tiện lợi", expPatient:"Dịch vụ kiên nhẫn", expFace:"Sửa trực tiếp", expOriginal:"Linh kiện chính hãng", expVeryPro:"Rất chuyên nghiệp", expEfficient:"Hiệu quả cao", expSkill:"Kỹ thuật tốt"
+        },
+        th: {
+          kickerService:"ข้อมูลบริการ", kickerRepair:"รายการซ่อม", kickerProblem:"ปัญหา", kickerExperience:"ประสบการณ์", kickerResult:"รีวิว",
+          titleService:"ข้อมูลการซ่อม", titleRepair:"รายการซ่อม", titleProblem:"ปัญหาที่พบ", titleExperience:"ความรู้สึกหลังใช้บริการ", titleResult:"รีวิวประสบการณ์ซ่อม",
+          labelStore:"สาขา", labelDevice:"รุ่นอุปกรณ์", required:"จำเป็น", next:"ถัดไป", prev:"ย้อนกลับ", generate:"รีวิว", aiGenerating:"AI อัจฉริยะกำลังสร้าง",
+          copy:"คัดลอก", copied:"คัดลอกแล้ว", backEdit:"กลับหน้าแรก",
+          devicePlaceholder:"เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"รายละเอียดซ่อมอื่น ๆ ไม่บังคับ", otherProblemPlaceholder:"ปัญหาอื่น ๆ ไม่บังคับ", resultPlaceholder:"ข้อความรีวิวจะแสดงที่นี่",
+          copyReminder:"กรุณากดคัดลอกก่อน แล้วตอนรีวิวช่วยแนบรูปให้ด้วยได้ไหมนะ～～",
+          storeQinmei:"สาขา Qinmei Gongyi", storeShalu:"สาขา Shalu Station",
+          repairBattery:"เปลี่ยนแบตเตอรี่", repairScreen:"ซ่อมหน้าจอ", repairCamera:"ซ่อมกล้อง", repairBackGlass:"ซ่อมฝาหลัง", repairWater:"ทำความสะอาดเครื่องชื้น", repairData:"กู้ข้อมูล", repairStorage:"อัปเกรดความจุ", repairCharging:"ซ่อมพอร์ตชาร์จ", repairBoard:"ซ่อมเมนบอร์ด", repairClean:"ทำความสะอาดทั้งเครื่อง", repairEarpiece:"ซ่อมลำโพงสนทนา", repairSpeaker:"ซ่อมลำโพง", repairButton:"ซ่อมปุ่ม", repairFace:"ซ่อม Face ID", repairSystem:"ซ่อมระบบ", repairOther:"ซ่อมอื่น ๆ",
+          problemDrain:"แบตหมดเร็ว", problemHeat:"ร้อนผิดปกติ", problemHealth:"สุขภาพแบตลดลง", problemSwollen:"แบตบวม", problemCrack:"หน้าจอแตก", problemDisplay:"จอแสดงผลผิดปกติ", problemTouch:"ทัชสกรีนผิดปกติ", problemPower:"เปิดไม่ติด", problemRestart:"รีสตาร์ทซ้ำ", problemWater:"โดนน้ำ / ความชื้น", problemData:"ข้อมูลหาย", problemStorage:"พื้นที่ไม่พอ", problemCharging:"ชาร์จไม่เสถียร", problemDistortion:"เสียงแตก", problemNoSound:"ไม่มีเสียง", problemInternet:"ใช้อินเทอร์เน็ตไม่ได้", problemWifi:"ต่อ Wi‑Fi ไม่ได้", problemBluetooth:"ต่อ Bluetooth ไม่ได้", problemCall:"โทรออกไม่ได้", problemSignal:"ไม่มีสัญญาณ", problemPhoto:"ถ่ายรูปไม่ได้", problemShake:"กล้องสั่น", problemFocus:"โฟกัสไม่ได้", problemBent:"ตกจนเครื่องงอ", problemOther:"อื่น ๆ",
+          expExplain:"อธิบายละเอียด", expFast:"ซ่อมรวดเร็ว", expDataSafe:"ข้อมูลยังอยู่", expPrice:"ราคาโปร่งใส", expReasonablePrice:"ราคาสมเหตุสมผล", expSolved:"แก้ปัญหาได้ดี", expNoHardSell:"ไม่บังคับขายเพิ่ม", expFriendly:"บริการเป็นมิตร", expAssured:"รู้สึกสบายใจ", expEnv:"สถานที่สะดวกสบาย", expWarranty:"อธิบายประกันชัดเจน", expCheck:"ตรวจเช็กละเอียด", expProfessional:"จัดการอย่างมืออาชีพ", expProcess:"ขั้นตอนชัดเจน", expBooking:"จองคิวง่าย", expPatient:"บริการใจเย็น", expFace:"ซ่อมต่อหน้า", expOriginal:"อะไหล่แท้", expVeryPro:"มืออาชีพมาก", expEfficient:"มีประสิทธิภาพ", expSkill:"ช่างฝีมือดี"
+        },
+        id: {
+          kickerService:"INFO SERVIS", kickerRepair:"JENIS PERBAIKAN", kickerProblem:"MASALAH", kickerExperience:"PENGALAMAN", kickerResult:"ULASAN",
+          titleService:"Detail perbaikan", titleRepair:"Jenis perbaikan", titleProblem:"Masalah yang dialami", titleExperience:"Pengalaman", titleResult:"Pengalaman perbaikan",
+          labelStore:"Toko", labelDevice:"Model perangkat", required:"Wajib", next:"Lanjut", prev:"Kembali", generate:"Ulasan", aiGenerating:"AI cerdas sedang membuat",
+          copy:"Salin", copied:"Disalin", backEdit:"Kembali ke awal",
+          devicePlaceholder:"cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Detail perbaikan lain, opsional", otherProblemPlaceholder:"Masalah lainnya, opsional", resultPlaceholder:"Teks ulasan akan muncul di sini",
+          copyReminder:"Silakan klik salin dulu. Saat memberi ulasan, boleh sekalian bagikan foto juga? Terima kasih banyak～～",
+          storeQinmei:"Toko Qinmei Gongyi", storeShalu:"Toko Shalu Station",
+          repairBattery:"Ganti baterai", repairScreen:"Perbaikan layar", repairCamera:"Perbaikan kamera", repairBackGlass:"Perbaikan kaca belakang", repairWater:"Pembersihan lembap", repairData:"Pemulihan data", repairStorage:"Upgrade penyimpanan", repairCharging:"Perbaikan port charger", repairBoard:"Perbaikan mainboard", repairClean:"Pembersihan menyeluruh", repairEarpiece:"Perbaikan earpiece", repairSpeaker:"Perbaikan speaker", repairButton:"Perbaikan tombol", repairFace:"Perbaikan Face ID", repairSystem:"Perbaikan sistem", repairOther:"Perbaikan lain",
+          problemDrain:"Baterai cepat habis", problemHeat:"Panas berlebihan", problemHealth:"Kesehatan baterai turun", problemSwollen:"Baterai menggembung", problemCrack:"Layar pecah", problemDisplay:"Masalah tampilan", problemTouch:"Masalah sentuh", problemPower:"Tidak bisa menyala", problemRestart:"Sering restart", problemWater:"Terkena air / lembap", problemData:"Data hilang", problemStorage:"Penyimpanan penuh", problemCharging:"Pengisian tidak stabil", problemDistortion:"Suara pecah", problemNoSound:"Tidak ada suara", problemInternet:"Tidak bisa internet", problemWifi:"Tidak bisa konek Wi‑Fi", problemBluetooth:"Tidak bisa konek Bluetooth", problemCall:"Tidak bisa telepon", problemSignal:"Tidak ada sinyal", problemPhoto:"Tidak bisa foto", problemShake:"Kamera bergetar", problemFocus:"Tidak bisa fokus", problemBent:"Bengkok karena jatuh", problemOther:"Lainnya",
+          expExplain:"Penjelasan detail", expFast:"Perbaikan cepat", expDataSafe:"Data tetap aman", expPrice:"Harga transparan", expReasonablePrice:"Harga wajar", expSolved:"Masalah terselesaikan", expNoHardSell:"Tidak memaksa jualan", expFriendly:"Layanan ramah", expAssured:"Meyakinkan", expEnv:"Tempat nyaman", expWarranty:"Garansi jelas", expCheck:"Pemeriksaan teliti", expProfessional:"Penanganan profesional", expProcess:"Proses jelas", expBooking:"Reservasi mudah", expPatient:"Layanan sabar", expFace:"Perbaikan langsung", expOriginal:"Suku cadang asli", expVeryPro:"Sangat profesional", expEfficient:"Efisien", expSkill:"Teknisi terampil"
+        }
+      };
+
+      Object.keys(PATCH_I18N).forEach(function (lang) {
+        I18N[lang] = Object.assign({}, I18N[lang] || {}, PATCH_I18N[lang]);
+      });
+
       function t(key) {
         return (I18N[currentLanguage] && I18N[currentLanguage][key]) || I18N.zh[key] || key;
       }
