@@ -743,6 +743,16 @@
     }
 
 
+
+    .title-note {
+      margin-left: 6px;
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0;
+      vertical-align: middle;
+    }
+
     .field-error {
       display: none;
       margin-left: 6px;
@@ -891,13 +901,52 @@
     }
 
 
-    .copy-reminder {
-      margin: -2px 4px 2px;
-      color: #d93025;
+    .repair-other-separator {
+      grid-column: 1 / -1;
+      margin: 10px 2px -2px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.16);
+      color: var(--gray-500);
       font-size: 12px;
-      line-height: 1.6;
       font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .repair-option-other {
+      grid-column: 1 / -1;
+      justify-content: center;
+      min-height: 52px;
+    }
+
+
+    .problem-other-separator {
+      width: 100%;
+      margin: 10px 2px -2px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.16);
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
       text-align: center;
+    }
+
+    .chip-other {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+
+
+    .result-intro {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(247, 197, 66, 0.12);
+      color: var(--gray-700);
+      font-size: 13px;
+      line-height: 1.75;
+      font-weight: 700;
     }
 
   </style>
@@ -993,7 +1042,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker" data-i18n="kickerRepair">REPAIR ITEM</span>
-          <h2 class="section-title"><span data-i18n="titleRepair">維修項目</span><em class="field-error" id="repairError" data-i18n="errRepair">請選擇項目</em></h2>
+          <h2 class="section-title"><span data-i18n="titleRepair">維修項目</span><span class="title-note" data-i18n="repairSingleNote">（限選 1 個項目）</span><em class="field-error" id="repairError" data-i18n="errRepair">請選擇項目</em><em class="field-error" id="otherRepairError" data-i18n="errOtherRepair">請填寫其他維修內容</em></h2>
         </div>
         <span class="step-pill">STEP 02</span>
       </section>
@@ -1002,24 +1051,22 @@
         <div class="repair-options" id="repairOptions">
           <button class="repair-option" type="button" data-value="電池更換"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon><span data-i18n="repairBattery">電池更換</span></button>
           <button class="repair-option" type="button" data-value="螢幕維修"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon><span data-i18n="repairScreen">螢幕維修</span></button>
-          <button class="repair-option" type="button" data-value="前後相機"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon><span data-i18n="repairCamera">前後相機</span></button>
-          <button class="repair-option" type="button" data-value="背蓋維修"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon><span data-i18n="repairBackGlass">背蓋維修</span></button>
+          <button class="repair-option" type="button" data-value="後鏡頭維修"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon><span data-i18n="repairCamera">後鏡頭維修</span></button>
+          <button class="repair-option" type="button" data-value="背蓋更換"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon><span data-i18n="repairBackGlass">背蓋更換</span></button>
           <button class="repair-option" type="button" data-value="受潮清潔"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon><span data-i18n="repairWater">受潮清潔</span></button>
           <button class="repair-option" type="button" data-value="資料救援"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon><span data-i18n="repairData">資料救援</span></button>
           <button class="repair-option" type="button" data-value="容量擴充"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon><span data-i18n="repairStorage">容量擴充</span></button>
           <button class="repair-option" type="button" data-value="充電孔維修"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon><span data-i18n="repairCharging">充電孔維修</span></button>
           <button class="repair-option" type="button" data-value="主機板維修"><iconify-icon icon="mdi:chip" width="18"></iconify-icon><span data-i18n="repairBoard">主機板維修</span></button>
           <button class="repair-option" type="button" data-value="全機清潔"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon><span data-i18n="repairClean">全機清潔</span></button>
-          <button class="repair-option" type="button" data-value="聽筒維修"><iconify-icon icon="mdi:ear-hearing" width="18"></iconify-icon><span data-i18n="repairEarpiece">聽筒維修</span></button>
-          <button class="repair-option" type="button" data-value="喇叭維修"><iconify-icon icon="mdi:speaker" width="18"></iconify-icon><span data-i18n="repairSpeaker">喇叭維修</span></button>
           <button class="repair-option" type="button" data-value="按鍵維修"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon><span data-i18n="repairButton">按鍵維修</span></button>
-          <button class="repair-option" type="button" data-value="臉部辨識"><iconify-icon icon="mdi:face-recognition" width="18"></iconify-icon><span data-i18n="repairFace">臉部辨識</span></button>
-          <button class="repair-option" type="button" data-value="系統修復"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon><span data-i18n="repairSystem">系統修復</span></button>
-          <button class="repair-option" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon><span data-i18n="repairOther">其他維修</span></button>
+          <button class="repair-option" type="button" data-value="系統處理"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon><span data-i18n="repairSystem">系統處理</span></button>
+          <div class="repair-other-separator" data-i18n="repairOtherSeparator">沒有符合的項目？</div>
+          <button class="repair-option repair-option-other" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon><span data-i18n="repairOther">其他維修</span></button>
         </div>
         <input id="repair" type="hidden" value="">
         <div class="other-repair-panel" id="otherRepairPanel">
-          <input id="otherRepairText" class="text-field" type="text" placeholder="其他維修內容，可填可不填" data-i18n-placeholder="otherRepairPlaceholder">
+          <input id="otherRepairText" class="text-field" type="text" placeholder="請填寫其他維修內容" data-i18n-placeholder="otherRepairPlaceholder">
         </div>
       </section>
         <div class="wizard-actions two">
@@ -1038,7 +1085,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker" data-i18n="kickerProblem">PROBLEM</span>
-          <h2 class="section-title"><span data-i18n="titleProblem">遇到的問題</span><em class="field-error" id="problemsError" data-i18n="errProblems">請至少選一項</em></h2>
+          <h2 class="section-title"><span data-i18n="titleProblem">遇到的問題</span><span class="title-note" data-i18n="problemMaxNote">（最多選 2 個）</span><em class="field-error" id="problemsError" data-i18n="errProblems">請至少選一項</em><em class="field-error" id="problemMaxError" data-i18n="errProblemMax">最多可選 2 個項目</em></h2>
         </div>
         <span class="step-pill">STEP 03</span>
       </section>
@@ -1046,8 +1093,6 @@
       <section class="form-panel">
         <div class="chips" id="problems">
           <label class="chip"><input type="checkbox" value="耗電很快"><span data-i18n="problemDrain">耗電很快</span></label>
-          <label class="chip"><input type="checkbox" value="異常發燙"><span data-i18n="problemHeat">異常發燙</span></label>
-          <label class="chip"><input type="checkbox" value="電池健康度下降"><span data-i18n="problemHealth">電池健康度下降</span></label>
           <label class="chip"><input type="checkbox" value="電池膨脹"><span data-i18n="problemSwollen">電池膨脹</span></label>
           <label class="chip"><input type="checkbox" value="螢幕破裂"><span data-i18n="problemCrack">螢幕破裂</span></label>
           <label class="chip"><input type="checkbox" value="顯示異常"><span data-i18n="problemDisplay">顯示異常</span></label>
@@ -1061,15 +1106,13 @@
           <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span data-i18n="problemDistortion">聲音破音</span></label>
           <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span data-i18n="problemNoSound">沒有聲音</span></label>
           <label class="chip more-chip"><input type="checkbox" value="無法上網"><span data-i18n="problemInternet">無法上網</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法連接wifi"><span data-i18n="problemWifi">無法連接wifi</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法連接藍牙"><span data-i18n="problemBluetooth">無法連接藍牙</span></label>
-          <label class="chip more-chip"><input type="checkbox" value="無法打電話"><span data-i18n="problemCall">無法打電話</span></label>
           <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span data-i18n="problemSignal">沒有訊號</span></label>
           <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span data-i18n="problemPhoto">無法拍照</span></label>
           <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span data-i18n="problemShake">相機抖動</span></label>
           <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span data-i18n="problemFocus">無法對焦</span></label>
           <label class="chip more-chip"><input type="checkbox" value="重摔變形"><span data-i18n="problemBent">重摔變形</span></label>
-          <label class="chip more-chip"><input id="otherProblemCheck" type="checkbox" value="其他問題"><span data-i18n="problemOther">其他</span></label>
+          <div class="problem-other-separator" data-i18n="problemOtherSeparator">沒有符合的問題？</div>
+          <label class="chip chip-other"><input id="otherProblemCheck" type="checkbox" value="其他問題"><span data-i18n="problemOther">其他</span></label>
         </div>
       
         <div class="other-repair-panel" id="otherProblemPanel">
@@ -1092,7 +1135,7 @@
         <section class="section-head">
         <div>
           <span class="section-kicker" data-i18n="kickerExperience">EXPERIENCE</span>
-          <h2 class="section-title"><span data-i18n="titleExperience">體驗感受</span><em class="field-error" id="experiencesError" data-i18n="errExperiences">請至少選一項</em></h2>
+          <h2 class="section-title"><span data-i18n="titleExperience">體驗感受</span><span class="title-note" data-i18n="experienceMaxNote">（最多選 3 項）</span><em class="field-error" id="experiencesError" data-i18n="errExperiences">請至少選一項</em><em class="field-error" id="experienceMaxError" data-i18n="errExperienceMax">最多可選 3 項</em></h2>
         </div>
         <span class="step-pill">STEP 04</span>
       </section>
@@ -1125,7 +1168,7 @@
         <section class="ai-action-panel">
         <button class="main-action" id="generateBtn" type="button">
           <iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>
-          <span data-i18n="generate">評論</span>
+          <span data-i18n="generate">送出評價</span>
         </button>
       </section>
         <div class="wizard-actions">
@@ -1144,6 +1187,7 @@
         <div>
           <span class="section-kicker" data-i18n="kickerResult">AI COMMENT</span>
           <h2 class="section-title" data-i18n="titleResult">維修體驗心得</h2>
+            <div class="result-intro" data-i18n="resultIntro">感謝您的返饋，我們整理了您本次服務的體驗心得，如果可以幫我們近一步分享到Google就太好了～</div>
         </div>
       </section>
 
@@ -1154,7 +1198,6 @@
             <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
             <span data-i18n="copy">複製</span>
           </button>
-          <p class="copy-reminder" data-i18n="copyReminder">請先點擊複製，評論時順便拍張照分享好嗎？拜託拜託～～</p>
           <a class="map-action" id="mapBtn" href="#" target="_blank" rel="noopener">
             <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
             前往門市 Google 地圖
@@ -1262,14 +1305,21 @@
           errStore: "請選擇門市",
           errDevice: "請輸入型號",
           errRepair: "請選擇項目",
+          errOtherRepair: "請填寫其他維修內容",
+          repairSingleNote: "（限選 1 個項目）",
           errProblems: "請至少選一項",
+          errProblemMax: "最多可選 2 個項目",
+          problemMaxNote: "（最多選 2 個）",
           errExperiences: "請至少選一項",
+          errExperienceMax: "最多可選 3 項",
+          experienceMaxNote: "（最多選 3 項）",
           next: "下一步",
           prev: "上一步",
-          generate: "評論",
-          aiGenerating: "智能ＡＩ生成中",
+          generate: "送出評價",
+          aiGenerating: "評價整理中...",
           aiBadge: "本次內容由智能ＡＩ助理生成",
           copy: "複製",
+          resultIntro: "感謝您的返饋，我們整理了您本次服務的體驗心得，如果可以幫我們近一步分享到Google就太好了～",
           copyReminder: "請先點擊複製，評論時順便拍張照分享好嗎？拜託拜託～～",
           copied: "已複製",
           backEdit: "返回首頁",
@@ -1277,14 +1327,14 @@
           mapSuffix: " Google 地圖",
           footerNote: "黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。",
           devicePlaceholder: "例如：iPhone 15 Pro、VIVO X100、Switch",
-          otherRepairPlaceholder: "其他維修內容，可填可不填",
+          otherRepairPlaceholder: "請填寫其他維修內容",
           resultPlaceholder: "AI 生成內容會顯示在這裡",
           storeQinmei: "勤美公益店",
           storeShalu: "沙鹿站前店",
           repairBattery: "電池更換",
           repairScreen: "螢幕維修",
-          repairCamera: "前後相機",
-          repairBackGlass: "背蓋維修",
+          repairCamera: "後鏡頭維修",
+          repairBackGlass: "背蓋更換",
           repairWater: "受潮清潔",
           repairData: "資料救援",
           repairStorage: "容量擴充",
@@ -1295,8 +1345,9 @@
           repairSpeaker: "喇叭維修",
           repairButton: "按鍵維修",
           repairFace: "臉部辨識",
-          repairSystem: "系統修復",
+          repairSystem: "系統處理",
           repairOther: "其他維修",
+          repairOtherSeparator: "沒有符合的項目？",
           problemDrain: "耗電很快",
           problemHeat: "異常發燙",
           problemHealth: "電池健康度下降",
@@ -1322,6 +1373,7 @@
           problemFocus: "無法對焦",
           problemBent: "重摔變形",
           problemOther: "其他",
+          problemOtherSeparator: "沒有符合的問題？",
           otherProblemPlaceholder: "其他遇到的問題，可填可不填",
           expExplain: "詳細解說",
           expFast: "維修快速",
@@ -1364,14 +1416,21 @@
           errStore: "Select a store",
           errDevice: "Enter model",
           errRepair: "Select item",
+          errOtherRepair: "Please enter other repair details",
+          repairSingleNote: "(Choose 1 item only)",
           errProblems: "Select at least one",
+          errProblemMax: "Choose up to 2 items",
+          problemMaxNote: "(Up to 2 items)",
           errExperiences: "Select at least one",
+          errExperienceMax: "Choose up to 3 items",
+          experienceMaxNote: "(Up to 3 items)",
           next: "Next",
           prev: "Back",
-          generate: "Review",
-          aiGenerating: "Smart AI generating",
+          generate: "Submit review",
+          aiGenerating: "Organizing review...",
           aiBadge: "Generated by smart AI assistant",
           copy: "Copy",
+          resultIntro: "Thank you for your feedback. We’ve organized your service experience into a review draft. If you could share it on Google, we’d really appreciate it!",
           copyReminder: "Please tap Copy first. When leaving the review, could you also share a photo? Pretty please～～",
           copied: "Copied",
           backEdit: "Back to start",
@@ -1379,14 +1438,14 @@
           mapSuffix: " on Google Maps",
           footerNote: "Black Box Repair Center｜This tool only helps organize your wording. Please make sure the review matches your real experience.",
           devicePlaceholder: "e.g. iPhone 15 Pro, VIVO X100, Switch",
-          otherRepairPlaceholder: "Other repair details, optional",
+          otherRepairPlaceholder: "Please enter other repair details",
           resultPlaceholder: "The AI-generated content will appear here",
           storeQinmei: "Qinmei Gongyi Store",
           storeShalu: "Shalu Station Store",
           repairBattery: "Battery replacement",
           repairScreen: "Screen repair",
-          repairCamera: "Camera repair",
-          repairBackGlass: "Back glass repair",
+          repairCamera: "Rear camera repair",
+          repairBackGlass: "Back cover replacement",
           repairWater: "Moisture cleaning",
           repairData: "Data recovery",
           repairStorage: "Storage upgrade",
@@ -1397,8 +1456,9 @@
           repairSpeaker: "Speaker repair",
           repairButton: "Button repair",
           repairFace: "Face ID repair",
-          repairSystem: "System repair",
+          repairSystem: "System service",
           repairOther: "Other repair",
+          repairOtherSeparator: "No matching item?",
           problemDrain: "Battery drains fast",
           problemHeat: "Overheating",
           problemHealth: "Battery health dropped",
@@ -1424,6 +1484,7 @@
           problemFocus: "Cannot focus",
           problemBent: "Bent after drop",
           problemOther: "Other",
+          problemOtherSeparator: "No matching problem?",
           otherProblemPlaceholder: "Other problem details, optional",
           expExplain: "Detailed explanation",
           expFast: "Fast repair",
@@ -1451,11 +1512,12 @@
           languageButton: "言語切替",
           titleService: "今回の修理", titleRepair: "修理内容", titleProblem: "発生した問題", titleExperience: "体験内容", titleResult: "修理体験の感想",
           labelStore: "修理店舗", labelDevice: "機種", required: "必須", errStore: "店舗を選択", errDevice: "機種を入力", errRepair: "項目を選択", errProblems: "1つ以上選択", errExperiences: "1つ以上選択",
-          next: "次へ", prev: "戻る", generate: "レビュー", aiGenerating: "智能ＡＩ生成中", aiBadge: "Gemini AI によって生成", copy: "コピー", copied: "コピー済み", backEdit: "内容を修正",
+          next: "次へ", prev: "戻る", generate: "レビュー", aiGenerating: "評價整理中...", aiBadge: "Gemini AI によって生成", copy: "コピー", copied: "コピー済み", backEdit: "内容を修正",
           mapPrefix: "", mapSuffix: "のGoogleマップへ", footerNote: "Black Box修理センター｜このツールは文章整理を補助するものです。実際の体験に合う内容にしてください。",
           devicePlaceholder: "例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder: "その他の修理内容（任意）", resultPlaceholder: "AI生成内容がここに表示されます",
           storeQinmei: "勤美公益店", storeShalu: "沙鹿駅前店",
           problemOther: "その他",
+          problemOtherSeparator: "当てはまる問題がありませんか？",
           otherProblemPlaceholder: "その他の問題（任意）",
           expExplain: "詳しい説明",
           expReasonablePrice: "適正な価格",
@@ -1474,6 +1536,7 @@
           devicePlaceholder: "VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Nội dung sửa khác, không bắt buộc", resultPlaceholder: "Nội dung AI sẽ hiển thị ở đây",
           storeQinmei: "Cửa hàng Qinmei Gongyi", storeShalu: "Cửa hàng Shalu Station",
           problemOther: "Khác",
+          problemOtherSeparator: "Không có vấn đề phù hợp?",
           otherProblemPlaceholder: "Vấn đề khác, không bắt buộc",
           expExplain: "Giải thích chi tiết",
           expReasonablePrice: "Giá hợp lý",
@@ -1492,6 +1555,7 @@
           devicePlaceholder: "เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "รายละเอียดอื่น ๆ ไม่บังคับ", resultPlaceholder: "ข้อความจาก AI จะแสดงที่นี่",
           storeQinmei: "สาขา Qinmei Gongyi", storeShalu: "สาขา Shalu Station",
           problemOther: "อื่น ๆ",
+          problemOtherSeparator: "ไม่มีปัญหาที่ตรงกัน?",
           otherProblemPlaceholder: "ปัญหาอื่น ๆ ไม่บังคับ",
           expExplain: "อธิบายละเอียด",
           expReasonablePrice: "ราคาสมเหตุสมผล",
@@ -1510,6 +1574,7 @@
           devicePlaceholder: "cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Detail perbaikan lain, opsional", resultPlaceholder: "Konten AI akan muncul di sini",
           storeQinmei: "Toko Qinmei Gongyi", storeShalu: "Toko Shalu Station",
           problemOther: "Lainnya",
+          problemOtherSeparator: "Tidak ada masalah yang sesuai?",
           otherProblemPlaceholder: "Masalah lainnya, opsional",
           expExplain: "Penjelasan detail",
           expReasonablePrice: "Harga wajar",
@@ -1530,50 +1595,50 @@
       const PATCH_I18N = {
         ja: {
           kickerService:"SERVICE INFO", kickerRepair:"REPAIR ITEM", kickerProblem:"PROBLEM", kickerExperience:"EXPERIENCE", kickerResult:"REVIEW",
-          titleService:"今回の修理", titleRepair:"修理内容", titleProblem:"困っていた症状", titleExperience:"体験・感想", titleResult:"修理体験の感想",
-          labelStore:"修理店舗", labelDevice:"機種", required:"必須", next:"次へ", prev:"戻る", generate:"レビュー", aiGenerating:"スマートAI生成中",
-          copy:"コピー", copied:"コピー済み", backEdit:"ホームに戻る",
-          devicePlaceholder:"例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder:"その他の修理内容（任意）", otherProblemPlaceholder:"その他の症状（任意）", resultPlaceholder:"作成されたレビュー文がここに表示されます",
+          titleService:"今回の修理", titleRepair:"修理内容", titleProblem:"困っていた症状", errProblemMax:"最大2項目まで選択できます", problemMaxNote:"（最大2項目）", titleExperience:"体験・感想", errExperienceMax:"最大3項目まで選択できます", experienceMaxNote:"（最大3項目）", titleResult:"修理体験の感想",
+          labelStore:"修理店舗", labelDevice:"機種", required:"必須", errOtherRepair:"その他の修理内容を入力してください", repairSingleNote:"（1項目のみ選択）", next:"次へ", prev:"戻る", generate:"評価を送信", aiGenerating:"評価を整理中...",
+          copy:"コピー", copied:"コピー済み", backEdit:"ホームに戻る", resultIntro:"ご感想ありがとうございます。今回のサービス体験をもとにレビュー文を整理しました。もしよろしければ、Googleにも共有していただけると嬉しいです～",
+          devicePlaceholder:"例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder:"その他の修理内容を入力してください", otherProblemPlaceholder:"その他の症状（任意）", resultPlaceholder:"作成されたレビュー文がここに表示されます",
           copyReminder:"先にコピーを押してください。レビュー時に写真も一緒に投稿していただけると嬉しいです～～",
           storeQinmei:"勤美公益店", storeShalu:"沙鹿駅前店",
-          repairBattery:"バッテリー交換", repairScreen:"画面修理", repairCamera:"カメラ修理", repairBackGlass:"背面ガラス修理", repairWater:"水濡れ清掃", repairData:"データ復旧", repairStorage:"容量アップグレード", repairCharging:"充電口修理", repairBoard:"基板修理", repairClean:"本体クリーニング", repairEarpiece:"受話スピーカー修理", repairSpeaker:"スピーカー修理", repairButton:"ボタン修理", repairFace:"Face ID 修理", repairSystem:"システム修復", repairOther:"その他の修理",
-          problemDrain:"電池の減りが早い", problemHeat:"異常に熱くなる", problemHealth:"バッテリー状態が低下", problemSwollen:"バッテリー膨張", problemCrack:"画面割れ", problemDisplay:"表示異常", problemTouch:"タッチ不良", problemPower:"電源が入らない", problemRestart:"再起動を繰り返す", problemWater:"水濡れ・湿気", problemData:"データ消失", problemStorage:"容量不足", problemCharging:"充電が不安定", problemDistortion:"音割れ", problemNoSound:"音が出ない", problemInternet:"ネット接続不可", problemWifi:"Wi‑Fi 接続不可", problemBluetooth:"Bluetooth 接続不可", problemCall:"通話できない", problemSignal:"電波がない", problemPhoto:"写真が撮れない", problemShake:"カメラが震える", problemFocus:"ピントが合わない", problemBent:"落下で変形", problemOther:"その他",
+          repairBattery:"バッテリー交換", repairScreen:"画面修理", repairCamera:"リアカメラ修理", repairBackGlass:"背面カバー交換", repairWater:"水濡れ清掃", repairData:"データ復旧", repairStorage:"容量アップグレード", repairCharging:"充電口修理", repairBoard:"基板修理", repairClean:"本体クリーニング", repairEarpiece:"受話スピーカー修理", repairSpeaker:"スピーカー修理", repairButton:"ボタン修理", repairFace:"Face ID 修理", repairSystem:"システム処理", repairOther:"その他の修理", repairOtherSeparator:"該当する項目がありませんか？",
+          problemDrain:"電池の減りが早い", problemHeat:"異常に熱くなる", problemHealth:"バッテリー状態が低下", problemSwollen:"バッテリー膨張", problemCrack:"画面割れ", problemDisplay:"表示異常", problemTouch:"タッチ不良", problemPower:"電源が入らない", problemRestart:"再起動を繰り返す", problemWater:"水濡れ・湿気", problemData:"データ消失", problemStorage:"容量不足", problemCharging:"充電が不安定", problemDistortion:"音割れ", problemNoSound:"音が出ない", problemInternet:"ネット接続不可", problemWifi:"Wi‑Fi 接続不可", problemBluetooth:"Bluetooth 接続不可", problemCall:"通話できない", problemSignal:"電波がない", problemPhoto:"写真が撮れない", problemShake:"カメラが震える", problemFocus:"ピントが合わない", problemBent:"落下で変形", problemOther:"その他", problemOtherSeparator:"当てはまる問題がありませんか？",
           expExplain:"詳しい説明", expFast:"修理が早い", expDataSafe:"データが残った", expPrice:"料金が明確", expReasonablePrice:"適正な価格", expSolved:"問題がしっかり解決", expNoHardSell:"無理な営業なし", expFriendly:"親切な対応", expAssured:"安心できた", expEnv:"快適な環境", expWarranty:"保証説明が明確", expCheck:"丁寧な検査", expProfessional:"専門的な対応", expProcess:"流れが分かりやすい", expBooking:"予約が便利", expPatient:"丁寧で根気強い対応", expFace:"対面修理", expOriginal:"純正部品", expVeryPro:"とても専門的", expEfficient:"効率が良い", expSkill:"技術が高い"
         },
         vi: {
           kickerService:"THÔNG TIN", kickerRepair:"HẠNG MỤC", kickerProblem:"VẤN ĐỀ", kickerExperience:"TRẢI NGHIỆM", kickerResult:"CẢM NHẬN",
-          titleService:"Thông tin sửa chữa", titleRepair:"Hạng mục sửa", titleProblem:"Vấn đề gặp phải", titleExperience:"Trải nghiệm", titleResult:"Cảm nhận sửa chữa",
-          labelStore:"Cửa hàng", labelDevice:"Model thiết bị", required:"Bắt buộc", next:"Tiếp theo", prev:"Quay lại", generate:"Đánh giá", aiGenerating:"AI thông minh đang tạo",
-          copy:"Sao chép", copied:"Đã sao chép", backEdit:"Về trang đầu",
-          devicePlaceholder:"VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Nội dung sửa khác, không bắt buộc", otherProblemPlaceholder:"Vấn đề khác, không bắt buộc", resultPlaceholder:"Nội dung đánh giá sẽ hiển thị ở đây",
+          titleService:"Thông tin sửa chữa", titleRepair:"Hạng mục sửa", titleProblem:"Vấn đề gặp phải", errProblemMax:"Chỉ chọn tối đa 2 mục", problemMaxNote:"(Tối đa 2 mục)", titleExperience:"Trải nghiệm", errExperienceMax:"Chỉ chọn tối đa 3 mục", experienceMaxNote:"(Tối đa 3 mục)", titleResult:"Cảm nhận sửa chữa",
+          labelStore:"Cửa hàng", labelDevice:"Model thiết bị", required:"Bắt buộc", errOtherRepair:"Vui lòng nhập nội dung sửa khác", repairSingleNote:"(Chỉ chọn 1 mục)", next:"Tiếp theo", prev:"Quay lại", generate:"Gửi đánh giá", aiGenerating:"Đang sắp xếp đánh giá...",
+          copy:"Sao chép", copied:"Đã sao chép", backEdit:"Về trang đầu", resultIntro:"Cảm ơn bạn đã phản hồi. Chúng tôi đã sắp xếp lại cảm nhận về trải nghiệm dịch vụ lần này. Nếu có thể chia sẻ thêm lên Google thì thật tuyệt vời～",
+          devicePlaceholder:"VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Vui lòng nhập nội dung sửa khác", otherProblemPlaceholder:"Vấn đề khác, không bắt buộc", resultPlaceholder:"Nội dung đánh giá sẽ hiển thị ở đây",
           copyReminder:"Vui lòng bấm sao chép trước. Khi đánh giá, bạn có thể chia sẻ thêm một tấm ảnh được không? Cảm ơn nhiều～～",
           storeQinmei:"Cửa hàng Qinmei Gongyi", storeShalu:"Cửa hàng Shalu Station",
-          repairBattery:"Thay pin", repairScreen:"Sửa màn hình", repairCamera:"Sửa camera", repairBackGlass:"Sửa kính lưng", repairWater:"Vệ sinh ẩm nước", repairData:"Cứu dữ liệu", repairStorage:"Nâng cấp dung lượng", repairCharging:"Sửa cổng sạc", repairBoard:"Sửa bo mạch", repairClean:"Vệ sinh máy", repairEarpiece:"Sửa loa thoại", repairSpeaker:"Sửa loa ngoài", repairButton:"Sửa nút bấm", repairFace:"Sửa Face ID", repairSystem:"Sửa hệ thống", repairOther:"Sửa khác",
-          problemDrain:"Hao pin nhanh", problemHeat:"Nóng bất thường", problemHealth:"Tình trạng pin giảm", problemSwollen:"Pin bị phồng", problemCrack:"Vỡ màn hình", problemDisplay:"Lỗi hiển thị", problemTouch:"Lỗi cảm ứng", problemPower:"Không mở nguồn", problemRestart:"Tự khởi động lại", problemWater:"Vào nước / ẩm", problemData:"Mất dữ liệu", problemStorage:"Thiếu dung lượng", problemCharging:"Sạc không ổn định", problemDistortion:"Âm thanh rè", problemNoSound:"Không có âm thanh", problemInternet:"Không vào mạng", problemWifi:"Không kết nối Wi‑Fi", problemBluetooth:"Không kết nối Bluetooth", problemCall:"Không gọi được", problemSignal:"Không có sóng", problemPhoto:"Không chụp ảnh được", problemShake:"Camera bị rung", problemFocus:"Không lấy nét được", problemBent:"Rơi làm cong máy", problemOther:"Khác",
+          repairBattery:"Thay pin", repairScreen:"Sửa màn hình", repairCamera:"Sửa camera sau", repairBackGlass:"Thay nắp lưng", repairWater:"Vệ sinh ẩm nước", repairData:"Cứu dữ liệu", repairStorage:"Nâng cấp dung lượng", repairCharging:"Sửa cổng sạc", repairBoard:"Sửa bo mạch", repairClean:"Vệ sinh máy", repairEarpiece:"Sửa loa thoại", repairSpeaker:"Sửa loa ngoài", repairButton:"Sửa nút bấm", repairFace:"Sửa Face ID", repairSystem:"Xử lý hệ thống", repairOther:"Sửa khác", repairOtherSeparator:"Không có mục phù hợp?",
+          problemDrain:"Hao pin nhanh", problemHeat:"Nóng bất thường", problemHealth:"Tình trạng pin giảm", problemSwollen:"Pin bị phồng", problemCrack:"Vỡ màn hình", problemDisplay:"Lỗi hiển thị", problemTouch:"Lỗi cảm ứng", problemPower:"Không mở nguồn", problemRestart:"Tự khởi động lại", problemWater:"Vào nước / ẩm", problemData:"Mất dữ liệu", problemStorage:"Thiếu dung lượng", problemCharging:"Sạc không ổn định", problemDistortion:"Âm thanh rè", problemNoSound:"Không có âm thanh", problemInternet:"Không vào mạng", problemWifi:"Không kết nối Wi‑Fi", problemBluetooth:"Không kết nối Bluetooth", problemCall:"Không gọi được", problemSignal:"Không có sóng", problemPhoto:"Không chụp ảnh được", problemShake:"Camera bị rung", problemFocus:"Không lấy nét được", problemBent:"Rơi làm cong máy", problemOther:"Khác", problemOtherSeparator:"Không có vấn đề phù hợp?",
           expExplain:"Giải thích chi tiết", expFast:"Sửa nhanh", expDataSafe:"Dữ liệu được giữ lại", expPrice:"Giá rõ ràng", expReasonablePrice:"Giá hợp lý", expSolved:"Vấn đề được giải quyết tốt", expNoHardSell:"Không ép mua thêm", expFriendly:"Dịch vụ thân thiện", expAssured:"Yên tâm", expEnv:"Môi trường thoải mái", expWarranty:"Bảo hành rõ ràng", expCheck:"Kiểm tra kỹ", expProfessional:"Xử lý chuyên nghiệp", expProcess:"Quy trình rõ ràng", expBooking:"Đặt lịch tiện lợi", expPatient:"Dịch vụ kiên nhẫn", expFace:"Sửa trực tiếp", expOriginal:"Linh kiện chính hãng", expVeryPro:"Rất chuyên nghiệp", expEfficient:"Hiệu quả cao", expSkill:"Kỹ thuật tốt"
         },
         th: {
           kickerService:"ข้อมูลบริการ", kickerRepair:"รายการซ่อม", kickerProblem:"ปัญหา", kickerExperience:"ประสบการณ์", kickerResult:"รีวิว",
-          titleService:"ข้อมูลการซ่อม", titleRepair:"รายการซ่อม", titleProblem:"ปัญหาที่พบ", titleExperience:"ความรู้สึกหลังใช้บริการ", titleResult:"รีวิวประสบการณ์ซ่อม",
-          labelStore:"สาขา", labelDevice:"รุ่นอุปกรณ์", required:"จำเป็น", next:"ถัดไป", prev:"ย้อนกลับ", generate:"รีวิว", aiGenerating:"AI อัจฉริยะกำลังสร้าง",
-          copy:"คัดลอก", copied:"คัดลอกแล้ว", backEdit:"กลับหน้าแรก",
-          devicePlaceholder:"เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"รายละเอียดซ่อมอื่น ๆ ไม่บังคับ", otherProblemPlaceholder:"ปัญหาอื่น ๆ ไม่บังคับ", resultPlaceholder:"ข้อความรีวิวจะแสดงที่นี่",
+          titleService:"ข้อมูลการซ่อม", titleRepair:"รายการซ่อม", titleProblem:"ปัญหาที่พบ", errProblemMax:"เลือกได้สูงสุด 2 รายการ", problemMaxNote:"(เลือกได้สูงสุด 2 รายการ)", titleExperience:"ความรู้สึกหลังใช้บริการ", errExperienceMax:"เลือกได้สูงสุด 3 รายการ", experienceMaxNote:"(เลือกได้สูงสุด 3 รายการ)", titleResult:"รีวิวประสบการณ์ซ่อม",
+          labelStore:"สาขา", labelDevice:"รุ่นอุปกรณ์", required:"จำเป็น", errOtherRepair:"กรุณากรอกรายละเอียดซ่อมอื่น ๆ", repairSingleNote:"(เลือกได้ 1 รายการเท่านั้น)", next:"ถัดไป", prev:"ย้อนกลับ", generate:"ส่งรีวิว", aiGenerating:"กำลังจัดเรียงรีวิว...",
+          copy:"คัดลอก", copied:"คัดลอกแล้ว", backEdit:"กลับหน้าแรก", resultIntro:"ขอบคุณสำหรับคำติชมของคุณ เราได้ช่วยเรียบเรียงประสบการณ์การใช้บริการครั้งนี้ให้แล้ว หากสามารถช่วยแชร์ต่อบน Google ให้เราได้จะดีมากเลย～",
+          devicePlaceholder:"เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"กรุณากรอกรายละเอียดซ่อมอื่น ๆ", otherProblemPlaceholder:"ปัญหาอื่น ๆ ไม่บังคับ", resultPlaceholder:"ข้อความรีวิวจะแสดงที่นี่",
           copyReminder:"กรุณากดคัดลอกก่อน แล้วตอนรีวิวช่วยแนบรูปให้ด้วยได้ไหมนะ～～",
           storeQinmei:"สาขา Qinmei Gongyi", storeShalu:"สาขา Shalu Station",
-          repairBattery:"เปลี่ยนแบตเตอรี่", repairScreen:"ซ่อมหน้าจอ", repairCamera:"ซ่อมกล้อง", repairBackGlass:"ซ่อมฝาหลัง", repairWater:"ทำความสะอาดเครื่องชื้น", repairData:"กู้ข้อมูล", repairStorage:"อัปเกรดความจุ", repairCharging:"ซ่อมพอร์ตชาร์จ", repairBoard:"ซ่อมเมนบอร์ด", repairClean:"ทำความสะอาดทั้งเครื่อง", repairEarpiece:"ซ่อมลำโพงสนทนา", repairSpeaker:"ซ่อมลำโพง", repairButton:"ซ่อมปุ่ม", repairFace:"ซ่อม Face ID", repairSystem:"ซ่อมระบบ", repairOther:"ซ่อมอื่น ๆ",
-          problemDrain:"แบตหมดเร็ว", problemHeat:"ร้อนผิดปกติ", problemHealth:"สุขภาพแบตลดลง", problemSwollen:"แบตบวม", problemCrack:"หน้าจอแตก", problemDisplay:"จอแสดงผลผิดปกติ", problemTouch:"ทัชสกรีนผิดปกติ", problemPower:"เปิดไม่ติด", problemRestart:"รีสตาร์ทซ้ำ", problemWater:"โดนน้ำ / ความชื้น", problemData:"ข้อมูลหาย", problemStorage:"พื้นที่ไม่พอ", problemCharging:"ชาร์จไม่เสถียร", problemDistortion:"เสียงแตก", problemNoSound:"ไม่มีเสียง", problemInternet:"ใช้อินเทอร์เน็ตไม่ได้", problemWifi:"ต่อ Wi‑Fi ไม่ได้", problemBluetooth:"ต่อ Bluetooth ไม่ได้", problemCall:"โทรออกไม่ได้", problemSignal:"ไม่มีสัญญาณ", problemPhoto:"ถ่ายรูปไม่ได้", problemShake:"กล้องสั่น", problemFocus:"โฟกัสไม่ได้", problemBent:"ตกจนเครื่องงอ", problemOther:"อื่น ๆ",
+          repairBattery:"เปลี่ยนแบตเตอรี่", repairScreen:"ซ่อมหน้าจอ", repairCamera:"ซ่อมกล้องหลัง", repairBackGlass:"เปลี่ยนฝาหลัง", repairWater:"ทำความสะอาดเครื่องชื้น", repairData:"กู้ข้อมูล", repairStorage:"อัปเกรดความจุ", repairCharging:"ซ่อมพอร์ตชาร์จ", repairBoard:"ซ่อมเมนบอร์ด", repairClean:"ทำความสะอาดทั้งเครื่อง", repairEarpiece:"ซ่อมลำโพงสนทนา", repairSpeaker:"ซ่อมลำโพง", repairButton:"ซ่อมปุ่ม", repairFace:"ซ่อม Face ID", repairSystem:"จัดการระบบ", repairOther:"ซ่อมอื่น ๆ", repairOtherSeparator:"ไม่มีรายการที่ตรงกัน?",
+          problemDrain:"แบตหมดเร็ว", problemHeat:"ร้อนผิดปกติ", problemHealth:"สุขภาพแบตลดลง", problemSwollen:"แบตบวม", problemCrack:"หน้าจอแตก", problemDisplay:"จอแสดงผลผิดปกติ", problemTouch:"ทัชสกรีนผิดปกติ", problemPower:"เปิดไม่ติด", problemRestart:"รีสตาร์ทซ้ำ", problemWater:"โดนน้ำ / ความชื้น", problemData:"ข้อมูลหาย", problemStorage:"พื้นที่ไม่พอ", problemCharging:"ชาร์จไม่เสถียร", problemDistortion:"เสียงแตก", problemNoSound:"ไม่มีเสียง", problemInternet:"ใช้อินเทอร์เน็ตไม่ได้", problemWifi:"ต่อ Wi‑Fi ไม่ได้", problemBluetooth:"ต่อ Bluetooth ไม่ได้", problemCall:"โทรออกไม่ได้", problemSignal:"ไม่มีสัญญาณ", problemPhoto:"ถ่ายรูปไม่ได้", problemShake:"กล้องสั่น", problemFocus:"โฟกัสไม่ได้", problemBent:"ตกจนเครื่องงอ", problemOther:"อื่น ๆ", problemOtherSeparator:"ไม่มีปัญหาที่ตรงกัน?",
           expExplain:"อธิบายละเอียด", expFast:"ซ่อมรวดเร็ว", expDataSafe:"ข้อมูลยังอยู่", expPrice:"ราคาโปร่งใส", expReasonablePrice:"ราคาสมเหตุสมผล", expSolved:"แก้ปัญหาได้ดี", expNoHardSell:"ไม่บังคับขายเพิ่ม", expFriendly:"บริการเป็นมิตร", expAssured:"รู้สึกสบายใจ", expEnv:"สถานที่สะดวกสบาย", expWarranty:"อธิบายประกันชัดเจน", expCheck:"ตรวจเช็กละเอียด", expProfessional:"จัดการอย่างมืออาชีพ", expProcess:"ขั้นตอนชัดเจน", expBooking:"จองคิวง่าย", expPatient:"บริการใจเย็น", expFace:"ซ่อมต่อหน้า", expOriginal:"อะไหล่แท้", expVeryPro:"มืออาชีพมาก", expEfficient:"มีประสิทธิภาพ", expSkill:"ช่างฝีมือดี"
         },
         id: {
           kickerService:"INFO SERVIS", kickerRepair:"JENIS PERBAIKAN", kickerProblem:"MASALAH", kickerExperience:"PENGALAMAN", kickerResult:"ULASAN",
-          titleService:"Detail perbaikan", titleRepair:"Jenis perbaikan", titleProblem:"Masalah yang dialami", titleExperience:"Pengalaman", titleResult:"Pengalaman perbaikan",
-          labelStore:"Toko", labelDevice:"Model perangkat", required:"Wajib", next:"Lanjut", prev:"Kembali", generate:"Ulasan", aiGenerating:"AI cerdas sedang membuat",
-          copy:"Salin", copied:"Disalin", backEdit:"Kembali ke awal",
-          devicePlaceholder:"cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Detail perbaikan lain, opsional", otherProblemPlaceholder:"Masalah lainnya, opsional", resultPlaceholder:"Teks ulasan akan muncul di sini",
+          titleService:"Detail perbaikan", titleRepair:"Jenis perbaikan", titleProblem:"Masalah yang dialami", errProblemMax:"Pilih maksimal 2 item", problemMaxNote:"(Maksimal 2 item)", titleExperience:"Pengalaman", errExperienceMax:"Pilih maksimal 3 item", experienceMaxNote:"(Maksimal 3 item)", titleResult:"Pengalaman perbaikan",
+          labelStore:"Toko", labelDevice:"Model perangkat", required:"Wajib", errOtherRepair:"Masukkan detail perbaikan lain", repairSingleNote:"(Pilih 1 item saja)", next:"Lanjut", prev:"Kembali", generate:"Kirim ulasan", aiGenerating:"Sedang menyiapkan ulasan...",
+          copy:"Salin", copied:"Disalin", backEdit:"Kembali ke awal", resultIntro:"Terima kasih atas masukan Anda. Kami telah merangkum pengalaman layanan Anda kali ini. Jika berkenan membagikannya ke Google, kami akan sangat berterima kasih～",
+          devicePlaceholder:"cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Masukkan detail perbaikan lain", otherProblemPlaceholder:"Masalah lainnya, opsional", resultPlaceholder:"Teks ulasan akan muncul di sini",
           copyReminder:"Silakan klik salin dulu. Saat memberi ulasan, boleh sekalian bagikan foto juga? Terima kasih banyak～～",
           storeQinmei:"Toko Qinmei Gongyi", storeShalu:"Toko Shalu Station",
-          repairBattery:"Ganti baterai", repairScreen:"Perbaikan layar", repairCamera:"Perbaikan kamera", repairBackGlass:"Perbaikan kaca belakang", repairWater:"Pembersihan lembap", repairData:"Pemulihan data", repairStorage:"Upgrade penyimpanan", repairCharging:"Perbaikan port charger", repairBoard:"Perbaikan mainboard", repairClean:"Pembersihan menyeluruh", repairEarpiece:"Perbaikan earpiece", repairSpeaker:"Perbaikan speaker", repairButton:"Perbaikan tombol", repairFace:"Perbaikan Face ID", repairSystem:"Perbaikan sistem", repairOther:"Perbaikan lain",
-          problemDrain:"Baterai cepat habis", problemHeat:"Panas berlebihan", problemHealth:"Kesehatan baterai turun", problemSwollen:"Baterai menggembung", problemCrack:"Layar pecah", problemDisplay:"Masalah tampilan", problemTouch:"Masalah sentuh", problemPower:"Tidak bisa menyala", problemRestart:"Sering restart", problemWater:"Terkena air / lembap", problemData:"Data hilang", problemStorage:"Penyimpanan penuh", problemCharging:"Pengisian tidak stabil", problemDistortion:"Suara pecah", problemNoSound:"Tidak ada suara", problemInternet:"Tidak bisa internet", problemWifi:"Tidak bisa konek Wi‑Fi", problemBluetooth:"Tidak bisa konek Bluetooth", problemCall:"Tidak bisa telepon", problemSignal:"Tidak ada sinyal", problemPhoto:"Tidak bisa foto", problemShake:"Kamera bergetar", problemFocus:"Tidak bisa fokus", problemBent:"Bengkok karena jatuh", problemOther:"Lainnya",
+          repairBattery:"Ganti baterai", repairScreen:"Perbaikan layar", repairCamera:"Perbaikan kamera belakang", repairBackGlass:"Ganti back cover", repairWater:"Pembersihan lembap", repairData:"Pemulihan data", repairStorage:"Upgrade penyimpanan", repairCharging:"Perbaikan port charger", repairBoard:"Perbaikan mainboard", repairClean:"Pembersihan menyeluruh", repairEarpiece:"Perbaikan earpiece", repairSpeaker:"Perbaikan speaker", repairButton:"Perbaikan tombol", repairFace:"Perbaikan Face ID", repairSystem:"Penanganan sistem", repairOther:"Perbaikan lain", repairOtherSeparator:"Tidak ada pilihan yang sesuai?",
+          problemDrain:"Baterai cepat habis", problemHeat:"Panas berlebihan", problemHealth:"Kesehatan baterai turun", problemSwollen:"Baterai menggembung", problemCrack:"Layar pecah", problemDisplay:"Masalah tampilan", problemTouch:"Masalah sentuh", problemPower:"Tidak bisa menyala", problemRestart:"Sering restart", problemWater:"Terkena air / lembap", problemData:"Data hilang", problemStorage:"Penyimpanan penuh", problemCharging:"Pengisian tidak stabil", problemDistortion:"Suara pecah", problemNoSound:"Tidak ada suara", problemInternet:"Tidak bisa internet", problemWifi:"Tidak bisa konek Wi‑Fi", problemBluetooth:"Tidak bisa konek Bluetooth", problemCall:"Tidak bisa telepon", problemSignal:"Tidak ada sinyal", problemPhoto:"Tidak bisa foto", problemShake:"Kamera bergetar", problemFocus:"Tidak bisa fokus", problemBent:"Bengkok karena jatuh", problemOther:"Lainnya", problemOtherSeparator:"Tidak ada masalah yang sesuai?",
           expExplain:"Penjelasan detail", expFast:"Perbaikan cepat", expDataSafe:"Data tetap aman", expPrice:"Harga transparan", expReasonablePrice:"Harga wajar", expSolved:"Masalah terselesaikan", expNoHardSell:"Tidak memaksa jualan", expFriendly:"Layanan ramah", expAssured:"Meyakinkan", expEnv:"Tempat nyaman", expWarranty:"Garansi jelas", expCheck:"Pemeriksaan teliti", expProfessional:"Penanganan profesional", expProcess:"Proses jelas", expBooking:"Reservasi mudah", expPatient:"Layanan sabar", expFace:"Perbaikan langsung", expOriginal:"Suku cadang asli", expVeryPro:"Sangat profesional", expEfficient:"Efisien", expSkill:"Teknisi terampil"
         }
       };
@@ -1666,6 +1731,11 @@
         return values;
       }
 
+      function isOtherRepairMissing() {
+        const otherRepairButton = document.querySelector('.repair-option[data-value="其他維修"]');
+        return Boolean(otherRepairButton && otherRepairButton.classList.contains("active") && otherText && !otherText.value.trim());
+      }
+
       function updateRepairValue() {
         const selectedButtons = Array.from(document.querySelectorAll(".repair-option.active"));
         let repairs = selectedButtons
@@ -1752,14 +1822,29 @@
           return "repair";
         }
 
+        if (isOtherRepairMissing()) {
+          showFieldError("otherRepairError", '#otherRepairText');
+          return "otherRepair";
+        }
+
         if (payload.problems.length === 0) {
           showFieldError("problemsError", '#problems');
           return "problems";
         }
 
+        if (payload.problems.length > 2) {
+          showFieldError("problemMaxError", '#problems');
+          return "problemMax";
+        }
+
         if (payload.experiences.length === 0) {
           showFieldError("experiencesError", '#experiences');
           return "experiences";
+        }
+
+        if (payload.experiences.length > 3) {
+          showFieldError("experienceMaxError", '#experiences');
+          return "experienceMax";
         }
 
         return "";
@@ -1807,10 +1892,31 @@
           return "repair";
         }
 
+        if (page === 2 && isOtherRepairMissing()) {
+          showFieldError("otherRepairError", "#otherRepairText");
+          return "otherRepair";
+        }
+
         if (page === 3 && payload.problems.length === 0) {
           showFieldError("problemsError", "#problems");
           return "problems";
         }
+
+        if (page === 3 && payload.problems.length > 2) {
+          showFieldError("problemMaxError", "#problems");
+          return "problemMax";
+        }
+        if (page === 4 && payload.experiences.length === 0) {
+          showFieldError("experiencesError", "#experiences");
+          return "experiences";
+        }
+
+        if (page === 4 && payload.experiences.length > 3) {
+          showFieldError("experienceMaxError", "#experiences");
+          return "experienceMax";
+        }
+
+
 
         return "";
       }
@@ -1869,7 +1975,16 @@
 
       document.querySelectorAll(".repair-option").forEach(function (button) {
         button.addEventListener("click", function () {
-          button.classList.toggle("active");
+          const wasActive = button.classList.contains("active");
+
+          document.querySelectorAll(".repair-option").forEach(function (item) {
+            item.classList.remove("active");
+          });
+
+          if (!wasActive) {
+            button.classList.add("active");
+          }
+
           updateRepairValue();
           clearMessage();
           clearFieldErrors();
@@ -1898,6 +2013,17 @@
         input.addEventListener("change", function () {
           clearMessage();
           clearFieldErrors();
+
+          if (input.closest("#problems") && input.checked && getCheckedValues("problems").length > 2) {
+            input.checked = false;
+            showFieldError("problemMaxError", "#problems");
+          }
+
+          if (input.closest("#experiences") && input.checked && getCheckedValues("experiences").length > 3) {
+            input.checked = false;
+            showFieldError("experienceMaxError", "#experiences");
+          }
+
           updateOtherProblemPanel();
         });
       });
