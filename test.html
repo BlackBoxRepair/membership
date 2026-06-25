@@ -1114,6 +1114,9 @@
     .bb-coupon-id{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#4e5968;font-size:14px;letter-spacing:.12em;}
     .bb-coupon-desc h4{margin:0 0 8px;color:#191f28;font-size:14px;font-weight:950;}
     .bb-coupon-desc p{margin:0;color:#4e5968;font-size:14px;line-height:1.7;font-weight:700;}
+    .bb-coupon-desc-list{margin:0;padding:0;list-style:none;display:grid;gap:8px;color:#4e5968;font-size:14px;line-height:1.65;font-weight:800;}
+    .bb-coupon-desc-list li{display:grid;grid-template-columns:14px 1fr;gap:7px;align-items:start;}
+    .bb-coupon-desc-list li::before{content:'■';font-size:9px;line-height:1.9;color:#4e5968;}
     .bb-coupon-footer{position:fixed;left:0;right:0;bottom:0;background:#fff;padding:14px 16px calc(14px + var(--safe-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.03);z-index:3001;}
     .bb-coupon-footer button{width:min(100%,448px);height:52px;margin:0 auto;display:block;border-radius:12px;background:#2ba769;color:#fff;font-size:17px;font-weight:950;}
 
@@ -2336,6 +2339,35 @@
       }, 280);
     }
 
+    function renderCouponDescription(desc){
+      const descEl = document.getElementById('cd-desc');
+      if(!descEl) return;
+      const raw = String(desc || '').trim();
+      if(!raw){
+        descEl.innerHTML = '<ul class="bb-coupon-desc-list"><li>請於實體店家出示條碼兌換即可，並依票券說明與門市規範使用。</li></ul>';
+        return;
+      }
+
+      const normalized = raw
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/\s*([■▪●•・])\s*/g, '\n$1 ')
+        .replace(/\n{2,}/g, '\n')
+        .trim();
+
+      const items = normalized
+        .split('\n')
+        .map(item => item.replace(/^[■▪●•・]\s*/, '').trim())
+        .filter(Boolean);
+
+      if(items.length <= 1){
+        descEl.innerHTML = `<p>${escapeHTML(raw)}</p>`;
+        return;
+      }
+
+      descEl.innerHTML = `<ul class="bb-coupon-desc-list">${items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>`;
+    }
+
     function openCouponDetail(couponId){
       const coupon = currentCoupons.find(c => String(c.id) === String(couponId));
       if(!coupon) return;
@@ -2347,7 +2379,7 @@
       document.getElementById('cd-title').textContent = title;
       document.getElementById('cd-date').textContent = dateText;
       document.getElementById('cd-id').textContent = displayId;
-      document.getElementById('cd-desc').textContent = desc;
+      renderCouponDescription(desc);
 
       const icon = document.getElementById('cd-icon-container');
       if(icon){
@@ -2436,7 +2468,7 @@
           </div>
           <div class="bb-coupon-desc">
             <h4>活動說明</h4>
-            <p id="cd-desc">---</p>
+            <div id="cd-desc">---</div>
           </div>
         </div>
       </div>
