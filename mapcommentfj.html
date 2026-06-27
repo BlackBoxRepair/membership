@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>黑盒子｜Google 評論小幫手</title>
+  <meta name="description" content="黑盒子維修中心 Google 評論小幫手，協助依照實際維修體驗整理評論文字。" />
+  <meta name="theme-color" content="#ffc542" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+
+  <style>
+    :root {
+      --yellow: #ffc542;
+      --black: #111111;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #eeeeee;
+      --gray-300: #dddddd;
+      --gray-500: #888888;
+      --gray-700: #555555;
+      --gray-900: #222222;
+      --shadow: 0 20px 44px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      background: var(--white);
+      color: var(--black);
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    }
+
+    button,
+    input,
+    textarea,
+    select,
+    a,
+    label,
+    span,
+    small,
+    em {
+      font-family: "TASA Explorer", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      touch-action: manipulation;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      padding: 22px 18px 48px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: var(--black);
+      color: var(--yellow);
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      flex: 0 0 auto;
+    }
+
+    .hello {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .subhello {
+      margin-top: 4px;
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .assist-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-100);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .hero-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 286px;
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at 92% 14%, rgba(255, 197, 66, 0.32), transparent 26%),
+        linear-gradient(135deg, #111111 0%, #222222 62%, #333333 100%);
+      color: var(--white);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 8px 15px;
+      border-radius: 999px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-card h1 {
+      margin: 28px 0 16px;
+      font-size: 46px;
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+      font-weight: 900;
+    }
+
+    .hero-card p {
+      margin: 0;
+      max-width: 320px;
+      color: var(--gray-300);
+      font-size: 17px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .hero-tags {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 30px 0 12px;
+    }
+
+    .section-kicker {
+      display: block;
+      color: var(--gray-700);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      margin-bottom: 4px;
+    }
+
+    .section-title {
+      margin: 0;
+      color: var(--black);
+      font-size: 22px;
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: -0.035em;
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--gray-300);
+      color: var(--gray-700);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .form-panel,
+    .result-card {
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      border-radius: 26px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .field-row {
+      margin-bottom: 18px;
+    }
+
+    .field-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      color: var(--black);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .field-label small {
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .store-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .store-option,
+    .repair-option,
+    .more-toggle,
+    .main-action,
+    .secondary-action,
+    .copy-action,
+    .map-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      cursor: pointer;
+      font-weight: 900;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .store-option.active,
+    .repair-option.active,
+    .chip input:checked + span {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
+    }
+
+    .text-field {
+      width: 100%;
+      min-height: 56px;
+      padding: 0 18px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      outline: none;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .text-field::placeholder,
+    textarea::placeholder {
+      color: var(--gray-500);
+    }
+
+    .text-field:focus,
+    textarea:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 4px rgba(255, 197, 66, 0.22);
+    }
+
+    .repair-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .repair-option {
+      min-height: 62px;
+      padding: 10px 8px;
+      font-size: 14px;
+    }
+
+    .other-repair-panel {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .other-repair-panel.show {
+      display: block;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 9px;
+    }
+
+    .chip {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .chip input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .chip span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsed[data-collapsed="true"] .more-chip {
+      display: none;
+    }
+
+    .more-toggle {
+      width: 100%;
+      min-height: 44px;
+      margin-top: 14px;
+      border-radius: 999px;
+      background: var(--gray-100);
+      border-color: var(--gray-100);
+      font-size: 13px;
+    }
+
+    .more-toggle.active iconify-icon {
+      transform: rotate(180deg);
+    }
+
+    .ai-action-panel {
+      margin-top: 18px;
+      margin-bottom: 46px;
+    }
+
+    .main-action {
+      width: 100%;
+      min-height: 60px;
+      border: none;
+      border-radius: 22px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 18px;
+      box-shadow: 0 14px 28px rgba(255, 197, 66, 0.28);
+    }
+
+    .main-action:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 12px;
+      padding: 13px 14px;
+      border-radius: 18px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-300);
+      font-size: 13px;
+      line-height: 1.6;
+      font-weight: 800;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .result-page {
+      display: none;
+    }
+
+    .app.result-mode .input-page {
+      display: none;
+    }
+
+    .app.result-mode .result-page {
+      display: block;
+    }
+
+    .result-card {
+      margin-top: 14px;
+    }
+
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 7px 12px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      background: var(--yellow);
+      color: var(--black);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      padding: 16px;
+      border-radius: 22px;
+      border: 1px solid var(--gray-300);
+      background: var(--white);
+      color: var(--black);
+      outline: none;
+      resize: vertical;
+      font-size: 16px;
+      line-height: 1.85;
+      font-weight: 700;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .copy-action,
+    .map-action {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 18px;
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
+      font-size: 15px;
+    }
+
+    .secondary-action {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 10px;
+      background: var(--white);
+      border-color: var(--gray-300);
+      font-size: 14px;
+    }
+
+    .footer-note {
+      margin: 28px 0 0;
+      text-align: center;
+      color: var(--gray-700);
+      font-size: 12px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
+    .loading-dot::after {
+      content: "";
+      display: inline-block;
+      width: 1.2em;
+      text-align: left;
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0% { content: ""; }
+      25% { content: "."; }
+      50% { content: ".."; }
+      75% { content: "..."; }
+      100% { content: ""; }
+    }
+
+    @media (max-width: 390px) {
+      .app {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .hero-card {
+        min-height: 270px;
+        padding: 21px;
+      }
+
+      .hero-card h1 {
+        font-size: 40px;
+      }
+
+      .form-panel,
+      .result-card {
+        padding: 18px;
+      }
+    }
+
+    /* Wizard page flow */
+    .wizard-status {
+      margin: 18px 0 14px;
+      padding: 14px 14px 13px;
+      border-radius: 22px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+    }
+
+    .wizard-status-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .wizard-status-top span {
+      color: var(--gray-700);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .wizard-status-top strong {
+      color: var(--black);
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--gray-300);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 25%;
+      height: 100%;
+      border-radius: 999px;
+      background: var(--yellow);
+      transition: width 0.25s ease;
+    }
+
+    .wizard-message {
+      margin-top: 12px !important;
+      margin-bottom: 0 !important;
+      background: var(--white) !important;
+    }
+
+    .wizard-page {
+      display: none;
+      animation: pageIn 0.22s ease both;
+    }
+
+    .wizard-page.active {
+      display: block;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .wizard-page .hero-card {
+      margin-bottom: 28px;
+    }
+
+    .wizard-page .section-head:first-of-type {
+      margin-top: 0;
+    }
+
+    .wizard-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 26px;
+    }
+
+    .wizard-actions.two {
+      grid-template-columns: 0.78fr 1fr;
+    }
+
+    .next-action,
+    .prev-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--gray-300);
+      cursor: pointer;
+      font-weight: 900;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .next-action {
+      background: var(--yellow);
+      border-color: var(--yellow);
+      color: var(--black);
+      box-shadow: 0 12px 24px rgba(255, 197, 66, 0.22);
+    }
+
+    .prev-action {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .ai-action-panel {
+      margin-bottom: 12px !important;
+    }
+
+    @media (max-width: 390px) {
+      .wizard-actions.two {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    /* Header logo version */
+    .brand-logo {
+      display: block;
+      width: auto;
+      height: 50px;
+      max-width: 280px;
+      object-fit: contain;
+    }
+
+    /* Four-segment progress line */
+    .wizard-status {
+      padding: 12px 0 0 !important;
+      margin: 12px 0 20px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+
+    .wizard-status-top,
+    .progress-track,
+    .progress-fill {
+      display: none !important;
+    }
+
+    .progress-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      width: 100%;
+    }
+
+    .progress-step {
+      display: block;
+      height: 5px;
+      border-radius: 999px;
+      background: var(--gray-300);
+      transition: background 0.2s ease, opacity 0.2s ease;
+    }
+
+    .progress-step.active,
+    .progress-step.done {
+      background: var(--yellow);
+    }
+
+    .wizard-message {
+      margin-top: 12px !important;
+    }
+
+    /* Show all step 3 / 4 options */
+    #problems .more-chip,
+    #experiences .more-chip {
+      display: inline-flex !important;
+    }
+
+
+
+    .title-note {
+      margin-left: 6px;
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0;
+      vertical-align: middle;
+    }
+
+    .field-error {
+      display: none;
+      margin-left: 6px;
+      color: #d93025;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 900;
+      letter-spacing: 0;
+      vertical-align: baseline;
+    }
+
+    .field-error.show {
+      display: inline;
+    }
+
+    .field-label.has-error,
+    .section-title.has-error {
+      color: var(--black);
+    }
+
+    .field-label.has-error + .store-options,
+    .field-label.has-error + .text-field,
+    .section-title.has-error ~ * {
+      border-color: #d93025;
+    }
+
+    .form-panel.error-panel {
+      border-color: rgba(217, 48, 37, 0.45);
+      box-shadow: 0 20px 44px rgba(217, 48, 37, 0.08);
+    }
+
+
+    /* Larger logo + language switcher */
+    .topbar {
+      align-items: center;
+    }
+
+    .language-switcher {
+      position: relative;
+      flex: 0 0 auto;
+      z-index: 20;
+    }
+
+    .language-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: var(--gray-100);
+      color: var(--black);
+      border: 1px solid var(--gray-100);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .language-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 156px;
+      padding: 8px;
+      border-radius: 18px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+      display: none;
+    }
+
+    .language-switcher.open .language-menu {
+      display: grid;
+      gap: 4px;
+    }
+
+    .language-menu button {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 10px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--black);
+      text-align: left;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .language-menu button.active,
+    .language-menu button:hover {
+      background: var(--yellow);
+    }
+
+    .progress-steps {
+      width: 76% !important;
+      margin: 0 auto;
+    }
+
+    .section-head {
+      padding-left: 14px;
+    }
+
+    .result-page .section-head {
+      padding-left: 14px;
+    }
+
+    @media (max-width: 390px) {
+      .brand-logo {
+        height: 56px;
+        max-width: 240px;
+      }
+
+      .language-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+
+      .progress-steps {
+        width: 82% !important;
+      }
+
+      .section-head {
+        padding-left: 10px;
+      }
+    }
+
+
+    .ads-banner-link {
+      display: block;
+      margin: 14px 0 28px;
+      border-radius: 22px;
+      overflow: hidden;
+      text-decoration: none;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+      background: var(--gray-100);
+    }
+
+    .ads-banner-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
+    }
+
+
+    .repair-other-separator {
+      grid-column: 1 / -1;
+      margin: 10px 2px -2px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.16);
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .repair-option-other {
+      grid-column: 1 / -1;
+      justify-content: center;
+      min-height: 52px;
+    }
+
+
+    .problem-other-separator {
+      width: 100%;
+      margin: 10px 2px -2px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.16);
+      color: var(--gray-500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      text-align: center;
+    }
+
+    .chip-other {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+
+
+    .result-intro {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(247, 197, 66, 0.12);
+      color: var(--gray-700);
+      font-size: 13px;
+      line-height: 1.75;
+      font-weight: 700;
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="app" id="app">
+    <div class="input-page">
+      <header class="topbar">
+        <div class="brand">
+          <img class="brand-logo" src="../site logo.png" alt="黑盒子維修中心" onerror="this.onerror=null; this.src='./site logo.png';">
+        </div>
+        <div class="language-switcher">
+          <button class="language-btn" id="languageBtn" type="button">
+            <iconify-icon icon="mdi:translate" width="17"></iconify-icon>
+            <span id="currentLanguageLabel">中文</span>
+          </button>
+          <div class="language-menu" id="languageMenu" aria-label="Language options">
+            <button type="button" data-lang="zh">中文</button>
+            <button type="button" data-lang="en">English</button>
+            <button type="button" data-lang="ja">日本語</button>
+            <button type="button" data-lang="vi">Tiếng Việt</button>
+            <button type="button" data-lang="th">ภาษาไทย</button>
+            <button type="button" data-lang="id">Bahasa Indonesia</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="wizard-status">
+        <div class="progress-steps" id="progressSteps" aria-label="填寫進度">
+          <span class="progress-step active"></span>
+          <span class="progress-step"></span>
+          <span class="progress-step"></span>
+          <span class="progress-step"></span>
+        </div>
+        <div class="message wizard-message" id="messageBox"></div>
+      </section>
+
+      <section class="wizard-page active" data-page="1" data-title="本次維修">
+<section class="section-head">
+        <div>
+          <span class="section-kicker" data-i18n="kickerService">SERVICE INFO</span>
+          <h2 class="section-title" data-i18n="titleService">本次維修</h2>
+        </div>
+        <span class="step-pill">STEP 01</span>
+      </section>
+
+      <section class="form-panel">
+        <div class="field-row">
+          <div class="field-label">
+            <span><span data-i18n="labelStore">維修門市</span><em class="field-error" id="storeError" data-i18n="errStore">請選擇門市</em></span>
+            <small data-i18n="required">必填</small>
+          </div>
+          <div class="store-options">
+            <button class="store-option" type="button" data-value="勤美公益店">
+              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
+              <span data-i18n="storeQinmei">勤美公益店</span>
+            </button>
+            <button class="store-option" type="button" data-value="沙鹿站前店">
+              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
+              <span data-i18n="storeShalu">沙鹿站前店</span>
+            </button>
+          </div>
+          <input id="store" type="hidden" value="">
+        </div>
+
+        <div class="field-row">
+          <div class="field-label">
+            <span><span data-i18n="labelDevice">設備型號</span><em class="field-error" id="deviceError" data-i18n="errDevice">請輸入型號</em></span>
+            <small data-i18n="required">必填</small>
+          </div>
+          <input id="device" class="text-field" type="text" placeholder="例如：iPhone 15 Pro、VIVO X100、Switch" data-i18n-placeholder="devicePlaceholder">
+        </div>
+      </section>
+        <div class="wizard-actions">
+          <button class="next-action next-btn" type="button" data-next="2">
+            <span data-i18n="next">下一步</span>
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
+
+        <a class="ads-banner-link" href="https://blackboxrepair.github.io/membership/" aria-label="前往黑盒子會員頁">
+          <img
+            class="ads-banner-img"
+            id="adsBannerImg"
+            src="/membership/map_comment_helper/ads%20banner.png"
+            alt="黑盒子會員活動"
+          >
+        </a>
+      </section>
+
+      <section class="wizard-page" data-page="2" data-title="維修項目">
+        <section class="section-head">
+        <div>
+          <span class="section-kicker" data-i18n="kickerRepair">REPAIR ITEM</span>
+          <h2 class="section-title"><span data-i18n="titleRepair">維修項目</span><span class="title-note" data-i18n="repairSingleNote">（限選 1 個項目）</span><em class="field-error" id="repairError" data-i18n="errRepair">請選擇項目</em><em class="field-error" id="otherRepairError" data-i18n="errOtherRepair">請填寫其他維修內容</em></h2>
+        </div>
+        <span class="step-pill">STEP 02</span>
+      </section>
+
+      <section class="form-panel">
+        <div class="repair-options" id="repairOptions">
+          <button class="repair-option" type="button" data-value="電池更換"><iconify-icon icon="mdi:battery-charging-60" width="18"></iconify-icon><span data-i18n="repairBattery">電池更換</span></button>
+          <button class="repair-option" type="button" data-value="螢幕維修"><iconify-icon icon="mdi:cellphone-screenshot" width="18"></iconify-icon><span data-i18n="repairScreen">螢幕維修</span></button>
+          <button class="repair-option" type="button" data-value="後鏡頭維修"><iconify-icon icon="mdi:camera-iris" width="18"></iconify-icon><span data-i18n="repairCamera">後鏡頭維修</span></button>
+          <button class="repair-option" type="button" data-value="背蓋更換"><iconify-icon icon="mdi:cellphone" width="18"></iconify-icon><span data-i18n="repairBackGlass">背蓋更換</span></button>
+          <button class="repair-option" type="button" data-value="受潮清潔"><iconify-icon icon="mdi:water-alert-outline" width="18"></iconify-icon><span data-i18n="repairWater">受潮清潔</span></button>
+          <button class="repair-option" type="button" data-value="資料救援"><iconify-icon icon="mdi:database-refresh-outline" width="18"></iconify-icon><span data-i18n="repairData">資料救援</span></button>
+          <button class="repair-option" type="button" data-value="容量擴充"><iconify-icon icon="mdi:harddisk-plus" width="18"></iconify-icon><span data-i18n="repairStorage">容量擴充</span></button>
+          <button class="repair-option" type="button" data-value="充電孔維修"><iconify-icon icon="mdi:power-plug-outline" width="18"></iconify-icon><span data-i18n="repairCharging">充電孔維修</span></button>
+          <button class="repair-option" type="button" data-value="主機板維修"><iconify-icon icon="mdi:chip" width="18"></iconify-icon><span data-i18n="repairBoard">主機板維修</span></button>
+          <button class="repair-option" type="button" data-value="全機清潔"><iconify-icon icon="mdi:spray-bottle" width="18"></iconify-icon><span data-i18n="repairClean">全機清潔</span></button>
+          <button class="repair-option" type="button" data-value="按鍵維修"><iconify-icon icon="mdi:gesture-tap-button" width="18"></iconify-icon><span data-i18n="repairButton">按鍵維修</span></button>
+          <button class="repair-option" type="button" data-value="系統處理"><iconify-icon icon="mdi:cellphone-cog" width="18"></iconify-icon><span data-i18n="repairSystem">系統處理</span></button>
+          <div class="repair-other-separator" data-i18n="repairOtherSeparator">沒有符合的項目？</div>
+          <button class="repair-option repair-option-other" type="button" data-value="其他維修"><iconify-icon icon="mdi:tools" width="18"></iconify-icon><span data-i18n="repairOther">其他維修</span></button>
+        </div>
+        <input id="repair" type="hidden" value="">
+        <div class="other-repair-panel" id="otherRepairPanel">
+          <input id="otherRepairText" class="text-field" type="text" placeholder="請填寫其他維修內容" data-i18n-placeholder="otherRepairPlaceholder">
+        </div>
+      </section>
+        <div class="wizard-actions two">
+          <button class="prev-action prev-btn" type="button" data-prev="1">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            <span data-i18n="prev">上一步</span>
+          </button>
+          <button class="next-action next-btn" type="button" data-next="3">
+            <span data-i18n="next">下一步</span>
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
+      </section>
+
+      <section class="wizard-page" data-page="3" data-title="遇到的問題">
+        <section class="section-head">
+        <div>
+          <span class="section-kicker" data-i18n="kickerProblem">PROBLEM</span>
+          <h2 class="section-title"><span data-i18n="titleProblem">遇到的問題</span><span class="title-note" data-i18n="problemMaxNote">（最多選 2 個）</span><em class="field-error" id="problemsError" data-i18n="errProblems">請至少選一項</em><em class="field-error" id="problemMaxError" data-i18n="errProblemMax">最多可選 2 個項目</em></h2>
+        </div>
+        <span class="step-pill">STEP 03</span>
+      </section>
+
+      <section class="form-panel">
+        <div class="chips" id="problems">
+          <label class="chip"><input type="checkbox" value="耗電很快"><span data-i18n="problemDrain">耗電很快</span></label>
+          <label class="chip"><input type="checkbox" value="電池膨脹"><span data-i18n="problemSwollen">電池膨脹</span></label>
+          <label class="chip"><input type="checkbox" value="螢幕破裂"><span data-i18n="problemCrack">螢幕破裂</span></label>
+          <label class="chip"><input type="checkbox" value="顯示異常"><span data-i18n="problemDisplay">顯示異常</span></label>
+          <label class="chip"><input type="checkbox" value="觸控異常"><span data-i18n="problemTouch">觸控異常</span></label>
+          <label class="chip"><input type="checkbox" value="無法開機"><span data-i18n="problemPower">無法開機</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="反覆重啟"><span data-i18n="problemRestart">反覆重啟</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="泡水受潮"><span data-i18n="problemWater">泡水受潮</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="資料遺失"><span data-i18n="problemData">資料遺失</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="容量不足"><span data-i18n="problemStorage">容量不足</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="充電不穩"><span data-i18n="problemCharging">充電不穩</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="聲音破音"><span data-i18n="problemDistortion">聲音破音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有聲音"><span data-i18n="problemNoSound">沒有聲音</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法上網"><span data-i18n="problemInternet">無法上網</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="沒有訊號"><span data-i18n="problemSignal">沒有訊號</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法拍照"><span data-i18n="problemPhoto">無法拍照</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="相機抖動"><span data-i18n="problemShake">相機抖動</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="無法對焦"><span data-i18n="problemFocus">無法對焦</span></label>
+          <div class="problem-other-separator" data-i18n="problemOtherSeparator">沒有符合的問題？</div>
+          <label class="chip chip-other"><input id="otherProblemCheck" type="checkbox" value="其他問題"><span data-i18n="problemOther">其他</span></label>
+        </div>
+      
+        <div class="other-repair-panel" id="otherProblemPanel">
+          <input id="otherProblemText" class="text-field" type="text" placeholder="其他遇到的問題，可填可不填" data-i18n-placeholder="otherProblemPlaceholder">
+        </div>
+      </section>
+        <div class="wizard-actions two">
+          <button class="prev-action prev-btn" type="button" data-prev="2">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            <span data-i18n="prev">上一步</span>
+          </button>
+          <button class="next-action next-btn" type="button" data-next="4">
+            <span data-i18n="next">下一步</span>
+            <iconify-icon icon="mdi:arrow-right" width="18"></iconify-icon>
+          </button>
+        </div>
+      </section>
+
+      <section class="wizard-page" data-page="4" data-title="體驗感受">
+        <section class="section-head">
+        <div>
+          <span class="section-kicker" data-i18n="kickerExperience">EXPERIENCE</span>
+          <h2 class="section-title"><span data-i18n="titleExperience">體驗感受</span><span class="title-note" data-i18n="experienceMaxNote">（最多選 3 項）</span><em class="field-error" id="experiencesError" data-i18n="errExperiences">請至少選一項</em><em class="field-error" id="experienceMaxError" data-i18n="errExperienceMax">最多可選 3 項</em></h2>
+        </div>
+        <span class="step-pill">STEP 04</span>
+      </section>
+
+      <section class="form-panel">
+        <div class="chips" id="experiences">
+          <label class="chip"><input type="checkbox" value="詳細解說"><span data-i18n="expExplain">詳細解說</span></label>
+          <label class="chip"><input type="checkbox" value="維修速度快"><span data-i18n="expFast">維修快速</span></label>
+          <label class="chip"><input type="checkbox" value="資料沒有不見"><span data-i18n="expDataSafe">資料保留</span></label>
+          <label class="chip"><input type="checkbox" value="價格透明"><span data-i18n="expPrice">價格透明</span></label>
+          <label class="chip"><input type="checkbox" value="價格合理"><span data-i18n="expReasonablePrice">價格合理</span></label>
+          <label class="chip"><input type="checkbox" value="問題完美解決"><span data-i18n="expSolved">問題完美解決</span></label>
+          <label class="chip"><input type="checkbox" value="不強迫推銷"><span data-i18n="expNoHardSell">不強迫推銷</span></label>
+          <label class="chip"><input type="checkbox" value="服務親切"><span data-i18n="expFriendly">服務親切</span></label>
+          <label class="chip"><input type="checkbox" value="現場處理讓人安心"><span data-i18n="expAssured">安心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="環境乾淨舒適"><span data-i18n="expEnv">環境舒適</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="有清楚說明保固"><span data-i18n="expWarranty">保固說明清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="檢測仔細"><span data-i18n="expCheck">檢測仔細</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="處理專業"><span data-i18n="expProfessional">處理專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="流程清楚"><span data-i18n="expProcess">流程清楚</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="預約方便"><span data-i18n="expBooking">預約方便</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="服務有耐心"><span data-i18n="expPatient">服務有耐心</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="現場面對面維修"><span data-i18n="expFace">面對面維修</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="原廠零件"><span data-i18n="expOriginal">原廠零件</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="非常專業"><span data-i18n="expVeryPro">非常專業</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="效率高"><span data-i18n="expEfficient">效率高</span></label>
+          <label class="chip more-chip"><input type="checkbox" value="技術優秀"><span data-i18n="expSkill">技術優秀</span></label>
+        </div>
+      </section>
+        <section class="ai-action-panel">
+        <button class="main-action" id="generateBtn" type="button">
+          <iconify-icon icon="mdi:sparkles" width="20"></iconify-icon>
+          <span data-i18n="generate">送出評價</span>
+        </button>
+      </section>
+        <div class="wizard-actions">
+          <button class="prev-action prev-btn" type="button" data-prev="3">
+            <iconify-icon icon="mdi:arrow-left" width="18"></iconify-icon>
+            <span data-i18n="prev">上一步</span>
+          </button>
+        </div>
+      </section>
+
+      <p class="footer-note"><span data-i18n="footerNote">黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。</span></p>
+    </div>
+
+    <div class="result-page">
+      <section class="section-head">
+        <div>
+          <span class="section-kicker" data-i18n="kickerResult">AI COMMENT</span>
+          <h2 class="section-title" data-i18n="titleResult">維修體驗心得</h2>
+            <div class="result-intro" data-i18n="resultIntro">感謝您的返饋，我們整理了您本次服務的體驗心得，如果可以幫我們近一步分享到Google就太好了～</div>
+        </div>
+      </section>
+
+      <section class="result-card">
+        <textarea id="reviewText" aria-label="AI 生成內容" placeholder="AI 生成內容會顯示在這裡" data-i18n-placeholder="resultPlaceholder"></textarea>
+        <div class="result-actions">
+          <button class="copy-action" id="copyBtn" type="button">
+            <iconify-icon icon="mdi:content-copy" width="18"></iconify-icon>
+            <span data-i18n="copy">複製</span>
+          </button>
+          <a class="map-action" id="mapBtn" href="#" target="_blank" rel="noopener">
+            <iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>
+            前往門市 Google 地圖
+          </a>
+          <button class="secondary-action" id="backBtn" type="button">
+            <span data-i18n="backEdit">返回首頁</span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const FUNCTION_URL = "https://nszwpwimwxvjguoalzwt.supabase.co/functions/v1/generate-review";
+
+    const MAP_LINKS = {
+      "勤美公益店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E5%8B%A4%E7%BE%8E%E5%85%AC%E7%9B%8A%E5%BA%97",
+      "沙鹿站前店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E6%B2%99%E9%B9%BF%E7%AB%99%E5%89%8D%E5%BA%97"
+    };
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const app = document.getElementById("app");
+      const storeInput = document.getElementById("store");
+      const repairInput = document.getElementById("repair");
+      const otherPanel = document.getElementById("otherRepairPanel");
+      const otherText = document.getElementById("otherRepairText");
+      const generateBtn = document.getElementById("generateBtn");
+      const messageBox = document.getElementById("messageBox");
+      const reviewText = document.getElementById("reviewText");
+      const copyBtn = document.getElementById("copyBtn");
+      const mapBtn = document.getElementById("mapBtn");
+      const backBtn = document.getElementById("backBtn");
+      const adsBannerImg = document.getElementById("adsBannerImg");
+      const languageBtn = document.getElementById("languageBtn");
+      const languageMenu = document.getElementById("languageMenu");
+      const languageSwitcher = document.querySelector(".language-switcher");
+      const currentLanguageLabel = document.getElementById("currentLanguageLabel");
+      const otherProblemCheck = document.getElementById("otherProblemCheck");
+      const otherProblemPanel = document.getElementById("otherProblemPanel");
+      const otherProblemText = document.getElementById("otherProblemText");
+
+      let selectedStore = "";
+
+      if (adsBannerImg) {
+        const bannerSources = [
+          "/membership/map_comment_helper/ads%20banner.png",
+          "/membership/map_comment_helper/ads banner.png",
+          "/membership/google_map_comment_helper/ads%20banner.png",
+          "/membership/google_map_comment_helper/ads banner.png",
+          "./ads%20banner.png",
+          "./ads banner.png",
+          "../map_comment_helper/ads%20banner.png",
+          "../map_comment_helper/ads banner.png"
+        ];
+
+        let bannerIndex = 0;
+
+        adsBannerImg.addEventListener("error", function () {
+          bannerIndex += 1;
+
+          if (bannerIndex < bannerSources.length) {
+            adsBannerImg.src = bannerSources[bannerIndex];
+          }
+        });
+      }
+
+
+      let currentLanguage = "zh";
+
+      const LANGUAGE_NAMES = {
+        zh: "中文",
+        en: "English",
+        ja: "日本語",
+        vi: "Tiếng Việt",
+        th: "ภาษาไทย",
+        id: "Bahasa Indonesia"
+      };
+
+      const LANGUAGE_LABELS = {
+        zh: "繁體中文",
+        en: "English",
+        ja: "日本語",
+        vi: "Tiếng Việt",
+        th: "ภาษาไทย",
+        id: "Bahasa Indonesia"
+      };
+
+      const I18N = {
+        zh: {
+          languageButton: "語言切換",
+          kickerService: "SERVICE INFO",
+          titleService: "本次維修",
+          kickerRepair: "REPAIR ITEM",
+          titleRepair: "維修項目",
+          kickerProblem: "PROBLEM",
+          titleProblem: "遇到的問題",
+          kickerExperience: "EXPERIENCE",
+          titleExperience: "體驗感受",
+          kickerResult: "AI COMMENT",
+          titleResult: "維修體驗心得",
+          done: "DONE",
+          labelStore: "維修門市",
+          labelDevice: "設備型號",
+          required: "必填",
+          errStore: "請選擇門市",
+          errDevice: "請輸入型號",
+          errRepair: "請選擇項目",
+          errOtherRepair: "請填寫其他維修內容",
+          repairSingleNote: "（限選 1 個項目）",
+          errProblems: "請至少選一項",
+          errProblemMax: "最多可選 2 個項目",
+          problemMaxNote: "（最多選 2 個）",
+          errExperiences: "請至少選一項",
+          errExperienceMax: "最多可選 3 項",
+          experienceMaxNote: "（最多選 3 項）",
+          next: "下一步",
+          prev: "上一步",
+          generate: "送出評價",
+          aiGenerating: "評價整理中...",
+          aiBadge: "本次內容由智能ＡＩ助理生成",
+          copy: "複製",
+          resultIntro: "感謝您的返饋，我們整理了您本次服務的體驗心得，如果可以幫我們近一步分享到Google就太好了～",
+          copyReminder: "請先點擊複製，評論時順便拍張照分享好嗎？拜託拜託～～",
+          copied: "已複製",
+          backEdit: "返回首頁",
+          mapPrefix: "前往",
+          mapSuffix: " Google 地圖",
+          footerNote: "黑盒子維修中心｜此工具僅協助整理文字，評論內容仍以您的真實體驗為準。",
+          devicePlaceholder: "例如：iPhone 15 Pro、VIVO X100、Switch",
+          otherRepairPlaceholder: "請填寫其他維修內容",
+          resultPlaceholder: "AI 生成內容會顯示在這裡",
+          storeQinmei: "勤美公益店",
+          storeShalu: "沙鹿站前店",
+          repairBattery: "電池更換",
+          repairScreen: "螢幕維修",
+          repairCamera: "後鏡頭維修",
+          repairBackGlass: "背蓋更換",
+          repairWater: "受潮清潔",
+          repairData: "資料救援",
+          repairStorage: "容量擴充",
+          repairCharging: "充電孔維修",
+          repairBoard: "主機板維修",
+          repairClean: "全機清潔",
+          repairEarpiece: "聽筒維修",
+          repairSpeaker: "喇叭維修",
+          repairButton: "按鍵維修",
+          repairFace: "臉部辨識",
+          repairSystem: "系統處理",
+          repairOther: "其他維修",
+          repairOtherSeparator: "沒有符合的項目？",
+          problemDrain: "耗電很快",
+          problemHeat: "異常發燙",
+          problemHealth: "電池健康度下降",
+          problemSwollen: "電池膨脹",
+          problemCrack: "螢幕破裂",
+          problemDisplay: "顯示異常",
+          problemTouch: "觸控異常",
+          problemPower: "無法開機",
+          problemRestart: "反覆重啟",
+          problemWater: "泡水受潮",
+          problemData: "資料遺失",
+          problemStorage: "容量不足",
+          problemCharging: "充電不穩",
+          problemDistortion: "聲音破音",
+          problemNoSound: "沒有聲音",
+          problemInternet: "無法上網",
+          problemWifi: "無法連接wifi",
+          problemBluetooth: "無法連接藍牙",
+          problemCall: "無法打電話",
+          problemSignal: "沒有訊號",
+          problemPhoto: "無法拍照",
+          problemShake: "相機抖動",
+          problemFocus: "無法對焦",
+          problemBent: "重摔變形",
+          problemOther: "其他",
+          problemOtherSeparator: "沒有符合的問題？",
+          otherProblemPlaceholder: "其他遇到的問題，可填可不填",
+          expExplain: "詳細解說",
+          expFast: "維修快速",
+          expDataSafe: "資料保留",
+          expPrice: "價格透明",
+          expReasonablePrice: "價格合理",
+          expSolved: "問題完美解決",
+          expNoHardSell: "不強迫推銷",
+          expFriendly: "服務親切",
+          expAssured: "安心",
+          expEnv: "環境舒適",
+          expWarranty: "保固說明清楚",
+          expCheck: "檢測仔細",
+          expProfessional: "處理專業",
+          expProcess: "流程清楚",
+          expBooking: "預約方便",
+          expPatient: "服務有耐心",
+          expFace: "面對面維修",
+          expOriginal: "原廠零件",
+          expVeryPro: "非常專業",
+          expEfficient: "效率高",
+          expSkill: "技術優秀"
+        },
+        en: {
+          languageButton: "Language",
+          kickerService: "SERVICE INFO",
+          titleService: "Repair details",
+          kickerRepair: "REPAIR ITEM",
+          titleRepair: "Repair item",
+          kickerProblem: "PROBLEM",
+          titleProblem: "Problems",
+          kickerExperience: "EXPERIENCE",
+          titleExperience: "Experience",
+          kickerResult: "AI COMMENT",
+          titleResult: "Repair experience",
+          done: "DONE",
+          labelStore: "Store",
+          labelDevice: "Device model",
+          required: "Required",
+          errStore: "Select a store",
+          errDevice: "Enter model",
+          errRepair: "Select item",
+          errOtherRepair: "Please enter other repair details",
+          repairSingleNote: "(Choose 1 item only)",
+          errProblems: "Select at least one",
+          errProblemMax: "Choose up to 2 items",
+          problemMaxNote: "(Up to 2 items)",
+          errExperiences: "Select at least one",
+          errExperienceMax: "Choose up to 3 items",
+          experienceMaxNote: "(Up to 3 items)",
+          next: "Next",
+          prev: "Back",
+          generate: "Submit review",
+          aiGenerating: "Organizing review...",
+          aiBadge: "Generated by smart AI assistant",
+          copy: "Copy",
+          resultIntro: "Thank you for your feedback. We’ve organized your service experience into a review draft. If you could share it on Google, we’d really appreciate it!",
+          copyReminder: "Please tap Copy first. When leaving the review, could you also share a photo? Pretty please～～",
+          copied: "Copied",
+          backEdit: "Back to start",
+          mapPrefix: "Open ",
+          mapSuffix: " on Google Maps",
+          footerNote: "Black Box Repair Center｜This tool only helps organize your wording. Please make sure the review matches your real experience.",
+          devicePlaceholder: "e.g. iPhone 15 Pro, VIVO X100, Switch",
+          otherRepairPlaceholder: "Please enter other repair details",
+          resultPlaceholder: "The AI-generated content will appear here",
+          storeQinmei: "Qinmei Gongyi Store",
+          storeShalu: "Shalu Station Store",
+          repairBattery: "Battery replacement",
+          repairScreen: "Screen repair",
+          repairCamera: "Rear camera repair",
+          repairBackGlass: "Back cover replacement",
+          repairWater: "Moisture cleaning",
+          repairData: "Data recovery",
+          repairStorage: "Storage upgrade",
+          repairCharging: "Charging port repair",
+          repairBoard: "Logic board repair",
+          repairClean: "Deep cleaning",
+          repairEarpiece: "Earpiece repair",
+          repairSpeaker: "Speaker repair",
+          repairButton: "Button repair",
+          repairFace: "Face ID repair",
+          repairSystem: "System service",
+          repairOther: "Other repair",
+          repairOtherSeparator: "No matching item?",
+          problemDrain: "Battery drains fast",
+          problemHeat: "Overheating",
+          problemHealth: "Battery health dropped",
+          problemSwollen: "Battery swollen",
+          problemCrack: "Screen cracked",
+          problemDisplay: "Display issue",
+          problemTouch: "Touch issue",
+          problemPower: "Cannot power on",
+          problemRestart: "Repeated restart",
+          problemWater: "Water damage",
+          problemData: "Data loss",
+          problemStorage: "Low storage",
+          problemCharging: "Unstable charging",
+          problemDistortion: "Distorted sound",
+          problemNoSound: "No sound",
+          problemInternet: "Cannot use internet",
+          problemWifi: "Cannot connect Wi‑Fi",
+          problemBluetooth: "Cannot connect Bluetooth",
+          problemCall: "Cannot make calls",
+          problemSignal: "No signal",
+          problemPhoto: "Cannot take photos",
+          problemShake: "Camera shaking",
+          problemFocus: "Cannot focus",
+          problemBent: "Bent after drop",
+          problemOther: "Other",
+          problemOtherSeparator: "No matching problem?",
+          otherProblemPlaceholder: "Other problem details, optional",
+          expExplain: "Detailed explanation",
+          expFast: "Fast repair",
+          expDataSafe: "Data kept safe",
+          expPrice: "Transparent price",
+          expReasonablePrice: "Reasonable price",
+          expSolved: "Problem fully solved",
+          expNoHardSell: "No hard sell",
+          expFriendly: "Friendly service",
+          expAssured: "Reassuring",
+          expEnv: "Comfortable environment",
+          expWarranty: "Clear warranty",
+          expCheck: "Careful inspection",
+          expProfessional: "Professional handling",
+          expProcess: "Clear process",
+          expBooking: "Easy booking",
+          expPatient: "Patient service",
+          expFace: "Face-to-face repair",
+          expOriginal: "Original parts",
+          expVeryPro: "Very professional",
+          expEfficient: "Efficient",
+          expSkill: "Skilled technician"
+        },
+        ja: {
+          languageButton: "言語切替",
+          titleService: "今回の修理", titleRepair: "修理内容", titleProblem: "発生した問題", titleExperience: "体験内容", titleResult: "修理体験の感想",
+          labelStore: "修理店舗", labelDevice: "機種", required: "必須", errStore: "店舗を選択", errDevice: "機種を入力", errRepair: "項目を選択", errProblems: "1つ以上選択", errExperiences: "1つ以上選択",
+          next: "次へ", prev: "戻る", generate: "レビュー", aiGenerating: "評價整理中...", aiBadge: "Gemini AI によって生成", copy: "コピー", copied: "コピー済み", backEdit: "内容を修正",
+          mapPrefix: "", mapSuffix: "のGoogleマップへ", footerNote: "Black Box修理センター｜このツールは文章整理を補助するものです。実際の体験に合う内容にしてください。",
+          devicePlaceholder: "例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder: "その他の修理内容（任意）", resultPlaceholder: "AI生成内容がここに表示されます",
+          storeQinmei: "勤美公益店", storeShalu: "沙鹿駅前店",
+          problemOther: "その他",
+          problemOtherSeparator: "当てはまる問題がありませんか？",
+          otherProblemPlaceholder: "その他の問題（任意）",
+          expExplain: "詳しい説明",
+          expReasonablePrice: "適正な価格",
+          expSolved: "問題がしっかり解決",
+          expNoHardSell: "無理な営業なし",
+          aiBadge: "スマートAIアシスタントが生成",
+          backEdit: "ホームに戻る",
+          copyReminder: "先にコピーを押してください。レビュー時に写真も一緒に投稿していただけると嬉しいです～～"
+        },
+        vi: {
+          languageButton: "Ngôn ngữ",
+          titleService: "Thông tin sửa chữa", titleRepair: "Hạng mục sửa", titleProblem: "Vấn đề gặp phải", titleExperience: "Trải nghiệm", titleResult: "Cảm nhận sửa chữa",
+          labelStore: "Cửa hàng", labelDevice: "Model thiết bị", required: "Bắt buộc", errStore: "Chọn cửa hàng", errDevice: "Nhập model", errRepair: "Chọn hạng mục", errProblems: "Chọn ít nhất một", errExperiences: "Chọn ít nhất một",
+          next: "Tiếp theo", prev: "Quay lại", generate: "Đánh giá", aiGenerating: "AI thông minh đang tạo", aiBadge: "Nội dung được tạo bởi Gemini AI", copy: "Sao chép", copied: "Đã sao chép", backEdit: "Sửa lại",
+          mapPrefix: "Mở ", mapSuffix: " trên Google Maps", footerNote: "Black Box Repair Center｜Công cụ chỉ hỗ trợ sắp xếp câu chữ. Vui lòng chỉnh sửa theo trải nghiệm thực tế của bạn.",
+          devicePlaceholder: "VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Nội dung sửa khác, không bắt buộc", resultPlaceholder: "Nội dung AI sẽ hiển thị ở đây",
+          storeQinmei: "Cửa hàng Qinmei Gongyi", storeShalu: "Cửa hàng Shalu Station",
+          problemOther: "Khác",
+          problemOtherSeparator: "Không có vấn đề phù hợp?",
+          otherProblemPlaceholder: "Vấn đề khác, không bắt buộc",
+          expExplain: "Giải thích chi tiết",
+          expReasonablePrice: "Giá hợp lý",
+          expSolved: "Vấn đề được giải quyết tốt",
+          expNoHardSell: "Không ép mua thêm",
+          aiBadge: "Được tạo bởi trợ lý AI thông minh",
+          backEdit: "Về trang đầu",
+          copyReminder: "Vui lòng bấm sao chép trước. Khi đánh giá, bạn có thể chia sẻ thêm một tấm ảnh được không? Cảm ơn nhiều～～"
+        },
+        th: {
+          languageButton: "ภาษา",
+          titleService: "ข้อมูลการซ่อม", titleRepair: "รายการซ่อม", titleProblem: "ปัญหาที่พบ", titleExperience: "ประสบการณ์", titleResult: "รีวิวประสบการณ์ซ่อม",
+          labelStore: "สาขา", labelDevice: "รุ่นอุปกรณ์", required: "จำเป็น", errStore: "เลือกสาขา", errDevice: "กรอกรุ่น", errRepair: "เลือกรายการ", errProblems: "เลือกอย่างน้อยหนึ่งข้อ", errExperiences: "เลือกอย่างน้อยหนึ่งข้อ",
+          next: "ถัดไป", prev: "ย้อนกลับ", generate: "รีวิว", aiGenerating: "AI อัจฉริยะกำลังสร้าง", aiBadge: "สร้างโดย Gemini AI", copy: "คัดลอก", copied: "คัดลอกแล้ว", backEdit: "แก้ไขอีกครั้ง",
+          mapPrefix: "เปิด ", mapSuffix: " ใน Google Maps", footerNote: "Black Box Repair Center｜เครื่องมือนี้ช่วยเรียบเรียงข้อความเท่านั้น กรุณาปรับให้ตรงกับประสบการณ์จริงของคุณ",
+          devicePlaceholder: "เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "รายละเอียดอื่น ๆ ไม่บังคับ", resultPlaceholder: "ข้อความจาก AI จะแสดงที่นี่",
+          storeQinmei: "สาขา Qinmei Gongyi", storeShalu: "สาขา Shalu Station",
+          problemOther: "อื่น ๆ",
+          problemOtherSeparator: "ไม่มีปัญหาที่ตรงกัน?",
+          otherProblemPlaceholder: "ปัญหาอื่น ๆ ไม่บังคับ",
+          expExplain: "อธิบายละเอียด",
+          expReasonablePrice: "ราคาสมเหตุสมผล",
+          expSolved: "แก้ปัญหาได้ดี",
+          expNoHardSell: "ไม่บังคับขายเพิ่ม",
+          aiBadge: "สร้างโดยผู้ช่วย AI อัจฉริยะ",
+          backEdit: "กลับหน้าแรก",
+          copyReminder: "กรุณากดคัดลอกก่อน แล้วตอนรีวิวช่วยแนบรูปให้ด้วยได้ไหมนะ～～"
+        },
+        id: {
+          languageButton: "Bahasa",
+          titleService: "Detail perbaikan", titleRepair: "Jenis perbaikan", titleProblem: "Masalah", titleExperience: "Pengalaman", titleResult: "Pengalaman perbaikan",
+          labelStore: "Toko", labelDevice: "Model perangkat", required: "Wajib", errStore: "Pilih toko", errDevice: "Masukkan model", errRepair: "Pilih perbaikan", errProblems: "Pilih minimal satu", errExperiences: "Pilih minimal satu",
+          next: "Lanjut", prev: "Kembali", generate: "Ulasan", aiGenerating: "AI cerdas sedang membuat", aiBadge: "Dibuat oleh Gemini AI", copy: "Salin", copied: "Disalin", backEdit: "Edit lagi",
+          mapPrefix: "Buka ", mapSuffix: " di Google Maps", footerNote: "Black Box Repair Center｜Alat ini hanya membantu merapikan kata-kata. Pastikan ulasan sesuai pengalaman nyata Anda.",
+          devicePlaceholder: "cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder: "Detail perbaikan lain, opsional", resultPlaceholder: "Konten AI akan muncul di sini",
+          storeQinmei: "Toko Qinmei Gongyi", storeShalu: "Toko Shalu Station",
+          problemOther: "Lainnya",
+          problemOtherSeparator: "Tidak ada masalah yang sesuai?",
+          otherProblemPlaceholder: "Masalah lainnya, opsional",
+          expExplain: "Penjelasan detail",
+          expReasonablePrice: "Harga wajar",
+          expSolved: "Masalah terselesaikan",
+          expNoHardSell: "Tidak memaksa jualan",
+          aiBadge: "Dibuat oleh asisten AI cerdas",
+          backEdit: "Kembali ke awal",
+          copyReminder: "Silakan klik salin dulu. Saat memberi ulasan, boleh sekalian bagikan foto juga? Terima kasih banyak～～"
+        }
+      };
+
+      const BASE_TRANSLATION = I18N.zh;
+      ["ja", "vi", "th", "id"].forEach(function (lang) {
+        I18N[lang] = Object.assign({}, BASE_TRANSLATION, I18N[lang]);
+      });
+
+
+      const PATCH_I18N = {
+        ja: {
+          kickerService:"SERVICE INFO", kickerRepair:"REPAIR ITEM", kickerProblem:"PROBLEM", kickerExperience:"EXPERIENCE", kickerResult:"REVIEW",
+          titleService:"今回の修理", titleRepair:"修理内容", titleProblem:"困っていた症状", errProblemMax:"最大2項目まで選択できます", problemMaxNote:"（最大2項目）", titleExperience:"体験・感想", errExperienceMax:"最大3項目まで選択できます", experienceMaxNote:"（最大3項目）", titleResult:"修理体験の感想",
+          labelStore:"修理店舗", labelDevice:"機種", required:"必須", errOtherRepair:"その他の修理内容を入力してください", repairSingleNote:"（1項目のみ選択）", next:"次へ", prev:"戻る", generate:"評価を送信", aiGenerating:"評価を整理中...",
+          copy:"コピー", copied:"コピー済み", backEdit:"ホームに戻る", resultIntro:"ご感想ありがとうございます。今回のサービス体験をもとにレビュー文を整理しました。もしよろしければ、Googleにも共有していただけると嬉しいです～",
+          devicePlaceholder:"例：iPhone 15 Pro、VIVO X100、Switch", otherRepairPlaceholder:"その他の修理内容を入力してください", otherProblemPlaceholder:"その他の症状（任意）", resultPlaceholder:"作成されたレビュー文がここに表示されます",
+          copyReminder:"先にコピーを押してください。レビュー時に写真も一緒に投稿していただけると嬉しいです～～",
+          storeQinmei:"勤美公益店", storeShalu:"沙鹿駅前店",
+          repairBattery:"バッテリー交換", repairScreen:"画面修理", repairCamera:"リアカメラ修理", repairBackGlass:"背面カバー交換", repairWater:"水濡れ清掃", repairData:"データ復旧", repairStorage:"容量アップグレード", repairCharging:"充電口修理", repairBoard:"基板修理", repairClean:"本体クリーニング", repairEarpiece:"受話スピーカー修理", repairSpeaker:"スピーカー修理", repairButton:"ボタン修理", repairFace:"Face ID 修理", repairSystem:"システム処理", repairOther:"その他の修理", repairOtherSeparator:"該当する項目がありませんか？",
+          problemDrain:"電池の減りが早い", problemHeat:"異常に熱くなる", problemHealth:"バッテリー状態が低下", problemSwollen:"バッテリー膨張", problemCrack:"画面割れ", problemDisplay:"表示異常", problemTouch:"タッチ不良", problemPower:"電源が入らない", problemRestart:"再起動を繰り返す", problemWater:"水濡れ・湿気", problemData:"データ消失", problemStorage:"容量不足", problemCharging:"充電が不安定", problemDistortion:"音割れ", problemNoSound:"音が出ない", problemInternet:"ネット接続不可", problemWifi:"Wi‑Fi 接続不可", problemBluetooth:"Bluetooth 接続不可", problemCall:"通話できない", problemSignal:"電波がない", problemPhoto:"写真が撮れない", problemShake:"カメラが震える", problemFocus:"ピントが合わない", problemBent:"落下で変形", problemOther:"その他", problemOtherSeparator:"当てはまる問題がありませんか？",
+          expExplain:"詳しい説明", expFast:"修理が早い", expDataSafe:"データが残った", expPrice:"料金が明確", expReasonablePrice:"適正な価格", expSolved:"問題がしっかり解決", expNoHardSell:"無理な営業なし", expFriendly:"親切な対応", expAssured:"安心できた", expEnv:"快適な環境", expWarranty:"保証説明が明確", expCheck:"丁寧な検査", expProfessional:"専門的な対応", expProcess:"流れが分かりやすい", expBooking:"予約が便利", expPatient:"丁寧で根気強い対応", expFace:"対面修理", expOriginal:"純正部品", expVeryPro:"とても専門的", expEfficient:"効率が良い", expSkill:"技術が高い"
+        },
+        vi: {
+          kickerService:"THÔNG TIN", kickerRepair:"HẠNG MỤC", kickerProblem:"VẤN ĐỀ", kickerExperience:"TRẢI NGHIỆM", kickerResult:"CẢM NHẬN",
+          titleService:"Thông tin sửa chữa", titleRepair:"Hạng mục sửa", titleProblem:"Vấn đề gặp phải", errProblemMax:"Chỉ chọn tối đa 2 mục", problemMaxNote:"(Tối đa 2 mục)", titleExperience:"Trải nghiệm", errExperienceMax:"Chỉ chọn tối đa 3 mục", experienceMaxNote:"(Tối đa 3 mục)", titleResult:"Cảm nhận sửa chữa",
+          labelStore:"Cửa hàng", labelDevice:"Model thiết bị", required:"Bắt buộc", errOtherRepair:"Vui lòng nhập nội dung sửa khác", repairSingleNote:"(Chỉ chọn 1 mục)", next:"Tiếp theo", prev:"Quay lại", generate:"Gửi đánh giá", aiGenerating:"Đang sắp xếp đánh giá...",
+          copy:"Sao chép", copied:"Đã sao chép", backEdit:"Về trang đầu", resultIntro:"Cảm ơn bạn đã phản hồi. Chúng tôi đã sắp xếp lại cảm nhận về trải nghiệm dịch vụ lần này. Nếu có thể chia sẻ thêm lên Google thì thật tuyệt vời～",
+          devicePlaceholder:"VD: iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Vui lòng nhập nội dung sửa khác", otherProblemPlaceholder:"Vấn đề khác, không bắt buộc", resultPlaceholder:"Nội dung đánh giá sẽ hiển thị ở đây",
+          copyReminder:"Vui lòng bấm sao chép trước. Khi đánh giá, bạn có thể chia sẻ thêm một tấm ảnh được không? Cảm ơn nhiều～～",
+          storeQinmei:"Cửa hàng Qinmei Gongyi", storeShalu:"Cửa hàng Shalu Station",
+          repairBattery:"Thay pin", repairScreen:"Sửa màn hình", repairCamera:"Sửa camera sau", repairBackGlass:"Thay nắp lưng", repairWater:"Vệ sinh ẩm nước", repairData:"Cứu dữ liệu", repairStorage:"Nâng cấp dung lượng", repairCharging:"Sửa cổng sạc", repairBoard:"Sửa bo mạch", repairClean:"Vệ sinh máy", repairEarpiece:"Sửa loa thoại", repairSpeaker:"Sửa loa ngoài", repairButton:"Sửa nút bấm", repairFace:"Sửa Face ID", repairSystem:"Xử lý hệ thống", repairOther:"Sửa khác", repairOtherSeparator:"Không có mục phù hợp?",
+          problemDrain:"Hao pin nhanh", problemHeat:"Nóng bất thường", problemHealth:"Tình trạng pin giảm", problemSwollen:"Pin bị phồng", problemCrack:"Vỡ màn hình", problemDisplay:"Lỗi hiển thị", problemTouch:"Lỗi cảm ứng", problemPower:"Không mở nguồn", problemRestart:"Tự khởi động lại", problemWater:"Vào nước / ẩm", problemData:"Mất dữ liệu", problemStorage:"Thiếu dung lượng", problemCharging:"Sạc không ổn định", problemDistortion:"Âm thanh rè", problemNoSound:"Không có âm thanh", problemInternet:"Không vào mạng", problemWifi:"Không kết nối Wi‑Fi", problemBluetooth:"Không kết nối Bluetooth", problemCall:"Không gọi được", problemSignal:"Không có sóng", problemPhoto:"Không chụp ảnh được", problemShake:"Camera bị rung", problemFocus:"Không lấy nét được", problemBent:"Rơi làm cong máy", problemOther:"Khác", problemOtherSeparator:"Không có vấn đề phù hợp?",
+          expExplain:"Giải thích chi tiết", expFast:"Sửa nhanh", expDataSafe:"Dữ liệu được giữ lại", expPrice:"Giá rõ ràng", expReasonablePrice:"Giá hợp lý", expSolved:"Vấn đề được giải quyết tốt", expNoHardSell:"Không ép mua thêm", expFriendly:"Dịch vụ thân thiện", expAssured:"Yên tâm", expEnv:"Môi trường thoải mái", expWarranty:"Bảo hành rõ ràng", expCheck:"Kiểm tra kỹ", expProfessional:"Xử lý chuyên nghiệp", expProcess:"Quy trình rõ ràng", expBooking:"Đặt lịch tiện lợi", expPatient:"Dịch vụ kiên nhẫn", expFace:"Sửa trực tiếp", expOriginal:"Linh kiện chính hãng", expVeryPro:"Rất chuyên nghiệp", expEfficient:"Hiệu quả cao", expSkill:"Kỹ thuật tốt"
+        },
+        th: {
+          kickerService:"ข้อมูลบริการ", kickerRepair:"รายการซ่อม", kickerProblem:"ปัญหา", kickerExperience:"ประสบการณ์", kickerResult:"รีวิว",
+          titleService:"ข้อมูลการซ่อม", titleRepair:"รายการซ่อม", titleProblem:"ปัญหาที่พบ", errProblemMax:"เลือกได้สูงสุด 2 รายการ", problemMaxNote:"(เลือกได้สูงสุด 2 รายการ)", titleExperience:"ความรู้สึกหลังใช้บริการ", errExperienceMax:"เลือกได้สูงสุด 3 รายการ", experienceMaxNote:"(เลือกได้สูงสุด 3 รายการ)", titleResult:"รีวิวประสบการณ์ซ่อม",
+          labelStore:"สาขา", labelDevice:"รุ่นอุปกรณ์", required:"จำเป็น", errOtherRepair:"กรุณากรอกรายละเอียดซ่อมอื่น ๆ", repairSingleNote:"(เลือกได้ 1 รายการเท่านั้น)", next:"ถัดไป", prev:"ย้อนกลับ", generate:"ส่งรีวิว", aiGenerating:"กำลังจัดเรียงรีวิว...",
+          copy:"คัดลอก", copied:"คัดลอกแล้ว", backEdit:"กลับหน้าแรก", resultIntro:"ขอบคุณสำหรับคำติชมของคุณ เราได้ช่วยเรียบเรียงประสบการณ์การใช้บริการครั้งนี้ให้แล้ว หากสามารถช่วยแชร์ต่อบน Google ให้เราได้จะดีมากเลย～",
+          devicePlaceholder:"เช่น iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"กรุณากรอกรายละเอียดซ่อมอื่น ๆ", otherProblemPlaceholder:"ปัญหาอื่น ๆ ไม่บังคับ", resultPlaceholder:"ข้อความรีวิวจะแสดงที่นี่",
+          copyReminder:"กรุณากดคัดลอกก่อน แล้วตอนรีวิวช่วยแนบรูปให้ด้วยได้ไหมนะ～～",
+          storeQinmei:"สาขา Qinmei Gongyi", storeShalu:"สาขา Shalu Station",
+          repairBattery:"เปลี่ยนแบตเตอรี่", repairScreen:"ซ่อมหน้าจอ", repairCamera:"ซ่อมกล้องหลัง", repairBackGlass:"เปลี่ยนฝาหลัง", repairWater:"ทำความสะอาดเครื่องชื้น", repairData:"กู้ข้อมูล", repairStorage:"อัปเกรดความจุ", repairCharging:"ซ่อมพอร์ตชาร์จ", repairBoard:"ซ่อมเมนบอร์ด", repairClean:"ทำความสะอาดทั้งเครื่อง", repairEarpiece:"ซ่อมลำโพงสนทนา", repairSpeaker:"ซ่อมลำโพง", repairButton:"ซ่อมปุ่ม", repairFace:"ซ่อม Face ID", repairSystem:"จัดการระบบ", repairOther:"ซ่อมอื่น ๆ", repairOtherSeparator:"ไม่มีรายการที่ตรงกัน?",
+          problemDrain:"แบตหมดเร็ว", problemHeat:"ร้อนผิดปกติ", problemHealth:"สุขภาพแบตลดลง", problemSwollen:"แบตบวม", problemCrack:"หน้าจอแตก", problemDisplay:"จอแสดงผลผิดปกติ", problemTouch:"ทัชสกรีนผิดปกติ", problemPower:"เปิดไม่ติด", problemRestart:"รีสตาร์ทซ้ำ", problemWater:"โดนน้ำ / ความชื้น", problemData:"ข้อมูลหาย", problemStorage:"พื้นที่ไม่พอ", problemCharging:"ชาร์จไม่เสถียร", problemDistortion:"เสียงแตก", problemNoSound:"ไม่มีเสียง", problemInternet:"ใช้อินเทอร์เน็ตไม่ได้", problemWifi:"ต่อ Wi‑Fi ไม่ได้", problemBluetooth:"ต่อ Bluetooth ไม่ได้", problemCall:"โทรออกไม่ได้", problemSignal:"ไม่มีสัญญาณ", problemPhoto:"ถ่ายรูปไม่ได้", problemShake:"กล้องสั่น", problemFocus:"โฟกัสไม่ได้", problemBent:"ตกจนเครื่องงอ", problemOther:"อื่น ๆ", problemOtherSeparator:"ไม่มีปัญหาที่ตรงกัน?",
+          expExplain:"อธิบายละเอียด", expFast:"ซ่อมรวดเร็ว", expDataSafe:"ข้อมูลยังอยู่", expPrice:"ราคาโปร่งใส", expReasonablePrice:"ราคาสมเหตุสมผล", expSolved:"แก้ปัญหาได้ดี", expNoHardSell:"ไม่บังคับขายเพิ่ม", expFriendly:"บริการเป็นมิตร", expAssured:"รู้สึกสบายใจ", expEnv:"สถานที่สะดวกสบาย", expWarranty:"อธิบายประกันชัดเจน", expCheck:"ตรวจเช็กละเอียด", expProfessional:"จัดการอย่างมืออาชีพ", expProcess:"ขั้นตอนชัดเจน", expBooking:"จองคิวง่าย", expPatient:"บริการใจเย็น", expFace:"ซ่อมต่อหน้า", expOriginal:"อะไหล่แท้", expVeryPro:"มืออาชีพมาก", expEfficient:"มีประสิทธิภาพ", expSkill:"ช่างฝีมือดี"
+        },
+        id: {
+          kickerService:"INFO SERVIS", kickerRepair:"JENIS PERBAIKAN", kickerProblem:"MASALAH", kickerExperience:"PENGALAMAN", kickerResult:"ULASAN",
+          titleService:"Detail perbaikan", titleRepair:"Jenis perbaikan", titleProblem:"Masalah yang dialami", errProblemMax:"Pilih maksimal 2 item", problemMaxNote:"(Maksimal 2 item)", titleExperience:"Pengalaman", errExperienceMax:"Pilih maksimal 3 item", experienceMaxNote:"(Maksimal 3 item)", titleResult:"Pengalaman perbaikan",
+          labelStore:"Toko", labelDevice:"Model perangkat", required:"Wajib", errOtherRepair:"Masukkan detail perbaikan lain", repairSingleNote:"(Pilih 1 item saja)", next:"Lanjut", prev:"Kembali", generate:"Kirim ulasan", aiGenerating:"Sedang menyiapkan ulasan...",
+          copy:"Salin", copied:"Disalin", backEdit:"Kembali ke awal", resultIntro:"Terima kasih atas masukan Anda. Kami telah merangkum pengalaman layanan Anda kali ini. Jika berkenan membagikannya ke Google, kami akan sangat berterima kasih～",
+          devicePlaceholder:"cth. iPhone 15 Pro, VIVO X100, Switch", otherRepairPlaceholder:"Masukkan detail perbaikan lain", otherProblemPlaceholder:"Masalah lainnya, opsional", resultPlaceholder:"Teks ulasan akan muncul di sini",
+          copyReminder:"Silakan klik salin dulu. Saat memberi ulasan, boleh sekalian bagikan foto juga? Terima kasih banyak～～",
+          storeQinmei:"Toko Qinmei Gongyi", storeShalu:"Toko Shalu Station",
+          repairBattery:"Ganti baterai", repairScreen:"Perbaikan layar", repairCamera:"Perbaikan kamera belakang", repairBackGlass:"Ganti back cover", repairWater:"Pembersihan lembap", repairData:"Pemulihan data", repairStorage:"Upgrade penyimpanan", repairCharging:"Perbaikan port charger", repairBoard:"Perbaikan mainboard", repairClean:"Pembersihan menyeluruh", repairEarpiece:"Perbaikan earpiece", repairSpeaker:"Perbaikan speaker", repairButton:"Perbaikan tombol", repairFace:"Perbaikan Face ID", repairSystem:"Penanganan sistem", repairOther:"Perbaikan lain", repairOtherSeparator:"Tidak ada pilihan yang sesuai?",
+          problemDrain:"Baterai cepat habis", problemHeat:"Panas berlebihan", problemHealth:"Kesehatan baterai turun", problemSwollen:"Baterai menggembung", problemCrack:"Layar pecah", problemDisplay:"Masalah tampilan", problemTouch:"Masalah sentuh", problemPower:"Tidak bisa menyala", problemRestart:"Sering restart", problemWater:"Terkena air / lembap", problemData:"Data hilang", problemStorage:"Penyimpanan penuh", problemCharging:"Pengisian tidak stabil", problemDistortion:"Suara pecah", problemNoSound:"Tidak ada suara", problemInternet:"Tidak bisa internet", problemWifi:"Tidak bisa konek Wi‑Fi", problemBluetooth:"Tidak bisa konek Bluetooth", problemCall:"Tidak bisa telepon", problemSignal:"Tidak ada sinyal", problemPhoto:"Tidak bisa foto", problemShake:"Kamera bergetar", problemFocus:"Tidak bisa fokus", problemBent:"Bengkok karena jatuh", problemOther:"Lainnya", problemOtherSeparator:"Tidak ada masalah yang sesuai?",
+          expExplain:"Penjelasan detail", expFast:"Perbaikan cepat", expDataSafe:"Data tetap aman", expPrice:"Harga transparan", expReasonablePrice:"Harga wajar", expSolved:"Masalah terselesaikan", expNoHardSell:"Tidak memaksa jualan", expFriendly:"Layanan ramah", expAssured:"Meyakinkan", expEnv:"Tempat nyaman", expWarranty:"Garansi jelas", expCheck:"Pemeriksaan teliti", expProfessional:"Penanganan profesional", expProcess:"Proses jelas", expBooking:"Reservasi mudah", expPatient:"Layanan sabar", expFace:"Perbaikan langsung", expOriginal:"Suku cadang asli", expVeryPro:"Sangat profesional", expEfficient:"Efisien", expSkill:"Teknisi terampil"
+        }
+      };
+
+      Object.keys(PATCH_I18N).forEach(function (lang) {
+        I18N[lang] = Object.assign({}, I18N[lang] || {}, PATCH_I18N[lang]);
+      });
+
+      function t(key) {
+        return (I18N[currentLanguage] && I18N[currentLanguage][key]) || I18N.zh[key] || key;
+      }
+
+      function applyLanguage(lang) {
+        currentLanguage = lang;
+
+        document.documentElement.lang = lang === "zh" ? "zh-Hant" : lang;
+
+        document.querySelectorAll("[data-i18n]").forEach(function (el) {
+          const key = el.dataset.i18n;
+          el.textContent = t(key);
+        });
+
+        document.querySelectorAll("[data-i18n-placeholder]").forEach(function (el) {
+          const key = el.dataset.i18nPlaceholder;
+          el.placeholder = t(key);
+        });
+
+        document.querySelectorAll(".language-menu button").forEach(function (button) {
+          button.classList.toggle("active", button.dataset.lang === lang);
+        });
+
+        if (currentLanguageLabel) {
+          currentLanguageLabel.textContent = LANGUAGE_NAMES[lang] || "中文";
+        }
+
+        updateMapButtonText();
+        clearFieldErrors();
+        clearMessage();
+      }
+
+      function updateMapButtonText() {
+        if (!mapBtn || !selectedStore) return;
+        const storeDisplayKey = selectedStore === "勤美公益店" ? "storeQinmei" : "storeShalu";
+        mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>' + t("mapPrefix") + t(storeDisplayKey) + t("mapSuffix");
+      }
+
+      function showMessage(text) {
+        messageBox.textContent = text;
+        messageBox.classList.add("show");
+      }
+
+      function clearMessage() {
+        messageBox.textContent = "";
+        messageBox.classList.remove("show");
+      }
+
+      function getCheckedValues(containerId) {
+        return Array.from(document.querySelectorAll("#" + containerId + " input:checked"))
+          .map(function (input) {
+            return input.value.trim();
+          })
+          .filter(Boolean);
+      }
+
+      function updateOtherProblemPanel() {
+        const checked = otherProblemCheck && otherProblemCheck.checked;
+
+        if (otherProblemPanel) {
+          otherProblemPanel.classList.toggle("show", Boolean(checked));
+        }
+
+        if (!checked && otherProblemText) {
+          otherProblemText.value = "";
+        }
+      }
+
+      function getProblemValues() {
+        const values = getCheckedValues("problems");
+
+        if (otherProblemCheck && otherProblemCheck.checked && otherProblemText && otherProblemText.value.trim()) {
+          const index = values.indexOf("其他問題");
+
+          if (index !== -1) {
+            values[index] = "其他問題：" + otherProblemText.value.trim();
+          } else {
+            values.push("其他問題：" + otherProblemText.value.trim());
+          }
+        }
+
+        return values;
+      }
+
+      function isOtherRepairMissing() {
+        const otherRepairButton = document.querySelector('.repair-option[data-value="其他維修"]');
+        return Boolean(otherRepairButton && otherRepairButton.classList.contains("active") && otherText && !otherText.value.trim());
+      }
+
+      function updateRepairValue() {
+        const selectedButtons = Array.from(document.querySelectorAll(".repair-option.active"));
+        let repairs = selectedButtons
+          .map(function (button) {
+            return button.dataset.value || "";
+          })
+          .filter(Boolean);
+
+        const hasOther = repairs.indexOf("其他維修") !== -1;
+        otherPanel.classList.toggle("show", hasOther);
+
+        if (!hasOther) {
+          otherText.value = "";
+        }
+
+        repairs = repairs.map(function (item) {
+          if (item === "其他維修" && otherText.value.trim()) {
+            return "其他維修：" + otherText.value.trim();
+          }
+          return item;
+        });
+
+        repairInput.value = repairs.join("、");
+        return repairs;
+      }
+
+      function getPayload() {
+        const repairs = updateRepairValue();
+
+        return {
+          store: selectedStore,
+          device: document.getElementById("device").value.trim(),
+          repair: repairInput.value.trim(),
+          repairs: repairs,
+          otherRepairText: otherText.value.trim(),
+          problems: getProblemValues(),
+          experiences: getCheckedValues("experiences"),
+          language: currentLanguage,
+          languageLabel: LANGUAGE_LABELS[currentLanguage] || "繁體中文"
+        };
+      }
+
+      function clearFieldErrors() {
+        document.querySelectorAll(".field-error").forEach(function (item) {
+          item.classList.remove("show");
+        });
+
+        document.querySelectorAll(".form-panel").forEach(function (panel) {
+          panel.classList.remove("error-panel");
+        });
+      }
+
+      function showFieldError(errorId, panelSelector) {
+        const errorEl = document.getElementById(errorId);
+        if (errorEl) {
+          errorEl.classList.add("show");
+        }
+
+        if (panelSelector) {
+          const target = document.querySelector(panelSelector);
+          const panel = target ? target.closest(".form-panel") : null;
+
+          if (panel) {
+            panel.classList.add("error-panel");
+          }
+        }
+      }
+
+      function validate(payload) {
+        clearFieldErrors();
+
+        if (!payload.store) {
+          showFieldError("storeError", '.store-options');
+          return "store";
+        }
+
+        if (!payload.device) {
+          showFieldError("deviceError", '#device');
+          return "device";
+        }
+
+        if (!payload.repair) {
+          showFieldError("repairError", '#repairOptions');
+          return "repair";
+        }
+
+        if (isOtherRepairMissing()) {
+          showFieldError("otherRepairError", '#otherRepairText');
+          return "otherRepair";
+        }
+
+        if (payload.problems.length === 0) {
+          showFieldError("problemsError", '#problems');
+          return "problems";
+        }
+
+        if (payload.problems.length > 2) {
+          showFieldError("problemMaxError", '#problems');
+          return "problemMax";
+        }
+
+        if (payload.experiences.length === 0) {
+          showFieldError("experiencesError", '#experiences');
+          return "experiences";
+        }
+
+        if (payload.experiences.length > 3) {
+          showFieldError("experienceMaxError", '#experiences');
+          return "experienceMax";
+        }
+
+        return "";
+      }
+
+      const wizardPages = Array.from(document.querySelectorAll(".wizard-page"));
+      const progressSteps = Array.from(document.querySelectorAll(".progress-step"));
+      let currentPage = 1;
+
+      function showPage(page) {
+        currentPage = page;
+
+        wizardPages.forEach(function (item) {
+          const isActive = Number(item.dataset.page) === page;
+          item.classList.toggle("active", isActive);
+        });
+
+        progressSteps.forEach(function (step, index) {
+          step.classList.toggle("active", index + 1 === page);
+          step.classList.toggle("done", index + 1 < page);
+        });
+
+        clearMessage();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function validateStep(page) {
+        clearFieldErrors();
+        const payload = getPayload();
+
+        if (page === 1) {
+          if (!payload.store) {
+            showFieldError("storeError", ".store-options");
+            return "store";
+          }
+
+          if (!payload.device) {
+            showFieldError("deviceError", "#device");
+            return "device";
+          }
+        }
+
+        if (page === 2 && !payload.repair) {
+          showFieldError("repairError", "#repairOptions");
+          return "repair";
+        }
+
+        if (page === 2 && isOtherRepairMissing()) {
+          showFieldError("otherRepairError", "#otherRepairText");
+          return "otherRepair";
+        }
+
+        if (page === 3 && payload.problems.length === 0) {
+          showFieldError("problemsError", "#problems");
+          return "problems";
+        }
+
+        if (page === 3 && payload.problems.length > 2) {
+          showFieldError("problemMaxError", "#problems");
+          return "problemMax";
+        }
+        if (page === 4 && payload.experiences.length === 0) {
+          showFieldError("experiencesError", "#experiences");
+          return "experiences";
+        }
+
+        if (page === 4 && payload.experiences.length > 3) {
+          showFieldError("experienceMaxError", "#experiences");
+          return "experienceMax";
+        }
+
+
+
+        return "";
+      }
+
+      document.querySelectorAll(".next-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const error = validateStep(currentPage);
+
+          if (error) {
+            return;
+          }
+
+          showPage(Number(button.dataset.next));
+        });
+      });
+
+      document.querySelectorAll(".prev-btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+          showPage(Number(button.dataset.prev));
+        });
+      });
+
+      languageBtn.addEventListener("click", function (event) {
+        event.stopPropagation();
+        languageSwitcher.classList.toggle("open");
+      });
+
+      languageMenu.querySelectorAll("button").forEach(function (button) {
+        button.addEventListener("click", function () {
+          applyLanguage(button.dataset.lang || "zh");
+          languageSwitcher.classList.remove("open");
+        });
+      });
+
+      document.addEventListener("click", function (event) {
+        if (!languageSwitcher.contains(event.target)) {
+          languageSwitcher.classList.remove("open");
+        }
+      });
+
+      applyLanguage("zh");
+
+      document.querySelectorAll(".store-option").forEach(function (button) {
+        button.addEventListener("click", function () {
+          selectedStore = button.dataset.value || "";
+          storeInput.value = selectedStore;
+
+          document.querySelectorAll(".store-option").forEach(function (item) {
+            item.classList.toggle("active", item === button);
+          });
+
+          clearMessage();
+          clearFieldErrors();
+        });
+      });
+
+      document.querySelectorAll(".repair-option").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const wasActive = button.classList.contains("active");
+
+          document.querySelectorAll(".repair-option").forEach(function (item) {
+            item.classList.remove("active");
+          });
+
+          if (!wasActive) {
+            button.classList.add("active");
+          }
+
+          updateRepairValue();
+          clearMessage();
+          clearFieldErrors();
+        });
+      });
+
+      otherText.addEventListener("input", function () {
+        updateRepairValue();
+        clearMessage();
+        clearFieldErrors();
+      });
+
+      document.querySelectorAll(".more-toggle").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const target = document.getElementById(button.dataset.target);
+          if (!target) return;
+
+          const isCollapsed = target.dataset.collapsed !== "false";
+          target.dataset.collapsed = isCollapsed ? "false" : "true";
+          button.classList.toggle("active", isCollapsed);
+          button.innerHTML = '<iconify-icon icon="mdi:chevron-down" width="18"></iconify-icon>' + (isCollapsed ? button.dataset.less : button.dataset.more);
+        });
+      });
+
+      document.querySelectorAll("#problems input, #experiences input").forEach(function (input) {
+        input.addEventListener("change", function () {
+          clearMessage();
+          clearFieldErrors();
+
+          if (input.closest("#problems") && input.checked && getCheckedValues("problems").length > 2) {
+            input.checked = false;
+            showFieldError("problemMaxError", "#problems");
+          }
+
+          if (input.closest("#experiences") && input.checked && getCheckedValues("experiences").length > 3) {
+            input.checked = false;
+            showFieldError("experienceMaxError", "#experiences");
+          }
+
+          updateOtherProblemPanel();
+        });
+      });
+
+      if (otherProblemText) {
+        otherProblemText.addEventListener("input", function () {
+          clearMessage();
+          clearFieldErrors();
+        });
+      }
+
+      updateOtherProblemPanel();
+
+      generateBtn.addEventListener("click", async function () {
+        clearMessage();
+
+        const payload = getPayload();
+        const error = validate(payload);
+
+        if (error) {
+          return;
+        }
+
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<span class="loading-dot">' + t("aiGenerating") + '</span>';
+
+        try {
+          const response = await fetch(FUNCTION_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (!response.ok || !data.ok) {
+            throw new Error(data.error || "AI 生成失敗，請稍後再試。");
+          }
+
+          const generatedText =
+            data.review ||
+            (data.reviews && data.reviews.natural) ||
+            (data.reviews && data.reviews.short) ||
+            (data.reviews && data.reviews.detailed) ||
+            "";
+
+          if (!generatedText) {
+            throw new Error("AI 沒有回傳可用內容，請稍後再試。");
+          }
+
+          reviewText.value = generatedText;
+
+          const mapLink = MAP_LINKS[payload.store] || "#";
+          mapBtn.href = mapLink;
+          updateMapButtonText();
+
+          app.classList.add("result-mode");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+
+        } catch (error) {
+          console.error(error);
+          showMessage(error.message || "AI 生成失敗，請稍後再試。");
+        } finally {
+          generateBtn.disabled = false;
+          generateBtn.innerHTML = '<iconify-icon icon="mdi:sparkles" width="20"></iconify-icon><span data-i18n="generate">' + t("generate") + '</span>';
+        }
+      });
+
+      copyBtn.addEventListener("click", async function () {
+        const text = reviewText.value.trim();
+        if (!text) return;
+
+        try {
+          await navigator.clipboard.writeText(text);
+          copyBtn.innerHTML = '<iconify-icon icon="mdi:check" width="18"></iconify-icon>' + t("copied");
+          setTimeout(function () {
+            copyBtn.innerHTML = '<iconify-icon icon="mdi:content-copy" width="18"></iconify-icon><span data-i18n="copy">' + t("copy") + '</span>';
+          }, 1200);
+        } catch (error) {
+          reviewText.focus();
+          reviewText.select();
+        }
+      });
+
+      function resetForm() {
+        selectedStore = "";
+
+        if (storeInput) {
+          storeInput.value = "";
+        }
+
+        if (repairInput) {
+          repairInput.value = "";
+        }
+
+        const deviceInput = document.getElementById("device");
+        if (deviceInput) {
+          deviceInput.value = "";
+        }
+
+        document.querySelectorAll(".store-option.active, .repair-option.active").forEach(function (button) {
+          button.classList.remove("active");
+        });
+
+        document.querySelectorAll("#problems input, #experiences input").forEach(function (input) {
+          input.checked = false;
+        });
+
+        if (otherText) {
+          otherText.value = "";
+        }
+
+        if (otherPanel) {
+          otherPanel.classList.remove("show");
+        }
+
+        if (otherProblemText) {
+          otherProblemText.value = "";
+        }
+
+        if (otherProblemPanel) {
+          otherProblemPanel.classList.remove("show");
+        }
+
+        if (reviewText) {
+          reviewText.value = "";
+        }
+
+        clearFieldErrors();
+        clearMessage();
+        updateRepairValue();
+        updateOtherProblemPanel();
+      }
+
+      backBtn.addEventListener("click", function () {
+        resetForm();
+        app.classList.remove("result-mode");
+        showPage(1);
+      });
+    });
+  </script>
+</body>
+</html>
