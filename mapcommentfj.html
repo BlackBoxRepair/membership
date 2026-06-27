@@ -997,24 +997,6 @@
       <section class="form-panel">
         <div class="field-row">
           <div class="field-label">
-            <span><span data-i18n="labelStore">維修門市</span><em class="field-error" id="storeError" data-i18n="errStore">請選擇門市</em></span>
-            <small data-i18n="required">必填</small>
-          </div>
-          <div class="store-options">
-            <button class="store-option" type="button" data-value="勤美公益店">
-              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
-              <span data-i18n="storeQinmei">勤美公益店</span>
-            </button>
-            <button class="store-option" type="button" data-value="沙鹿站前店">
-              <iconify-icon icon="mdi:storefront-outline" width="21"></iconify-icon>
-              <span data-i18n="storeShalu">沙鹿站前店</span>
-            </button>
-          </div>
-          <input id="store" type="hidden" value="">
-        </div>
-
-        <div class="field-row">
-          <div class="field-label">
             <span><span data-i18n="labelDevice">設備型號</span><em class="field-error" id="deviceError" data-i18n="errDevice">請輸入型號</em></span>
             <small data-i18n="required">必填</small>
           </div>
@@ -1028,14 +1010,6 @@
           </button>
         </div>
 
-        <a class="ads-banner-link" href="https://blackboxrepair.github.io/membership/" aria-label="前往黑盒子會員頁">
-          <img
-            class="ads-banner-img"
-            id="adsBannerImg"
-            src="/membership/map_comment_helper/ads%20banner.png"
-            alt="黑盒子會員活動"
-          >
-        </a>
       </section>
 
       <section class="wizard-page" data-page="2" data-title="維修項目">
@@ -1213,13 +1187,11 @@
     const FUNCTION_URL = "https://nszwpwimwxvjguoalzwt.supabase.co/functions/v1/generate-review";
 
     const MAP_LINKS = {
-      "勤美公益店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E5%8B%A4%E7%BE%8E%E5%85%AC%E7%9B%8A%E5%BA%97",
-      "沙鹿站前店": "https://www.google.com/maps/search/?api=1&query=%E9%BB%91%E7%9B%92%E5%AD%90%E7%B6%AD%E4%BF%AE%E4%B8%AD%E5%BF%83%20%E6%B2%99%E9%B9%BF%E7%AB%99%E5%89%8D%E5%BA%97"
+      "黑盒子逢甲店": "https://maps.app.goo.gl/QPRu8WuBZ1LisJgw9"
     };
 
     document.addEventListener("DOMContentLoaded", function () {
       const app = document.getElementById("app");
-      const storeInput = document.getElementById("store");
       const repairInput = document.getElementById("repair");
       const otherPanel = document.getElementById("otherRepairPanel");
       const otherText = document.getElementById("otherRepairText");
@@ -1229,7 +1201,6 @@
       const copyBtn = document.getElementById("copyBtn");
       const mapBtn = document.getElementById("mapBtn");
       const backBtn = document.getElementById("backBtn");
-      const adsBannerImg = document.getElementById("adsBannerImg");
       const languageBtn = document.getElementById("languageBtn");
       const languageMenu = document.getElementById("languageMenu");
       const languageSwitcher = document.querySelector(".language-switcher");
@@ -1238,31 +1209,8 @@
       const otherProblemPanel = document.getElementById("otherProblemPanel");
       const otherProblemText = document.getElementById("otherProblemText");
 
-      let selectedStore = "";
-
-      if (adsBannerImg) {
-        const bannerSources = [
-          "/membership/map_comment_helper/ads%20banner.png",
-          "/membership/map_comment_helper/ads banner.png",
-          "/membership/google_map_comment_helper/ads%20banner.png",
-          "/membership/google_map_comment_helper/ads banner.png",
-          "./ads%20banner.png",
-          "./ads banner.png",
-          "../map_comment_helper/ads%20banner.png",
-          "../map_comment_helper/ads banner.png"
-        ];
-
-        let bannerIndex = 0;
-
-        adsBannerImg.addEventListener("error", function () {
-          bannerIndex += 1;
-
-          if (bannerIndex < bannerSources.length) {
-            adsBannerImg.src = bannerSources[bannerIndex];
-          }
-        });
-      }
-
+      const DEFAULT_STORE_NAME = "黑盒子逢甲店";
+      let selectedStore = DEFAULT_STORE_NAME;
 
       let currentLanguage = "zh";
 
@@ -1679,9 +1627,12 @@
       }
 
       function updateMapButtonText() {
-        if (!mapBtn || !selectedStore) return;
-        const storeDisplayKey = selectedStore === "勤美公益店" ? "storeQinmei" : "storeShalu";
-        mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>' + t("mapPrefix") + t(storeDisplayKey) + t("mapSuffix");
+        if (!mapBtn) return;
+
+        selectedStore = DEFAULT_STORE_NAME;
+        mapBtn.style.display = "inline-flex";
+        mapBtn.href = MAP_LINKS[DEFAULT_STORE_NAME];
+        mapBtn.innerHTML = '<iconify-icon icon="mdi:google-maps" width="18"></iconify-icon>' + t("mapPrefix") + DEFAULT_STORE_NAME + t("mapSuffix");
       }
 
       function showMessage(text) {
@@ -1806,11 +1757,6 @@
       function validate(payload) {
         clearFieldErrors();
 
-        if (!payload.store) {
-          showFieldError("storeError", '.store-options');
-          return "store";
-        }
-
         if (!payload.device) {
           showFieldError("deviceError", '#device');
           return "device";
@@ -1875,11 +1821,6 @@
         const payload = getPayload();
 
         if (page === 1) {
-          if (!payload.store) {
-            showFieldError("storeError", ".store-options");
-            return "store";
-          }
-
           if (!payload.device) {
             showFieldError("deviceError", "#device");
             return "device";
@@ -1957,20 +1898,6 @@
       });
 
       applyLanguage("zh");
-
-      document.querySelectorAll(".store-option").forEach(function (button) {
-        button.addEventListener("click", function () {
-          selectedStore = button.dataset.value || "";
-          storeInput.value = selectedStore;
-
-          document.querySelectorAll(".store-option").forEach(function (item) {
-            item.classList.toggle("active", item === button);
-          });
-
-          clearMessage();
-          clearFieldErrors();
-        });
-      });
 
       document.querySelectorAll(".repair-option").forEach(function (button) {
         button.addEventListener("click", function () {
@@ -2077,7 +2004,7 @@
 
           reviewText.value = generatedText;
 
-          const mapLink = MAP_LINKS[payload.store] || "#";
+          const mapLink = MAP_LINKS[DEFAULT_STORE_NAME];
           mapBtn.href = mapLink;
           updateMapButtonText();
 
@@ -2110,11 +2037,7 @@
       });
 
       function resetForm() {
-        selectedStore = "";
-
-        if (storeInput) {
-          storeInput.value = "";
-        }
+        selectedStore = DEFAULT_STORE_NAME;
 
         if (repairInput) {
           repairInput.value = "";
