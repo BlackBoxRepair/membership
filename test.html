@@ -959,6 +959,11 @@
     .data-row{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.7);border-radius:22px;padding:18px;}
     .data-row strong{display:block;color:var(--deep);font-size:18px;}
     .data-row span{display:block;color:var(--muted);font-weight:800;font-size:14px;margin-top:4px;}
+    .gift-content{display:block!important;}
+    .gift-privilege-hero{min-height:330px;margin-top:4px;margin-bottom:18px;}
+    .gift-privilege-hero .hero-copy{padding-top:18px;}
+    .gift-privilege-hero .hero-art{top:10px;}
+    #home .cards{margin-top:0!important;}
     .booking-list{display:grid;gap:18px;}
     .booking-card{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.72);border-radius:30px;padding:24px;box-shadow:var(--soft-shadow);display:grid;gap:18px;}
     .booking-card-logo{display:flex;justify-content:center;}
@@ -1063,8 +1068,9 @@
     .coupon-ticket:active{transform:scale(.99);}
     .coupon-ticket-icon{width:54px;height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
     .coupon-ticket-icon.cash{background:transparent;color:#d19100;}
-    .coupon-ticket-icon.service{background:transparent;color:#4a7dff;}
+    .coupon-ticket-icon.service{background:transparent;color:#d19100;}
     .coupon-ticket-icon iconify-icon{font-size:30px;color:currentColor;}
+    .coupon-ticket-icon.cash,.coupon-ticket-icon.service{color:#d19100!important;}
     .coupon-ticket-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
     .coupon-ticket-title{display:block;color:#111827;font-size:17px;font-weight:950;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .coupon-ticket-date{display:block;color:#6b7280;font-size:13px;font-weight:800;line-height:1.45;}
@@ -1147,22 +1153,6 @@
     </header>
 
     <section id="home" class="section active">
-      <div class="hero">
-        <div class="hero-copy">
-          <div class="hello">您好！ 👋</div>
-          <h1>現在更換電池</h1>
-          <h2>最高享 20% 優惠</h2>
-          <p>BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
-          <button class="primary-btn" onclick="window.location.href='https://blackboxrepair.github.io/membership/price'; return false;" aria-label="查看優惠詳情">
-            查看優惠詳情
-            <iconify-icon icon="mdi:arrow-right"></iconify-icon>
-          </button>
-        </div>
-        <div class="hero-art" aria-hidden="true">
-          <img class="main-photo" src="main_photo.png" alt="" />
-        </div>
-      </div>
-
       <section class="cards">
         <button class="feature-card big" data-route="quote">
           <div class="card-text-group">
@@ -1261,7 +1251,7 @@
     </section>
 
     <section id="gift" class="section">
-      <div class="page-head"><div class="page-title"><small>BLACK BOX PRIVILEGE</small><h2>盒芯禮遇</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>BLACK BOX PRIVILEGE</small><h2>盒芯禮遇</h2></div></div>
       <div id="giftList" class="data-list"></div>
     </section>
 
@@ -1443,9 +1433,8 @@
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
-      // 登入前保護：除了「首頁」之外，點擊底部選單的會員功能，都先引導到會員登入頁。
-      // 盒芯禮遇雖然暫時上鎖，但仍切換到「盒芯禮遇」頁面後才顯示上鎖彈窗。
-      const protectedRoutes = ['reservation','wallet','gift','member'];
+      // 登入前保護：我的預約、票券錢包、會員專區需要登入；盒芯禮遇為公開頁面，不需登入。
+      const protectedRoutes = ['reservation','wallet','member'];
       if(protectedRoutes.includes(target) && !currentMember){
         target = 'member';
       }
@@ -1470,12 +1459,8 @@
       if(target === 'gift') renderGiftPage();
       if(target === 'member') renderMemberArea();
 
-      // 上鎖提示只允許存在於「盒芯禮遇」頁面；離開該頁時自動關閉。
-      if(target === 'gift'){
-        openGiftLockedModal();
-      }else{
-        closeGiftLockedModal();
-      }
+      // 盒芯禮遇已改為正式頁面，不再顯示上鎖提示；切換頁面時保險關閉舊彈窗。
+      closeGiftLockedModal();
 
       const baseUrl = getBaseUrl();
       history.replaceState({page:target}, '', baseUrl);
@@ -2298,10 +2283,22 @@
 
     async function renderGiftPage(){
       const box = $('#giftList'); if(!box) return;
+      box.classList.add('gift-content');
       box.innerHTML = `
-        <div class="data-panel">
-          <h3>盒芯禮遇暫未開啟</h3>
-          <p>此頁面功能暫時上鎖，敬請期待更多會員專屬服務。</p>
+        <div class="hero gift-privilege-hero">
+          <div class="hero-copy">
+            <div class="hello">您好！ 👋</div>
+            <h1>現在更換電池</h1>
+            <h2>最高享 20% 優惠</h2>
+            <p>BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
+            <button class="primary-btn" onclick="window.location.href='https://blackboxrepair.github.io/membership/price'; return false;" aria-label="查看優惠詳情">
+              查看優惠詳情
+              <iconify-icon icon="mdi:arrow-right"></iconify-icon>
+            </button>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <img class="main-photo" src="main_photo.png" alt="" />
+          </div>
         </div>`;
     }
 
