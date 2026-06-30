@@ -1224,6 +1224,28 @@
       color:#42b9ff!important;
     }
 
+  
+
+    /* 首頁整體位置：Logo、Banner、卡片等所有首頁內容同步上移 */
+    body:has(#home.active) .topbar{
+      transform:translateY(-12px);
+      margin-bottom:-12px!important;
+    }
+    body:has(#home.active) #home{
+      transform:translateY(-12px);
+      margin-bottom:-12px!important;
+    }
+    @media (max-width:390px){
+      body:has(#home.active) .topbar{
+        transform:translateY(-10px);
+        margin-bottom:-10px!important;
+      }
+      body:has(#home.active) #home{
+        transform:translateY(-10px);
+        margin-bottom:-10px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
