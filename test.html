@@ -963,6 +963,27 @@
     .gift-privilege-hero{min-height:330px;margin-top:4px;margin-bottom:18px;}
     .gift-privilege-hero .hero-copy{padding-top:18px;}
     .gift-privilege-hero .hero-art{top:10px;}
+
+    /* 盒芯禮遇頁：移除標題後，優惠內容整體靠近頁面頂端 */
+    #gift .page-head{display:none!important;}
+    #gift.section.active{
+      padding-top:0!important;
+      margin-top:-30px!important;
+    }
+    #giftList.gift-content{
+      margin-top:-10px!important;
+    }
+    #gift .gift-privilege-hero{
+      margin-top:0!important;
+      margin-bottom:0!important;
+      min-height:300px!important;
+    }
+    #gift .gift-privilege-hero .hero-copy{
+      padding-top:0!important;
+    }
+    #gift .gift-privilege-hero .hero-art{
+      top:-8px!important;
+    }
     #home .cards{margin-top:16px!important;}
     .home-banner-placeholder{
       width:100%;
@@ -1377,7 +1398,6 @@
     </section>
 
     <section id="gift" class="section">
-      <div class="page-head"><div class="page-title"><small>BLACK BOX PRIVILEGE</small><h2>盒芯禮遇</h2></div></div>
       <div id="giftList" class="data-list"></div>
     </section>
 
