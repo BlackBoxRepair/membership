@@ -963,6 +963,27 @@
     .gift-privilege-hero{min-height:330px;margin-top:4px;margin-bottom:18px;}
     .gift-privilege-hero .hero-copy{padding-top:18px;}
     .gift-privilege-hero .hero-art{top:10px;}
+
+    /* 盒芯禮遇頁：移除標題後，優惠內容整體靠近頁面頂端 */
+    #gift .page-head{display:none!important;}
+    #gift.section.active{
+      padding-top:0!important;
+      margin-top:-30px!important;
+    }
+    #giftList.gift-content{
+      margin-top:-10px!important;
+    }
+    #gift .gift-privilege-hero{
+      margin-top:0!important;
+      margin-bottom:0!important;
+      min-height:300px!important;
+    }
+    #gift .gift-privilege-hero .hero-copy{
+      padding-top:0!important;
+    }
+    #gift .gift-privilege-hero .hero-art{
+      top:-8px!important;
+    }
     #home .cards{margin-top:16px!important;}
     .home-banner-placeholder{
       width:100%;
@@ -1224,6 +1245,55 @@
       color:#42b9ff!important;
     }
 
+  
+
+    /* 首頁整體位置：Logo、Banner、卡片等所有首頁內容同步上移 */
+    body:has(#home.active) .topbar{
+      transform:translateY(-12px);
+      margin-bottom:-12px!important;
+    }
+    body:has(#home.active) #home{
+      transform:translateY(-12px);
+      margin-bottom:-12px!important;
+    }
+    @media (max-width:390px){
+      body:has(#home.active) .topbar{
+        transform:translateY(-10px);
+        margin-bottom:-10px!important;
+      }
+      body:has(#home.active) #home{
+        transform:translateY(-10px);
+        margin-bottom:-10px!important;
+      }
+    }
+
+  
+    /* 首頁：Banner 與選單方塊再往上靠 */
+    #home .home-banner-placeholder{
+      margin-top:-36px!important;
+      margin-bottom:10px!important;
+    }
+    #home .cards{
+      margin-top:2px!important;
+    }
+    @media (max-width:390px){
+      #home .home-banner-placeholder{
+        margin-top:-38px!important;
+        margin-bottom:10px!important;
+      }
+      #home .cards{
+        margin-top:0!important;
+      }
+    }
+
+
+    /* 票券錢包：票券清單 icon 改用會員專區積分顏色 */
+    #wallet .coupon-ticket-icon,
+    #wallet .coupon-ticket-icon.cash,
+    #wallet .coupon-ticket-icon.service{
+      color:#ffd51b!important;
+    }
+
   </style>
 </head>
 <body>
@@ -1326,17 +1396,16 @@
     </section>
 
     <section id="wallet" class="section">
-      <div class="page-head"><div class="page-title"><small>TICKET WALLET</small><h2>票券錢包</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>TICKET WALLET</small><h2>票券錢包</h2></div></div>
       <div id="walletList" class="data-list"></div>
     </section>
 
     <section id="reservation" class="section">
-      <div class="page-head"><div class="page-title"><small>MY BOOKINGS</small><h2>我的預約</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>MY BOOKINGS</small><h2>我的預約</h2></div></div>
       <div id="reservationList" class="data-list"></div>
     </section>
 
     <section id="gift" class="section">
-      <div class="page-head"><div class="page-title"><small>BLACK BOX PRIVILEGE</small><h2>盒芯禮遇</h2></div></div>
       <div id="giftList" class="data-list"></div>
     </section>
 
