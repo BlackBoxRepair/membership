@@ -1333,6 +1333,260 @@
       }
     }
 
+
+    /* 2026-07-01 票券錢包：改成參考圖的深色卡片式排版，保留原本背景 */
+    #wallet .page-head{
+      margin-bottom:12px!important;
+    }
+    #walletList.data-list{
+      display:block!important;
+      gap:0!important;
+    }
+    .bb-wallet-ledger{
+      position:relative;
+      width:100%;
+      min-height:calc(100dvh - 210px);
+      margin-top:8px;
+      padding:26px 16px 30px;
+      border-radius:34px 32px 26px 26px;
+      background:
+        radial-gradient(circle at 18% 3%,rgba(31,112,255,.34),rgba(31,112,255,0) 34%),
+        linear-gradient(180deg,rgba(14,22,82,.98) 0%,rgba(4,6,45,.98) 58%,rgba(3,4,34,.98) 100%);
+      border:1px solid rgba(255,255,255,.22);
+      box-shadow:0 22px 54px rgba(6,9,44,.22), inset 0 1px 0 rgba(255,255,255,.25);
+      color:#fff;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .bb-wallet-ledger::before{
+      content:"";
+      position:absolute;
+      left:48%;
+      right:-2px;
+      top:-1px;
+      height:50px;
+      border-bottom-left-radius:76px;
+      border-bottom:1px solid rgba(255,255,255,.22);
+      background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,0));
+      pointer-events:none;
+      z-index:-1;
+    }
+    .bb-wallet-top{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:12px;
+      padding:0 4px 18px;
+      border-bottom:2px dashed rgba(255,255,255,.18);
+    }
+    .bb-wallet-count{
+      font-size:70px;
+      line-height:.84;
+      font-weight:1000;
+      color:#ffe6a7;
+      letter-spacing:-.08em;
+      min-width:54px;
+    }
+    .bb-wallet-title{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-width:0;
+      color:#fff1ca;
+      font-size:20px;
+      font-weight:950;
+      letter-spacing:.02em;
+      white-space:nowrap;
+    }
+    .bb-wallet-title iconify-icon{font-size:25px;color:currentColor;}
+    .bb-wallet-side{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#fff1ca;
+      font-size:14px;
+      font-weight:900;
+      white-space:nowrap;
+      opacity:.96;
+    }
+    .bb-wallet-side iconify-icon{font-size:22px;color:currentColor;}
+    .bb-wallet-coupon{
+      display:block!important;
+      width:100%!important;
+      margin-top:20px!important;
+      padding:0!important;
+      border:0!important;
+      border-radius:0!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      color:inherit!important;
+      text-align:left!important;
+      overflow:visible!important;
+      transition:transform .18s ease, opacity .18s ease;
+    }
+    .bb-wallet-coupon:active{transform:scale(.992);}
+    .bb-wallet-row-head{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+      color:rgba(255,255,255,.74);
+    }
+    .bb-wallet-small-icon{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      color:#ffd51b;
+      flex-shrink:0;
+    }
+    .bb-wallet-small-icon iconify-icon{font-size:18px;color:currentColor;}
+    .bb-wallet-row-title{
+      min-width:0;
+      font-size:17px;
+      font-weight:850;
+      color:rgba(255,255,255,.82);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .bb-wallet-row-date{
+      display:flex;
+      align-items:center;
+      gap:4px;
+      color:rgba(255,255,255,.48);
+      font-size:14px;
+      font-weight:850;
+      white-space:nowrap;
+    }
+    .bb-wallet-row-date iconify-icon{font-size:20px;color:currentColor;}
+    .bb-wallet-card{
+      position:relative;
+      height:188px;
+      border-radius:24px;
+      overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,0) 22%,rgba(255,255,255,.28) 48%,rgba(255,255,255,0) 72%),
+        repeating-linear-gradient(0deg,rgba(255,255,255,.10) 0 2px,rgba(255,255,255,0) 2px 5px),
+        linear-gradient(135deg,#eef2fb 0%,#bec5d3 48%,#f4f6fb 100%);
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:0 20px 34px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.76);
+    }
+    .bb-wallet-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(110deg,rgba(255,255,255,.28),rgba(255,255,255,0) 42%,rgba(0,0,0,.04));
+      pointer-events:none;
+    }
+    .bb-wallet-card-main{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      align-items:start;
+      gap:12px;
+      padding:24px 18px 0;
+      color:#101824;
+    }
+    .bb-wallet-card-icon{
+      width:44px;
+      height:44px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:#fff;
+      color:#ffd51b;
+      box-shadow:0 8px 16px rgba(15,23,42,.10);
+    }
+    .bb-wallet-card-icon iconify-icon{font-size:26px;color:currentColor;}
+    .bb-wallet-card-name{
+      min-width:0;
+      color:#0b0f1f;
+      font-size:22px;
+      line-height:1.15;
+      font-weight:950;
+      letter-spacing:-.02em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      padding-top:4px;
+    }
+    .bb-wallet-card-type{
+      align-self:start;
+      max-width:108px;
+      padding:7px 10px;
+      border-radius:10px;
+      background:rgba(68,72,92,.42);
+      color:#fff;
+      font-size:12px;
+      font-weight:850;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      backdrop-filter:blur(8px);
+      -webkit-backdrop-filter:blur(8px);
+    }
+    .bb-wallet-card-action{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:64px;
+      z-index:2;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(29,31,38,.70);
+      color:#fff;
+      font-size:21px;
+      font-weight:950;
+      letter-spacing:.04em;
+      backdrop-filter:blur(5px);
+      -webkit-backdrop-filter:blur(5px);
+    }
+    .bb-wallet-empty{
+      margin-top:24px;
+      padding:38px 20px;
+      border-radius:24px;
+      background:rgba(255,255,255,.08);
+      border:1px dashed rgba(255,255,255,.22);
+      text-align:center;
+      color:rgba(255,255,255,.76);
+      font-weight:850;
+    }
+    .bb-wallet-empty strong{
+      display:block;
+      margin-bottom:8px;
+      color:#fff;
+      font-size:18px;
+      font-weight:950;
+    }
+    @media (max-width:390px){
+      .bb-wallet-ledger{
+        min-height:calc(100dvh - 198px);
+        padding:24px 14px 28px;
+        border-radius:32px 30px 24px 24px;
+      }
+      .bb-wallet-top{
+        gap:9px;
+        padding-bottom:16px;
+      }
+      .bb-wallet-count{font-size:60px;min-width:48px;}
+      .bb-wallet-title{font-size:18px;}
+      .bb-wallet-side{font-size:12px;gap:7px;}
+      .bb-wallet-card{height:174px;border-radius:22px;}
+      .bb-wallet-card-main{padding:22px 16px 0;gap:10px;}
+      .bb-wallet-card-icon{width:40px;height:40px;}
+      .bb-wallet-card-name{font-size:20px;}
+      .bb-wallet-card-action{height:58px;font-size:19px;}
+      .bb-wallet-row-title{font-size:16px;}
+      .bb-wallet-row-date{font-size:13px;}
+    }
+
   </style>
 </head>
 <body>
@@ -2382,19 +2636,35 @@
           const couponName = escapeHTML(c.coupon_name || c.title || c.name || '優惠券');
           const couponId = escapeHTML(String(c.id || ''));
           const meta = getWalletCouponMeta(c);
-          return `<button type="button" class="coupon-row coupon-ticket" data-coupon-id="${couponId}">
-            <div class="coupon-ticket-icon ${meta.iconClass}"><iconify-icon icon="${meta.icon}"></iconify-icon></div>
-            <div class="coupon-ticket-content">
-              <strong class="coupon-ticket-title">${couponName}</strong>
-              <span class="coupon-ticket-date">${meta.dateText}</span>
+          const type = String(c.type || '').toLowerCase();
+          const typeLabel = escapeHTML(type === 'cash' ? '折抵票券' : '會員票券');
+          return `<button type="button" class="coupon-row bb-wallet-coupon" data-coupon-id="${couponId}">
+            <div class="bb-wallet-row-head">
+              <span class="bb-wallet-small-icon"><iconify-icon icon="${meta.icon}"></iconify-icon></span>
+              <span class="bb-wallet-row-title">${couponName}</span>
+              <span class="bb-wallet-row-date">${meta.dateText.replace('票券期限：','')} <iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></span>
             </div>
-            <span class="coupon-ticket-arrow"><iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></span>
+            <div class="bb-wallet-card">
+              <div class="bb-wallet-card-main">
+                <span class="bb-wallet-card-icon"><iconify-icon icon="${meta.icon}"></iconify-icon></span>
+                <strong class="bb-wallet-card-name">${couponName}</strong>
+                <span class="bb-wallet-card-type">${typeLabel}</span>
+              </div>
+              <div class="bb-wallet-card-action">查看票券</div>
+            </div>
           </button>`;
         }));
       }else{
-        rows.push('<div class="wallet-empty-ticket"><strong>目前沒有可用的票券</strong><span>之後取得的會員票券都會顯示在這裡。</span></div>');
+        rows.push('<div class="bb-wallet-empty"><strong>目前沒有可用的票券</strong><span>之後取得的會員票券都會顯示在這裡。</span></div>');
       }
-      box.innerHTML = rows.join('');
+      box.innerHTML = `<section class="bb-wallet-ledger" aria-label="票券錢包清單">
+        <div class="bb-wallet-top">
+          <div class="bb-wallet-count">${coupons.length}</div>
+          <div class="bb-wallet-title">張可用票券 <iconify-icon icon="solar:alt-arrow-right-linear"></iconify-icon></div>
+          <div class="bb-wallet-side">會員積分 **** <iconify-icon icon="solar:eye-closed-bold"></iconify-icon></div>
+        </div>
+        ${rows.join('')}
+      </section>`;
       $$('.coupon-row', box).forEach(btn => {
         btn.addEventListener('click', (event) => {
           event.preventDefault();
