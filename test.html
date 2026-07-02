@@ -1838,6 +1838,26 @@
       }
     }
 
+
+    /* 2026-07-02 首頁圖卡細節調整：電池圖上移、維修報價標籤一致 */
+    #home .feature-card.big .card-ornament{
+      top:-2px!important;
+    }
+    #home .feature-card.big .card-kicker{
+      font-size:11px!important;
+      line-height:1.2!important;
+      font-weight:750!important;
+      letter-spacing:.02em!important;
+    }
+    @media (max-width:390px){
+      #home .feature-card.big .card-ornament{
+        top:-4px!important;
+      }
+      #home .feature-card.big .card-kicker{
+        font-size:11px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1880,7 +1900,7 @@
         <button class="feature-card" data-route="cases">
           <span class="card-kicker">維修案例</span>
           <h3 class="card-title">各式型號<br>維修無礙</h3>
-          <p class="card-subtitle">從手機到遊戲機，筆電、平板包羅萬象！</p>
+          <p class="card-subtitle">手機/平板/筆電/遊戲機</p>
           <img class="card-ornament-small" src="./ornamets/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_tool.png';" alt="" />
         </button>
 
