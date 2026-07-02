@@ -3083,6 +3083,8 @@
       const repo = `${owner}.github.io`;
 
       const cleanPath = (path) => path.replace(/^\/+|\/+$/g,'');
+      const encodePath = (path) => cleanPath(path).split('/').filter(Boolean).map(encodeURIComponent).join('/');
+      const pageUrl = (folderPath, fileName) => `/${encodePath(folderPath)}/${encodeURIComponent(fileName)}`;
       const pathParts = window.location.pathname.split('/').filter(Boolean);
       const currentParts = [...pathParts];
       const lastPart = currentParts[currentParts.length - 1] || '';
@@ -3095,8 +3097,29 @@
         'home_banner'
       ].filter(Boolean)));
 
-      async function fetchBannerImages(folderPath){
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${folderPath}`;
+      function testImage(src){
+        return new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => resolve(src);
+          img.onerror = () => resolve(null);
+          img.src = `${src}${src.includes('?') ? '&' : '?'}v=${Date.now()}`;
+        });
+      }
+
+      async function fetchBannerManifest(folderPath){
+        const manifestUrl = `/${encodePath(folderPath)}/banner-list.json?v=${Date.now()}`;
+        const res = await fetch(manifestUrl, { cache:'no-store' });
+        if(!res.ok) return [];
+        const data = await res.json();
+        const names = Array.isArray(data) ? data : (Array.isArray(data.images) ? data.images : []);
+        return names
+          .map(name => String(name || '').trim())
+          .filter(name => imageExt.test(name))
+          .map(name => pageUrl(folderPath, name));
+      }
+
+      async function fetchBannerImagesFromGithubApi(folderPath){
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodePath(folderPath)}`;
         const res = await fetch(apiUrl, { cache:'no-store' });
         if(!res.ok) return [];
         const data = await res.json();
@@ -3104,19 +3127,61 @@
         return data
           .filter(item => item && item.type === 'file' && imageExt.test(item.name || ''))
           .sort((a,b) => String(a.name || '').localeCompare(String(b.name || ''), 'zh-Hant', { numeric:true }))
-          .map(item => item.download_url || item.html_url)
+          .map(item => pageUrl(folderPath, item.name || ''))
           .filter(Boolean);
       }
 
+      async function findCommonBannerFiles(folderPath){
+        const baseNames = [
+          '01','02','03','04','05','06','07','08','09','10',
+          '1','2','3','4','5',
+          'banner','banner_01','banner_02','banner_03','home_banner','home-banner'
+        ];
+        const exts = ['webp','jpg','jpeg','png','gif','avif'];
+        const urls = [];
+        for(const name of baseNames){
+          for(const ext of exts){
+            urls.push(pageUrl(folderPath, `${name}.${ext}`));
+          }
+        }
+        const found = (await Promise.all(urls.map(testImage))).filter(Boolean);
+        return Array.from(new Set(found));
+      }
+
       let images = [];
+
       for(const folderPath of candidatePaths){
         try{
-          images = await fetchBannerImages(folderPath);
+          images = await fetchBannerManifest(folderPath);
           if(images.length) break;
         }catch(err){
-          console.warn('home_banner load failed:', folderPath, err);
+          console.warn('home_banner manifest load failed:', folderPath, err);
         }
       }
+
+      if(!images.length){
+        for(const folderPath of candidatePaths){
+          try{
+            images = await fetchBannerImagesFromGithubApi(folderPath);
+            if(images.length) break;
+          }catch(err){
+            console.warn('home_banner GitHub API load failed:', folderPath, err);
+          }
+        }
+      }
+
+      if(!images.length){
+        for(const folderPath of candidatePaths){
+          try{
+            images = await findCommonBannerFiles(folderPath);
+            if(images.length) break;
+          }catch(err){
+            console.warn('home_banner fallback image scan failed:', folderPath, err);
+          }
+        }
+      }
+
+      images = Array.from(new Set(images)).sort((a,b) => a.localeCompare(b, 'zh-Hant', { numeric:true }));
 
       if(!images.length){
         banner.classList.remove('is-ready');
