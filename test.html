@@ -1917,6 +1917,28 @@
       }
     }
 
+
+    /* 2026-07-02 首頁 ornament 圖層調整：允許漂浮超出圖卡並顯示在首頁上層 */
+    #home .cards{
+      overflow:visible!important;
+      position:relative!important;
+    }
+    #home .feature-card{
+      overflow:visible!important;
+    }
+    #home .feature-card .card-ornament,
+    #home .feature-card .card-ornament-small{
+      z-index:80!important;
+    }
+    #home .feature-card .card-text-group,
+    #home .feature-card .card-kicker,
+    #home .feature-card .card-title,
+    #home .feature-card .card-subtitle,
+    #home .feature-card .card-pill{
+      position:relative!important;
+      z-index:90!important;
+    }
+
 </style>
 </head>
 <body>
