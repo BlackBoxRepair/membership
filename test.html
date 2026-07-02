@@ -1793,6 +1793,51 @@
       transform:none!important;
     }
 
+
+
+    /* 2026-07-02 首頁 Banner 圓角與首頁圖卡一致；維修報價／服務流程標題對齊會員專區 */
+    #home .home-banner-placeholder{
+      border-radius:15px!important;
+    }
+    #home .home-banner-placeholder .home-banner-slide{
+      border-radius:15px!important;
+    }
+    @media (max-width:390px){
+      #home .home-banner-placeholder{border-radius:15px!important;}
+      #home .home-banner-placeholder .home-banner-slide{border-radius:15px!important;}
+    }
+
+    #flow .page-title,
+    #quote .page-title{
+      margin-left:8px!important;
+    }
+    #flow .page-title h2,
+    #quote .page-title h2{
+      font-size:23px!important;
+      letter-spacing:-.45px!important;
+      line-height:1.18!important;
+    }
+    #flow .page-title small,
+    #quote .page-title small{
+      font-size:10.5px!important;
+      letter-spacing:.04em!important;
+      margin-bottom:4px!important;
+    }
+    @media (max-width:380px){
+      #flow .page-title,
+      #quote .page-title{
+        margin-left:7px!important;
+      }
+      #flow .page-title h2,
+      #quote .page-title h2{
+        font-size:22px!important;
+      }
+      #flow .page-title small,
+      #quote .page-title small{
+        font-size:10px!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1839,7 +1884,7 @@
           <img class="card-ornament-small" src="./ornamets/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_tool.png';" alt="" />
         </button>
 
-        <button class="feature-card" data-route="member">
+        <button class="feature-card" data-route="gift">
           <span class="card-kicker">會員專屬</span>
           <h3 class="card-title">累積點數<br>換取折扣</h3>
           <p class="card-subtitle">更多會員專屬優惠等你來拿！</p>
