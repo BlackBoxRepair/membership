@@ -1724,6 +1724,20 @@
       .bb-wallet-coupon{margin-top:14px!important;}
     }
 
+
+    /* 2026-07-02 票券詳情：移除頂部票券 icon，縮短上方空間 */
+    .bb-coupon-icon,
+    #cd-icon-container{
+      display:none!important;
+      width:0!important;
+      height:0!important;
+      margin:0!important;
+      padding:0!important;
+    }
+    .bb-coupon-top{
+      padding-top:24px!important;
+    }
+
   </style>
 </head>
 <body>
@@ -1826,7 +1840,7 @@
     </section>
 
     <section id="wallet" class="section">
-      <div class="page-head"><div class="page-title"><small>TICKET WALLET</small><h2>票券錢包</h2></div><div id="walletTicketBadge" class="wallet-ticket-badge" aria-label="可用票券張數">0 張可用票券</div></div>
+      <div class="page-head"><div class="page-title"><small>COUPON</small><h2>票券錢包</h2></div><div id="walletTicketBadge" class="wallet-ticket-badge" aria-label="可用票券張數">0 張可用票券</div></div>
       <div id="walletList" class="data-list"></div>
     </section>
 
@@ -1840,7 +1854,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER AREA</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -2975,11 +2989,6 @@
       document.getElementById('cd-id').textContent = displayId;
       renderCouponDescription(desc);
 
-      const icon = document.getElementById('cd-icon-container');
-      if(icon){
-        const iconName = coupon.type === 'cash' ? 'solar:dollar-bold' : 'solar:gift-bold';
-        icon.innerHTML = `<iconify-icon icon="${iconName}"></iconify-icon>`;
-      }
       const canvas = document.getElementById('cd-qrcode');
       if(canvas && window.QRious){
         new QRious({ element: canvas, value: makeCouponQrValue(coupon.id), size: 160, level: 'H' });
@@ -3050,7 +3059,6 @@
     <div class="bb-coupon-body">
       <div class="bb-coupon-card">
         <div class="bb-coupon-top">
-          <div id="cd-icon-container" class="bb-coupon-icon"></div>
           <h3 id="cd-title">---</h3>
           <p id="cd-date">---</p>
         </div>
