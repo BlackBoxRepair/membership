@@ -1964,6 +1964,142 @@
       z-index:90!important;
     }
 
+
+
+
+
+    /* 2026-07-02 背景恢復原版；票券標示移除；我的會員／盒芯禮遇內容調整 */
+    .bb-wallet-card-main{
+      grid-template-columns:auto 1fr!important;
+      padding-right:16px!important;
+    }
+    .bb-wallet-card-type{
+      display:none!important;
+    }
+
+    #gift.section.active{
+      margin-top:0!important;
+      padding-top:0!important;
+    }
+    #giftList.gift-yearly-content{
+      margin-top:0!important;
+      display:block!important;
+    }
+    .gift-yearly-wrap{
+      padding-top:2px;
+    }
+    #gift .bb-yearly-card{
+      margin-top:0!important;
+      margin-bottom:12px!important;
+    }
+
+    .bb-member-activity{
+      margin-top:18px;
+    }
+    .bb-member-activity-head{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      padding:0 4px;
+      margin-bottom:10px;
+    }
+    .bb-member-activity-head small{
+      display:block;
+      color:var(--blue);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.08em;
+      margin-bottom:4px;
+    }
+    .bb-member-activity-head h3{
+      margin:0;
+      color:var(--deep);
+      font-size:23px;
+      line-height:1.18;
+      letter-spacing:-.45px;
+      font-weight:950;
+    }
+    .bb-member-activity-list{
+      overflow:hidden;
+      border-radius:22px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(255,255,255,.76);
+      box-shadow:0 14px 34px rgba(15,23,42,.09);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+    .bb-member-activity-row{
+      position:relative;
+      min-height:116px;
+      padding:18px 52px 18px 18px;
+      border-bottom:1px solid rgba(16,24,36,.10);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:8px;
+      color:#111827;
+    }
+    .bb-member-activity-row:last-child{border-bottom:0;}
+    .bb-member-activity-meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:#8b95a1;
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:.04em;
+    }
+    .bb-member-activity-meta span:last-child{
+      text-align:right;
+      white-space:nowrap;
+    }
+    .bb-member-activity-order{
+      display:block;
+      color:#111827;
+      font-size:17px;
+      line-height:1.25;
+      font-weight:950;
+      letter-spacing:-.02em;
+      word-break:break-word;
+    }
+    .bb-member-activity-points{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px 14px;
+      color:#8b95a1;
+      font-size:14px;
+      font-weight:900;
+    }
+    .bb-member-activity-points .gain{color:#5f6b7a;}
+    .bb-member-activity-points .deduct{color:#8b95a1;}
+    .bb-member-activity-arrow{
+      position:absolute;
+      right:16px;
+      top:50%;
+      transform:translateY(-50%);
+      color:#111827;
+      font-size:30px;
+    }
+    .bb-member-activity-empty,
+    .bb-member-activity-loading{
+      padding:24px 18px;
+      color:#667085;
+      text-align:center;
+      font-size:14px;
+      font-weight:850;
+    }
+    @media (max-width:390px){
+      .bb-member-activity-row{
+        min-height:108px;
+        padding:16px 48px 16px 16px;
+      }
+      .bb-member-activity-order{font-size:16px;}
+      .bb-member-activity-meta{font-size:12.5px;}
+      .bb-member-activity-points{font-size:13.5px;}
+    }
+
 </style>
 </head>
 <body>
@@ -2080,7 +2216,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>會員專區</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>我的會員</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -2115,9 +2251,9 @@
         <span>票券錢包</span>
       </button>
 
-      <button class="bottom-link" data-route="member" aria-label="會員專區">
+      <button class="bottom-link" data-route="member" aria-label="我的會員">
         <iconify-icon icon="gravity-ui:person-fill"></iconify-icon>
-        <span>會員專區</span>
+        <span>我的會員</span>
       </button>
     </div>
   </nav>
@@ -2631,6 +2767,33 @@
       return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
+    function memberYearlyCardHTML(){
+      return `
+        <div id="memberYearlyCard" class="bb-yearly-card" role="button" tabindex="0" onclick="handleYearlyCardClick()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleYearlyCardClick();}" aria-label="年度消費次數，點擊查看年度達成禮">
+          <div class="bb-yearly-visual">
+            <svg viewBox="0 0 200 120" aria-hidden="true">
+              <defs>
+                <linearGradient id="memberYearlyArcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#F7B500" />
+                  <stop offset="100%" stop-color="#FFD700" />
+                </linearGradient>
+              </defs>
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#F2F4F6" stroke-width="12" stroke-linecap="round"/>
+              <path id="memberYearlyProgressArc" class="bb-yearly-progress-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#memberYearlyArcGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+
+              <g style="outline:none;"><circle cx="35" cy="53" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="3" cx="35" cy="53" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="22" y="53" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">3</text></g>
+              <g style="outline:none;"><circle cx="75" cy="24" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="6" cx="75" cy="24" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="70" y="14" text-anchor="middle" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">6</text></g>
+              <g style="outline:none;"><circle cx="140" cy="31" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="10" cx="140" cy="31" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="145" y="21" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">10</text></g>
+              <g style="outline:none;"><circle cx="180" cy="100" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="15" cx="180" cy="100" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="195" y="103" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">15</text></g>
+            </svg>
+            <div class="bb-yearly-center">
+              <span id="memberYearlyCount" class="bb-yearly-count">0</span>
+              <div class="bb-yearly-label">本年度消費次數</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       const memberSection = document.getElementById('member');
@@ -2648,9 +2811,6 @@
       const points = Number(currentMember.total_points || 0).toLocaleString();
       const phone = currentMember.phone || '尚未補齊';
       const level = currentMember.member_level || 'MEMBER';
-      const birthday = currentMember.birthday || currentMember.member_birthday || '尚未補齊';
-      const email = currentMember.email || currentMember.member_email || '尚未填寫';
-      const area = currentMember.area || currentMember.store || currentMember.join_store || currentMember.member_store || '尚未填寫';
 
       box.innerHTML = `
         <div class="bb-member-card-wrap">
@@ -2661,33 +2821,83 @@
             <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
 
-          <div id="memberYearlyCard" class="bb-yearly-card" role="button" tabindex="0" onclick="handleYearlyCardClick()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();handleYearlyCardClick();}" aria-label="年度消費次數，點擊查看年度達成禮">
-            <div class="bb-yearly-visual">
-              <svg viewBox="0 0 200 120" aria-hidden="true">
-                <defs>
-                  <linearGradient id="memberYearlyArcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#F7B500" />
-                    <stop offset="100%" stop-color="#FFD700" />
-                  </linearGradient>
-                </defs>
-                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#F2F4F6" stroke-width="12" stroke-linecap="round"/>
-                <path id="memberYearlyProgressArc" class="bb-yearly-progress-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#memberYearlyArcGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
-
-                <g style="outline:none;"><circle cx="35" cy="53" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="3" cx="35" cy="53" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="22" y="53" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">3</text></g>
-                <g style="outline:none;"><circle cx="75" cy="24" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="6" cx="75" cy="24" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="70" y="14" text-anchor="middle" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">6</text></g>
-                <g style="outline:none;"><circle cx="140" cy="31" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="10" cx="140" cy="31" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="145" y="21" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">10</text></g>
-                <g style="outline:none;"><circle cx="180" cy="100" r="16" fill="transparent"/><circle class="bb-yearly-node" data-member-yearly-node="15" cx="180" cy="100" r="5" fill="#ffffff" stroke="#E5E8EB" stroke-width="3"/><text x="195" y="103" font-size="10" fill="#8B95A1" font-weight="bold" pointer-events="none">15</text></g>
-              </svg>
-              <div class="bb-yearly-center">
-                <span id="memberYearlyCount" class="bb-yearly-count">0</span>
-                <div class="bb-yearly-label">本年度消費次數</div>
+          <section class="bb-member-activity" aria-label="會員互動">
+            <div class="bb-member-activity-head">
+              <div>
+                <small>MEMBER ACTIVITY</small>
+                <h3>會員互動</h3>
               </div>
             </div>
-          </div>
+            <div id="memberActivityList" class="bb-member-activity-list">
+              <div class="bb-member-activity-loading">會員互動載入中...</div>
+            </div>
+          </section>
         </div>`;
-      renderMemberYearlyCard();
+      renderMemberActivityList();
     }
 
+    function formatMemberActivityDate(value){
+      const d = value ? new Date(value) : null;
+      if(!d || Number.isNaN(d.getTime())) return '日期未提供';
+      return `${d.getFullYear()}年${d.getMonth()+1}月${String(d.getDate()).padStart(2,'0')}日`;
+    }
+
+    function resolveActivityPoints(row){
+      const change = Number(row.points_change ?? row.point_change ?? row.points ?? 0) || 0;
+      const directEarned = Number(row.points_earned ?? row.earned_points ?? row.gained_points ?? 0) || 0;
+      const redeemed = Number(row.points_redeemed ?? row.redeemed_points ?? row.points_deducted ?? row.points_used ?? 0) || 0;
+      const earned = directEarned || (change > 0 ? change : 0);
+      const deducted = redeemed || (change < 0 ? Math.abs(change) : 0);
+      return { earned, deducted };
+    }
+
+    async function renderMemberActivityList(){
+      const list = $('#memberActivityList');
+      if(!list || !currentMember) return;
+      const lineId = memberLineId();
+      if(!lineId){
+        list.innerHTML = '<div class="bb-member-activity-empty">尚未取得會員 LINE ID，暫時無法讀取互動紀錄。</div>';
+        return;
+      }
+
+      try{
+        const { data, error } = await supabaseClient
+          .from('point_logs')
+          .select('*')
+          .eq('line_id', lineId)
+          .order('created_at', { ascending:false })
+          .limit(30);
+        if(error) throw error;
+        const rows = data || [];
+        if(!rows.length){
+          list.innerHTML = '<div class="bb-member-activity-empty">目前尚無會員互動紀錄。</div>';
+          return;
+        }
+
+        list.innerHTML = rows.map(row => {
+          const dateText = formatMemberActivityDate(row.created_at || row.date || row.log_date);
+          const orderNo = row.order_number || row.order_no || row.order_id || '未提供單號';
+          const storeName = row.store_name || row.store || row.branch_name || row.branch || '黑盒子維修中心';
+          const { earned, deducted } = resolveActivityPoints(row);
+          return `
+            <article class="bb-member-activity-row">
+              <div class="bb-member-activity-meta">
+                <span>${escapeHTML(dateText)}</span>
+                <span>${escapeHTML(storeName)}</span>
+              </div>
+              <strong class="bb-member-activity-order">單號：${escapeHTML(orderNo)}</strong>
+              <div class="bb-member-activity-points">
+                <span class="gain">獲得積分 ${Number(earned || 0).toLocaleString()}</span>
+                <span class="deduct">扣除積分 ${Number(deducted || 0).toLocaleString()}</span>
+              </div>
+              <iconify-icon class="bb-member-activity-arrow" icon="solar:alt-arrow-right-linear"></iconify-icon>
+            </article>`;
+        }).join('');
+      }catch(err){
+        console.warn('member activity load failed', err);
+        list.innerHTML = '<div class="bb-member-activity-empty">會員互動紀錄讀取失敗，請稍後再試。</div>';
+      }
+    }
 
     async function getYearlyMemberStatus(){
       if(!currentMember) return { times:0, claimed:[] };
@@ -3015,8 +3225,6 @@
           const couponName = escapeHTML(c.coupon_name || c.title || c.name || '優惠券');
           const couponId = escapeHTML(String(c.id || ''));
           const meta = getWalletCouponMeta(c);
-          const type = String(c.type || '').toLowerCase();
-          const typeLabel = escapeHTML(type === 'cash' ? '折抵票券' : '會員票券');
           return `<button type="button" class="coupon-row bb-wallet-coupon" data-coupon-id="${couponId}">
             <div class="bb-wallet-card">
               <div class="bb-wallet-card-main">
@@ -3025,7 +3233,6 @@
                   <strong class="bb-wallet-card-name">${couponName}</strong>
                   <span class="bb-wallet-card-expiry">${meta.dateText}</span>
                 </span>
-                <span class="bb-wallet-card-type">${typeLabel}</span>
               </div>
               <div class="bb-wallet-card-action">查看票券</div>
             </div>
@@ -3119,25 +3326,13 @@
 
     async function renderGiftPage(){
       const box = $('#giftList'); if(!box) return;
-      box.classList.add('gift-content');
+      box.classList.add('gift-content', 'gift-yearly-content');
       box.innerHTML = `
-        <div class="hero gift-privilege-hero">
-          <div class="hero-copy">
-            <div class="hello">您好！ 👋</div>
-            <h1>現在更換電池</h1>
-            <h2>最高享 20% 優惠</h2>
-            <p>BLACK BOX 會員專屬優惠<br>為您的裝置提供最佳維護服務。</p>
-            <button class="primary-btn" onclick="window.location.href='https://blackboxrepair.github.io/membership/price'; return false;" aria-label="查看優惠詳情">
-              查看優惠詳情
-              <iconify-icon icon="mdi:arrow-right"></iconify-icon>
-            </button>
-          </div>
-          <div class="hero-art" aria-hidden="true">
-            <img class="main-photo" src="main_photo.png" alt="" />
-          </div>
-        </div>`;
+        <section class="gift-yearly-wrap" aria-label="年度消費次數">
+          ${memberYearlyCardHTML()}
+        </section>`;
+      renderMemberYearlyCard();
     }
-
 
 
 
