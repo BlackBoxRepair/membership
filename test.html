@@ -2328,6 +2328,34 @@
       .bb-annual-node b,.bb-annual-node small{font-size:9.5px;}
     }
 
+
+    /* 2026-07-03 修正：年度積分進度條強制顯示於會員卡下方 */
+    #memberAnnualProgressMount{
+      display:block!important;
+      width:100%!important;
+      margin:0!important;
+      padding:0!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+    #member .bb-annual-points-card{
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+      margin:0!important;
+      position:relative!important;
+      z-index:2!important;
+    }
+    #member .bb-annual-progress-area,
+    #member .bb-annual-progress-track,
+    #member .bb-annual-progress-fill,
+    #member .bb-annual-node{
+      display:block!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+    #member .bb-annual-node{display:flex!important;}
+
 </style>
 </head>
 <body>
@@ -3099,7 +3127,7 @@
             <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
 
-          ${memberAnnualPointsProgressHTML()}
+          <div id="memberAnnualProgressMount">${memberAnnualPointsProgressHTML()}</div>
 
           <section class="bb-member-activity" aria-label="積分活動">
             <div class="bb-member-activity-head">
@@ -3110,6 +3138,13 @@
             </div>
           </section>
         </div>`;
+      // 防止部分瀏覽器或舊快取造成年度積分進度條未掛上，這裡再補一次渲染。
+      requestAnimationFrame(() => {
+        const annualMount = document.getElementById('memberAnnualProgressMount');
+        if(annualMount && !annualMount.querySelector('.bb-annual-points-card')){
+          annualMount.innerHTML = memberAnnualPointsProgressHTML();
+        }
+      });
       renderMemberActivityList();
     }
 
