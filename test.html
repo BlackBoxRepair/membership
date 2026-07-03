@@ -2182,6 +2182,152 @@
       }
     }
 
+
+    /* 2026-07-03 我的會員：年度積分進度條 */
+    .bb-annual-points-card{
+      position:relative;
+      width:100%;
+      margin-top:0;
+      padding:18px 18px 20px;
+      border-radius:24px;
+      background:rgba(255,255,255,.86);
+      border:1px solid rgba(255,255,255,.76);
+      box-shadow:0 16px 36px rgba(15,23,42,.10);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      overflow:visible;
+    }
+    .bb-annual-points-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:20px;
+    }
+    .bb-annual-points-title{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+    }
+    .bb-annual-points-title strong{
+      display:block;
+      color:#111827;
+      font-size:17px;
+      line-height:1.2;
+      font-weight:1000;
+      letter-spacing:-.02em;
+    }
+    .bb-annual-points-title span{
+      display:block;
+      color:#7b8796;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:850;
+    }
+    .bb-annual-points-score{
+      color:#111827;
+      font-size:15px;
+      line-height:1;
+      font-weight:1000;
+      white-space:nowrap;
+      padding-top:2px;
+    }
+    .bb-annual-progress-area{
+      --annual-progress:0%;
+      position:relative;
+      margin:0 14px 42px;
+      height:42px;
+      overflow:visible;
+    }
+    .bb-annual-progress-track{
+      position:absolute;
+      left:0;
+      right:0;
+      top:18px;
+      height:8px;
+      border-radius:999px;
+      background:rgba(17,24,39,.10);
+      overflow:hidden;
+      box-shadow:inset 0 1px 2px rgba(17,24,39,.12);
+    }
+    .bb-annual-progress-fill{
+      position:absolute;
+      left:0;
+      top:0;
+      bottom:0;
+      width:var(--annual-progress);
+      max-width:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#b7b8b8 0%,#ddac59 34%,#9dadb5 68%,#515259 100%);
+      box-shadow:0 0 14px rgba(221,172,89,.22);
+      transition:width .45s ease;
+    }
+    .bb-annual-node{
+      --node-color:#b7b8b8;
+      --node-glow:rgba(183,184,184,.34);
+      position:absolute;
+      top:0;
+      left:var(--node-left);
+      transform:translateX(-50%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:5px;
+      z-index:3;
+      min-width:62px;
+      text-align:center;
+      color:var(--node-color);
+    }
+    .bb-annual-node iconify-icon{
+      width:36px;
+      height:36px;
+      display:grid;
+      place-items:center;
+      font-size:24px;
+      color:var(--node-color);
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(255,255,255,.86);
+      border-radius:999px;
+      box-shadow:0 8px 18px rgba(15,23,42,.10);
+      transition:filter .25s ease, box-shadow .25s ease, transform .25s ease;
+    }
+    .bb-annual-node.is-current iconify-icon{
+      transform:translateY(-1px) scale(1.04);
+      filter:drop-shadow(0 0 7px var(--node-glow)) drop-shadow(0 0 15px var(--node-glow));
+      box-shadow:0 8px 18px rgba(15,23,42,.10), 0 0 18px var(--node-glow);
+    }
+    .bb-annual-node b{
+      color:#5d6876;
+      font-size:10px;
+      line-height:1;
+      font-weight:1000;
+      letter-spacing:.06em;
+      white-space:nowrap;
+    }
+    .bb-annual-node small{
+      color:#8d98a6;
+      font-size:10px;
+      line-height:1;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .bb-annual-node.is-current b{
+      color:#111827;
+    }
+    @media (max-width:390px){
+      .bb-annual-points-card{padding:16px 14px 18px;border-radius:22px;}
+      .bb-annual-points-head{margin-bottom:18px;}
+      .bb-annual-points-title strong{font-size:16px;}
+      .bb-annual-points-title span{font-size:11.5px;}
+      .bb-annual-points-score{font-size:14px;}
+      .bb-annual-progress-area{margin:0 12px 40px;height:40px;}
+      .bb-annual-node{min-width:58px;}
+      .bb-annual-node iconify-icon{width:32px;height:32px;font-size:21px;}
+      .bb-annual-node b,.bb-annual-node small{font-size:9.5px;}
+    }
+
 </style>
 </head>
 <body>
@@ -2772,7 +2918,7 @@
       try{
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('line_id, full_name, total_points, phone, member_level')
+          .select('line_id, full_name, total_points, phone, member_level, accumulated_points')
           .eq('line_id', lineId)
           .maybeSingle();
 
@@ -2876,6 +3022,56 @@
         </div>`;
     }
 
+    function normalizeMemberLevel(value){
+      return String(value || 'B.I.C MEMBER').trim().toUpperCase();
+    }
+
+    function memberLevelRank(level){
+      switch(normalizeMemberLevel(level)){
+        case 'TITANIUM': return 4;
+        case 'PLATINUM': return 3;
+        case 'GOLD': return 2;
+        case 'SILVER': return 1;
+        default: return 0;
+      }
+    }
+
+    function memberAnnualPointsProgressHTML(){
+      if(!currentMember) return '';
+      const points = Math.max(0, Number(currentMember.accumulated_points || 0) || 0);
+      const maxPoints = 1000;
+      const progress = Math.max(0, Math.min(100, (points / maxPoints) * 100));
+      const currentLevel = normalizeMemberLevel(currentMember.member_level || 'B.I.C MEMBER');
+      const nodes = [
+        { level:'SILVER', threshold:100, left:10, color:'#b7b8b8', glow:'rgba(183,184,184,.38)' },
+        { level:'GOLD', threshold:300, left:30, color:'#ddac59', glow:'rgba(221,172,89,.36)' },
+        { level:'PLATINUM', threshold:600, left:60, color:'#9dadb5', glow:'rgba(157,173,181,.38)' },
+        { level:'TITANIUM', threshold:1000, left:100, color:'#515259', glow:'rgba(81,82,89,.34)' }
+      ];
+      const nodeHTML = nodes.map(node => {
+        const isCurrent = currentLevel === node.level;
+        return `<div class="bb-annual-node ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left}%;--node-color:${node.color};--node-glow:${node.glow};" aria-label="${node.level} ${node.threshold} 點">
+          <iconify-icon icon="fa7-solid:microchip"></iconify-icon>
+          <b>${node.level}</b>
+          <small>${node.threshold}</small>
+        </div>`;
+      }).join('');
+
+      return `<section class="bb-annual-points-card" aria-label="年度積分進度">
+        <div class="bb-annual-points-head">
+          <div class="bb-annual-points-title">
+            <strong>年度積分</strong>
+            <span>依累積年度積分解鎖會員會籍節點</span>
+          </div>
+          <div class="bb-annual-points-score">${points.toLocaleString()} / ${maxPoints.toLocaleString()}</div>
+        </div>
+        <div class="bb-annual-progress-area" style="--annual-progress:${progress.toFixed(2)}%;">
+          <div class="bb-annual-progress-track"><div class="bb-annual-progress-fill"></div></div>
+          ${nodeHTML}
+        </div>
+      </section>`;
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       const memberSection = document.getElementById('member');
@@ -2902,6 +3098,8 @@
             <div class="bb-card-field bb-card-phone"><small>PHONE NUMBER</small><b>${escapeHTML(phone)}</b></div>
             <div class="bb-card-field bb-card-level"><small>MEMBER</small><b>${escapeHTML(level)}</b></div>
           </div>
+
+          ${memberAnnualPointsProgressHTML()}
 
           <section class="bb-member-activity" aria-label="積分活動">
             <div class="bb-member-activity-head">
