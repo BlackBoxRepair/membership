@@ -2158,6 +2158,30 @@
       .bb-member-activity-points{font-size:12.5px!important;}
     }
 
+
+    /* 2026-07-03 我的會員：會員卡等級標示縮小 */
+    .bb-card-level{
+      min-width:96px!important;
+      padding:9px 16px!important;
+      bottom:14%!important;
+    }
+    .bb-card-level b{
+      font-size:14px!important;
+      letter-spacing:.09em!important;
+      line-height:1.05!important;
+    }
+    @media (max-width:560px){
+      .bb-card-level{
+        min-width:78px!important;
+        padding:7px 12px!important;
+        bottom:13%!important;
+      }
+      .bb-card-level b{
+        font-size:11px!important;
+        letter-spacing:.07em!important;
+      }
+    }
+
 </style>
 </head>
 <body>
@@ -2916,16 +2940,24 @@
       }
 
       try{
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
         const { data, error } = await supabaseClient
           .from('point_logs')
           .select('*')
           .eq('line_id', lineId)
+          .gte('created_at', threeMonthsAgo.toISOString())
           .order('created_at', { ascending:false })
           .limit(30);
         if(error) throw error;
-        const rows = data || [];
+        const rows = (data || []).filter(row => {
+          const rawDate = row.created_at || row.date || row.log_date;
+          const d = rawDate ? new Date(rawDate) : null;
+          return d && !Number.isNaN(d.getTime()) && d >= threeMonthsAgo;
+        });
         if(!rows.length){
-          list.innerHTML = '<div class="bb-member-activity-empty">目前尚無積分活動紀錄。</div>';
+          list.innerHTML = '<div class="bb-member-activity-empty">近 3 個月內尚無積分活動紀錄。</div>';
           return;
         }
 
