@@ -2579,6 +2579,32 @@
       #member .bb-annual-node iconify-icon{width:26px!important;height:26px!important;font-size:23px!important;line-height:26px!important;}
     }
 
+
+    /* 2026-07-03 會員等級進度條：節點圓圈加大、未點亮統一使用線條底色、icon縮小 */
+    #member .bb-annual-node::before{
+      width:19px!important;
+      height:19px!important;
+      background:rgba(17,24,39,.10)!important;
+      box-shadow:0 0 0 3px rgba(255,255,255,.92)!important;
+    }
+    #member .bb-annual-node.is-current::before{
+      background:var(--node-soft)!important;
+      box-shadow:0 0 0 3px rgba(255,255,255,.92), 0 0 13px var(--node-glow)!important;
+    }
+    #member .bb-annual-node iconify-icon{
+      width:25px!important;
+      height:25px!important;
+      font-size:22px!important;
+      line-height:25px!important;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:scale(1.04)!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-node::before{width:18px!important;height:18px!important;}
+      #member .bb-annual-node iconify-icon{width:24px!important;height:24px!important;font-size:21px!important;line-height:24px!important;}
+    }
+
 </style>
 </head>
 <body>
