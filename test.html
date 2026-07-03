@@ -2951,7 +2951,120 @@
       }
     }
 
-</style>
+
+
+    /* 2026-07-03 會員等級進度條：節點圓圈縮小、外框加粗、移除光暈 */
+    #member .bb-annual-progress-area{
+      height:34px!important;
+      margin:2px 18px!important;
+      overflow:visible!important;
+    }
+    #member .bb-annual-progress-track{
+      top:50%!important;
+      height:7px!important;
+      transform:translateY(-50%)!important;
+      background:var(--annual-track-base,#e7e9ed)!important;
+      z-index:1!important;
+      overflow:hidden!important;
+    }
+    #member .bb-annual-progress-fill{
+      background:var(--annual-fill,#F7B500)!important;
+      box-shadow:none!important;
+    }
+    #member .bb-annual-node{
+      top:50%!important;
+      left:var(--node-left)!important;
+      transform:translate(-50%,-50%)!important;
+      width:30px!important;
+      min-width:30px!important;
+      height:30px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      z-index:20!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node::before{
+      content:""!important;
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      width:24px!important;
+      height:24px!important;
+      transform:translate(-50%,-50%)!important;
+      border-radius:999px!important;
+      background:var(--annual-track-base,#e7e9ed)!important;
+      border:3px solid transparent!important;
+      box-shadow:none!important;
+      box-sizing:border-box!important;
+      z-index:1!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node.is-current::before{
+      background:var(--annual-track-base,#e7e9ed)!important;
+      border-color:var(--annual-fill,#F7B500)!important;
+      box-shadow:none!important;
+    }
+    #member .bb-annual-node iconify-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      z-index:2!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      width:17px!important;
+      height:17px!important;
+      min-width:17px!important;
+      min-height:17px!important;
+      font-size:16px!important;
+      line-height:17px!important;
+      color:var(--node-color)!important;
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      filter:none!important;
+      padding:0!important;
+      margin:0!important;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:translate(-50%,-50%)!important;
+      filter:none!important;
+      box-shadow:none!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-progress-area{
+        height:32px!important;
+        margin:2px 16px!important;
+      }
+      #member .bb-annual-node{
+        width:28px!important;
+        min-width:28px!important;
+        height:28px!important;
+      }
+      #member .bb-annual-node::before{
+        width:23px!important;
+        height:23px!important;
+        border-width:3px!important;
+      }
+      #member .bb-annual-node iconify-icon{
+        width:16px!important;
+        height:16px!important;
+        min-width:16px!important;
+        min-height:16px!important;
+        font-size:15px!important;
+        line-height:16px!important;
+      }
+      #member .bb-annual-node.is-current iconify-icon{
+        transform:translate(-50%,-50%)!important;
+        filter:none!important;
+        box-shadow:none!important;
+      }
+    }
+
+  </style>
 </head>
 <body>
   <main class="app">
