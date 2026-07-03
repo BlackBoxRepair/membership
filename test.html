@@ -2830,6 +2830,127 @@
       }
     }
 
+
+
+    /* 2026-07-03 會員等級進度條：圓圈微縮與右側節點防溢出修正 */
+    #member .bb-annual-points-card{
+      padding-left:16px!important;
+      padding-right:16px!important;
+      overflow:hidden!important;
+    }
+    #member .bb-annual-progress-area{
+      --annual-track-base:#e7e9ed;
+      --annual-fill:#F7B500;
+      height:42px!important;
+      margin:2px 18px!important;
+      overflow:visible!important;
+    }
+    #member .bb-annual-progress-track{
+      left:0!important;
+      right:0!important;
+      top:50%!important;
+      height:7px!important;
+      transform:translateY(-50%)!important;
+      border-radius:999px!important;
+      background:var(--annual-track-base)!important;
+      overflow:hidden!important;
+      z-index:1!important;
+    }
+    #member .bb-annual-progress-fill{
+      background:var(--annual-fill)!important;
+      box-shadow:0 0 12px rgba(247,181,0,.22)!important;
+    }
+    #member .bb-annual-node{
+      top:50%!important;
+      left:var(--node-left)!important;
+      transform:translate(-50%,-50%)!important;
+      width:40px!important;
+      min-width:40px!important;
+      height:40px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      z-index:20!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node::before{
+      content:""!important;
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      width:32px!important;
+      height:32px!important;
+      transform:translate(-50%,-50%)!important;
+      border-radius:999px!important;
+      background:var(--annual-track-base)!important;
+      border:2px solid transparent!important;
+      box-shadow:none!important;
+      box-sizing:border-box!important;
+      z-index:1!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node.is-current::before{
+      background:var(--annual-track-base)!important;
+      border-color:var(--annual-fill)!important;
+      box-shadow:0 0 0 3px rgba(247,181,0,.12), 0 0 12px rgba(247,181,0,.26)!important;
+    }
+    #member .bb-annual-node iconify-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      z-index:2!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      width:18px!important;
+      height:18px!important;
+      min-width:18px!important;
+      min-height:18px!important;
+      font-size:17px!important;
+      line-height:18px!important;
+      color:var(--node-color)!important;
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      filter:none!important;
+      padding:0!important;
+      margin:0!important;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:translate(-50%,-50%)!important;
+      filter:drop-shadow(0 0 3px rgba(247,181,0,.34))!important;
+      box-shadow:none!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-points-card{
+        padding-left:12px!important;
+        padding-right:12px!important;
+      }
+      #member .bb-annual-progress-area{
+        height:40px!important;
+        margin:2px 16px!important;
+      }
+      #member .bb-annual-node{
+        width:38px!important;
+        min-width:38px!important;
+        height:38px!important;
+      }
+      #member .bb-annual-node::before{
+        width:30px!important;
+        height:30px!important;
+      }
+      #member .bb-annual-node iconify-icon{
+        width:17px!important;
+        height:17px!important;
+        min-width:17px!important;
+        min-height:17px!important;
+        font-size:16px!important;
+        line-height:17px!important;
+      }
+    }
+
 </style>
 </head>
 <body>
