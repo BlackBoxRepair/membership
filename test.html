@@ -3215,7 +3215,219 @@
     #member .bb-annual-progress-fill{background:#f7b500!important;}
     #member .bb-annual-node.is-current::before{border-color:#f7b500!important;}
 
-  </style>
+  
+
+    /* 2026-07-03 白底版本：移除 main_background.png，主色改為白底 + #f7b500 + #525252 */
+    :root{
+      --bg:#ffffff!important;
+      --bg2:#ffffff!important;
+      --blue:#f7b500!important;
+      --blue2:#ffd768!important;
+      --deep:#252525!important;
+      --text:#252525!important;
+      --muted:#707070!important;
+      --line:rgba(82,82,82,.12)!important;
+      --card:#ffffff!important;
+      --card2:#f7f7f7!important;
+      --shadow:0 16px 38px rgba(82,82,82,.12)!important;
+      --soft-shadow:0 10px 24px rgba(82,82,82,.10)!important;
+      --annual-fill:#f7b500!important;
+      --annual-track-base:#e8e8e8!important;
+    }
+
+    html,body{
+      background:#ffffff!important;
+      background-color:#ffffff!important;
+      background-image:none!important;
+      color:#252525!important;
+    }
+    body::before{
+      background:none!important;
+      opacity:0!important;
+    }
+
+    .app{background:transparent!important;}
+    .brand-logo{filter:drop-shadow(0 8px 18px rgba(82,82,82,.14))!important;}
+
+    .hello,.hero h1,.hero p,.page-title h2,#wallet .page-head{
+      color:#252525!important;
+    }
+    .hero h2,.page-title small,.price,.coin,
+    .bb-wallet-count,.bb-wallet-title,.bb-wallet-side{
+      color:#f7b500!important;
+    }
+
+    .quick-btn,.member-logout-btn,.member-info-btn,
+    .glass-nav,.search-box,.list-card,.empty,.booking-frame-wrap,
+    .process-tabs,.price-tabs,.process-img-box,.price-img-box,
+    .bottom-shell,.bottom-link.home-center,
+    .wallet-points-card,.wallet-empty-ticket,.coupon-ticket,
+    .bb-annual-points-card,.bb-member-info-row,.member-stat,.data-row,
+    .booking-card,.member-strip,.member-item{
+      background:#ffffff!important;
+      border-color:rgba(82,82,82,.10)!important;
+      box-shadow:0 10px 26px rgba(82,82,82,.10)!important;
+    }
+
+    .quick-btn,.member-logout-btn,.member-info-btn,
+    .nav-tile span,.process-tab,.price-tab,
+    .bottom-link.active span,.bottom-link.active:not(.home-center) span{
+      color:#525252!important;
+    }
+    .quick-btn iconify-icon,.member-logout-btn iconify-icon,.member-info-btn iconify-icon,
+    .nav-tile,.nav-tile iconify-icon,
+    .bottom-link.active iconify-icon,
+    .bottom-link.active:not(.home-center) iconify-icon,
+    .bottom-link.home-center.active iconify-icon{
+      color:#f7b500!important;
+    }
+    .quick-btn .bubble{
+      background:#252525!important;
+      color:#ffffff!important;
+    }
+
+    .back-home,.primary-btn,.reserve-fab,.submit-btn,.bb-coupon-footer button{
+      background:#f7b500!important;
+      color:#252525!important;
+      box-shadow:0 12px 24px rgba(247,181,0,.24)!important;
+    }
+    .ghost-btn{
+      background:#f1f1f1!important;
+      color:#525252!important;
+    }
+
+    .glass-nav{
+      background:#ffffff!important;
+    }
+    .nav-tile:not(:last-child)::after{
+      background:rgba(82,82,82,.10)!important;
+    }
+
+    .feature-card{
+      background:#ffffff!important;
+      color:#252525!important;
+      border-color:rgba(82,82,82,.10)!important;
+      box-shadow:0 12px 28px rgba(82,82,82,.10)!important;
+    }
+    .feature-card.big{
+      background:linear-gradient(145deg,#f7b500,#ffd76a)!important;
+      color:#252525!important;
+      border-color:rgba(247,181,0,.32)!important;
+    }
+    .feature-card.dark,.feature-card:nth-child(3){
+      background:#525252!important;
+      color:#ffffff!important;
+      border-color:rgba(82,82,82,.18)!important;
+    }
+    .feature-card:nth-child(2),.feature-card:nth-child(4),.feature-card:nth-child(5){
+      background:#ffffff!important;
+      color:#252525!important;
+    }
+    .feature-card.big .card-kicker,.feature-card.big .card-subtitle{
+      color:rgba(37,37,37,.72)!important;
+    }
+    .feature-card.dark .card-kicker,.feature-card.dark .card-subtitle,
+    .feature-card:nth-child(3) .card-kicker,.feature-card:nth-child(3) .card-subtitle{
+      color:rgba(255,255,255,.78)!important;
+    }
+    .feature-card:not(.big):not(.dark) .tag,
+    .data-badge,.wallet-points-chip{
+      background:rgba(247,181,0,.13)!important;
+      color:#9b7000!important;
+    }
+    .feature-card .mini-btn,.card-pill{
+      background:#ffffff!important;
+      color:#252525!important;
+      box-shadow:0 10px 20px rgba(82,82,82,.12)!important;
+    }
+    .card-icon,.dark .card-icon{
+      color:#f7b500!important;
+      filter:drop-shadow(0 12px 15px rgba(247,181,0,.18))!important;
+    }
+    .big .card-icon{color:rgba(255,255,255,.82)!important;}
+    .card-ornament,.card-ornament-small{filter:drop-shadow(0 14px 20px rgba(82,82,82,.14))!important;}
+
+    .member-icon{
+      background:#f7b500!important;
+      color:#252525!important;
+      box-shadow:0 10px 20px rgba(247,181,0,.22)!important;
+    }
+    .member-text small,.list-card p,.price-note,.empty,
+    .coupon-ticket-desc,.coupon-ticket-date,.bb-wallet-row-date{
+      color:#707070!important;
+    }
+
+    .process-tab.active,.price-tab.active{
+      background:#f7b500!important;
+      color:#252525!important;
+      box-shadow:0 10px 20px rgba(247,181,0,.22)!important;
+    }
+    .search-box input,.search-box select,.form input,.form select,.form textarea{
+      background:#f5f5f5!important;
+      color:#252525!important;
+    }
+
+    .bottom-shell{
+      background:#ffffff!important;
+      border-color:rgba(82,82,82,.10)!important;
+      box-shadow:0 14px 34px rgba(82,82,82,.16)!important;
+    }
+    .bottom-link{color:#7d7d7d!important;}
+    .bottom-link.home-center{
+      background:#ffffff!important;
+      color:#7d7d7d!important;
+      box-shadow:0 12px 28px rgba(82,82,82,.18)!important;
+    }
+
+    .bb-wallet-ledger{
+      background:
+        radial-gradient(circle at 16% 2%,rgba(247,181,0,.20),rgba(247,181,0,0) 34%),
+        linear-gradient(180deg,#ffffff 0%,#f7f7f7 100%)!important;
+      border-color:rgba(82,82,82,.10)!important;
+      box-shadow:0 16px 38px rgba(82,82,82,.12)!important;
+      color:#252525!important;
+    }
+    .bb-wallet-row-title{color:#525252!important;}
+    .bb-wallet-small-icon{
+      background:#f7b500!important;
+      color:#252525!important;
+    }
+    .bb-wallet-card{
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.18),rgba(255,255,255,0) 22%,rgba(255,255,255,.44) 48%,rgba(255,255,255,0) 72%),
+        repeating-linear-gradient(0deg,rgba(255,255,255,.12) 0 2px,rgba(255,255,255,0) 2px 5px),
+        linear-gradient(135deg,#fff5d6 0%,#f7b500 48%,#fff2c5 100%)!important;
+    }
+    .coupon-ticket-icon.cash,.coupon-ticket-icon.service,
+    .gift-modal-card iconify-icon{
+      color:#f7b500!important;
+    }
+
+    .modal-card,.bb-coupon-card,.bb-coupon-head,.bb-coupon-footer{
+      background:#ffffff!important;
+      color:#252525!important;
+    }
+    .bb-bottom-sheet-content{
+      background:#ffffff!important;
+      color:#252525!important;
+    }
+    .bb-sheet-handle{background:#d9d9d9!important;}
+    .bb-sheet-close{background:#f3f3f3!important;color:#525252!important;}
+    .bb-sheet-done{background:#f7b500!important;color:#252525!important;}
+
+    #member .bb-annual-progress-track{
+      background:#e8e8e8!important;
+    }
+    #member .bb-annual-progress-fill{
+      background:#f7b500!important;
+    }
+    #member .bb-annual-node::before{
+      background:#e8e8e8!important;
+    }
+    #member .bb-annual-node.is-current::before{
+      border-color:#f7b500!important;
+    }
+</style>
 </head>
 <body>
   <main class="app">
