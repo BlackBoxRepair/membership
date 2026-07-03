@@ -2356,6 +2356,73 @@
     }
     #member .bb-annual-node{display:flex!important;}
 
+
+    /* 2026-07-03 會員等級進度條：精簡文字與節點 icon */
+    #member .bb-annual-points-card{
+      padding:14px 18px 18px!important;
+      overflow:visible!important;
+    }
+    #member .bb-annual-points-head{
+      display:flex!important;
+      align-items:center!important;
+      justify-content:flex-end!important;
+      margin-bottom:8px!important;
+      min-height:16px!important;
+    }
+    #member .bb-annual-points-title{
+      display:none!important;
+    }
+    #member .bb-annual-points-score{
+      display:block!important;
+      font-size:13px!important;
+      line-height:1!important;
+      color:rgba(17,24,39,.58)!important;
+      font-weight:950!important;
+      padding-top:0!important;
+    }
+    #member .bb-annual-progress-area{
+      margin:2px 14px 4px!important;
+      height:34px!important;
+    }
+    #member .bb-annual-progress-track{
+      top:13px!important;
+      height:7px!important;
+    }
+    #member .bb-annual-node{
+      top:0!important;
+      min-width:24px!important;
+      gap:0!important;
+      pointer-events:none;
+    }
+    #member .bb-annual-node iconify-icon{
+      width:auto!important;
+      height:auto!important;
+      display:block!important;
+      font-size:25px!important;
+      line-height:1!important;
+      color:var(--node-color)!important;
+      background:transparent!important;
+      border:0!important;
+      border-radius:0!important;
+      box-shadow:none!important;
+      padding:0!important;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:translateY(-1px) scale(1.06)!important;
+      filter:drop-shadow(0 0 6px var(--node-glow)) drop-shadow(0 0 13px var(--node-glow))!important;
+      box-shadow:none!important;
+    }
+    #member .bb-annual-node b,
+    #member .bb-annual-node small{
+      display:none!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-points-card{padding:13px 14px 16px!important;}
+      #member .bb-annual-progress-area{margin:2px 12px 4px!important;height:32px!important;}
+      #member .bb-annual-progress-track{top:12px!important;height:7px!important;}
+      #member .bb-annual-node iconify-icon{font-size:23px!important;}
+    }
+
 </style>
 </head>
 <body>
@@ -3080,18 +3147,12 @@
         const isCurrent = currentLevel === node.level;
         return `<div class="bb-annual-node ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left}%;--node-color:${node.color};--node-glow:${node.glow};" aria-label="${node.level} ${node.threshold} 點">
           <iconify-icon icon="fa7-solid:microchip"></iconify-icon>
-          <b>${node.level}</b>
-          <small>${node.threshold}</small>
         </div>`;
       }).join('');
 
-      return `<section class="bb-annual-points-card" aria-label="年度積分進度">
+      return `<section class="bb-annual-points-card" aria-label="會員等級進度">
         <div class="bb-annual-points-head">
-          <div class="bb-annual-points-title">
-            <strong>年度積分</strong>
-            <span>依累積年度積分解鎖會員會籍節點</span>
-          </div>
-          <div class="bb-annual-points-score">${points.toLocaleString()} / ${maxPoints.toLocaleString()}</div>
+          <div class="bb-annual-points-score">${points.toLocaleString()}</div>
         </div>
         <div class="bb-annual-progress-area" style="--annual-progress:${progress.toFixed(2)}%;">
           <div class="bb-annual-progress-track"><div class="bb-annual-progress-fill"></div></div>
