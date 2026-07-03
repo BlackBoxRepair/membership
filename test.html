@@ -2501,6 +2501,84 @@
       #member .bb-annual-node iconify-icon{width:26px!important;height:26px!important;font-size:23px!important;line-height:26px!important;}
     }
 
+
+    /* 2026-07-03 會員等級進度條：加長線條與節點圓圈 */
+    #member .bb-annual-points-card{
+      padding-left:14px!important;
+      padding-right:14px!important;
+    }
+    #member .bb-annual-progress-area{
+      margin:2px 3px 2px!important;
+      height:38px!important;
+    }
+    #member .bb-annual-progress-track{
+      left:0!important;
+      right:0!important;
+      top:50%!important;
+      height:7px!important;
+      transform:translateY(-50%)!important;
+      border-radius:999px!important;
+      overflow:hidden!important;
+      background:rgba(17,24,39,.10)!important;
+    }
+    #member .bb-annual-progress-fill{
+      background:#F7B500!important;
+      box-shadow:0 0 12px rgba(247,181,0,.24)!important;
+    }
+    #member .bb-annual-node{
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      width:32px!important;
+      min-width:32px!important;
+      height:32px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      z-index:6!important;
+    }
+    #member .bb-annual-node::before{
+      content:""!important;
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      width:14px!important;
+      height:14px!important;
+      transform:translate(-50%,-50%)!important;
+      border-radius:999px!important;
+      background:#F7B500!important;
+      box-shadow:0 0 0 3px rgba(255,255,255,.92)!important;
+      z-index:1!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node.is-current::before{
+      background:var(--node-soft)!important;
+      box-shadow:0 0 0 3px rgba(255,255,255,.92), 0 0 13px var(--node-glow)!important;
+    }
+    #member .bb-annual-node iconify-icon{
+      position:relative!important;
+      z-index:2!important;
+      width:28px!important;
+      height:28px!important;
+      font-size:25px!important;
+      line-height:28px!important;
+      color:var(--node-color)!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      filter:none;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:scale(1.06)!important;
+      filter:drop-shadow(0 0 5px var(--node-glow)) drop-shadow(0 0 11px var(--node-glow))!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-points-card{padding-left:12px!important;padding-right:12px!important;}
+      #member .bb-annual-progress-area{margin:2px 2px!important;height:36px!important;}
+      #member .bb-annual-node{width:30px!important;min-width:30px!important;height:30px!important;}
+      #member .bb-annual-node::before{width:13px!important;height:13px!important;}
+      #member .bb-annual-node iconify-icon{width:26px!important;height:26px!important;font-size:23px!important;line-height:26px!important;}
+    }
+
 </style>
 </head>
 <body>
@@ -3216,14 +3294,14 @@
       const progress = Math.max(0, Math.min(100, (points / maxPoints) * 100));
       const currentLevel = normalizeMemberLevel(currentMember.member_level || 'B.I.C MEMBER');
       const nodes = [
-        { level:'SILVER', threshold:100, left:10, color:'#b7b8b8', glow:'rgba(183,184,184,.38)' },
-        { level:'GOLD', threshold:300, left:30, color:'#ddac59', glow:'rgba(221,172,89,.36)' },
-        { level:'PLATINUM', threshold:600, left:60, color:'#9dadb5', glow:'rgba(157,173,181,.38)' },
-        { level:'TITANIUM', threshold:1000, left:100, color:'#515259', glow:'rgba(81,82,89,.34)' }
+        { level:'SILVER', threshold:100, left:10, color:'#b7b8b8', soft:'#d4d5d5', glow:'rgba(183,184,184,.38)' },
+        { level:'GOLD', threshold:300, left:30, color:'#ddac59', soft:'#efd19a', glow:'rgba(221,172,89,.36)' },
+        { level:'PLATINUM', threshold:600, left:60, color:'#9dadb5', soft:'#c4d0d6', glow:'rgba(157,173,181,.38)' },
+        { level:'TITANIUM', threshold:1000, left:100, color:'#515259', soft:'#77787d', glow:'rgba(81,82,89,.34)' }
       ];
       const nodeHTML = nodes.map(node => {
         const isCurrent = currentLevel === node.level;
-        return `<div class="bb-annual-node ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left}%;--node-color:${node.color};--node-glow:${node.glow};" aria-label="${node.level} ${node.threshold} 點">
+        return `<div class="bb-annual-node ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left}%;--node-color:${node.color};--node-soft:${node.soft};--node-glow:${node.glow};" aria-label="${node.level} ${node.threshold} 點">
           <iconify-icon icon="fa7-solid:microchip"></iconify-icon>
         </div>`;
       }).join('');
