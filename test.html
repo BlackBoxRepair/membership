@@ -5315,4 +5315,85 @@
     background:rgba(247,181,0,.18)!important;
     color:#f7b500!important;
   }
+
+
+    /* 2026-07-06 票券錢包：移除票券卡片邊緣莫名痕跡 */
+    #walletList,
+    #walletList *{
+      -webkit-tap-highlight-color:transparent;
+    }
+    #wallet .bb-wallet-ledger{
+      background:transparent!important;
+      overflow:visible!important;
+    }
+    #wallet .bb-wallet-coupon{
+      display:block!important;
+      margin-top:16px!important;
+      padding:0!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      overflow:visible!important;
+      appearance:none!important;
+      -webkit-appearance:none!important;
+      outline:none!important;
+    }
+    #wallet .bb-wallet-card{
+      position:relative!important;
+      overflow:hidden!important;
+      isolation:isolate!important;
+      background:#ffffff!important;
+      background-image:none!important;
+      background-clip:padding-box!important;
+      border:1px solid rgba(82,82,82,.10)!important;
+      border-radius:26px!important;
+      box-shadow:0 8px 20px rgba(15,23,42,.06)!important;
+    }
+    #wallet .bb-wallet-card::before,
+    #wallet .bb-wallet-card::after{
+      content:none!important;
+      display:none!important;
+      background:none!important;
+      box-shadow:none!important;
+    }
+    #wallet .bb-wallet-card-main{
+      position:relative!important;
+      z-index:1!important;
+      background:#ffffff!important;
+    }
+    #wallet .bb-wallet-card-icon,
+    #wallet .bb-wallet-card-type,
+    #wallet .bb-wallet-card-name,
+    #wallet .bb-wallet-card-expiry,
+    #wallet .bb-wallet-card-action{
+      position:relative!important;
+      z-index:1!important;
+    }
+    #wallet .bb-wallet-card-action{
+      background:#eef0f2!important;
+      color:rgba(82,82,82,.76)!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      box-shadow:none!important;
+      border-top:1px solid rgba(82,82,82,.06)!important;
+    }
+    @media (max-width:390px){
+      #wallet .bb-wallet-card{
+        border-radius:24px!important;
+      }
+    }
+
+
+    /* 2026-07-06 首頁：維修報價立即查看按鈕改為白色 */
+    #home .feature-card.big .card-pill,
+    #home .feature-card.big .mini-btn{
+      background:#ffffff!important;
+      color:#252525!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+    #home .feature-card.big .card-pill iconify-icon,
+    #home .feature-card.big .mini-btn iconify-icon{
+      color:#252525!important;
+    }
 </style>
