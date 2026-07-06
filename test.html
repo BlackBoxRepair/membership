@@ -3490,7 +3490,7 @@
 
     <header class="topbar">
       <a class="brand" href="#home" data-route="home" aria-label="BLACK BOX 首頁">
-        <img class="brand-logo" src="site logo white.png" alt="BLACK BOX Fix My Device" />
+        <img class="brand-logo" src="site logo.png" alt="BLACK BOX Fix My Device" />
       </a>
 
     </header>
@@ -5152,5 +5152,94 @@
   #home .feature-card:not(.big):not(.dark) .tag{
     background:rgba(247,181,0,.14)!important;
     color:#9b7000!important;
+  }
+</style>
+
+
+<!-- 2026-07-04：背景與首頁圖卡顏色對調：白底 + 深灰首頁圖卡 -->
+<style>
+  :root{
+    --bg:#ffffff!important;
+    --bg2:#ffffff!important;
+    --deep:#525252!important;
+    --text:#252525!important;
+    --blue:#f7b500!important;
+    --blue2:#ffd768!important;
+  }
+  html,body{
+    background:#ffffff!important;
+    background-color:#ffffff!important;
+    background-image:none!important;
+  }
+  body::before{
+    background:none!important;
+    opacity:0!important;
+  }
+  .app{background:transparent!important;}
+
+  .hello,
+  .hero h1,
+  .hero p,
+  .page-title h2,
+  #wallet .page-head{
+    color:#252525!important;
+  }
+  .hero h2,
+  .page-title small{
+    color:#f7b500!important;
+  }
+
+  /* 首頁圖卡改成原背景深灰色，不影響 banner */
+  #home .feature-card,
+  #home .feature-card.big,
+  #home .feature-card.dark,
+  #home .feature-card:nth-child(2),
+  #home .feature-card:nth-child(3),
+  #home .feature-card:nth-child(4),
+  #home .feature-card:nth-child(5){
+    background:#525252!important;
+    color:#ffffff!important;
+    border-color:rgba(255,255,255,.18)!important;
+    box-shadow:0 14px 32px rgba(37,37,37,.18)!important;
+  }
+  #home .feature-card::before,
+  #home .feature-card.big::before,
+  #home .feature-card.dark::before{
+    background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(247,181,0,.08))!important;
+    opacity:1!important;
+  }
+  #home .feature-card .card-kicker,
+  #home .feature-card.big .card-kicker,
+  #home .feature-card.dark .card-kicker,
+  #home .feature-card:nth-child(3) .card-kicker,
+  #home .feature-card .card-subtitle,
+  #home .feature-card.big .card-subtitle,
+  #home .feature-card.dark .card-subtitle,
+  #home .feature-card:nth-child(3) .card-subtitle{
+    color:rgba(255,255,255,.72)!important;
+  }
+  #home .feature-card .card-title,
+  #home .feature-card.big .card-title,
+  #home .feature-card.dark .card-title,
+  #home .feature-card:nth-child(3) .card-title{
+    color:#ffffff!important;
+  }
+  #home .feature-card .card-pill,
+  #home .feature-card.big .card-pill,
+  #home .feature-card.dark .card-pill{
+    background:#f7b500!important;
+    color:#252525!important;
+    box-shadow:0 10px 20px rgba(247,181,0,.24)!important;
+  }
+  #home .feature-card .card-icon,
+  #home .feature-card.big .card-icon,
+  #home .feature-card.dark .card-icon{
+    color:#f7b500!important;
+    filter:drop-shadow(0 12px 15px rgba(247,181,0,.20))!important;
+  }
+  #home .feature-card .tag,
+  #home .feature-card:not(.big):not(.dark) .tag{
+    background:rgba(247,181,0,.18)!important;
+    color:#f7b500!important;
   }
 </style>
