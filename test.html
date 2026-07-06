@@ -5396,4 +5396,77 @@
     #home .feature-card.big .mini-btn iconify-icon{
       color:#252525!important;
     }
+
+
+/* 2026-07-06：首頁圖卡調淡、票券按鈕位置修正、會員卡彈窗 icon 改白 */
+#home .feature-card,
+#home .feature-card.big,
+#home .feature-card.dark,
+#home .feature-card:nth-child(2),
+#home .feature-card:nth-child(3),
+#home .feature-card:nth-child(4),
+#home .feature-card:nth-child(5){
+  background:#626262!important;
+  color:#ffffff!important;
+  border-color:rgba(255,255,255,.20)!important;
+  box-shadow:0 12px 28px rgba(37,37,37,.14)!important;
+}
+#home .feature-card::before,
+#home .feature-card.big::before,
+#home .feature-card.dark::before{
+  background:linear-gradient(135deg,rgba(255,255,255,.13),rgba(247,181,0,.07))!important;
+}
+#home .feature-card .card-pill,
+#home .feature-card.big .card-pill,
+#home .feature-card.dark .card-pill,
+#home .feature-card .mini-btn,
+#home .feature-card.big .mini-btn,
+#home .feature-card.dark .mini-btn{
+  box-shadow:none!important;
+  filter:none!important;
+}
+
+#wallet .bb-wallet-card{
+  position:relative!important;
+  overflow:hidden!important;
+  padding-bottom:0!important;
+}
+#wallet .bb-wallet-card-main{
+  background:transparent!important;
+  padding-bottom:56px!important;
+}
+#wallet .bb-wallet-card-action{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  top:auto!important;
+  width:100%!important;
+  height:52px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  z-index:3!important;
+  background:#eef0f2!important;
+  color:rgba(82,82,82,.76)!important;
+  border-top:1px solid rgba(82,82,82,.06)!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+@media (max-width:390px){
+  #wallet .bb-wallet-card-main{padding-bottom:54px!important;}
+  #wallet .bb-wallet-card-action{height:50px!important;}
+}
+
+.bb-bottom-sheet-content .bb-sheet-info-row iconify-icon,
+.bb-bottom-sheet-content .bb-sheet-info-row iconify-icon *,
+.bb-bottom-sheet-content .bb-sheet-info-row svg,
+.bb-bottom-sheet-content .bb-sheet-info-row svg *{
+  color:#ffffff!important;
+  fill:#ffffff!important;
+  stroke:#ffffff!important;
+}
 </style>
