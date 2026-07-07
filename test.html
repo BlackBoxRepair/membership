@@ -5739,29 +5739,37 @@
       return fallback;
     }
 
-    function formatLifetimeWarrantyDate(value){
-      if(!value) return '未填寫';
+    function formatLifetimeWarrantyDateParts(value){
+      if(!value) return { year:'----', date:'--.--' };
       const d = new Date(value);
-      if(Number.isNaN(d.getTime())) return String(value);
-      return new Intl.DateTimeFormat('zh-TW', {
-        year:'numeric', month:'2-digit', day:'2-digit',
-        hour:'2-digit', minute:'2-digit', hour12:false
-      }).format(d).replace(/\//g,'.');
+      if(!Number.isNaN(d.getTime())){
+        return {
+          year:String(d.getFullYear()),
+          date:`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`
+        };
+      }
+      const raw = String(value).trim();
+      const match = raw.match(/(\d{4})[^\d]?(\d{1,2})[^\d]?(\d{1,2})/);
+      if(match){
+        return {
+          year:match[1],
+          date:`${String(match[2]).padStart(2,'0')}.${String(match[3]).padStart(2,'0')}`
+        };
+      }
+      return { year:raw || '----', date:'' };
     }
 
     function lifetimeWarrantyCardHTML(row){
       const deviceModel = getLifetimeWarrantyValue(row, ['device_model','model','device'], '未填寫設備型號');
       const imei = getLifetimeWarrantyValue(row, ['IMEI','imei','serial_number','serial'], '未填寫登記序號');
-      const createdAt = formatLifetimeWarrantyDate(getLifetimeWarrantyValue(row, ['created_at','registered_at','date'], ''));
+      const createdAtParts = formatLifetimeWarrantyDateParts(getLifetimeWarrantyValue(row, ['created_at','registered_at','date'], ''));
       const serviceStore = getLifetimeWarrantyValue(row, ['service_store','store','store_name','branch'], '未填寫服務門市');
       return `<article class="bb-warranty-sd-card bb-warranty-image-card" aria-label="終身保固卡">
         <div class="bb-warranty-sd-inner">
-          <div class="bb-warranty-fields">
-            <div class="bb-warranty-field"><span>設備型號</span><b>${escapeHTML(deviceModel)}</b></div>
-            <div class="bb-warranty-field"><span>登記序號</span><b>${escapeHTML(imei)}</b></div>
-            <div class="bb-warranty-field"><span>登錄時間</span><b>${escapeHTML(createdAt)}</b></div>
-            <div class="bb-warranty-field"><span>服務門市</span><b>${escapeHTML(serviceStore)}</b></div>
-          </div>
+          <div class="bb-warranty-device">${escapeHTML(deviceModel)}</div>
+          <div class="bb-warranty-serial">${escapeHTML(imei)}</div>
+          <div class="bb-warranty-date"><span>${escapeHTML(createdAtParts.year)}</span><span>${escapeHTML(createdAtParts.date)}</span></div>
+          <div class="bb-warranty-store">${escapeHTML(serviceStore)}</div>
         </div>
       </article>`;
     }
@@ -7211,15 +7219,14 @@
   aspect-ratio:1.586/1;
   min-height:0;
   padding:0;
-  border-radius:24px;
   overflow:hidden;
   color:#ffffff;
-  background:
-    linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.10)),
-    url('warranty%20card.png') center/cover no-repeat,
-    url('warranty card.png') center/cover no-repeat,
-    linear-gradient(145deg,#45484d 0%,#2a2d32 55%,#17191d 100%);
-  box-shadow:0 22px 48px rgba(15,23,42,.24);
+  background:transparent url('warranty%20card.png') center/100% 100% no-repeat;
+  background-image:url('warranty%20card.png'),url('warranty card.png');
+  background-position:center,center;
+  background-size:100% 100%,100% 100%;
+  background-repeat:no-repeat,no-repeat;
+  box-shadow:none;
   isolation:isolate;
 }
 .bb-warranty-sd-card::before,
@@ -7231,60 +7238,84 @@
   position:absolute;
   inset:0;
   z-index:2;
-  padding:42% 8% 7%;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
 }
 .bb-warranty-sd-top,
 .bb-warranty-brand,
 .bb-warranty-mark,
-.bb-warranty-device{
+.bb-warranty-fields,
+.bb-warranty-field{
   display:none!important;
 }
-.bb-warranty-fields{
-  display:grid;
-  gap:6px;
-  width:100%;
-  background:rgba(0,0,0,.34);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:16px;
-  padding:12px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 8px 18px rgba(0,0,0,.12);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-}
-.bb-warranty-field{
-  display:grid;
-  grid-template-columns:72px minmax(0,1fr);
-  gap:8px;
-  align-items:start;
-}
-.bb-warranty-field span{
-  color:rgba(255,255,255,.62);
-  font-size:11px;
-  font-weight:900;
-  line-height:1.4;
-}
-.bb-warranty-field b{
+.bb-warranty-device,
+.bb-warranty-serial,
+.bb-warranty-date,
+.bb-warranty-store{
+  position:absolute;
   color:#ffffff;
-  font-size:12px;
-  font-weight:900;
-  line-height:1.4;
-  text-align:right;
+  text-shadow:0 2px 10px rgba(0,0,0,.32);
+}
+.bb-warranty-device{
+  display:block!important;
+  left:8.2%;
+  top:12.5%;
+  max-width:54%;
+  font-size:20px;
+  line-height:1.15;
+  font-weight:1000;
+  letter-spacing:-.03em;
   word-break:break-word;
-  text-shadow:0 1px 6px rgba(0,0,0,.28);
+}
+.bb-warranty-serial{
+  left:8.2%;
+  top:26.5%;
+  max-width:56%;
+  font-size:13px;
+  line-height:1.25;
+  font-weight:900;
+  letter-spacing:.02em;
+  word-break:break-word;
+}
+.bb-warranty-date{
+  left:8.2%;
+  bottom:11.5%;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:2px;
+}
+.bb-warranty-date span:first-child{
+  font-size:20px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.03em;
+}
+.bb-warranty-date span:last-child{
+  font-size:14px;
+  line-height:1.1;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.bb-warranty-store{
+  right:8.4%;
+  bottom:11.8%;
+  max-width:32%;
+  font-size:14px;
+  line-height:1.2;
+  font-weight:1000;
+  text-align:right;
+  letter-spacing:.02em;
+  word-break:break-word;
 }
 @media (max-width:390px){
   .bb-lifetime-page-head{gap:12px;margin-bottom:16px;}
   .bb-lifetime-page-head .page-title h2{font-size:30px;}
   .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
-  .bb-warranty-sd-card{border-radius:22px;}
-  .bb-warranty-sd-inner{padding:40% 7.5% 6.5%;}
-  .bb-warranty-fields{gap:5px;padding:10px;border-radius:14px;}
-  .bb-warranty-field{grid-template-columns:66px minmax(0,1fr);}
-  .bb-warranty-field span{font-size:10px;}
-  .bb-warranty-field b{font-size:11px;}
+  .bb-warranty-device{left:8%;top:12%;max-width:56%;font-size:17px;}
+  .bb-warranty-serial{left:8%;top:25.5%;max-width:58%;font-size:11px;}
+  .bb-warranty-date{left:8%;bottom:10.8%;gap:1px;}
+  .bb-warranty-date span:first-child{font-size:17px;}
+  .bb-warranty-date span:last-child{font-size:12px;}
+  .bb-warranty-store{right:8%;bottom:11%;max-width:34%;font-size:12px;}
 }
 
 </style>
