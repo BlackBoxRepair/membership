@@ -4756,6 +4756,54 @@
     }
   </style>
 
+
+  <style id="bb-member-dynamic-tabs-style">
+    /* 2026-07-07 會員動態：我的預約 + 積分活動切換頁 */
+    .member-dynamic-page{
+      display:grid!important;
+      gap:16px!important;
+    }
+    .member-dynamic-tabs{
+      display:grid!important;
+      grid-template-columns:repeat(2,1fr)!important;
+      gap:8px!important;
+      background:#ffffff!important;
+      border:1px solid rgba(82,82,82,.10)!important;
+      border-radius:15px!important;
+      padding:8px!important;
+      box-shadow:0 10px 26px rgba(82,82,82,.10)!important;
+    }
+    .member-dynamic-tab{
+      height:44px!important;
+      border-radius:13px!important;
+      background:transparent!important;
+      color:#525252!important;
+      font-size:14px!important;
+      font-weight:900!important;
+      letter-spacing:.02em!important;
+      transition:transform .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease!important;
+    }
+    .member-dynamic-tab:hover{transform:translateY(-1px)!important;}
+    .member-dynamic-tab.active{
+      background:#f7b500!important;
+      color:#252525!important;
+      box-shadow:0 10px 20px rgba(247,181,0,.22)!important;
+    }
+    .member-dynamic-panel{display:none!important;}
+    .member-dynamic-panel.active{display:block!important;animation:fadeUp .24s ease both;}
+    #reservation .bb-member-activity{
+      margin-top:0!important;
+    }
+    #reservation .bb-member-activity-list{
+      max-height:none!important;
+      overflow:visible!important;
+    }
+    @media (max-width:390px){
+      .member-dynamic-tabs{padding:7px!important;gap:7px!important;border-radius:14px!important;}
+      .member-dynamic-tab{height:42px!important;font-size:13.5px!important;border-radius:12px!important;}
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -4862,8 +4910,26 @@
     </section>
 
     <section id="reservation" class="section">
-      <div class="page-head"><div class="page-title"><small>MY BOOKINGS</small><h2>我的預約</h2></div></div>
-      <div id="reservationList" class="data-list"></div>
+      <div class="page-head"><div class="page-title"><small>MEMBER ACTIVITY</small><h2>會員動態</h2></div></div>
+      <div class="member-dynamic-page">
+        <div class="member-dynamic-tabs" aria-label="會員動態分類">
+          <button type="button" class="member-dynamic-tab active" data-member-dynamic-tab="booking">我的預約</button>
+          <button type="button" class="member-dynamic-tab" data-member-dynamic-tab="points">積分活動</button>
+        </div>
+        <div class="member-dynamic-panel active" data-member-dynamic-panel="booking">
+          <div id="reservationList" class="data-list"></div>
+        </div>
+        <div class="member-dynamic-panel" data-member-dynamic-panel="points">
+          <section class="bb-member-activity" aria-label="積分活動">
+            <div class="bb-member-activity-head">
+              <h3>積分活動</h3>
+            </div>
+            <div id="memberActivityList" class="bb-member-activity-list">
+              <div class="bb-member-activity-loading">積分活動載入中...</div>
+            </div>
+          </section>
+        </div>
+      </div>
     </section>
 
     <section id="gift" class="section">
@@ -4892,9 +4958,9 @@
         <span>盒芯禮遇</span>
       </button>
 
-      <button class="bottom-link" data-route="reservation" aria-label="我的預約">
+      <button class="bottom-link" data-route="reservation" aria-label="會員動態">
         <iconify-icon icon="tdesign:task-time-filled"></iconify-icon>
-        <span>我的預約</span>
+        <span>會員動態</span>
       </button>
 
       <button class="bottom-link home-center active" data-route="home" aria-label="首頁">
@@ -5048,7 +5114,7 @@
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
-      // 登入前保護：我的預約、票券錢包、會員專區需要登入；盒芯禮遇為公開頁面，不需登入。
+      // 登入前保護：會員動態、票券錢包、會員專區需要登入；盒芯禮遇為公開頁面，不需登入。
       const protectedRoutes = ['reservation','wallet','member'];
       if(protectedRoutes.includes(target) && !currentMember){
         target = 'member';
@@ -5070,7 +5136,7 @@
       if(target === 'flow') showProcessImg('phone');
       if(target === 'quote') showPriceImg('memory');
       if(target === 'wallet') renderWalletPage();
-      if(target === 'reservation') renderReservationPage();
+      if(target === 'reservation') renderMemberDynamicsPage();
       if(target === 'gift') renderGiftPage();
       if(target === 'member') renderMemberArea();
 
@@ -5217,6 +5283,13 @@
       const rows = await fetchTable('member_wallet', fallback.wallet, 'id');
       el.innerHTML = rows.map(r => `<article class="list-card"><h3>${r.title || r.name}</h3><p>${r.description || ''}</p><div class="price">${r.value || ''}</div></article>`).join('');
     }
+
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('.member-dynamic-tab');
+      if(!btn) return;
+      e.preventDefault();
+      showMemberDynamicTab(btn.dataset.memberDynamicTab || 'booking');
+    });
 
     $$('.process-tab').forEach(btn => btn.addEventListener('click', () => showProcessImg(btn.dataset.process)));
     $$('.price-tab').forEach(btn => btn.addEventListener('click', () => showPriceImg(btn.dataset.priceImg)));
@@ -5394,11 +5467,12 @@
       renderMemberArea();
       if(currentMember){
         renderWalletPage();
-        renderReservationPage();
+        renderMemberDynamicsPage();
         renderGiftPage();
       }else{
         const wallet = $('#walletList'); if(wallet) wallet.innerHTML = '';
         const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
+        const memberActivity = $('#memberActivityList'); if(memberActivity) memberActivity.innerHTML = '';
         const gift = $('#giftList'); if(gift) gift.innerHTML = '';
       }
       const pointsText = currentMember ? `${Number(currentMember.total_points || 0).toLocaleString()} P` : '尚未登入';
@@ -5529,14 +5603,6 @@
 
           <div id="memberAnnualProgressMount">${memberAnnualPointsProgressHTML()}</div>
 
-          <section class="bb-member-activity" aria-label="積分活動">
-            <div class="bb-member-activity-head">
-              <h3>積分活動</h3>
-            </div>
-            <div id="memberActivityList" class="bb-member-activity-list">
-              <div class="bb-member-activity-loading">積分活動載入中...</div>
-            </div>
-          </section>
         </div>`;
       // 防止部分瀏覽器或舊快取造成年度積分進度條未掛上，這裡再補一次渲染。
       requestAnimationFrame(() => {
@@ -5545,7 +5611,6 @@
           annualMount.innerHTML = memberAnnualPointsProgressHTML();
         }
       });
-      renderMemberActivityList();
     }
 
     function formatMemberActivityDate(value){
@@ -5573,24 +5638,23 @@
       }
 
       try{
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
         const { data, error } = await supabaseClient
           .from('point_logs')
           .select('*')
           .eq('line_id', lineId)
-          .gte('created_at', threeMonthsAgo.toISOString())
-          .order('created_at', { ascending:false })
-          .limit(30);
+          .gte('created_at', oneYearAgo.toISOString())
+          .order('created_at', { ascending:false });
         if(error) throw error;
         const rows = (data || []).filter(row => {
           const rawDate = row.created_at || row.date || row.log_date;
           const d = rawDate ? new Date(rawDate) : null;
-          return d && !Number.isNaN(d.getTime()) && d >= threeMonthsAgo;
+          return d && !Number.isNaN(d.getTime()) && d >= oneYearAgo;
         });
         if(!rows.length){
-          list.innerHTML = '<div class="bb-member-activity-empty">近 3 個月內尚無積分活動紀錄。</div>';
+          list.innerHTML = '<div class="bb-member-activity-empty">近 1 年內尚無積分活動紀錄。</div>';
           return;
         }
 
@@ -5975,6 +6039,30 @@
       const hp = $('#homePoints'); if(hp) hp.textContent = `${points} P`;
     }
 
+
+    function showMemberDynamicTab(type='booking'){
+      const nextType = type === 'points' ? 'points' : 'booking';
+      $$('.member-dynamic-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.memberDynamicTab === nextType);
+      });
+      $$('.member-dynamic-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.memberDynamicPanel === nextType);
+      });
+      if(nextType === 'booking') renderReservationPage();
+      if(nextType === 'points') renderMemberActivityList();
+    }
+
+    function renderMemberDynamicsPage(){
+      if(!currentMember){
+        const reservationBox = $('#reservationList');
+        const activityBox = $('#memberActivityList');
+        if(reservationBox) reservationBox.innerHTML = '';
+        if(activityBox) activityBox.innerHTML = '';
+        return;
+      }
+      const activeTab = document.querySelector('.member-dynamic-tab.active')?.dataset.memberDynamicTab || 'booking';
+      showMemberDynamicTab(activeTab);
+    }
 
     async function renderReservationPage(){
       const box = $('#reservationList'); if(!box) return;
