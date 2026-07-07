@@ -3664,6 +3664,49 @@
     }
   </style>
 
+
+  <style id="bb-membership-progress-position-v5">
+    /* 2026-07-04 會籍進度條：節點明確置於 120 / 320 / 620 / 1020，並與線條置中對齊 */
+    #member .bb-annual-progress-area{
+      position:relative!important;
+      height:56px!important;
+      margin:2px 0 10px!important;
+      overflow:visible!important;
+    }
+    #member .bb-annual-progress-track{
+      left:0!important;
+      right:0!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+      height:9px!important;
+      z-index:0!important;
+      overflow:hidden!important;
+    }
+    #member .bb-annual-node{
+      left:var(--node-left)!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+    }
+    #member .bb-annual-node::before{
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+    }
+    #member .bb-annual-node iconify-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      display:block!important;
+    }
+    #member .bb-annual-node.is-current iconify-icon{
+      transform:translate(-50%,-50%)!important;
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -4378,12 +4421,11 @@
       const progress = Math.max(0, Math.min(100, (points / totalNodes) * 100));
       const currentLevel = normalizeMemberLevel(currentMember.member_level || 'B.I.C MEMBER');
       const currentRank = memberLevelRank(currentLevel);
-      const nodeOffset = 20;
       const nodes = [
-        { level:'SILVER', threshold:100, displayAt:100 + nodeOffset, color:'#b7b8b8' },
-        { level:'GOLD', threshold:300, displayAt:300 + nodeOffset, color:'#ddac59' },
-        { level:'PLATINUM', threshold:600, displayAt:600 + nodeOffset, color:'#9dadb5' },
-        { level:'TITANIUM', threshold:1000, displayAt:1000 + nodeOffset, color:'#667996' }
+        { level:'SILVER', threshold:100, displayAt:120, color:'#b7b8b8' },
+        { level:'GOLD', threshold:300, displayAt:320, color:'#ddac59' },
+        { level:'PLATINUM', threshold:600, displayAt:620, color:'#9dadb5' },
+        { level:'TITANIUM', threshold:1000, displayAt:1020, color:'#667996' }
       ].map(node => ({...node, left:(node.displayAt / totalNodes) * 100, rank:memberLevelRank(node.level)}));
 
       const nodeHTML = nodes.map(node => {
