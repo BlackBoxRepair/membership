@@ -3747,7 +3747,7 @@
       font-weight:800!important;
       letter-spacing:.35px!important;
       white-space:nowrap!important;
-      text-transform:uppercase!important;
+      text-transform:none!important;
       z-index:1!important;
     }
     @media (max-width:768px){
@@ -4566,10 +4566,10 @@
       margin:0!important;
       box-sizing:border-box!important;
       color:#ffffff!important;
-      font-size:10px!important;
+      font-size:13px!important;
       line-height:1!important;
       font-weight:950!important;
-      letter-spacing:-.3px!important;
+      letter-spacing:.04em!important;
       white-space:nowrap!important;
       text-align:center!important;
       text-transform:uppercase!important;
@@ -4586,7 +4586,7 @@
       #member .bb-membership-pointer{top:calc(50% + 41px)!important;width:86px!important;height:44px!important;}
       #member .bb-membership-pointer::before{width:76px!important;height:33px!important;border-radius:8px!important;}
       #member .bb-membership-pointer::after{top:2px!important;border-left-width:9px!important;border-right-width:9px!important;border-bottom-width:13px!important;}
-      #member .bb-membership-pointer-label{width:76px!important;height:33px!important;font-size:9.4px!important;letter-spacing:-.42px!important;}
+      #member .bb-membership-pointer-label{width:76px!important;height:33px!important;font-size:12.5px!important;letter-spacing:.04em!important;}
     }
   </style>
 
@@ -5305,10 +5305,10 @@
       const currentLevel = normalizeMemberLevel(currentMember.member_level || 'B.I.C MEMBER');
       const currentRank = memberLevelRank(currentLevel);
       const nodes = [
-        { level:'SILVER', threshold:100, displayAt:120, color:'#b7b8b8' },
-        { level:'GOLD', threshold:300, displayAt:320, color:'#ddac59' },
-        { level:'PLATINUM', threshold:600, displayAt:620, color:'#9dadb5' },
-        { level:'TITANIUM', threshold:1000, displayAt:1020, color:'#667996' }
+        { level:'SILVER', label:'銀芯', threshold:100, displayAt:120, color:'#b7b8b8' },
+        { level:'GOLD', label:'金芯', threshold:300, displayAt:320, color:'#ddac59' },
+        { level:'PLATINUM', label:'白金', threshold:600, displayAt:620, color:'#9dadb5' },
+        { level:'TITANIUM', label:'鈦金', threshold:1000, displayAt:1020, color:'#667996' }
       ].map(node => ({...node, left:(node.displayAt / totalNodes) * 100, rank:memberLevelRank(node.level)}));
 
       const nodeHTML = nodes.map(node => {
@@ -5322,7 +5322,7 @@
       const currentNode = nodes.find(node => node.level === currentLevel);
       const membershipPointerHTML = currentNode ? `<div class="bb-membership-pointer" style="--membership-pointer-left:${currentNode.left.toFixed(4)}%;--membership-pointer-color:${currentNode.color};" aria-hidden="true">
         <iconify-icon class="bb-membership-pointer-icon" icon="si:chat-fill"></iconify-icon>
-        <span class="bb-membership-pointer-label">${currentNode.level}</span>
+        <span class="bb-membership-pointer-label">${currentNode.label}</span>
       </div>` : '';
 
       return `<section class="bb-annual-points-card" aria-label="會員等級進度">
