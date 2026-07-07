@@ -4239,6 +4239,152 @@
     }
   </style>
 
+
+  <style id="bb-level-pointer-final-fix-v10">
+    /* 2026-07-07 會籍進度條：修正節點指標名稱靠左與定位偏移 */
+    #memberAnnualProgressMount,
+    #memberAnnualProgressMount .bb-annual-points-card,
+    #member .bb-annual-points-card{
+      background:transparent!important;
+      background-image:none!important;
+      border:0!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      overflow:visible!important;
+    }
+
+    #member .bb-annual-progress-area{
+      position:relative!important;
+      height:112px!important;
+      margin:2px 0 14px!important;
+      overflow:visible!important;
+    }
+
+    #member .bb-annual-node{
+      left:var(--node-left)!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      overflow:visible!important;
+      z-index:8!important;
+    }
+
+    #member .bb-annual-node-badge,
+    #member .bb-annual-current-badge{
+      display:none!important;
+    }
+
+    #member .bb-level-pointer{
+      position:absolute!important;
+      left:var(--level-pointer-left)!important;
+      top:calc(50% + 24px)!important;
+      transform:translateX(-50%)!important;
+      width:106px!important;
+      height:60px!important;
+      display:grid!important;
+      grid-template-columns:1fr!important;
+      grid-template-rows:1fr!important;
+      place-items:center!important;
+      z-index:50!important;
+      pointer-events:none!important;
+      overflow:visible!important;
+      isolation:isolate!important;
+      text-align:center!important;
+      box-sizing:border-box!important;
+    }
+
+    #member .bb-level-pointer > .bb-level-pointer-icon{
+      grid-area:1 / 1!important;
+      position:relative!important;
+      left:auto!important;
+      top:auto!important;
+      inset:auto!important;
+      width:106px!important;
+      height:60px!important;
+      min-width:106px!important;
+      min-height:60px!important;
+      max-width:106px!important;
+      max-height:60px!important;
+      font-size:60px!important;
+      line-height:60px!important;
+      display:block!important;
+      color:var(--level-pointer-color)!important;
+      transform:rotate(180deg)!important;
+      transform-origin:center center!important;
+      z-index:1!important;
+      margin:0!important;
+      padding:0!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+
+    #member .bb-level-pointer > .bb-level-pointer-label{
+      grid-area:1 / 1!important;
+      position:relative!important;
+      left:auto!important;
+      top:auto!important;
+      transform:none!important;
+      width:78px!important;
+      max-width:78px!important;
+      height:18px!important;
+      min-height:18px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      justify-self:center!important;
+      align-self:center!important;
+      margin:10px 0 0 0!important;
+      padding:0!important;
+      box-sizing:border-box!important;
+      color:#ffffff!important;
+      font-size:9.4px!important;
+      line-height:1!important;
+      font-weight:950!important;
+      letter-spacing:-.45px!important;
+      white-space:nowrap!important;
+      text-align:center!important;
+      text-transform:uppercase!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      z-index:2!important;
+      opacity:1!important;
+      visibility:visible!important;
+      -webkit-font-smoothing:antialiased!important;
+    }
+
+    @media (max-width:390px){
+      #member .bb-annual-progress-area{
+        height:108px!important;
+        margin:2px 0 12px!important;
+      }
+      #member .bb-level-pointer{
+        top:calc(50% + 23px)!important;
+        width:100px!important;
+        height:56px!important;
+      }
+      #member .bb-level-pointer > .bb-level-pointer-icon{
+        width:100px!important;
+        height:56px!important;
+        min-width:100px!important;
+        min-height:56px!important;
+        max-width:100px!important;
+        max-height:56px!important;
+        font-size:56px!important;
+        line-height:56px!important;
+      }
+      #member .bb-level-pointer > .bb-level-pointer-label{
+        width:74px!important;
+        max-width:74px!important;
+        font-size:8.6px!important;
+        height:17px!important;
+        margin-top:9px!important;
+        letter-spacing:-.55px!important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -4969,16 +5115,16 @@
       }).join('');
 
       const currentNode = nodes.find(node => node.level === currentLevel);
-      const currentBadgeHTML = currentNode ? `<div class="bb-annual-current-badge" style="--badge-left:${currentNode.left.toFixed(4)}%;--badge-color:${currentNode.color};" aria-hidden="true">
-        <iconify-icon icon="si:chat-fill"></iconify-icon>
-        <span class="bb-annual-current-badge-label">${currentNode.level}</span>
+      const levelPointerHTML = currentNode ? `<div class="bb-level-pointer" style="--level-pointer-left:${currentNode.left.toFixed(4)}%;--level-pointer-color:${currentNode.color};" aria-hidden="true">
+        <iconify-icon class="bb-level-pointer-icon" icon="si:chat-fill"></iconify-icon>
+        <span class="bb-level-pointer-label">${currentNode.level}</span>
       </div>` : '';
 
       return `<section class="bb-annual-points-card" aria-label="會員等級進度">
         <div class="bb-annual-progress-area" style="--annual-progress:${progress.toFixed(2)}%;">
           <div class="bb-annual-progress-track"><div class="bb-annual-progress-fill"></div></div>
           ${nodeHTML}
-          ${currentBadgeHTML}
+          ${levelPointerHTML}
         </div>
       </section>`;
     }
