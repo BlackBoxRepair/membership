@@ -5099,8 +5099,18 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>我的會員</h2></div><div class="member-actions"><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>我的會員</h2></div><div class="member-actions"><button id="memberLifetimeWarrantyBtn" class="member-lifetime-btn" type="button" data-route="lifetimeWarranty" aria-label="終身保盒" hidden><iconify-icon icon="mdi:shield-star"></iconify-icon><span>終身保盒</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
+    </section>
+
+    <section id="lifetimeWarranty" class="section bb-lifetime-page">
+      <div class="bb-lifetime-page-head">
+        <button class="bb-lifetime-back-btn" type="button" data-route="member" aria-label="返回我的會員">
+          <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
+        </button>
+        <div class="page-title"><small>LIFETIME WARRANTY</small><h2>終身保盒</h2></div>
+      </div>
+      <div id="lifetimeWarrantyList" class="bb-lifetime-list"></div>
     </section>
 
     <section id="booking" class="section">
@@ -5270,14 +5280,14 @@
       return '/membership/test';
     }
 
-    const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','gift','cases']);
+    const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','gift','cases','lifetimeWarranty']);
 
     function routeTo(id){
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
       // 登入前保護：會員動態、票券錢包、會員專區需要登入；盒芯禮遇為公開頁面，不需登入。
-      const protectedRoutes = ['reservation','wallet','member'];
+      const protectedRoutes = ['reservation','wallet','member','lifetimeWarranty'];
       if(protectedRoutes.includes(target) && !currentMember){
         target = 'member';
       }
@@ -5287,7 +5297,7 @@
         const route = b.dataset.route;
         const shouldActive = (!currentMember && protectedRoutes.includes(requestedTarget))
           ? route === 'member'
-          : route === target;
+          : (route === target || (target === 'lifetimeWarranty' && route === 'member'));
         b.classList.toggle('active', shouldActive);
       });
       document.body.dataset.page = target;
@@ -5301,6 +5311,7 @@
       if(target === 'reservation') renderMemberDynamicsPage();
       if(target === 'gift') renderGiftPage();
       if(target === 'member') renderMemberArea();
+      if(target === 'lifetimeWarranty') renderLifetimeWarrantyPage();
 
       // 盒芯禮遇已改為正式頁面，不再顯示上鎖提示；切換頁面時保險關閉舊彈窗。
       closeGiftLockedModal();
@@ -5497,6 +5508,9 @@
     let memberLookupStatus = 'idle';
     let memberLookupMessage = '';
     let currentClaimingMilestone = 0;
+    let currentLifetimeWarrantyRows = [];
+    let lifetimeWarrantyLoadedLineId = '';
+    let lifetimeWarrantyLoadingPromise = null;
 
     // 重要：會員資料不再優先讀取 localStorage 舊快取，避免顯示到錯誤會員資料。
     localStorage.removeItem('bb_member');
@@ -5631,11 +5645,20 @@
         renderWalletPage();
         renderMemberDynamicsPage();
         renderGiftPage();
+        fetchLifetimeWarrantyRows(false).then(() => {
+          if(document.getElementById('lifetimeWarranty')?.classList.contains('active')){
+            renderLifetimeWarrantyPage();
+          }
+        });
       }else{
         const wallet = $('#walletList'); if(wallet) wallet.innerHTML = '';
         const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
         const memberActivity = $('#memberActivityList'); if(memberActivity) memberActivity.innerHTML = '';
         const gift = $('#giftList'); if(gift) gift.innerHTML = '';
+        const lifetimeWarrantyList = $('#lifetimeWarrantyList'); if(lifetimeWarrantyList) lifetimeWarrantyList.innerHTML = '';
+        currentLifetimeWarrantyRows = [];
+        lifetimeWarrantyLoadedLineId = '';
+        updateLifetimeWarrantyButtonVisibility();
       }
       const pointsText = currentMember ? `${Number(currentMember.total_points || 0).toLocaleString()} P` : '尚未登入';
       const hp = $('#homePoints'); if(hp) hp.textContent = pointsText;
@@ -5656,6 +5679,115 @@
 
     function escapeAttr(value){
       return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function updateLifetimeWarrantyButtonVisibility(){
+      const btn = document.getElementById('memberLifetimeWarrantyBtn');
+      if(!btn) return;
+      const hasWarranty = Boolean(currentMember && currentLifetimeWarrantyRows && currentLifetimeWarrantyRows.length);
+      btn.hidden = !hasWarranty;
+      btn.setAttribute('aria-hidden', hasWarranty ? 'false' : 'true');
+    }
+
+    async function fetchLifetimeWarrantyRows(force=false){
+      const lineId = memberLineId();
+      if(!currentMember || !lineId){
+        currentLifetimeWarrantyRows = [];
+        lifetimeWarrantyLoadedLineId = '';
+        updateLifetimeWarrantyButtonVisibility();
+        return [];
+      }
+
+      if(!force && lifetimeWarrantyLoadedLineId === lineId){
+        updateLifetimeWarrantyButtonVisibility();
+        return currentLifetimeWarrantyRows;
+      }
+
+      if(lifetimeWarrantyLoadingPromise && !force){
+        return lifetimeWarrantyLoadingPromise;
+      }
+
+      lifetimeWarrantyLoadingPromise = (async () => {
+        try{
+          const { data, error } = await supabaseClient
+            .from('lifetime_warranty')
+            .select('*')
+            .eq('line_id', lineId)
+            .order('created_at', { ascending:false });
+          if(error) throw error;
+          currentLifetimeWarrantyRows = data || [];
+          lifetimeWarrantyLoadedLineId = lineId;
+        }catch(err){
+          console.warn('[Supabase] lifetime_warranty 讀取失敗：', err.message || err);
+          currentLifetimeWarrantyRows = [];
+          lifetimeWarrantyLoadedLineId = lineId;
+        }finally{
+          updateLifetimeWarrantyButtonVisibility();
+          lifetimeWarrantyLoadingPromise = null;
+        }
+        return currentLifetimeWarrantyRows;
+      })();
+
+      return lifetimeWarrantyLoadingPromise;
+    }
+
+    function getLifetimeWarrantyValue(row, keys, fallback='未填寫'){
+      for(const key of keys){
+        const value = row?.[key];
+        if(value !== undefined && value !== null && String(value).trim() !== '') return value;
+      }
+      return fallback;
+    }
+
+    function formatLifetimeWarrantyDate(value){
+      if(!value) return '未填寫';
+      const d = new Date(value);
+      if(Number.isNaN(d.getTime())) return String(value);
+      return new Intl.DateTimeFormat('zh-TW', {
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', hour12:false
+      }).format(d).replace(/\//g,'.');
+    }
+
+    function lifetimeWarrantyCardHTML(row){
+      const deviceModel = getLifetimeWarrantyValue(row, ['device_model','model','device'], '未填寫設備型號');
+      const imei = getLifetimeWarrantyValue(row, ['IMEI','imei','serial_number','serial'], '未填寫登記序號');
+      const createdAt = formatLifetimeWarrantyDate(getLifetimeWarrantyValue(row, ['created_at','registered_at','date'], ''));
+      const serviceStore = getLifetimeWarrantyValue(row, ['service_store','store','store_name','branch'], '未填寫服務門市');
+      return `<article class="bb-warranty-sd-card" aria-label="終身保固卡">
+        <div class="bb-warranty-sd-inner">
+          <div class="bb-warranty-sd-top">
+            <div class="bb-warranty-brand">
+              <small>LIFETIME WARRANTY</small>
+              <strong>終身保固卡</strong>
+            </div>
+            <span class="bb-warranty-mark"><iconify-icon icon="mdi:shield-star"></iconify-icon></span>
+          </div>
+          <h3 class="bb-warranty-device">${escapeHTML(deviceModel)}</h3>
+          <div class="bb-warranty-fields">
+            <div class="bb-warranty-field"><span>設備型號</span><b>${escapeHTML(deviceModel)}</b></div>
+            <div class="bb-warranty-field"><span>登記序號</span><b>${escapeHTML(imei)}</b></div>
+            <div class="bb-warranty-field"><span>登錄時間</span><b>${escapeHTML(createdAt)}</b></div>
+            <div class="bb-warranty-field"><span>服務門市</span><b>${escapeHTML(serviceStore)}</b></div>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    async function renderLifetimeWarrantyPage(){
+      const box = $('#lifetimeWarrantyList');
+      if(!box) return;
+      if(!currentMember){
+        box.innerHTML = '<div class="bb-lifetime-empty">請先登入會員後查看終身保盒。</div>';
+        return;
+      }
+      box.innerHTML = '<div class="bb-lifetime-loading">終身保盒載入中...</div>';
+      const rows = await fetchLifetimeWarrantyRows(false);
+      if(!rows.length){
+        box.innerHTML = '<div class="bb-lifetime-empty">目前尚未找到此會員的終身保固資料。</div>';
+        return;
+      }
+      box.innerHTML = rows.map(lifetimeWarrantyCardHTML).join('');
     }
 
     function memberYearlyCardHTML(){
@@ -6995,4 +7127,205 @@
   fill:#ffffff!important;
   stroke:#ffffff!important;
 }
+
+
+/* 2026-07-07：終身保盒入口與終身保固卡頁面 */
+.member-lifetime-btn{
+  height:42px;
+  min-width:0;
+  width:auto;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.78);
+  background:rgba(255,255,255,.86);
+  color:#0b4264;
+  box-shadow:0 12px 26px rgba(16,24,36,.12);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:13px;
+  font-weight:950;
+  transition:transform .22s ease,color .22s ease,background .22s ease,box-shadow .22s ease;
+}
+.member-lifetime-btn[hidden]{display:none!important;}
+.member-lifetime-btn iconify-icon{font-size:22px;color:#f7b500!important;}
+.member-lifetime-btn:hover{
+  transform:translateY(-1px);
+  background:rgba(255,255,255,.96);
+  box-shadow:0 16px 30px rgba(16,24,36,.16);
+}
+.member-lifetime-btn:active{transform:translateY(0) scale(.98);}
+@media (max-width:390px){
+  .member-lifetime-btn{height:40px;padding:0 10px;font-size:12px;}
+  .member-lifetime-btn iconify-icon{font-size:20px;}
+}
+
+.bb-lifetime-page{padding-top:18px!important;}
+.bb-lifetime-page-head{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:14px;
+  margin:0 0 18px;
+}
+.bb-lifetime-back-btn{
+  width:46px;
+  height:46px;
+  min-width:46px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(255,255,255,.78);
+  box-shadow:0 12px 26px rgba(16,24,36,.12);
+  color:#525252;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.bb-lifetime-back-btn iconify-icon{font-size:25px;color:currentColor;}
+.bb-lifetime-list{display:grid;gap:18px;margin-top:8px;}
+.bb-lifetime-loading,
+.bb-lifetime-empty{
+  padding:28px 20px;
+  border-radius:22px;
+  background:rgba(255,255,255,.84);
+  border:1px solid rgba(255,255,255,.76);
+  box-shadow:var(--soft-shadow);
+  color:#667085;
+  font-size:14px;
+  font-weight:850;
+  line-height:1.6;
+  text-align:center;
+}
+.bb-warranty-sd-card{
+  position:relative;
+  min-height:250px;
+  padding:26px 22px 22px;
+  border-radius:26px 26px 30px 30px;
+  color:#ffffff;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(255,255,255,.16),rgba(255,255,255,0) 34%),
+    linear-gradient(145deg,#575757 0%,#2f3134 55%,#202225 100%);
+  box-shadow:0 22px 48px rgba(15,23,42,.24), inset 0 1px 0 rgba(255,255,255,.14);
+  overflow:hidden;
+  clip-path:polygon(0 0,76% 0,100% 22%,100% 100%,0 100%);
+  isolation:isolate;
+}
+.bb-warranty-sd-card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  right:0;
+  width:30%;
+  height:24%;
+  background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(255,255,255,.03));
+  clip-path:polygon(0 0,100% 100%,100% 0);
+  pointer-events:none;
+  z-index:0;
+}
+.bb-warranty-sd-card::after{
+  content:"";
+  position:absolute;
+  left:20px;
+  top:18px;
+  width:94px;
+  height:34px;
+  border-radius:9px;
+  background:repeating-linear-gradient(90deg,#d7b35f 0 12px,#f6d988 12px 18px,#d7b35f 18px 30px);
+  box-shadow:inset 0 -5px 0 rgba(0,0,0,.12), 0 8px 16px rgba(0,0,0,.14);
+  opacity:.95;
+  z-index:1;
+}
+.bb-warranty-sd-inner{position:relative;z-index:2;padding-top:48px;}
+.bb-warranty-sd-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px;
+}
+.bb-warranty-brand small{
+  display:block;
+  color:rgba(255,255,255,.56);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.18em;
+  margin-bottom:5px;
+}
+.bb-warranty-brand strong{
+  display:block;
+  color:#ffffff;
+  font-size:24px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+  line-height:1;
+}
+.bb-warranty-mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:rgba(247,181,0,.16);
+  color:#f7b500;
+  border:1px solid rgba(247,181,0,.34);
+}
+.bb-warranty-mark iconify-icon{font-size:25px;color:currentColor;}
+.bb-warranty-device{
+  margin:0 0 17px;
+  color:#ffffff;
+  font-size:27px;
+  font-weight:1000;
+  line-height:1.16;
+  letter-spacing:-.045em;
+  word-break:break-word;
+}
+.bb-warranty-fields{
+  display:grid;
+  gap:9px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:20px;
+  padding:14px;
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.bb-warranty-field{
+  display:grid;
+  grid-template-columns:76px minmax(0,1fr);
+  gap:10px;
+  align-items:start;
+}
+.bb-warranty-field span{
+  color:rgba(255,255,255,.52);
+  font-size:12px;
+  font-weight:900;
+  line-height:1.45;
+}
+.bb-warranty-field b{
+  color:#ffffff;
+  font-size:13px;
+  font-weight:900;
+  line-height:1.45;
+  text-align:right;
+  word-break:break-word;
+}
+@media (max-width:390px){
+  .bb-lifetime-page-head{gap:12px;margin-bottom:16px;}
+  .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
+  .bb-warranty-sd-card{min-height:238px;padding:24px 18px 20px;border-radius:24px 24px 28px 28px;}
+  .bb-warranty-sd-card::after{left:18px;top:17px;width:86px;height:31px;}
+  .bb-warranty-sd-inner{padding-top:44px;}
+  .bb-warranty-brand strong{font-size:22px;}
+  .bb-warranty-device{font-size:24px;}
+  .bb-warranty-field{grid-template-columns:70px minmax(0,1fr);}
+  .bb-warranty-field span{font-size:11px;}
+  .bb-warranty-field b{font-size:12px;}
+}
+
 </style>
