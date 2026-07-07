@@ -4110,6 +4110,135 @@
     }
   </style>
 
+
+
+  <style id="bb-membership-progress-badge-final-align-v10">
+    /* 2026-07-07 會籍進度條：指標改為進度條直屬物件，依 120/320/620/1020 節點座標正下方置中 */
+    #memberAnnualProgressMount,
+    #memberAnnualProgressMount .bb-annual-points-card,
+    #member .bb-annual-points-card{
+      background:transparent!important;
+      background-image:none!important;
+      border:0!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      overflow:visible!important;
+    }
+
+    #member .bb-annual-progress-area{
+      height:108px!important;
+      margin:2px 0 16px!important;
+      overflow:visible!important;
+      position:relative!important;
+    }
+
+    #member .bb-annual-node{
+      left:var(--node-left)!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      overflow:visible!important;
+      z-index:8!important;
+    }
+
+    #member .bb-annual-node-badge{
+      display:none!important;
+    }
+
+    #member .bb-annual-current-badge{
+      position:absolute!important;
+      left:var(--badge-left)!important;
+      top:calc(50% + 45px)!important;
+      transform:translate(-50%,-50%)!important;
+      width:112px!important;
+      height:62px!important;
+      display:block!important;
+      z-index:30!important;
+      overflow:visible!important;
+      pointer-events:none!important;
+      text-align:center!important;
+    }
+
+    #member .bb-annual-current-badge > iconify-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%) rotate(180deg)!important;
+      transform-origin:center center!important;
+      width:112px!important;
+      height:62px!important;
+      min-width:112px!important;
+      min-height:62px!important;
+      max-width:112px!important;
+      max-height:62px!important;
+      font-size:62px!important;
+      line-height:62px!important;
+      color:var(--badge-color)!important;
+      display:block!important;
+      z-index:1!important;
+      margin:0!important;
+      padding:0!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+
+    #member .bb-annual-current-badge-label{
+      position:absolute!important;
+      left:50%!important;
+      top:59%!important;
+      transform:translate(-50%,-50%)!important;
+      width:86px!important;
+      height:18px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      color:#ffffff!important;
+      font-size:9.2px!important;
+      line-height:1!important;
+      font-weight:950!important;
+      letter-spacing:-.1px!important;
+      white-space:nowrap!important;
+      text-align:center!important;
+      text-transform:uppercase!important;
+      z-index:2!important;
+      padding:0!important;
+      margin:0!important;
+      overflow:visible!important;
+      opacity:1!important;
+      visibility:visible!important;
+      -webkit-font-smoothing:antialiased!important;
+    }
+
+    @media (max-width:390px){
+      #member .bb-annual-progress-area{
+        height:104px!important;
+        margin:2px 0 14px!important;
+      }
+      #member .bb-annual-current-badge{
+        top:calc(50% + 43px)!important;
+        width:108px!important;
+        height:60px!important;
+      }
+      #member .bb-annual-current-badge > iconify-icon{
+        width:108px!important;
+        height:60px!important;
+        min-width:108px!important;
+        min-height:60px!important;
+        max-width:108px!important;
+        max-height:60px!important;
+        font-size:60px!important;
+        line-height:60px!important;
+      }
+      #member .bb-annual-current-badge-label{
+        width:84px!important;
+        font-size:8.8px!important;
+        top:59%!important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -4834,17 +4963,22 @@
       const nodeHTML = nodes.map(node => {
         const isCurrent = currentLevel === node.level;
         const isAchieved = currentRank >= node.rank && currentRank > 0;
-        const badgeHTML = isCurrent ? `<div class="bb-annual-node-badge" aria-hidden="true"><iconify-icon icon="si:chat-fill"></iconify-icon><span>${node.level}</span></div>` : '';
         return `<div class="bb-annual-node ${isAchieved ? 'is-achieved' : ''} ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left.toFixed(4)}%;--node-color:${node.color};" aria-label="${node.level} ${node.threshold} 點">
           <iconify-icon icon="streamline:ai-chip-spark-solid"></iconify-icon>
-          ${badgeHTML}
         </div>`;
       }).join('');
+
+      const currentNode = nodes.find(node => node.level === currentLevel);
+      const currentBadgeHTML = currentNode ? `<div class="bb-annual-current-badge" style="--badge-left:${currentNode.left.toFixed(4)}%;--badge-color:${currentNode.color};" aria-hidden="true">
+        <iconify-icon icon="si:chat-fill"></iconify-icon>
+        <span class="bb-annual-current-badge-label">${currentNode.level}</span>
+      </div>` : '';
 
       return `<section class="bb-annual-points-card" aria-label="會員等級進度">
         <div class="bb-annual-progress-area" style="--annual-progress:${progress.toFixed(2)}%;">
           <div class="bb-annual-progress-track"><div class="bb-annual-progress-fill"></div></div>
           ${nodeHTML}
+          ${currentBadgeHTML}
         </div>
       </section>`;
     }
