@@ -4590,6 +4590,172 @@
     }
   </style>
 
+
+  <style id="bb-membership-progress-compact-raised-v13">
+    /* 2026-07-07：會籍進度條上移、指標縮小，並保留節點與指標同座標 */
+    #member .bb-member-card-wrap{
+      gap:8px!important;
+    }
+
+    #memberAnnualProgressMount{
+      margin-top:-24px!important;
+      margin-bottom:-24px!important;
+      padding:0!important;
+      transform:none!important;
+      position:relative!important;
+      z-index:2!important;
+    }
+
+    #memberAnnualProgressMount,
+    #memberAnnualProgressMount .bb-annual-points-card,
+    #member .bb-annual-points-card{
+      background:transparent!important;
+      background-image:none!important;
+      box-shadow:none!important;
+      border:0!important;
+      padding-top:0!important;
+      margin-top:0!important;
+    }
+
+    #member .bb-annual-progress-area{
+      height:78px!important;
+      margin:0 0 0!important;
+      overflow:visible!important;
+    }
+
+    #member .bb-annual-progress-track{
+      left:6%!important;
+      right:6%!important;
+      top:28px!important;
+      transform:none!important;
+      height:9px!important;
+      background:#d9d9d9!important;
+      border-radius:999px!important;
+      overflow:hidden!important;
+    }
+
+    #member .bb-annual-progress-fill{
+      height:100%!important;
+      background:#b4b4b4!important;
+      border-radius:999px!important;
+    }
+
+    #member .bb-annual-node{
+      left:var(--node-left)!important;
+      top:32.5px!important;
+      transform:translate(-50%,-50%)!important;
+      width:26px!important;
+      min-width:26px!important;
+      height:26px!important;
+    }
+
+    #member .bb-annual-node::before{
+      width:26px!important;
+      height:26px!important;
+    }
+
+    #member .bb-annual-node > iconify-icon{
+      width:16px!important;
+      height:16px!important;
+      font-size:16px!important;
+      line-height:16px!important;
+    }
+
+    #member .bb-membership-pointer{
+      left:var(--membership-pointer-left)!important;
+      top:62px!important;
+      transform:translate(-50%,-50%)!important;
+      width:58px!important;
+      height:32px!important;
+      display:block!important;
+      overflow:visible!important;
+      z-index:80!important;
+    }
+
+    #member .bb-membership-pointer-icon{
+      width:58px!important;
+      height:32px!important;
+      font-size:32px!important;
+      line-height:32px!important;
+      transform:translate(-50%,-50%) rotate(180deg)!important;
+      opacity:0!important;
+    }
+
+    #member .bb-membership-pointer::before{
+      left:50%!important;
+      bottom:0!important;
+      transform:translateX(-50%)!important;
+      width:48px!important;
+      height:25px!important;
+      border-radius:7px!important;
+      background:var(--membership-pointer-color)!important;
+    }
+
+    #member .bb-membership-pointer::after{
+      left:50%!important;
+      top:0!important;
+      transform:translateX(-50%)!important;
+      border-left:8px solid transparent!important;
+      border-right:8px solid transparent!important;
+      border-bottom:10px solid var(--membership-pointer-color)!important;
+    }
+
+    #member .bb-membership-pointer-label{
+      left:50%!important;
+      bottom:0!important;
+      transform:translateX(-50%)!important;
+      width:48px!important;
+      height:25px!important;
+      padding:0!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      text-align:center!important;
+      color:#ffffff!important;
+      font-size:12px!important;
+      line-height:1!important;
+      font-weight:950!important;
+      letter-spacing:.02em!important;
+      white-space:nowrap!important;
+      overflow:visible!important;
+    }
+
+    @media (max-width:390px){
+      #memberAnnualProgressMount{
+        margin-top:-22px!important;
+        margin-bottom:-23px!important;
+      }
+      #member .bb-annual-progress-area{
+        height:76px!important;
+      }
+      #member .bb-annual-progress-track{
+        top:27px!important;
+      }
+      #member .bb-annual-node{
+        top:31.5px!important;
+      }
+      #member .bb-membership-pointer{
+        top:60px!important;
+        width:54px!important;
+        height:30px!important;
+      }
+      #member .bb-membership-pointer::before{
+        width:46px!important;
+        height:24px!important;
+      }
+      #member .bb-membership-pointer::after{
+        border-left-width:7px!important;
+        border-right-width:7px!important;
+        border-bottom-width:9px!important;
+      }
+      #member .bb-membership-pointer-label{
+        width:46px!important;
+        height:24px!important;
+        font-size:11.5px!important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -5309,7 +5475,7 @@
         { level:'GOLD', label:'金芯', threshold:300, displayAt:320, color:'#ddac59' },
         { level:'PLATINUM', label:'白金', threshold:600, displayAt:620, color:'#9dadb5' },
         { level:'TITANIUM', label:'鈦金', threshold:1000, displayAt:1020, color:'#667996' }
-      ].map(node => ({...node, left:(node.displayAt / totalNodes) * 100, rank:memberLevelRank(node.level)}));
+      ].map(node => ({...node, left:6 + ((node.displayAt / totalNodes) * 88), rank:memberLevelRank(node.level)}));
 
       const nodeHTML = nodes.map(node => {
         const isCurrent = currentLevel === node.level;
