@@ -4804,6 +4804,138 @@
     }
   </style>
 
+
+  <style id="bb-ui-cleanup-points-inline-20260707">
+    /* 2026-07-07：移除切換按鈕光暈、票券清單底板、會籍積分改為頁內說明 */
+    #quote .price-tabs,
+    #flow .process-tabs,
+    #reservation .member-dynamic-tabs{
+      box-shadow:none!important;
+      filter:none!important;
+    }
+    #quote .price-tab,
+    #flow .process-tab,
+    #reservation .member-dynamic-tab,
+    #quote .price-tab.active,
+    #flow .process-tab.active,
+    #reservation .member-dynamic-tab.active{
+      box-shadow:none!important;
+      filter:none!important;
+      text-shadow:none!important;
+    }
+
+    #wallet #walletList,
+    #wallet #walletList.data-list,
+    #wallet .bb-wallet-ledger{
+      background:transparent!important;
+      background-image:none!important;
+      border:none!important;
+      box-shadow:none!important;
+      padding:0!important;
+      border-radius:0!important;
+      min-height:0!important;
+      overflow:visible!important;
+      isolation:auto!important;
+    }
+    #wallet .bb-wallet-ledger::before,
+    #wallet .bb-wallet-ledger::after{
+      content:none!important;
+      display:none!important;
+      background:none!important;
+      box-shadow:none!important;
+      border:none!important;
+    }
+
+    #member .member-info-btn,
+    #member [data-open-points-info]{
+      display:none!important;
+    }
+    #member .bb-member-points-inline{
+      width:100%!important;
+      margin:8px 0 10px!important;
+      padding:0 2px!important;
+      display:grid!important;
+      grid-template-columns:minmax(128px, 34%) 1fr!important;
+      align-items:start!important;
+      gap:18px!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      color:#252525!important;
+    }
+    #member .bb-member-points-left{
+      display:flex!important;
+      align-items:flex-start!important;
+      gap:11px!important;
+      min-width:0!important;
+    }
+    #member .bb-member-points-icon{
+      flex:0 0 42px!important;
+      width:42px!important;
+      height:42px!important;
+      border-radius:999px!important;
+      background:#f7b500!important;
+      color:#ffffff!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+    #member .bb-member-points-icon iconify-icon{
+      font-size:23px!important;
+      color:#ffffff!important;
+    }
+    #member .bb-member-points-left h3{
+      margin:0 0 6px!important;
+      color:#252525!important;
+      font-size:18px!important;
+      line-height:1.05!important;
+      font-weight:950!important;
+      letter-spacing:.02em!important;
+    }
+    #member .bb-member-points-left p{
+      margin:0!important;
+      color:rgba(82,82,82,.72)!important;
+      font-size:11.5px!important;
+      line-height:1.45!important;
+      font-weight:800!important;
+    }
+    #member .bb-member-points-rules{
+      background:transparent!important;
+      padding:0!important;
+      border:0!important;
+      text-align:left!important;
+    }
+    #member .bb-member-points-rules p{
+      margin:0 0 6px!important;
+      color:rgba(82,82,82,.72)!important;
+      font-size:11px!important;
+      line-height:1.55!important;
+      font-weight:750!important;
+      letter-spacing:.01em!important;
+    }
+    #member .bb-member-points-rules p:last-child{margin-bottom:0!important;}
+
+    @media (max-width:430px){
+      #member .bb-member-points-inline{
+        grid-template-columns:132px 1fr!important;
+        gap:12px!important;
+        margin-top:5px!important;
+      }
+      #member .bb-member-points-icon{
+        flex-basis:36px!important;
+        width:36px!important;
+        height:36px!important;
+      }
+      #member .bb-member-points-icon iconify-icon{font-size:20px!important;}
+      #member .bb-member-points-left{gap:8px!important;}
+      #member .bb-member-points-left h3{font-size:16px!important;}
+      #member .bb-member-points-left p{font-size:10.5px!important;}
+      #member .bb-member-points-rules p{font-size:10.2px!important;line-height:1.45!important;margin-bottom:5px!important;}
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -4937,7 +5069,7 @@
     </section>
 
     <section id="member" class="section">
-      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>我的會員</h2></div><div class="member-actions"><button class="member-info-btn" type="button" data-open-points-info onclick="openPointsInfoModal()" aria-label="會籍積分說明"><iconify-icon icon="flowbite:star-solid"></iconify-icon><span>會籍積分</span></button><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
+      <div class="page-head"><div class="page-title"><small>B.I.C MEMBER</small><h2>我的會員</h2></div><div class="member-actions"><button class="member-logout-btn" type="button" onclick="logoutMember()" aria-label="登出"><iconify-icon icon="entypo:log-out"></iconify-icon><span>登出</span></button></div></div>
       <div id="memberArea" class="login-required"></div>
     </section>
 
@@ -5574,6 +5706,26 @@
       </section>`;
     }
 
+
+    function memberPointsInfoPanelHTML(){
+      return `<section class="bb-member-points-inline" aria-label="會籍積分說明">
+        <div class="bb-member-points-left">
+          <div class="bb-member-points-icon"><iconify-icon icon="flowbite:star-solid"></iconify-icon></div>
+          <div>
+            <h3>會籍積分</h3>
+            <p>每 10 積分<br>可折抵消費金額 10 元</p>
+          </div>
+        </div>
+        <div class="bb-member-points-rules">
+          <p>・若有違法使用或消費退款，系統會追回已發放之積分。</p>
+          <p>・本系統目前僅適用於勤美公益門市、沙鹿站前門市。</p>
+          <p>・會籍積分及票券是綁定會員 LINE 帳號，若更換 LINE 使用帳號所有積分及票券不予保留。</p>
+          <p>・積分無法透過空機 / 二手機選購方式取得，亦無法用於此類金額折抵。</p>
+          <p>・積分及票券使用不與特約優惠疊加使用。</p>
+        </div>
+      </section>`;
+    }
+
     function renderMemberArea(){
       const box = $('#memberArea'); if(!box) return;
       const memberSection = document.getElementById('member');
@@ -5602,6 +5754,7 @@
           </div>
 
           <div id="memberAnnualProgressMount">${memberAnnualPointsProgressHTML()}</div>
+          ${memberPointsInfoPanelHTML()}
 
         </div>`;
       // 防止部分瀏覽器或舊快取造成年度積分進度條未掛上，這裡再補一次渲染。
@@ -6441,6 +6594,53 @@
     </div>
     <div class="bb-coupon-footer"><button type="button" onclick="closeCouponDetail()">關閉票券</button></div>
   </div>
+
+
+<style id="bb-final-overrides-20260707">
+  /* final override: remove tab glow after legacy end-of-file styles */
+  #flow .process-tabs,
+  #quote .price-tabs,
+  #reservation .member-dynamic-tabs,
+  #flow .process-tab,
+  #quote .price-tab,
+  #reservation .member-dynamic-tab,
+  #flow .process-tab.active,
+  #quote .price-tab.active,
+  #reservation .member-dynamic-tab.active{
+    box-shadow:none!important;
+    filter:none!important;
+    text-shadow:none!important;
+  }
+
+  /* final override: remove wallet list white backing while keeping ticket cards */
+  #wallet #walletList,
+  #wallet #walletList.data-list,
+  #wallet .bb-wallet-ledger{
+    background:transparent!important;
+    background-image:none!important;
+    border:none!important;
+    box-shadow:none!important;
+    padding:0!important;
+    border-radius:0!important;
+    min-height:0!important;
+    overflow:visible!important;
+    isolation:auto!important;
+  }
+  #wallet .bb-wallet-ledger::before,
+  #wallet .bb-wallet-ledger::after{
+    content:none!important;
+    display:none!important;
+    background:none!important;
+    box-shadow:none!important;
+    border:none!important;
+  }
+
+  /* final override: hide old member points button and keep inline explanation */
+  #member .member-info-btn,
+  #member [data-open-points-info]{
+    display:none!important;
+  }
+</style>
 
 </body>
 </html>
