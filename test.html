@@ -3757,6 +3757,114 @@
       #member .bb-annual-node .bb-annual-node-badge span{font-size:10px!important;letter-spacing:.25px!important;}
     }
   </style>
+
+
+  <style id="bb-membership-progress-badge-v7">
+    /* 2026-07-06 會籍進度條：移除背後圖卡、指標置中放大 */
+    #memberAnnualProgressMount,
+    #memberAnnualProgressMount .bb-annual-points-card,
+    #member .bb-annual-points-card{
+      background:transparent!important;
+      background-image:none!important;
+      border:0!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      padding:0!important;
+      margin-top:6px!important;
+    }
+    #member .bb-annual-points-card::before,
+    #member .bb-annual-points-card::after{
+      content:none!important;
+      display:none!important;
+    }
+    #member .bb-annual-progress-area{
+      height:108px!important;
+      margin:2px 0 12px!important;
+      overflow:visible!important;
+    }
+    #member .bb-annual-node{
+      overflow:visible!important;
+      z-index:3!important;
+    }
+    #member .bb-annual-node.is-current::after{
+      content:none!important;
+      display:none!important;
+    }
+    #member .bb-annual-node-badge{
+      position:absolute!important;
+      left:50%!important;
+      top:calc(50% + 22px)!important;
+      transform:translateX(-50%)!important;
+      width:92px!important;
+      height:52px!important;
+      display:block!important;
+      z-index:8!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node .bb-annual-node-badge iconify-icon{
+      position:absolute!important;
+      left:0!important;
+      top:0!important;
+      width:100%!important;
+      height:100%!important;
+      min-width:92px!important;
+      min-height:52px!important;
+      font-size:52px!important;
+      line-height:52px!important;
+      color:var(--node-color)!important;
+      transform:rotate(180deg)!important;
+      display:block!important;
+      z-index:0!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      filter:none!important;
+    }
+    #member .bb-annual-node .bb-annual-node-badge span{
+      position:absolute!important;
+      left:50%!important;
+      top:56%!important;
+      transform:translate(-50%,-50%)!important;
+      width:72px!important;
+      max-width:72px!important;
+      color:#ffffff!important;
+      font-size:10px!important;
+      line-height:1!important;
+      font-weight:900!important;
+      letter-spacing:.16px!important;
+      white-space:nowrap!important;
+      text-align:center!important;
+      overflow:hidden!important;
+      text-overflow:clip!important;
+      text-transform:uppercase!important;
+      z-index:1!important;
+    }
+    @media (max-width:390px){
+      #member .bb-annual-progress-area{
+        height:104px!important;
+        margin:2px 0 10px!important;
+      }
+      #member .bb-annual-node-badge{
+        width:86px!important;
+        height:49px!important;
+        top:calc(50% + 21px)!important;
+      }
+      #member .bb-annual-node .bb-annual-node-badge iconify-icon{
+        min-width:86px!important;
+        min-height:49px!important;
+        font-size:49px!important;
+        line-height:49px!important;
+      }
+      #member .bb-annual-node .bb-annual-node-badge span{
+        width:68px!important;
+        max-width:68px!important;
+        font-size:9.2px!important;
+        letter-spacing:.08px!important;
+      }
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
