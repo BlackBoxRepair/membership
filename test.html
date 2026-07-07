@@ -4806,7 +4806,7 @@
 
 
   <style id="bb-ui-cleanup-points-inline-20260707">
-    /* 2026-07-07：移除切換按鈕光暈、票券清單底板、會籍積分改為頁內說明 */
+    /* 2026-07-07：移除切換按鈕光暈、票券清單底板、會籍積分改為頁內說明；調整 icon 置於標題上方並拉開進度條距離 */
     #quote .price-tabs,
     #flow .process-tabs,
     #reservation .member-dynamic-tabs{
@@ -4852,7 +4852,7 @@
     }
     #member .bb-member-points-inline{
       width:100%!important;
-      margin:8px 0 10px!important;
+      margin:26px 0 10px!important;
       padding:0 2px!important;
       display:grid!important;
       grid-template-columns:minmax(128px, 34%) 1fr!important;
@@ -4865,8 +4865,9 @@
     }
     #member .bb-member-points-left{
       display:flex!important;
+      flex-direction:column!important;
       align-items:flex-start!important;
-      gap:11px!important;
+      gap:10px!important;
       min-width:0!important;
     }
     #member .bb-member-points-icon{
@@ -4921,7 +4922,7 @@
       #member .bb-member-points-inline{
         grid-template-columns:132px 1fr!important;
         gap:12px!important;
-        margin-top:5px!important;
+        margin-top:22px!important;
       }
       #member .bb-member-points-icon{
         flex-basis:36px!important;
