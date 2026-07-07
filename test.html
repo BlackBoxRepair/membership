@@ -138,6 +138,146 @@
     .feature-card.big{grid-column:1;grid-row:1 / span 2;background:#6fadf5;color:#fff;overflow:visible}.feature-card.dark{background:#383a3c;color:#fff}.feature-card.wide{min-height:0}
     .feature-card:nth-child(2),.feature-card:nth-child(4),.feature-card:nth-child(5){background:#ffffff;color:#0f172a}
     .feature-card:nth-child(3){background:#383a3c;color:#fff}
+    .card-kicker{display:block;width:100%;text-align:left;font-size:11px;line-height:1.2;font-weight:750;letter-spacing:.02em;color:rgba(1<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>BLACK BOX 黑盒子維修中心 2.0</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+  <style>
+    :root{
+      --bg:#eaf4ff;
+      --bg2:#f7fbff;
+      --blue:#2f72ff;
+      --blue2:#7db2ff;
+      --deep:#101824;
+      --text:#121826;
+      --muted:#627084;
+      --line:rgba(16,24,36,.10);
+      --card:rgba(255,255,255,.78);
+      --card2:rgba(255,255,255,.92);
+      --shadow:0 18px 45px rgba(45,104,190,.16);
+      --soft-shadow:0 10px 25px rgba(15,30,60,.10);
+      --radius:22px;
+      --safe-bottom:env(safe-area-inset-bottom, 0px);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+      color:var(--text);
+      background:#525252;
+      background-color:#525252;
+      overflow-x:hidden;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,0) 42%,rgba(255,255,255,.06));
+      z-index:-1;
+    }
+
+    a{color:inherit;text-decoration:none}
+    button,input,select,textarea{font-family:inherit}
+    button{border:0;cursor:pointer}
+
+    .app{
+      width:min(100%, 480px);
+      min-height:100vh;
+      margin:0 auto;
+      position:relative;
+      padding:22px 20px calc(104px + var(--safe-bottom));
+    }
+
+    .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin:14px 0 2px}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}
+    .brand-logo{
+      display:block;
+      width:165px;
+      height:auto;
+      object-fit:contain;
+      filter:drop-shadow(0 8px 18px rgba(0,0,0,.10));
+      position:relative;
+      left:0px;
+      top:-20px;
+    }
+    .quick-actions{display:flex;align-items:center;gap:10px}
+    .quick-btn{
+      width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);display:grid;place-items:center;box-shadow:var(--soft-shadow);position:relative;color:#0b1220;
+    }
+    .quick-btn iconify-icon{font-size:20px;color:currentColor}
+    .quick-btn .bubble{position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:#0a0e15;color:#fff;border-radius:14px;padding:4px 9px;font-size:11px;font-weight:800;white-space:nowrap}
+
+    .hero{position:relative;margin-top:-10px;margin-bottom:16px;min-height:330px}
+    .hero-copy{position:relative;z-index:2;width:57%;padding-top:10px}
+    .hello{font-size:14px;color:#41516a;margin-bottom:11px;font-weight:650}
+    .hero h1{margin:0 0 4px;font-size:22px;line-height:1.16;letter-spacing:-1px;font-weight:950;color:#0b1020}
+    .hero h2{margin:0 0 13px;font-size:25px;line-height:1.08;letter-spacing:-1.1px;font-weight:950;color:var(--blue)}
+    .hero p{margin:0 0 15px;font-size:12px;line-height:1.6;color:#4e5d72;font-weight:600}
+    .primary-btn{
+      min-height:38px;border-radius:999px;background:linear-gradient(145deg,#111a27,#02060c);color:#fff;padding:0 14px;display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:850;box-shadow:0 12px 20px rgba(5,12,24,.18), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .primary-btn iconify-icon{font-size:18px;color:currentColor}
+
+    .hero-art{position:absolute;right:-22px;top:0px;width:64%;height:300px;z-index:1;display:flex;align-items:flex-start;justify-content:center;pointer-events:none}
+    .main-photo{width:88%;height:auto;object-fit:contain;display:block;filter:drop-shadow(0 18px 28px rgba(28,81,164,.20))}
+    .phone{
+      position:absolute;right:38px;top:14px;width:142px;height:244px;border:8px solid #1b273c;border-radius:32px;transform:rotate(4deg);background:linear-gradient(155deg,#93c5ff,#e9f5ff);box-shadow:0 18px 32px rgba(28,81,164,.26);
+    }
+    .phone::before{content:"";position:absolute;top:-2px;left:39px;width:50px;height:14px;background:#1b273c;border-radius:0 0 12px 12px}
+    .phone::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:86px;border-radius:12px;background:linear-gradient(160deg,#8ff0e9,#fff);box-shadow:0 8px 20px rgba(30,101,196,.18)}
+    .bolt{position:absolute;right:84px;top:120px;font-size:45px;z-index:3;color:#111827;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
+    .discount{position:absolute;border-radius:13px;background:linear-gradient(145deg,#3180ff,#1d5eff);color:#fff;box-shadow:0 15px 25px rgba(47,114,255,.35);padding:14px 17px;left:0;top:92px;transform:rotate(-1deg);z-index:4}
+    .discount small{display:block;font-size:13px;font-weight:700;opacity:.9}.discount b{font-size:22px;letter-spacing:.3px}.discount span{font-size:18px;font-weight:900}
+    .discount.white{background:rgba(255,255,255,.94);color:#111;left:-26px;top:182px;padding:12px 20px;box-shadow:0 12px 18px rgba(12,34,75,.12)}.discount.white b{font-size:22px}.discount.white small{color:#293142}
+    .cloud{position:absolute;background:#fff;border-radius:999px;filter:drop-shadow(0 12px 20px rgba(80,128,180,.13));opacity:.92}.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}.cloud.c1{width:78px;height:31px;left:35px;top:0}.cloud.c1::before{width:37px;height:37px;left:13px;top:-18px}.cloud.c1::after{width:44px;height:44px;right:10px;top:-23px}.cloud.c2{width:108px;height:42px;right:-22px;bottom:34px}.cloud.c2::before{width:56px;height:56px;left:14px;top:-26px}.cloud.c2::after{width:62px;height:62px;right:14px;top:-31px}
+    .bb-robot{position:absolute;right:0;bottom:0;width:128px;height:128px;border-radius:50%;background:linear-gradient(145deg,#fff,#dde8f7);box-shadow:0 20px 35px rgba(24,67,135,.18);z-index:5}.bb-face{position:absolute;left:23px;top:25px;width:72px;height:56px;border-radius:22px;background:#070b13}.bb-eye{position:absolute;top:20px;width:10px;height:24px;border-radius:999px;background:#fff}.bb-eye.e1{left:20px}.bb-eye.e2{right:20px}.bb-ear{position:absolute;right:-8px;top:43px;width:24px;height:34px;border-radius:50%;background:linear-gradient(#fff,#dce8f8);box-shadow:inset 0 -5px 8px rgba(25,70,130,.12)}.bb-hand{position:absolute;left:-22px;bottom:21px;width:32px;height:62px;border-radius:20px;background:linear-gradient(#fff,#dce8f8);transform:rotate(24deg)}.wrench{position:absolute;left:-42px;bottom:40px;font-size:54px;color:#c5cfdd;transform:rotate(-12deg);z-index:6}.bb-logo{position:absolute;left:43px;bottom:20px;width:38px;height:38px;border-radius:10px;background:#07090c;display:grid;place-items:center;color:#fff}.bb-logo iconify-icon{font-size:20px;color:currentColor}
+
+    .glass-nav{display:grid;grid-template-columns:repeat(4,1fr);width:100%;background:rgba(255,255,255,.75);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.75);border-radius:20px;box-shadow:var(--shadow);overflow:hidden;margin:-110px auto 18px}
+    .nav-tile{min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;color:var(--blue);font-weight:850;font-size:16px;background:transparent}
+    .nav-tile:not(:last-child)::after{content:"";position:absolute;right:0;top:18%;height:64%;width:1px;background:rgba(17,24,39,.10)}
+    .nav-tile iconify-icon{font-size:38px;color:currentColor;filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
+    .nav-tile img{width:46px;height:46px;object-fit:contain;display:block;filter:drop-shadow(0 9px 8px rgba(47,114,255,.24))}
+    .nav-tile span{color:#121826}
+
+    .cards{
+      --card-gap:12px;
+      --small-card-height:112px;
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      grid-template-rows:var(--small-card-height) var(--small-card-height) var(--small-card-height);
+      gap:var(--card-gap);
+      margin-top:8px;
+      align-items:stretch;
+    }
+    .feature-card{
+      position:relative;
+      width:100%;
+      height:100%;
+      min-height:0;
+      border-radius:15px;
+      padding:18px;
+      overflow:hidden;
+      background:#ffffff;
+      box-shadow:var(--soft-shadow);
+      border:1px solid rgba(255,255,255,.72);
+      aspect-ratio:auto;
+    }
+    .feature-card.big{grid-column:1;grid-row:1 / span 2;background:#6fadf5;color:#fff;overflow:visible}.feature-card.dark{background:#383a3c;color:#fff}.feature-card.wide{min-height:0}
+    .feature-card:nth-child(2),.feature-card:nth-child(4),.feature-card:nth-child(5){background:#ffffff;color:#0f172a}
+    .feature-card:nth-child(3){background:#383a3c;color:#fff}
     .card-kicker{display:block;width:100%;text-align:left;font-size:11px;line-height:1.2;font-weight:750;letter-spacing:.02em;color:rgba(15,23,42,.68);margin-bottom:9px}
     .feature-card.big .card-kicker,.feature-card.dark .card-kicker{color:rgba(255,255,255,.78)}
     .feature-card.big .card-text-group{position:absolute;left:18px;top:auto;bottom:66px;right:18px;z-index:2}
@@ -5754,21 +5894,16 @@
       const imei = getLifetimeWarrantyValue(row, ['IMEI','imei','serial_number','serial'], '未填寫登記序號');
       const createdAt = formatLifetimeWarrantyDate(getLifetimeWarrantyValue(row, ['created_at','registered_at','date'], ''));
       const serviceStore = getLifetimeWarrantyValue(row, ['service_store','store','store_name','branch'], '未填寫服務門市');
-      return `<article class="bb-warranty-sd-card" aria-label="終身保固卡">
-        <div class="bb-warranty-sd-inner">
-          <div class="bb-warranty-sd-top">
-            <div class="bb-warranty-brand">
-              <small>LIFETIME WARRANTY</small>
-              <strong>終身保固卡</strong>
-            </div>
-            <span class="bb-warranty-mark"><iconify-icon icon="mdi:shield-star"></iconify-icon></span>
-          </div>
-          <h3 class="bb-warranty-device">${escapeHTML(deviceModel)}</h3>
-          <div class="bb-warranty-fields">
-            <div class="bb-warranty-field"><span>設備型號</span><b>${escapeHTML(deviceModel)}</b></div>
-            <div class="bb-warranty-field"><span>登記序號</span><b>${escapeHTML(imei)}</b></div>
-            <div class="bb-warranty-field"><span>登錄時間</span><b>${escapeHTML(createdAt)}</b></div>
-            <div class="bb-warranty-field"><span>服務門市</span><b>${escapeHTML(serviceStore)}</b></div>
+      return `<article class="bb-warranty-img-card" aria-label="終身保固卡">
+        <img class="bb-warranty-card-bg" src="warranty card.png" alt="" loading="lazy">
+        <div class="bb-warranty-card-info">
+          <div class="bb-warranty-card-kicker">LIFETIME WARRANTY</div>
+          <h3 class="bb-warranty-card-device">${escapeHTML(deviceModel)}</h3>
+          <div class="bb-warranty-card-fields">
+            <div class="bb-warranty-card-field"><span>設備型號</span><b>${escapeHTML(deviceModel)}</b></div>
+            <div class="bb-warranty-card-field"><span>登記序號</span><b>${escapeHTML(imei)}</b></div>
+            <div class="bb-warranty-card-field"><span>登錄時間</span><b>${escapeHTML(createdAt)}</b></div>
+            <div class="bb-warranty-card-field"><span>服務門市</span><b>${escapeHTML(serviceStore)}</b></div>
           </div>
         </div>
       </article>`;
@@ -7213,133 +7348,105 @@
   line-height:1.6;
   text-align:center;
 }
-.bb-warranty-sd-card{
+.bb-warranty-img-card{
   position:relative;
-  min-height:258px;
-  padding:22px 20px 22px;
-  border-radius:22px;
-  color:#ffffff;
-  background:
-    linear-gradient(180deg,#2f89ff 0 0) left 0 top 38px/100% 4px no-repeat,
-    radial-gradient(circle at 18% 12%,rgba(255,255,255,.14),rgba(255,255,255,0) 34%),
-    repeating-linear-gradient(135deg,rgba(255,255,255,.08) 0 2px,transparent 2px 18px),
-    linear-gradient(145deg,#45484d 0%,#2a2d32 55%,#17191d 100%);
-  box-shadow:0 22px 48px rgba(15,23,42,.24), inset 0 1px 0 rgba(255,255,255,.14);
+  width:100%;
+  border-radius:24px;
   overflow:hidden;
-  clip-path:polygon(0 18%,13% 0,77% 0,100% 18%,100% 100%,0 100%);
+  box-shadow:0 22px 48px rgba(15,23,42,.22);
+  background:#16181c;
   isolation:isolate;
-  border:1px solid rgba(255,255,255,.10);
 }
-.bb-warranty-sd-card::before{
-  content:"";
+.bb-warranty-card-bg{
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:238px;
+  object-fit:cover;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.bb-warranty-card-info{
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,0) 28%),
-    radial-gradient(circle at 84% 10%,rgba(255,255,255,.12),rgba(255,255,255,0) 40%);
-  pointer-events:none;
-  z-index:0;
-}
-.bb-warranty-sd-card::after{
-  content:"";
-  position:absolute;
-  right:18px;
-  top:14px;
-  width:76px;
-  height:28px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.16);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-  z-index:1;
-}
-.bb-warranty-sd-inner{position:relative;z-index:2;padding-top:28px;}
-.bb-warranty-sd-top{
+  z-index:2;
+  padding:18% 9% 8%;
+  color:#fff;
   display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:14px;
-  margin-bottom:16px;
+  flex-direction:column;
+  justify-content:flex-end;
+  pointer-events:none;
 }
-.bb-warranty-brand small{
-  display:block;
-  color:rgba(255,255,255,.62);
-  font-size:10px;
-  font-weight:950;
-  letter-spacing:.18em;
+.bb-warranty-card-kicker{
+  width:max-content;
+  max-width:100%;
   margin-bottom:6px;
-}
-.bb-warranty-brand strong{
-  display:block;
-  color:#ffffff;
-  font-size:24px;
-  font-weight:1000;
-  letter-spacing:-.04em;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+  color:rgba(255,255,255,.76);
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-transform:uppercase;
   line-height:1;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
 }
-.bb-warranty-mark{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:44px;
-  height:44px;
-  border-radius:14px;
-  background:rgba(255,255,255,.08);
-  color:#f7b500;
-  border:1px solid rgba(255,255,255,.12);
-}
-.bb-warranty-mark iconify-icon{font-size:25px;color:currentColor;}
-.bb-warranty-device{
-  margin:0 0 16px;
-  color:#ffffff;
-  font-size:28px;
+.bb-warranty-card-device{
+  margin:0 0 10px;
+  color:#fff;
+  font-size:25px;
   font-weight:1000;
-  line-height:1.12;
-  letter-spacing:-.05em;
+  line-height:1.08;
+  letter-spacing:-.045em;
+  text-shadow:0 2px 10px rgba(0,0,0,.32);
   word-break:break-word;
 }
-.bb-warranty-fields{
+.bb-warranty-card-fields{
   display:grid;
-  gap:9px;
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  padding:14px;
+  gap:6px;
+  padding:12px;
+  border-radius:16px;
+  background:rgba(0,0,0,.34);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
   backdrop-filter:blur(8px);
   -webkit-backdrop-filter:blur(8px);
 }
-.bb-warranty-field{
+.bb-warranty-card-field{
   display:grid;
-  grid-template-columns:76px minmax(0,1fr);
-  gap:10px;
+  grid-template-columns:72px minmax(0,1fr);
+  gap:8px;
   align-items:start;
 }
-.bb-warranty-field span{
-  color:rgba(255,255,255,.56);
+.bb-warranty-card-field span{
+  color:rgba(255,255,255,.62);
+  font-size:11px;
+  font-weight:900;
+  line-height:1.4;
+}
+.bb-warranty-card-field b{
+  color:#fff;
   font-size:12px;
   font-weight:900;
-  line-height:1.45;
-}
-.bb-warranty-field b{
-  color:#ffffff;
-  font-size:13px;
-  font-weight:900;
-  line-height:1.45;
+  line-height:1.4;
   text-align:right;
   word-break:break-word;
+  text-shadow:0 1px 6px rgba(0,0,0,.28);
 }
 @media (max-width:390px){
   .bb-lifetime-page-head{gap:12px;margin-bottom:16px;}
   .bb-lifetime-page-head .page-title h2{font-size:30px;}
   .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
-  .bb-warranty-sd-card{min-height:244px;padding:20px 18px 20px;}
-  .bb-warranty-sd-card::after{right:16px;top:12px;width:68px;height:26px;}
-  .bb-warranty-sd-inner{padding-top:26px;}
-  .bb-warranty-brand strong{font-size:22px;}
-  .bb-warranty-device{font-size:24px;}
-  .bb-warranty-field{grid-template-columns:70px minmax(0,1fr);}
-  .bb-warranty-field span{font-size:11px;}
-  .bb-warranty-field b{font-size:12px;}
+  .bb-warranty-img-card{border-radius:22px;}
+  .bb-warranty-card-bg{min-height:226px;}
+  .bb-warranty-card-info{padding:17% 8% 7%;}
+  .bb-warranty-card-device{font-size:22px;margin-bottom:8px;}
+  .bb-warranty-card-fields{gap:5px;padding:10px;border-radius:14px;}
+  .bb-warranty-card-field{grid-template-columns:66px minmax(0,1fr);}
+  .bb-warranty-card-field span{font-size:10px;}
+  .bb-warranty-card-field b{font-size:11px;}
 }
 
 </style>
