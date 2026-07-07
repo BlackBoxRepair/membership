@@ -4385,6 +4385,211 @@
     }
   </style>
 
+
+
+  <style id="bb-membership-pointer-rebuild-v11">
+    /* 2026-07-07 最終重建：避免 si:chat-fill 內建 viewBox 偏移造成文字靠左與裁切 */
+    #memberAnnualProgressMount,
+    #memberAnnualProgressMount .bb-annual-points-card,
+    #member .bb-annual-points-card{
+      background:transparent!important;
+      background-image:none!important;
+      border:0!important;
+      box-shadow:none!important;
+      backdrop-filter:none!important;
+      -webkit-backdrop-filter:none!important;
+      padding:8px 2px 0!important;
+      margin-top:8px!important;
+      overflow:visible!important;
+    }
+
+    #member .bb-annual-progress-area{
+      position:relative!important;
+      height:112px!important;
+      margin:2px 0 12px!important;
+      overflow:visible!important;
+      --annual-track-base:#d9d9d9!important;
+      --annual-fill:#b4b4b4!important;
+    }
+
+    #member .bb-annual-progress-track{
+      position:absolute!important;
+      left:0!important;
+      right:0!important;
+      top:50%!important;
+      transform:translateY(-50%)!important;
+      height:9px!important;
+      border-radius:999px!important;
+      background:#d9d9d9!important;
+      overflow:hidden!important;
+      z-index:0!important;
+    }
+
+    #member .bb-annual-progress-fill{
+      height:100%!important;
+      background:#b4b4b4!important;
+      border-radius:inherit!important;
+    }
+
+    #member .bb-annual-node{
+      left:var(--node-left)!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      width:26px!important;
+      min-width:26px!important;
+      height:26px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      overflow:visible!important;
+      z-index:8!important;
+    }
+
+    #member .bb-annual-node::before{
+      content:''!important;
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      width:26px!important;
+      height:26px!important;
+      border-radius:50%!important;
+      background:#d9d9d9!important;
+      border:0!important;
+      box-shadow:none!important;
+      z-index:0!important;
+    }
+
+    #member .bb-annual-node.is-achieved::before,
+    #member .bb-annual-node.is-current::before{
+      background:#ffffff!important;
+    }
+
+    #member .bb-annual-node::after,
+    #member .bb-annual-node-badge,
+    #member .bb-annual-current-badge,
+    #member .bb-level-pointer{
+      content:none!important;
+      display:none!important;
+    }
+
+    #member .bb-annual-node > iconify-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%)!important;
+      width:16px!important;
+      height:16px!important;
+      font-size:16px!important;
+      line-height:16px!important;
+      color:var(--node-color)!important;
+      z-index:1!important;
+      margin:0!important;
+      padding:0!important;
+      filter:none!important;
+      box-shadow:none!important;
+    }
+
+    #member .bb-membership-pointer{
+      position:absolute!important;
+      left:var(--membership-pointer-left)!important;
+      top:calc(50% + 43px)!important;
+      transform:translate(-50%,-50%)!important;
+      width:90px!important;
+      height:46px!important;
+      display:block!important;
+      overflow:visible!important;
+      z-index:80!important;
+      pointer-events:none!important;
+      text-align:center!important;
+      isolation:isolate!important;
+      box-sizing:border-box!important;
+    }
+
+    /* 保留 si:chat-fill 結構，但不再讓 iconify 的 viewBox 影響排版 */
+    #member .bb-membership-pointer-icon{
+      position:absolute!important;
+      left:50%!important;
+      top:50%!important;
+      transform:translate(-50%,-50%) rotate(180deg)!important;
+      width:90px!important;
+      height:46px!important;
+      font-size:46px!important;
+      line-height:46px!important;
+      color:var(--membership-pointer-color)!important;
+      opacity:0!important;
+      z-index:0!important;
+      margin:0!important;
+      padding:0!important;
+      display:block!important;
+      pointer-events:none!important;
+    }
+
+    #member .bb-membership-pointer::before{
+      content:''!important;
+      position:absolute!important;
+      left:50%!important;
+      bottom:0!important;
+      transform:translateX(-50%)!important;
+      width:78px!important;
+      height:34px!important;
+      border-radius:8px!important;
+      background:var(--membership-pointer-color)!important;
+      z-index:1!important;
+    }
+
+    #member .bb-membership-pointer::after{
+      content:''!important;
+      position:absolute!important;
+      left:50%!important;
+      top:2px!important;
+      transform:translateX(-50%)!important;
+      width:0!important;
+      height:0!important;
+      border-left:10px solid transparent!important;
+      border-right:10px solid transparent!important;
+      border-bottom:14px solid var(--membership-pointer-color)!important;
+      z-index:1!important;
+    }
+
+    #member .bb-membership-pointer-label{
+      position:absolute!important;
+      left:50%!important;
+      bottom:0!important;
+      transform:translateX(-50%)!important;
+      width:78px!important;
+      height:34px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      padding:0 5px!important;
+      margin:0!important;
+      box-sizing:border-box!important;
+      color:#ffffff!important;
+      font-size:10px!important;
+      line-height:1!important;
+      font-weight:950!important;
+      letter-spacing:-.3px!important;
+      white-space:nowrap!important;
+      text-align:center!important;
+      text-transform:uppercase!important;
+      z-index:2!important;
+      overflow:visible!important;
+      text-overflow:clip!important;
+      opacity:1!important;
+      visibility:visible!important;
+      -webkit-font-smoothing:antialiased!important;
+    }
+
+    @media (max-width:390px){
+      #member .bb-annual-progress-area{height:108px!important;margin:2px 0 10px!important;}
+      #member .bb-membership-pointer{top:calc(50% + 41px)!important;width:86px!important;height:44px!important;}
+      #member .bb-membership-pointer::before{width:76px!important;height:33px!important;border-radius:8px!important;}
+      #member .bb-membership-pointer::after{top:2px!important;border-left-width:9px!important;border-right-width:9px!important;border-bottom-width:13px!important;}
+      #member .bb-membership-pointer-label{width:76px!important;height:33px!important;font-size:9.4px!important;letter-spacing:-.42px!important;}
+    }
+  </style>
+
 </head>
 <body>
   <main class="app">
@@ -5115,16 +5320,16 @@
       }).join('');
 
       const currentNode = nodes.find(node => node.level === currentLevel);
-      const levelPointerHTML = currentNode ? `<div class="bb-level-pointer" style="--level-pointer-left:${currentNode.left.toFixed(4)}%;--level-pointer-color:${currentNode.color};" aria-hidden="true">
-        <iconify-icon class="bb-level-pointer-icon" icon="si:chat-fill"></iconify-icon>
-        <span class="bb-level-pointer-label">${currentNode.level}</span>
+      const membershipPointerHTML = currentNode ? `<div class="bb-membership-pointer" style="--membership-pointer-left:${currentNode.left.toFixed(4)}%;--membership-pointer-color:${currentNode.color};" aria-hidden="true">
+        <iconify-icon class="bb-membership-pointer-icon" icon="si:chat-fill"></iconify-icon>
+        <span class="bb-membership-pointer-label">${currentNode.level}</span>
       </div>` : '';
 
       return `<section class="bb-annual-points-card" aria-label="會員等級進度">
         <div class="bb-annual-progress-area" style="--annual-progress:${progress.toFixed(2)}%;">
           <div class="bb-annual-progress-track"><div class="bb-annual-progress-fill"></div></div>
           ${nodeHTML}
-          ${levelPointerHTML}
+          ${membershipPointerHTML}
         </div>
       </section>`;
     }
