@@ -3707,6 +3707,56 @@
     }
   </style>
 
+
+  <style id="bb-membership-progress-badge-v6">
+    /* 2026-07-04 會籍進度條：目前等級指標改為 si:chat-fill 翻轉 180 度 */
+    #member .bb-annual-progress-area{height:100px!important;margin:2px 0 18px!important;overflow:visible!important;}
+    #member .bb-annual-node.is-current::after{content:none!important;}
+    #member .bb-annual-node-badge{
+      position:absolute!important;
+      left:50%!important;
+      top:calc(100% + 8px)!important;
+      transform:translateX(-50%)!important;
+      width:74px!important;
+      height:42px!important;
+      display:block!important;
+      z-index:4!important;
+      pointer-events:none!important;
+    }
+    #member .bb-annual-node .bb-annual-node-badge iconify-icon{
+      position:absolute!important;
+      left:0!important;
+      top:0!important;
+      width:100%!important;
+      height:100%!important;
+      font-size:42px!important;
+      line-height:42px!important;
+      color:var(--node-color)!important;
+      transform:rotate(180deg)!important;
+      display:block!important;
+      z-index:0!important;
+    }
+    #member .bb-annual-node .bb-annual-node-badge span{
+      position:absolute!important;
+      left:50%!important;
+      top:56%!important;
+      transform:translate(-50%,-50%)!important;
+      color:#ffffff!important;
+      font-size:11px!important;
+      line-height:1!important;
+      font-weight:800!important;
+      letter-spacing:.35px!important;
+      white-space:nowrap!important;
+      text-transform:uppercase!important;
+      z-index:1!important;
+    }
+    @media (max-width:768px){
+      #member .bb-annual-progress-area{height:96px!important;margin:2px 0 16px!important;}
+      #member .bb-annual-node-badge{width:68px!important;height:38px!important;top:calc(100% + 7px)!important;}
+      #member .bb-annual-node .bb-annual-node-badge iconify-icon{font-size:38px!important;line-height:38px!important;}
+      #member .bb-annual-node .bb-annual-node-badge span{font-size:10px!important;letter-spacing:.25px!important;}
+    }
+  </style>
 </head>
 <body>
   <main class="app">
@@ -4431,8 +4481,10 @@
       const nodeHTML = nodes.map(node => {
         const isCurrent = currentLevel === node.level;
         const isAchieved = currentRank >= node.rank && currentRank > 0;
+        const badgeHTML = isCurrent ? `<div class="bb-annual-node-badge" aria-hidden="true"><iconify-icon icon="si:chat-fill"></iconify-icon><span>${node.level}</span></div>` : '';
         return `<div class="bb-annual-node ${isAchieved ? 'is-achieved' : ''} ${isCurrent ? 'is-current' : ''}" style="--node-left:${node.left.toFixed(4)}%;--node-color:${node.color};" aria-label="${node.level} ${node.threshold} 點">
           <iconify-icon icon="streamline:ai-chip-spark-solid"></iconify-icon>
+          ${badgeHTML}
         </div>`;
       }).join('');
 
