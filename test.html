@@ -1316,7 +1316,7 @@
       width:100%;
       height:138px;
       border-radius:15px!important;
-      margin:10px 0 16px!important;
+      margin:2px 0 14px!important;
       background:transparent!important;
       border:0!important;
       box-shadow:none!important;
@@ -1334,7 +1334,7 @@
       #gift .gift-starbox-banner{
         height:120px;
         border-radius:15px!important;
-        margin:8px 0 14px!important;
+        margin:0 0 12px!important;
       }
       #gift .gift-starbox-banner .home-banner-slide{
         border-radius:15px!important;
@@ -5339,8 +5339,8 @@
       let target = VALID_ROUTES.has(id) ? id : 'home';
       const requestedTarget = target;
 
-      // 登入前保護：會員動態、票券錢包、會員專區需要登入；盒芯禮遇為公開頁面，不需登入。
-      const protectedRoutes = ['reservation','wallet','member','lifetimeWarranty'];
+      // 登入前保護：會員動態、票券錢包、我的會員、盒芯禮遇與終身保盒皆需要登入。
+      const protectedRoutes = ['reservation','wallet','member','gift','lifetimeWarranty'];
       if(protectedRoutes.includes(target) && !currentMember){
         target = 'member';
       }
