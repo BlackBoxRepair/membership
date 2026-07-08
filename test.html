@@ -5423,6 +5423,12 @@
     window.openLifetimeWarrantyTermsModal = openLifetimeWarrantyTermsModal;
     window.closeLifetimeWarrantyTermsModal = closeLifetimeWarrantyTermsModal;
 
+    window.addEventListener('resize', () => {
+      if(document.getElementById('lifetimeWarranty')?.classList.contains('active')){
+        requestAnimationFrame(fitLifetimeWarrantyDeviceText);
+      }
+    });
+
     document.addEventListener('click', function(e){
       const infoBtn = e.target.closest('.member-info-btn, [data-open-points-info]');
       if(!infoBtn) return;
@@ -5860,6 +5866,17 @@
       });
     }
 
+    function fitLifetimeWarrantyDeviceText(){
+      document.querySelectorAll('#lifetimeWarrantyList .bb-warranty-device').forEach(el => {
+        const baseSize = window.innerWidth <= 390 ? 20 : 24.5;
+        const minSize = window.innerWidth <= 390 ? 10.5 : 12;
+        el.style.fontSize = baseSize + 'px';
+        while(el.scrollWidth > el.clientWidth && parseFloat(el.style.fontSize) > minSize){
+          el.style.fontSize = (parseFloat(el.style.fontSize) - 0.5) + 'px';
+        }
+      });
+    }
+
     async function renderLifetimeWarrantyPage(){
       const box = $('#lifetimeWarrantyList');
       if(!box) return;
@@ -5875,6 +5892,7 @@
       }
       box.innerHTML = rows.map(lifetimeWarrantyCardHTML).join('');
       renderLifetimeWarrantyQRCodes();
+      requestAnimationFrame(fitLifetimeWarrantyDeviceText);
     }
 
     function memberYearlyCardHTML(){
@@ -7439,14 +7457,14 @@
   display:block!important;
   left:10.4%;
   top:14.8%;
-  max-width:55%;
+  max-width:58%;
   font-size:24.5px;
   line-height:1.14;
   font-weight:1000;
   letter-spacing:-.03em;
   white-space:nowrap;
   overflow:hidden;
-  text-overflow:ellipsis;
+  text-overflow:clip;
   word-break:normal;
 }
 .bb-warranty-serial{
@@ -7541,7 +7559,7 @@
   .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
   .bb-lifetime-terms-btn{height:38px;padding:0 10px;font-size:12px;gap:4px;}
   .bb-lifetime-terms-btn iconify-icon{font-size:16px;}
-  .bb-warranty-device{left:10.1%;top:14.4%;max-width:56%;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;}
+  .bb-warranty-device{left:10.1%;top:14.4%;max-width:59%;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:clip;word-break:normal;}
   .bb-warranty-serial{left:10.1%;top:29.6%;max-width:59%;font-size:13px;}
   .bb-warranty-qr-wrap{left:11.8%;bottom:14.6%;max-width:62px;padding:4px;border-radius:7px;}
   .bb-warranty-date{right:13.2%;bottom:28%;gap:1px;}
