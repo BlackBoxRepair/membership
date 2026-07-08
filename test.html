@@ -5272,6 +5272,20 @@
       <div id="lifetimeWarrantyTermsContent" class="bb-warranty-terms-content">條款載入中...</div>
     </div>
   </div>
+
+  <!-- 終身保盒：保固紀錄彈窗 -->
+  <div id="warrantyLogsModal" class="bb-warranty-terms-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="warrantyLogsTitle" onclick="closeWarrantyLogsModal()">
+    <div class="bb-warranty-terms-card" onclick="event.stopPropagation()">
+      <button type="button" class="bb-warranty-terms-close" aria-label="關閉保固紀錄" onclick="closeWarrantyLogsModal()">
+        <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+      </button>
+      <div class="bb-warranty-terms-icon">
+        <iconify-icon icon="solar:history-bold"></iconify-icon>
+      </div>
+      <h3 id="warrantyLogsTitle">保固紀錄</h3>
+      <div id="warrantyLogsContent" class="bb-warranty-terms-content bb-warranty-logs-content">紀錄載入中...</div>
+    </div>
+  </div>
 <script>
     const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
@@ -5433,6 +5447,104 @@
       modal.setAttribute('aria-hidden','true');
     }
 
+    let currentWarrantyLogsContractId = '';
+
+    function formatWarrantyLogDate(value){
+      if(!value) return '未填寫時間';
+      const d = new Date(value);
+      if(!Number.isNaN(d.getTime())){
+        return new Intl.DateTimeFormat('zh-TW', {
+          year:'numeric',
+          month:'2-digit',
+          day:'2-digit',
+          hour:'2-digit',
+          minute:'2-digit',
+          hour12:false
+        }).format(d).replace(/\//g,'.');
+      }
+      return String(value);
+    }
+
+    async function fetchWarrantyLogsRows(warrantyId){
+      if(!warrantyId) return [];
+      const candidateColumns = [
+        'lifetime_warranty_id',
+        'warranty_id',
+        'warranty_contract_id',
+        'contract_id',
+        'lifetime_warranty'
+      ];
+
+      for(const column of candidateColumns){
+        try{
+          const { data, error } = await supabaseClient
+            .from('warranty_logs')
+            .select('*')
+            .eq(column, warrantyId);
+
+          if(error) throw error;
+          const rows = Array.isArray(data) ? data : [];
+          rows.sort((a,b) => {
+            const aDate = getLifetimeWarrantyValue(a, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
+            const bDate = getLifetimeWarrantyValue(b, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
+            return new Date(bDate).getTime() - new Date(aDate).getTime();
+          });
+          return rows;
+        }catch(err){
+          console.warn(`[Supabase] warranty_logs 以 ${column} 查詢失敗：`, err?.message || err);
+        }
+      }
+      return [];
+    }
+
+    function warrantyLogCardHTML(row, index){
+      const usedAt = getLifetimeWarrantyValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
+      const reason = getLifetimeWarrantyValue(row, ['reason','warranty_reason','content','remarks','note','description','issue'], '未填寫保固原因');
+      return `<article class="bb-warranty-log-card">
+        <div class="bb-warranty-log-index">#${index + 1}</div>
+        <div class="bb-warranty-log-main">
+          <time>${escapeHTML(formatWarrantyLogDate(usedAt))}</time>
+          <p>${escapeHTML(reason)}</p>
+        </div>
+      </article>`;
+    }
+
+    async function openWarrantyLogsModal(warrantyId){
+      const modal = document.getElementById('warrantyLogsModal');
+      const box = document.getElementById('warrantyLogsContent');
+      if(!modal || !box) return;
+      const id = String(warrantyId || '').trim();
+      currentWarrantyLogsContractId = id;
+      modal.classList.add('show');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+
+      if(!id){
+        box.innerHTML = '<div class="bb-warranty-log-empty">找不到此張保固卡的保固碼。</div>';
+        return;
+      }
+
+      box.innerHTML = '<div class="bb-warranty-log-empty">保固紀錄載入中...</div>';
+      const rows = await fetchWarrantyLogsRows(id);
+      if(currentWarrantyLogsContractId !== id) return;
+
+      if(!rows.length){
+        box.innerHTML = '<div class="bb-warranty-log-empty">目前尚無保固使用紀錄。</div>';
+        return;
+      }
+
+      box.innerHTML = `<div class="bb-warranty-log-list">${rows.map(warrantyLogCardHTML).join('')}</div>`;
+    }
+
+    function closeWarrantyLogsModal(){
+      const modal = document.getElementById('warrantyLogsModal');
+      if(!modal) return;
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+      currentWarrantyLogsContractId = '';
+    }
+
 
 
     function openGiftLockedModal(){
@@ -5458,6 +5570,8 @@
     window.closePointsInfoModal = closePointsInfoModal;
     window.openLifetimeWarrantyTermsModal = openLifetimeWarrantyTermsModal;
     window.closeLifetimeWarrantyTermsModal = closeLifetimeWarrantyTermsModal;
+    window.openWarrantyLogsModal = openWarrantyLogsModal;
+    window.closeWarrantyLogsModal = closeWarrantyLogsModal;
 
     window.addEventListener('resize', () => {
       if(document.getElementById('lifetimeWarranty')?.classList.contains('active')){
@@ -5869,7 +5983,7 @@
       const project = getLifetimeWarrantyValue(row, ['project'], '');
       const userCheckRaw = getLifetimeWarrantyValue(row, ['user_check'], '');
       const hasUserCheck = userCheckRaw === true || String(userCheckRaw).toLowerCase() === 'true' || String(userCheckRaw) === '1';
-      return `<article class="bb-warranty-sd-card bb-warranty-image-card" aria-label="終身保固卡">
+      return `<article class="bb-warranty-sd-card bb-warranty-image-card" role="button" tabindex="0" aria-label="終身保固卡，點擊查看保固紀錄" onclick="openWarrantyLogsModal('${escapeAttr(String(warrantyId || ''))}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openWarrantyLogsModal('${escapeAttr(String(warrantyId || ''))}');}">
         <div class="bb-warranty-sd-inner">
           ${hasUserCheck ? '<span class="bb-warranty-user-check" aria-label="已確認"><iconify-icon icon="mage:user-check-fill"></iconify-icon></span>' : ''}
           <div class="bb-warranty-device">${escapeHTML(deviceModel)}</div>
@@ -7318,11 +7432,19 @@
   font-weight:950;
   margin-bottom:5px;
 }
+.bb-lifetime-page-head .page-title{
+  margin-left:8px!important;
+}
+.bb-lifetime-page-head .page-title small{
+  font-size:10.5px!important;
+  letter-spacing:.04em!important;
+  margin-bottom:4px!important;
+}
 .bb-lifetime-page-head .page-title h2{
   margin:0;
-  font-size:30px;
-  letter-spacing:-1px;
-  line-height:1.08;
+  font-size:23px!important;
+  letter-spacing:-.45px!important;
+  line-height:1.18!important;
 }
 .bb-lifetime-back-btn{
   width:46px;
@@ -7429,6 +7551,66 @@
   line-height:1.8;
   white-space:pre-wrap;
   word-break:break-word;
+}
+.bb-warranty-logs-content{
+  white-space:normal;
+}
+.bb-warranty-log-list{
+  display:grid;
+  gap:10px;
+}
+.bb-warranty-log-card{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  gap:12px;
+  padding:14px;
+  border-radius:16px;
+  background:#ffffff;
+  border:1px solid rgba(17,24,39,.06);
+  box-shadow:0 6px 16px rgba(15,23,42,.04);
+}
+.bb-warranty-log-index{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  background:rgba(247,181,0,.14);
+  color:#c48900;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:13px;
+  font-weight:1000;
+}
+.bb-warranty-log-main time{
+  display:block;
+  color:#252525;
+  font-size:14px;
+  font-weight:1000;
+  line-height:1.3;
+  margin-bottom:5px;
+}
+.bb-warranty-log-main p{
+  margin:0;
+  color:#5f6672;
+  font-size:13px;
+  font-weight:780;
+  line-height:1.65;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.bb-warranty-log-empty{
+  color:#667085;
+  text-align:center;
+  font-size:14px;
+  font-weight:850;
+  line-height:1.8;
+  padding:16px 8px;
+}
+.bb-warranty-sd-card{
+  cursor:pointer;
+}
+.bb-warranty-sd-card:active{
+  transform:scale(.992);
 }
 
 .bb-lifetime-list{display:grid;gap:18px;margin-top:8px;}
@@ -7591,7 +7773,9 @@
 }
 @media (max-width:390px){
   .bb-lifetime-page-head{gap:10px;margin-bottom:16px;}
-  .bb-lifetime-page-head .page-title h2{font-size:28px;}
+  .bb-lifetime-page-head .page-title{margin-left:7px!important;}
+  .bb-lifetime-page-head .page-title h2{font-size:22px!important;}
+  .bb-lifetime-page-head .page-title small{font-size:10px!important;}
   .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
   .bb-lifetime-terms-btn{height:38px;padding:0 10px;font-size:12px;gap:4px;}
   .bb-lifetime-terms-btn iconify-icon{font-size:16px;}
