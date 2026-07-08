@@ -6043,6 +6043,7 @@
               </label>
               <p class="member-signup-note">請填寫正確實名資料，以免影響會員權益與票券使用。</p>
               <button id="memberSignupSubmit" class="member-signup-submit" type="button" onclick="saveNewMemberProfile()" disabled>確認加入</button>
+              <small id="memberSignupSubmitError" class="member-signup-error" hidden></small>
             </div>
           </div>
         </div>`;
@@ -6106,6 +6107,22 @@
       btn.disabled = !isMemberSignupFormValid();
     }
 
+    function setMemberSignupSubmitError(message){
+      const errEl = document.getElementById('memberSignupSubmitError');
+      if(!errEl) return;
+      const text = String(message || '').trim();
+      errEl.textContent = text;
+      errEl.hidden = !text;
+    }
+
+    function restoreMemberSignupSubmitButton(){
+      const btn = document.getElementById('memberSignupSubmit');
+      if(btn){
+        btn.disabled = !isMemberSignupFormValid();
+        btn.textContent = '確認加入';
+      }
+    }
+
     async function saveNewMemberProfile(){
       const btn = document.getElementById('memberSignupSubmit');
       const lineId = currentLineProfile?.userId || pendingMemberProfile?.line_id || localStorage.getItem('bb_member_line_id') || '';
@@ -6117,8 +6134,11 @@
       const area = document.getElementById('memberSignupArea')?.value || '';
       const email = document.getElementById('memberSignupEmail')?.value.trim() || '';
 
+      setMemberSignupSubmitError('');
+
       if(!lineId){
-        alert('無法取得 LINE ID，請重新使用 LINE 連動登入。');
+        setMemberSignupSubmitError('無法取得 LINE ID，請重新使用 LINE 連動登入。');
+        restoreMemberSignupSubmitButton();
         return;
       }
       if(!name || !/^09\d{8}$/.test(phone) || !year || !month || !day){
@@ -6129,6 +6149,8 @@
 
       if(btn){ btn.disabled = true; btn.textContent = '儲存中...'; }
 
+      let shouldRestoreButton = true;
+
       try{
         const { data: existingUser, error: checkError } = await supabaseClient
           .from('profiles')
@@ -6137,7 +6159,7 @@
           .maybeSingle();
         if(checkError) throw checkError;
         if(existingUser && String(existingUser.line_id) !== String(lineId)){
-          alert('此電話號碼已被其他會員註冊。');
+          setMemberSignupSubmitError('此電話號碼已被其他會員註冊。');
           return;
         }
 
@@ -6165,14 +6187,17 @@
         memberLookupStatus = 'found';
         memberLookupMessage = '';
         localStorage.setItem('bb_member_line_id', lineId);
-        renderMemberState();
+
+        // 成功時不再跳彈窗：直接關閉加入會員畫面，停留在「我的會員」頁面。
         routeTo('member');
-        alert('會員資料已建立完成。');
+        renderMemberState();
+        shouldRestoreButton = false;
       }catch(err){
         console.error('new member profile save failed', err);
-        alert(`會員資料儲存失敗：${err.message || err}`);
+        // 失敗時不再跳彈窗：保留在加入會員畫面，僅於表單內顯示錯誤。
+        setMemberSignupSubmitError(`會員資料儲存失敗：${err.message || err}`);
       }finally{
-        if(btn){ btn.disabled = false; btn.textContent = '確認加入'; }
+        if(shouldRestoreButton) restoreMemberSignupSubmitButton();
       }
     }
 
