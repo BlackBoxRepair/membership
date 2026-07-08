@@ -1308,6 +1308,39 @@
     }
     .home-banner-placeholder .home-banner-slide.active{opacity:1;}
 
+    /* 盒芯禮遇：專屬 Banner，沿用首頁 Banner 視覺 */
+    #gift .gift-starbox-banner{
+      display:block!important;
+      position:relative;
+      overflow:hidden;
+      width:100%;
+      height:138px;
+      border-radius:15px!important;
+      margin:-36px 0 16px!important;
+      background:transparent!important;
+      border:0!important;
+      box-shadow:none!important;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    #gift .gift-starbox-banner .home-banner-slide{
+      border-radius:15px!important;
+      opacity:1!important;
+    }
+    #gift .gift-starbox-banner:active{
+      transform:scale(.992);
+    }
+    @media (max-width:390px){
+      #gift .gift-starbox-banner{
+        height:120px;
+        border-radius:15px!important;
+        margin:-38px 0 14px!important;
+      }
+      #gift .gift-starbox-banner .home-banner-slide{
+        border-radius:15px!important;
+      }
+    }
+
 
     /* 票券錢包：票券清單 icon 改用會員專區積分顏色 */
     #wallet .coupon-ticket-icon,
@@ -5095,6 +5128,9 @@
     </section>
 
     <section id="gift" class="section">
+      <a class="home-banner-placeholder gift-starbox-banner is-ready" href="https://blackboxrepair.github.io/membership/price" target="_blank" rel="noopener" aria-label="前往會員價格頁">
+        <img class="home-banner-slide active" src="./starbox/box%20star%20001.png" onerror="this.onerror=null;this.src='./starbox/box star 001.png';" alt="盒芯禮遇 Banner" loading="eager">
+      </a>
       <div id="giftList" class="data-list"></div>
     </section>
 
