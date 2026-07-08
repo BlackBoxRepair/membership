@@ -585,6 +585,114 @@
     .member-login-submit.line-login-real iconify-icon{font-size:24px;color:currentColor;}
 
     .member-login-register{display:none !important;}
+
+    .member-signup-screen{
+      min-height:calc(100vh - 190px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px 0 32px;
+    }
+    .member-signup-panel{
+      width:100%;
+      max-width:430px;
+      border-radius:26px;
+      padding:28px 24px 26px;
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(255,255,255,.82);
+      box-shadow:0 30px 70px rgba(16,24,36,.13);
+      backdrop-filter:blur(22px) saturate(150%);
+      -webkit-backdrop-filter:blur(22px) saturate(150%);
+    }
+    .member-signup-icon{
+      width:52px;
+      height:52px;
+      margin:0 auto 14px;
+      border-radius:18px;
+      background:rgba(247,181,0,.14);
+      color:#f7b500;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .member-signup-icon iconify-icon{font-size:30px;color:currentColor;}
+    .member-signup-title{
+      margin:0 0 8px;
+      text-align:center;
+      color:#063a5f;
+      font-size:30px;
+      font-weight:1000;
+      letter-spacing:.04em;
+      line-height:1;
+    }
+    .member-signup-hint{
+      margin:0 0 20px;
+      text-align:center;
+      color:rgba(16,24,36,.58);
+      font-size:14px;
+      font-weight:850;
+      line-height:1.6;
+    }
+    .member-signup-form{display:grid;gap:12px;}
+    .member-signup-field{display:grid;gap:6px;}
+    .member-signup-field span{
+      color:#4E5968;
+      font-size:12px;
+      font-weight:950;
+      padding:0 2px;
+    }
+    .member-signup-input{
+      width:100%;
+      height:46px;
+      border-radius:13px;
+      border:0;
+      background:#f2f4f6;
+      color:#191f28;
+      padding:0 14px;
+      font-size:15px;
+      font-weight:850;
+      outline:0;
+    }
+    .member-signup-input:focus{
+      background:#e9edf2;
+      box-shadow:0 0 0 4px rgba(247,181,0,.13);
+    }
+    .member-signup-birthday{
+      display:grid;
+      grid-template-columns:1.25fr .9fr .9fr;
+      gap:8px;
+    }
+    .member-signup-error{
+      color:#d92d20;
+      font-size:11px;
+      font-weight:850;
+      line-height:1.4;
+      padding:0 2px;
+    }
+    .member-signup-note{
+      margin:2px 0 0;
+      color:#8B95A1;
+      font-size:11px;
+      line-height:1.6;
+      font-weight:780;
+      text-align:center;
+    }
+    .member-signup-submit{
+      height:50px;
+      border-radius:15px;
+      background:#f7b500;
+      color:#fff;
+      font-size:16px;
+      font-weight:1000;
+      box-shadow:0 8px 18px rgba(247,181,0,.24);
+    }
+    .member-signup-submit:disabled{opacity:.65;cursor:wait;}
+    @media (max-width:390px){
+      .member-signup-screen{min-height:calc(100vh - 180px);padding:20px 0 28px;}
+      .member-signup-panel{padding:24px 20px 24px;border-radius:24px;}
+      .member-signup-title{font-size:28px;}
+      .member-signup-birthday{gap:7px;}
+    }
     @media (max-width:560px){
       .member-login-screen{width:min(100%, 360px);min-height:calc(100dvh - 170px);padding:0 0 98px;}
       .member-login-panel{max-width:340px;border-radius:22px;padding:24px 20px 26px;}
@@ -5579,6 +5687,7 @@
         currentLineProfile = null;
         memberLookupStatus = 'idle';
         memberLookupMessage = '';
+        pendingMemberProfile = null;
         localStorage.removeItem('bb_member');
         localStorage.removeItem('bb_member_line_id');
         localStorage.removeItem('bb_line_profile');
@@ -5702,6 +5811,7 @@
     let currentCoupons = [];
     let memberLookupStatus = 'idle';
     let memberLookupMessage = '';
+    let pendingMemberProfile = null;
     let currentClaimingMilestone = 0;
     let currentLifetimeWarrantyRows = [];
     let lifetimeWarrantyLoadedLineId = '';
@@ -5758,8 +5868,10 @@
         renderMemberState();
         if(currentMember){
           alert('LINE 會員連動成功');
+        }else if(memberLookupStatus === 'not_found' || memberLookupStatus === 'profile_incomplete'){
+          // 初次登入或資料未補齊時，直接顯示加入會員表單，不再跳出查無資料錯誤。
         }else{
-          alert(memberLookupMessage || 'LINE 已連動，但查無對應會員資料。');
+          alert(memberLookupMessage || 'LINE 已連動，但暫時無法取得會員資料。');
         }
       }catch(err){
         console.error(err);
@@ -5775,6 +5887,7 @@
       console.log('[BB DEBUG] LINE userId =', lineId);
 
       currentMember = null;
+      pendingMemberProfile = null;
       memberLookupStatus = 'loading';
       memberLookupMessage = '';
       localStorage.removeItem('bb_member');
@@ -5789,7 +5902,7 @@
       try{
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('line_id, full_name, total_points, phone, member_level, accumulated_points')
+          .select('*')
           .eq('line_id', lineId)
           .maybeSingle();
 
@@ -5799,18 +5912,32 @@
         if(error) throw error;
 
         if(!data){
+          pendingMemberProfile = {
+            line_id: lineId,
+            full_name: profile?.displayName || ''
+          };
           memberLookupStatus = 'not_found';
-          memberLookupMessage = `找不到對應的會員資料。請確認 Supabase profiles.line_id 是否等於：${lineId}`;
-          console.warn('[BB DEBUG] 找不到 profiles 對應資料，line_id =', lineId);
+          memberLookupMessage = '首次登入，請先補齊會員資料。';
+          localStorage.setItem('bb_member_line_id', lineId);
+          return null;
+        }
+
+        if(!data.phone || !data.birthday){
+          pendingMemberProfile = data;
+          memberLookupStatus = 'profile_incomplete';
+          memberLookupMessage = '會員資料尚未補齊，請填寫電話與生日完成加入。';
+          localStorage.setItem('bb_member_line_id', lineId);
           return null;
         }
 
         currentMember = data;
+        pendingMemberProfile = null;
         memberLookupStatus = 'found';
         memberLookupMessage = '';
         localStorage.setItem('bb_member_line_id', lineId);
         return data;
       }catch(err){
+        pendingMemberProfile = null;
         memberLookupStatus = 'error';
         memberLookupMessage = `會員資料查詢失敗：${err.message || err}`;
         console.error('[BB DEBUG] profiles query failed', err);
@@ -5833,6 +5960,194 @@
           </div>
         </div>`;
     }
+
+    const memberSignupAreas = [
+      '西屯區','沙鹿區','中區','東區','西區','南區','北區','北屯區','南屯區',
+      '太平區','大里區','霧峰區','烏日區','豐原區','后里區','石岡區','東勢區','和平區','新社區',
+      '潭子區','大雅區','神岡區','大肚區','龍井區','梧棲區','清水區','大甲區','外埔區','大安區',
+      '台北市','新北市','桃園市','基隆縣','新竹市','新竹縣','苗栗縣','彰化縣','南投縣',
+      '雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','花蓮縣','台東縣','離島地區'
+    ];
+
+    function memberSignupHTML(){
+      const base = pendingMemberProfile || {};
+      const lineName = currentLineProfile?.displayName || '';
+      const name = base.full_name || lineName || '';
+      const phone = base.phone || '';
+      const email = base.email || '';
+      const area = base.area || '';
+      const birthday = String(base.birthday || '');
+      const [birthYear='', birthMonth='', birthDay=''] = birthday.includes('-') ? birthday.split('-') : ['', '', ''];
+      const currentYear = new Date().getFullYear();
+      const years = ['<option value="">年</option>'].concat(
+        Array.from({ length: currentYear - 1939 }, (_, i) => {
+          const y = String(currentYear - i);
+          return `<option value="${y}" ${String(birthYear) === y ? 'selected' : ''}>${y}年</option>`;
+        })
+      ).join('');
+      const months = ['<option value="">月</option>'].concat(
+        Array.from({ length: 12 }, (_, i) => {
+          const m = String(i + 1).padStart(2, '0');
+          return `<option value="${m}" ${String(birthMonth).padStart(2, '0') === m ? 'selected' : ''}>${i + 1}月</option>`;
+        })
+      ).join('');
+      const areas = ['<option value="">選擇區域</option>'].concat(
+        memberSignupAreas.map(a => `<option value="${escapeAttr(a)}" ${area === a ? 'selected' : ''}>${escapeHTML(a)}</option>`)
+      ).join('');
+
+      return `
+        <div class="member-signup-screen">
+          <div class="member-signup-panel">
+            <div class="member-signup-icon"><iconify-icon icon="solar:user-plus-bold"></iconify-icon></div>
+            <h3 class="member-signup-title">加入會員</h3>
+            <p class="member-signup-hint">已完成 LINE 連動，請補齊資料以啟用會員功能。</p>
+            <div class="member-signup-form">
+              <label class="member-signup-field">
+                <span>真實姓名 *</span>
+                <input id="memberSignupName" class="member-signup-input" type="text" value="${escapeAttr(name)}" autocomplete="name">
+              </label>
+              <label class="member-signup-field">
+                <span>連絡電話 *</span>
+                <input id="memberSignupPhone" class="member-signup-input" type="tel" maxlength="10" value="${escapeAttr(phone)}" autocomplete="tel" oninput="validateMemberSignupPhone()">
+                <small id="memberSignupPhoneError" class="member-signup-error" hidden>電話格式需為 09 開頭共 10 碼</small>
+              </label>
+              <div class="member-signup-field">
+                <span>會員生日 *</span>
+                <div class="member-signup-birthday">
+                  <select id="memberSignupBirthYear" class="member-signup-input" onchange="updateMemberSignupDays()">${years}</select>
+                  <select id="memberSignupBirthMonth" class="member-signup-input" onchange="updateMemberSignupDays()">${months}</select>
+                  <select id="memberSignupBirthDay" class="member-signup-input"><option value="">日</option></select>
+                </div>
+              </div>
+              <label class="member-signup-field">
+                <span>居住區域</span>
+                <select id="memberSignupArea" class="member-signup-input">${areas}</select>
+              </label>
+              <label class="member-signup-field">
+                <span>電子信箱</span>
+                <input id="memberSignupEmail" class="member-signup-input" type="email" value="${escapeAttr(email)}" autocomplete="email">
+              </label>
+              <p class="member-signup-note">請填寫正確實名資料，以免影響會員權益與票券使用。</p>
+              <button id="memberSignupSubmit" class="member-signup-submit" type="button" onclick="saveNewMemberProfile()">確認加入</button>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function updateMemberSignupDays(){
+      const yearEl = document.getElementById('memberSignupBirthYear');
+      const monthEl = document.getElementById('memberSignupBirthMonth');
+      const dayEl = document.getElementById('memberSignupBirthDay');
+      if(!yearEl || !monthEl || !dayEl) return;
+      const selected = dayEl.value;
+      const y = Number(yearEl.value);
+      const m = Number(monthEl.value);
+      dayEl.innerHTML = '<option value="">日</option>';
+      if(!y || !m) return;
+      const total = new Date(y, m, 0).getDate();
+      for(let d = 1; d <= total; d++){
+        const value = String(d).padStart(2, '0');
+        dayEl.insertAdjacentHTML('beforeend', `<option value="${value}">${d}日</option>`);
+      }
+      if(selected && Number(selected) <= total) dayEl.value = selected.padStart(2, '0');
+    }
+
+    function initMemberSignupForm(){
+      const birthday = String((pendingMemberProfile || {}).birthday || '');
+      if(birthday.includes('-')){
+        const [, , day=''] = birthday.split('-');
+        updateMemberSignupDays();
+        const dayEl = document.getElementById('memberSignupBirthDay');
+        if(dayEl && day) dayEl.value = String(day).padStart(2, '0');
+      }else{
+        updateMemberSignupDays();
+      }
+      validateMemberSignupPhone();
+    }
+
+    function validateMemberSignupPhone(){
+      const phoneEl = document.getElementById('memberSignupPhone');
+      const errEl = document.getElementById('memberSignupPhoneError');
+      if(!phoneEl || !errEl) return true;
+      const value = phoneEl.value.trim();
+      const valid = !value || /^09\d{8}$/.test(value);
+      errEl.hidden = valid;
+      return valid;
+    }
+
+    async function saveNewMemberProfile(){
+      const btn = document.getElementById('memberSignupSubmit');
+      const lineId = currentLineProfile?.userId || pendingMemberProfile?.line_id || localStorage.getItem('bb_member_line_id') || '';
+      const name = document.getElementById('memberSignupName')?.value.trim() || '';
+      const phone = document.getElementById('memberSignupPhone')?.value.trim() || '';
+      const year = document.getElementById('memberSignupBirthYear')?.value || '';
+      const month = document.getElementById('memberSignupBirthMonth')?.value || '';
+      const day = document.getElementById('memberSignupBirthDay')?.value || '';
+      const area = document.getElementById('memberSignupArea')?.value || '';
+      const email = document.getElementById('memberSignupEmail')?.value.trim() || '';
+
+      if(!lineId){
+        alert('無法取得 LINE ID，請重新使用 LINE 連動登入。');
+        return;
+      }
+      if(!name || !/^09\d{8}$/.test(phone) || !year || !month || !day){
+        alert('請正確填寫姓名、手機號碼與生日。');
+        validateMemberSignupPhone();
+        return;
+      }
+
+      if(btn){ btn.disabled = true; btn.textContent = '儲存中...'; }
+
+      try{
+        const { data: existingUser, error: checkError } = await supabaseClient
+          .from('profiles')
+          .select('line_id')
+          .eq('phone', phone)
+          .maybeSingle();
+        if(checkError) throw checkError;
+        if(existingUser && String(existingUser.line_id) !== String(lineId)){
+          alert('此電話號碼已被其他會員註冊。');
+          return;
+        }
+
+        const payload = {
+          ...(pendingMemberProfile || {}),
+          line_id: lineId,
+          full_name: name,
+          phone,
+          birthday: `${year}-${month}-${day}`,
+          email,
+          area,
+          total_points: Number((pendingMemberProfile || {}).total_points || 0)
+        };
+
+        const { data, error } = await supabaseClient
+          .from('profiles')
+          .upsert(payload, { onConflict: 'line_id' })
+          .select('*')
+          .single();
+
+        if(error) throw error;
+
+        currentMember = data;
+        pendingMemberProfile = null;
+        memberLookupStatus = 'found';
+        memberLookupMessage = '';
+        localStorage.setItem('bb_member_line_id', lineId);
+        renderMemberState();
+        routeTo('member');
+        alert('會員資料已建立完成。');
+      }catch(err){
+        console.error('new member profile save failed', err);
+        alert(`會員資料儲存失敗：${err.message || err}`);
+      }finally{
+        if(btn){ btn.disabled = false; btn.textContent = '確認加入'; }
+      }
+    }
+
+    window.updateMemberSignupDays = updateMemberSignupDays;
+    window.validateMemberSignupPhone = validateMemberSignupPhone;
+    window.saveNewMemberProfile = saveNewMemberProfile;
 
     function renderMemberState(){
       renderMemberArea();
@@ -6128,8 +6443,13 @@
       const memberSection = document.getElementById('member');
       if(!currentMember){
         memberSection?.classList.add('member-login-mode');
-        const debugMessage = (currentLineProfile && memberLookupStatus !== 'idle')
-          ? `<div class="member-debug-box"><b>會員資料狀態</b><br>${escapeHTML(memberLookupMessage || '尚未取得 profiles 會員資料')}<br><small>LINE userId：${escapeHTML(currentLineProfile.userId || '')}</small></div>`
+        if(currentLineProfile && (memberLookupStatus === 'not_found' || memberLookupStatus === 'profile_incomplete')){
+          box.innerHTML = memberSignupHTML();
+          requestAnimationFrame(initMemberSignupForm);
+          return;
+        }
+        const debugMessage = (currentLineProfile && memberLookupStatus === 'error')
+          ? `<div class="member-debug-box"><b>會員資料狀態</b><br>${escapeHTML(memberLookupMessage || '暫時無法取得 profiles 會員資料')}<br><small>LINE userId：${escapeHTML(currentLineProfile.userId || '')}</small></div>`
           : '';
         box.innerHTML = requireLoginHTML() + debugMessage;
         return;
