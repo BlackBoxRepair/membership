@@ -5465,41 +5465,56 @@
       return String(value);
     }
 
-    async function fetchWarrantyLogsRows(warrantyId){
-      if(!warrantyId) return [];
-      const candidateColumns = [
+    function normalizeWarrantyLogValue(value){
+      return String(value ?? '').trim();
+    }
+
+    function warrantyLogBelongsToContract(row, warrantyId){
+      const id = normalizeWarrantyLogValue(warrantyId);
+      if(!id) return false;
+      const relationKeys = [
         'lifetime_warranty_id',
         'warranty_id',
         'warranty_contract_id',
         'contract_id',
-        'lifetime_warranty'
+        'lifetime_warranty',
+        'lifetime_id',
+        'warranty_card_id',
+        'card_id',
+        'warranty_code',
+        'warranty_no'
       ];
+      return relationKeys.some(key => normalizeWarrantyLogValue(row?.[key]) === id);
+    }
 
-      for(const column of candidateColumns){
-        try{
-          const { data, error } = await supabaseClient
-            .from('warranty_logs')
-            .select('*')
-            .eq(column, warrantyId);
+    async function fetchWarrantyLogsRows(warrantyId){
+      const id = normalizeWarrantyLogValue(warrantyId);
+      if(!id) return [];
+      try{
+        const { data, error } = await supabaseClient
+          .from('warranty_logs')
+          .select('*');
 
-          if(error) throw error;
-          const rows = Array.isArray(data) ? data : [];
-          rows.sort((a,b) => {
-            const aDate = getLifetimeWarrantyValue(a, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
-            const bDate = getLifetimeWarrantyValue(b, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
+        if(error) throw error;
+
+        const rows = (Array.isArray(data) ? data : [])
+          .filter(row => warrantyLogBelongsToContract(row, id))
+          .sort((a,b) => {
+            const aDate = getLifetimeWarrantyValue(a, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
+            const bDate = getLifetimeWarrantyValue(b, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
             return new Date(bDate).getTime() - new Date(aDate).getTime();
           });
-          return rows;
-        }catch(err){
-          console.warn(`[Supabase] warranty_logs 以 ${column} 查詢失敗：`, err?.message || err);
-        }
+
+        return rows;
+      }catch(err){
+        console.warn('[Supabase] warranty_logs 讀取失敗：', err?.message || err);
+        return [];
       }
-      return [];
     }
 
     function warrantyLogCardHTML(row, index){
-      const usedAt = getLifetimeWarrantyValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at'], '');
-      const reason = getLifetimeWarrantyValue(row, ['reason','warranty_reason','content','remarks','note','description','issue'], '未填寫保固原因');
+      const usedAt = getLifetimeWarrantyValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
+      const reason = getLifetimeWarrantyValue(row, ['reason','warranty_reason','content','remarks','note','description','issue','reason_text','service_reason','problem'], '未填寫保固原因');
       return `<article class="bb-warranty-log-card">
         <div class="bb-warranty-log-index">#${index + 1}</div>
         <div class="bb-warranty-log-main">
