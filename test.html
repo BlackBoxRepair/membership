@@ -5765,13 +5765,18 @@
       const createdAtParts = formatLifetimeWarrantyDateParts(getLifetimeWarrantyValue(row, ['created_at','registered_at','date'], ''));
       const serviceStore = getLifetimeWarrantyValue(row, ['service_store','store','store_name','branch'], '未填寫服務門市');
       const warrantyId = getLifetimeWarrantyValue(row, ['id'], '');
+      const project = getLifetimeWarrantyValue(row, ['project'], '');
+      const userCheckRaw = getLifetimeWarrantyValue(row, ['user_check'], '');
+      const hasUserCheck = userCheckRaw === true || String(userCheckRaw).toLowerCase() === 'true' || String(userCheckRaw) === '1';
       return `<article class="bb-warranty-sd-card bb-warranty-image-card" aria-label="終身保固卡">
         <div class="bb-warranty-sd-inner">
+          ${hasUserCheck ? '<span class="bb-warranty-user-check" aria-label="已確認"><iconify-icon icon="mage:user-check-fill"></iconify-icon></span>' : ''}
           <div class="bb-warranty-device">${escapeHTML(deviceModel)}</div>
           <div class="bb-warranty-serial">${escapeHTML(imei)}</div>
           <div class="bb-warranty-qr-wrap"><canvas class="bb-warranty-qr" data-qr="${escapeHTML(String(warrantyId || ''))}" width="96" height="96" aria-label="保固碼 QR Code"></canvas></div>
           <div class="bb-warranty-date"><span>${escapeHTML(createdAtParts.year)}</span><span>${escapeHTML(createdAtParts.date)}</span></div>
           <div class="bb-warranty-store">${escapeHTML(serviceStore)}</div>
+          <div class="bb-warranty-project">${escapeHTML(project)}</div>
         </div>
       </article>`;
     }
@@ -7273,7 +7278,9 @@
 .bb-warranty-serial,
 .bb-warranty-date,
 .bb-warranty-store,
-.bb-warranty-qr-wrap{
+.bb-warranty-qr-wrap,
+.bb-warranty-project,
+.bb-warranty-user-check{
   position:absolute;
   color:#ffffff;
   text-shadow:0 2px 10px rgba(0,0,0,.32);
@@ -7346,6 +7353,35 @@
   letter-spacing:.02em;
   word-break:break-word;
 }
+.bb-warranty-project{
+  left:50%;
+  bottom:13.2%;
+  transform:translateX(-50%);
+  max-width:30%;
+  color:rgba(230,230,230,.84);
+  font-size:11px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-align:center;
+  word-break:break-word;
+  text-shadow:0 1px 5px rgba(0,0,0,.22);
+}
+.bb-warranty-user-check{
+  top:10.6%;
+  right:8.8%;
+  width:28px;
+  height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#eef6df;
+  filter:drop-shadow(0 3px 8px rgba(0,0,0,.24));
+}
+.bb-warranty-user-check iconify-icon{
+  font-size:24px;
+  color:currentColor;
+}
 @media (max-width:390px){
   .bb-lifetime-page-head{gap:12px;margin-bottom:16px;}
   .bb-lifetime-page-head .page-title h2{font-size:30px;}
@@ -7357,6 +7393,9 @@
   .bb-warranty-date span:first-child,
   .bb-warranty-date span:last-child{font-size:12px;}
   .bb-warranty-store{right:13%;bottom:15%;max-width:35%;font-size:12px;}
+  .bb-warranty-project{bottom:12.5%;max-width:34%;font-size:9.8px;}
+  .bb-warranty-user-check{top:10.2%;right:8.2%;width:24px;height:24px;}
+  .bb-warranty-user-check iconify-icon{font-size:20px;}
 }
 
 </style>
