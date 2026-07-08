@@ -5469,47 +5469,18 @@
       return String(value ?? '').trim();
     }
 
-    function warrantyLogBelongsToContract(row, warrantyId){
-      const id = normalizeWarrantyLogValue(warrantyId);
-      if(!id) return false;
-      const relationKeys = [
-        // 你的 warranty_logs 目前是直接用 id 對應 lifetime_warranty.id
-        'id',
-
-        // 若之後改成獨立紀錄 ID，也支援以下常見關聯欄位
-        'lifetime_warranty_id',
-        'warranty_id',
-        'warranty_contract_id',
-        'contract_id',
-        'lifetime_warranty',
-        'lifetime_id',
-        'warranty_card_id',
-        'card_id',
-        'warranty_code',
-        'warranty_no'
-      ];
-      return relationKeys.some(key => normalizeWarrantyLogValue(row?.[key]) === id);
-    }
-
     async function fetchWarrantyLogsRows(warrantyId){
       const id = normalizeWarrantyLogValue(warrantyId);
       if(!id) return [];
       try{
         const { data, error } = await supabaseClient
           .from('warranty_logs')
-          .select('*');
+          .select('*')
+          .eq('lifetime_warranty_id', id)
+          .order('created_at', { ascending:false });
 
         if(error) throw error;
-
-        const rows = (Array.isArray(data) ? data : [])
-          .filter(row => warrantyLogBelongsToContract(row, id))
-          .sort((a,b) => {
-            const aDate = getLifetimeWarrantyValue(a, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
-            const bDate = getLifetimeWarrantyValue(b, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
-            return new Date(bDate).getTime() - new Date(aDate).getTime();
-          });
-
-        return rows;
+        return Array.isArray(data) ? data : [];
       }catch(err){
         console.warn('[Supabase] warranty_logs 讀取失敗：', err?.message || err);
         return [];
