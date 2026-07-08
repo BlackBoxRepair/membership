@@ -5487,11 +5487,10 @@
       }
     }
 
-    function warrantyLogCardHTML(row, index){
+    function warrantyLogCardHTML(row){
       const usedAt = getLifetimeWarrantyValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'], '');
       const reason = getLifetimeWarrantyValue(row, ['reason','warranty_reason','content','remarks','note','description','issue','reason_text','service_reason','problem'], '未填寫保固原因');
       return `<article class="bb-warranty-log-card">
-        <div class="bb-warranty-log-index">#${index + 1}</div>
         <div class="bb-warranty-log-main">
           <time>${escapeHTML(formatWarrantyLogDate(usedAt))}</time>
           <p>${escapeHTML(reason)}</p>
@@ -7550,26 +7549,12 @@
   gap:10px;
 }
 .bb-warranty-log-card{
-  display:grid;
-  grid-template-columns:42px minmax(0,1fr);
-  gap:12px;
+  display:block;
   padding:14px;
   border-radius:16px;
   background:#ffffff;
   border:1px solid rgba(17,24,39,.06);
   box-shadow:0 6px 16px rgba(15,23,42,.04);
-}
-.bb-warranty-log-index{
-  width:42px;
-  height:42px;
-  border-radius:14px;
-  background:rgba(247,181,0,.14);
-  color:#c48900;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:13px;
-  font-weight:1000;
 }
 .bb-warranty-log-main time{
   display:block;
