@@ -5108,7 +5108,10 @@
         <button class="bb-lifetime-back-btn" type="button" data-route="member" aria-label="返回我的會員">
           <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
         </button>
-        <div class="page-title"><small>LIFETIME WARRANTY</small><h2>終身保盒</h2></div>
+        <div class="page-title"><small>MY WARRANTY</small><h2>終身保盒</h2></div>
+        <button class="bb-lifetime-terms-btn" type="button" onclick="openLifetimeWarrantyTermsModal()" aria-label="查看保固條款">
+          <iconify-icon icon="solar:document-text-bold"></iconify-icon><span>保固條款</span>
+        </button>
       </div>
       <div id="lifetimeWarrantyList" class="bb-lifetime-list"></div>
     </section>
@@ -5217,6 +5220,20 @@
         <p>・積分無法透過空機 / 二手機選購方式取得，亦無法用於此類金額折抵。</p>
         <p>・積分及票券使用不與特約優惠疊加使用。</p>
       </div>
+    </div>
+  </div>
+
+  <!-- 終身保盒：保固條款彈窗 -->
+  <div id="lifetimeWarrantyTermsModal" class="bb-warranty-terms-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="lifetimeWarrantyTermsTitle" onclick="closeLifetimeWarrantyTermsModal()">
+    <div class="bb-warranty-terms-card" onclick="event.stopPropagation()">
+      <button type="button" class="bb-warranty-terms-close" aria-label="關閉保固條款" onclick="closeLifetimeWarrantyTermsModal()">
+        <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+      </button>
+      <div class="bb-warranty-terms-icon">
+        <iconify-icon icon="solar:document-text-bold"></iconify-icon>
+      </div>
+      <h3 id="lifetimeWarrantyTermsTitle">終保條款</h3>
+      <div id="lifetimeWarrantyTermsContent" class="bb-warranty-terms-content">條款載入中...</div>
     </div>
   </div>
 <script>
@@ -5340,6 +5357,46 @@
       modal.setAttribute('aria-hidden','true');
     }
 
+    let lifetimeWarrantyTermsLoaded = false;
+
+    async function loadLifetimeWarrantyTermsContent(){
+      const box = document.getElementById('lifetimeWarrantyTermsContent');
+      if(!box) return;
+      if(lifetimeWarrantyTermsLoaded) return;
+      box.textContent = '條款載入中...';
+      try{
+        const { data, error } = await supabaseClient
+          .from('terms_conditions')
+          .select('content')
+          .eq('item', 'L.T WARRANTY')
+          .limit(1);
+        if(error) throw error;
+        const content = data && data[0] ? data[0].content : '';
+        box.textContent = content || '目前尚未設定終保條款。';
+        lifetimeWarrantyTermsLoaded = true;
+      }catch(err){
+        console.warn('[Supabase] 終保條款讀取失敗：', err);
+        box.textContent = '條款讀取失敗，請稍後再試。';
+      }
+    }
+
+    function openLifetimeWarrantyTermsModal(){
+      const modal = document.getElementById('lifetimeWarrantyTermsModal');
+      if(!modal) return;
+      modal.classList.add('show');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden','false');
+      loadLifetimeWarrantyTermsContent();
+    }
+
+    function closeLifetimeWarrantyTermsModal(){
+      const modal = document.getElementById('lifetimeWarrantyTermsModal');
+      if(!modal) return;
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden','true');
+    }
+
 
 
     function openGiftLockedModal(){
@@ -5363,6 +5420,8 @@
 
     window.openPointsInfoModal = openPointsInfoModal;
     window.closePointsInfoModal = closePointsInfoModal;
+    window.openLifetimeWarrantyTermsModal = openLifetimeWarrantyTermsModal;
+    window.closeLifetimeWarrantyTermsModal = closeLifetimeWarrantyTermsModal;
 
     document.addEventListener('click', function(e){
       const infoBtn = e.target.closest('.member-info-btn, [data-open-points-info]');
@@ -7227,6 +7286,97 @@
   -webkit-backdrop-filter:blur(14px);
 }
 .bb-lifetime-back-btn iconify-icon{font-size:25px;color:currentColor;}
+.bb-lifetime-terms-btn{
+  margin-left:auto;
+  height:42px;
+  padding:0 13px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.78);
+  background:rgba(255,255,255,.88);
+  color:#525252;
+  box-shadow:0 12px 26px rgba(16,24,36,.12);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-size:13px;
+  font-weight:950;
+  white-space:nowrap;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.bb-lifetime-terms-btn iconify-icon{font-size:18px;color:#f7b500!important;}
+.bb-lifetime-terms-btn:active{transform:scale(.98);}
+.bb-warranty-terms-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background:rgba(10,14,20,.42);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.bb-warranty-terms-modal.show{display:flex;}
+.bb-warranty-terms-card{
+  position:relative;
+  width:min(100%,480px);
+  max-height:82vh;
+  overflow:hidden;
+  background:#ffffff;
+  border-radius:26px 26px 0 0;
+  padding:24px 22px calc(26px + var(--safe-bottom));
+  box-shadow:0 -18px 45px rgba(0,0,0,.22);
+  animation:sheet .24s ease both;
+}
+.bb-warranty-terms-close{
+  position:absolute;
+  right:16px;
+  top:16px;
+  width:36px;
+  height:36px;
+  border-radius:999px;
+  background:#f3f4f6;
+  color:#525252;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.bb-warranty-terms-close iconify-icon{font-size:24px;color:currentColor;}
+.bb-warranty-terms-icon{
+  width:48px;
+  height:48px;
+  border-radius:16px;
+  background:rgba(247,181,0,.14);
+  color:#f7b500;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:12px;
+}
+.bb-warranty-terms-icon iconify-icon{font-size:27px;color:currentColor;}
+.bb-warranty-terms-card h3{
+  margin:0 44px 14px 0;
+  color:#252525;
+  font-size:24px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+}
+.bb-warranty-terms-content{
+  max-height:56vh;
+  overflow:auto;
+  padding:16px;
+  border-radius:18px;
+  background:#f6f7f9;
+  color:#424852;
+  font-size:14px;
+  font-weight:750;
+  line-height:1.8;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
 .bb-lifetime-list{display:grid;gap:18px;margin-top:8px;}
 .bb-lifetime-loading,
 .bb-lifetime-empty{
@@ -7294,7 +7444,10 @@
   line-height:1.14;
   font-weight:1000;
   letter-spacing:-.03em;
-  word-break:break-word;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  word-break:normal;
 }
 .bb-warranty-serial{
   left:10.4%;
@@ -7383,10 +7536,12 @@
   color:currentColor;
 }
 @media (max-width:390px){
-  .bb-lifetime-page-head{gap:12px;margin-bottom:16px;}
-  .bb-lifetime-page-head .page-title h2{font-size:30px;}
+  .bb-lifetime-page-head{gap:10px;margin-bottom:16px;}
+  .bb-lifetime-page-head .page-title h2{font-size:28px;}
   .bb-lifetime-back-btn{width:42px;height:42px;min-width:42px;}
-  .bb-warranty-device{left:10.1%;top:14.4%;max-width:56%;font-size:20px;}
+  .bb-lifetime-terms-btn{height:38px;padding:0 10px;font-size:12px;gap:4px;}
+  .bb-lifetime-terms-btn iconify-icon{font-size:16px;}
+  .bb-warranty-device{left:10.1%;top:14.4%;max-width:56%;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;}
   .bb-warranty-serial{left:10.1%;top:29.6%;max-width:59%;font-size:13px;}
   .bb-warranty-qr-wrap{left:11.8%;bottom:14.6%;max-width:62px;padding:4px;border-radius:7px;}
   .bb-warranty-date{right:13.2%;bottom:28%;gap:1px;}
