@@ -6,6 +6,18 @@
   <title>BLACK BOX 黑盒子維修中心 2.0</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="apple-touch-icon" href="favicon.png" />
+  <!-- 效能優化：提前建立外部資源連線，縮短手機首次載入等待時間，不影響任何資料庫邏輯 -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://static.line-scdn.net" crossorigin />
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
+  <link rel="preconnect" href="https://code.iconify.design" crossorigin />
+  <link rel="preconnect" href="https://nszwpwimwxvjguoalzwt.supabase.co" crossorigin />
+  <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+  <link rel="dns-prefetch" href="//static.line-scdn.net" />
+  <link rel="dns-prefetch" href="//cdnjs.cloudflare.com" />
+  <link rel="dns-prefetch" href="//code.iconify.design" />
+  <link rel="dns-prefetch" href="//nszwpwimwxvjguoalzwt.supabase.co" />
+  <link rel="preload" as="image" href="site logo.png" fetchpriority="high" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
@@ -5109,7 +5121,7 @@
 
     <header class="topbar">
       <a class="brand" href="#home" data-route="home" aria-label="BLACK BOX 首頁">
-        <img class="brand-logo" src="site logo.png" alt="BLACK BOX Fix My Device" />
+        <img class="brand-logo" src="site logo.png" alt="BLACK BOX Fix My Device" loading="eager" decoding="async" fetchpriority="high" />
       </a>
 
     </header>
@@ -5123,7 +5135,7 @@
             <h3 class="card-title">線上報價<br>透明公開</h3>
             <p class="card-subtitle">針對各類設備提供各式維修與升級服務</p>
           </div>
-          <img class="card-ornament" src="./ornamets/ornaments_battery.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_battery.png';" alt="" />
+          <img class="card-ornament" src="./ornaments/ornaments_battery.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_battery.png';" alt="" loading="lazy" decoding="async" />
           <span class="card-pill">立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
         </button>
 
@@ -5131,28 +5143,28 @@
           <span class="card-kicker">服務流程</span>
           <h3 class="card-title">快速維修<br>立即解決</h3>
           <p class="card-subtitle">現場最快 40 分鐘立即取件</p>
-          <img class="card-ornament-small" src="./ornamets/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_repair.png';" alt="" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_repair.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card dark" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">線上預約</span>
           <h3 class="card-title">免等待<br>快速預約</h3>
           <p class="card-subtitle">選擇時間，輕鬆預約</p>
-          <img class="card-ornament-small" src="./ornamets/ornaments_booking.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_booking.png';" alt="" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_booking.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_booking.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="cases">
           <span class="card-kicker">維修案例</span>
           <h3 class="card-title">各式型號<br>維修無礙</h3>
           <p class="card-subtitle">手機/平板/筆電/遊戲機</p>
-          <img class="card-ornament-small" src="./ornamets/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_tool.png';" alt="" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_tool.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="gift">
           <span class="card-kicker">會員專屬</span>
           <h3 class="card-title">累積點數<br>換取折扣</h3>
           <p class="card-subtitle">更多會員專屬優惠等你來拿！</p>
-          <img class="card-ornament-small" src="./ornamets/ornaments_membership.png" onerror="this.onerror=null;this.src='./ornaments/ornaments_membership.png';" alt="" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_membership.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_membership.png';" alt="" loading="lazy" decoding="async" />
         </button>
       </section>
 
@@ -5163,18 +5175,18 @@
     </section>
 
     <section id="search" class="section">
-      <div class="page-head"><div class="page-title"><small>ACCESSORIES</small><h2>配件挑選</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>ACCESSORIES</small><h2>配件挑選</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt="" loading="lazy" decoding="async"></button></div>
       <div class="search-box"><input id="productKeyword" placeholder="搜尋型號、商品或維修項目"><select id="productType"><option value="">全部分類</option><option value="battery">電池</option><option value="screen">螢幕</option><option value="repair">維修</option></select></div>
       <div id="productList" class="list"></div>
     </section>
 
     <section id="stores" class="section">
-      <div class="page-head"><div class="page-title"><small>STORES</small><h2>門市據點</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>STORES</small><h2>門市據點</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt="" loading="lazy" decoding="async"></button></div>
       <div id="storeList" class="list"></div>
     </section>
 
     <section id="flow" class="section">
-      <div class="page-head"><div class="page-title"><small>SERVICE FLOW</small><h2>服務流程</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>SERVICE FLOW</small><h2>服務流程</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt="" loading="lazy" decoding="async"></button></div>
       <div class="process-page">
         <div class="process-tabs" aria-label="服務流程分類">
           <button type="button" class="process-tab active" data-process="phone">手機維修</button>
@@ -5182,23 +5194,23 @@
           <button type="button" class="process-tab" data-process="data">資料救援</button>
         </div>
         <div class="process-img-box">
-          <img src="service_process/phone process.png" class="process-img active" data-process-img="phone" alt="手機維修流程" />
-          <img src="service_process/notebook process.png" class="process-img" data-process-img="notebook" alt="筆電維修流程" />
-          <img src="service_process/data process.png" class="process-img" data-process-img="data" alt="資料救援流程" />
+          <img src="service_process/phone process.png" class="process-img active" data-process-img="phone" alt="手機維修流程" loading="lazy" decoding="async" />
+          <img src="service_process/notebook process.png" class="process-img" data-process-img="notebook" alt="筆電維修流程" loading="lazy" decoding="async" />
+          <img src="service_process/data process.png" class="process-img" data-process-img="data" alt="資料救援流程" loading="lazy" decoding="async" />
         </div>
       </div>
     </section>
 
     <section id="quote" class="section">
-      <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>REPAIR QUOTE</small><h2>維修報價</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt="" loading="lazy" decoding="async"></button></div>
       <div class="price-page">
         <div class="price-tabs" aria-label="維修報價分類">
           <button type="button" class="price-tab active" data-price-img="memory">iPhone 擴容</button>
           <button type="button" class="price-tab" data-price-img="applewatch">Apple Watch</button>
         </div>
         <div class="price-img-box">
-          <img src="price_online/Price_memory.PNG" class="quote-price-img active" data-price-img-target="memory" alt="iPhone 擴容報價" />
-          <img src="price_online/Price_applewatch.PNG" class="quote-price-img" data-price-img-target="applewatch" alt="Apple Watch 維修報價" />
+          <img src="price_online/Price_memory.PNG" class="quote-price-img active" data-price-img-target="memory" alt="iPhone 擴容報價" loading="lazy" decoding="async" />
+          <img src="price_online/Price_applewatch.PNG" class="quote-price-img" data-price-img-target="applewatch" alt="Apple Watch 維修報價" loading="lazy" decoding="async" />
         </div>
       </div>
     </section>
@@ -5233,7 +5245,7 @@
 
     <section id="gift" class="section">
       <a class="home-banner-placeholder gift-starbox-banner is-ready" href="https://blackboxrepair.github.io/membership/price" target="_blank" rel="noopener" aria-label="前往會員價格頁">
-        <img class="home-banner-slide active" src="./starbox/box%20star%20001.png" onerror="this.onerror=null;this.src='./starbox/box star 001.png';" alt="盒芯禮遇 Banner" loading="eager">
+        <img class="home-banner-slide active" src="./starbox/box%20star%20001.png" onerror="this.onerror=null;this.src='./starbox/box star 001.png';" alt="盒芯禮遇 Banner" loading="lazy" decoding="async" fetchpriority="low">
       </a>
       <div id="giftList" class="data-list"></div>
     </section>
@@ -5257,7 +5269,7 @@
     </section>
 
     <section id="booking" class="section">
-      <div class="page-head"><div class="page-title"><small>ONLINE BOOKING</small><h2>線上預約</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt=""></button></div>
+      <div class="page-head"><div class="page-title"><small>ONLINE BOOKING</small><h2>線上預約</h2></div><button class="back-home" data-route="home" aria-label="回首頁"><img src="favicon.png" alt="" loading="lazy" decoding="async"></button></div>
       <div class="login-card">
         <h3>前往線上預約</h3>
         <p>點擊後會直接開啟黑盒子線上預約系統。</p>
@@ -5329,7 +5341,7 @@
       <h3 class="bb-surprise-title">年度達成禮</h3>
       <span class="bb-surprise-subtitle">Milestone Reward</span>
       <div id="yearlyBoxContainer" class="bb-sp-box-container">
-        <img id="yearlyBoxImg" class="bb-sp-box-img" src="SP BOX.png" alt="Surprise Box" onclick="triggerYearlyBoxAnimation()">
+        <img id="yearlyBoxImg" class="bb-sp-box-img" src="SP BOX.png" alt="Surprise Box" loading="lazy" decoding="async" onclick="triggerYearlyBoxAnimation()">
       </div>
       <p id="yearlyBoxInstruction" class="bb-sp-instruction">點擊開啟驚喜盒！</p>
       <div id="yearlyRewardInfo" class="bb-sp-reward-info">
@@ -7165,13 +7177,14 @@
           const img = new Image();
           img.onload = () => resolve(src);
           img.onerror = () => resolve(null);
-          img.src = `${src}${src.includes('?') ? '&' : '?'}v=${Date.now()}`;
+          img.decoding = 'async';
+          img.src = src;
         });
       }
 
       async function fetchBannerManifest(folderPath){
-        const manifestUrl = `/${encodePath(folderPath)}/banner-list.json?v=${Date.now()}`;
-        const res = await fetch(manifestUrl, { cache:'no-store' });
+        const manifestUrl = `/${encodePath(folderPath)}/banner-list.json`;
+        const res = await fetch(manifestUrl, { cache:'default' });
         if(!res.ok) return [];
         const data = await res.json();
         const names = Array.isArray(data) ? data : (Array.isArray(data.images) ? data.images : []);
@@ -7183,7 +7196,7 @@
 
       async function fetchBannerImagesFromGithubApi(folderPath){
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodePath(folderPath)}`;
-        const res = await fetch(apiUrl, { cache:'no-store' });
+        const res = await fetch(apiUrl, { cache:'default' });
         if(!res.ok) return [];
         const data = await res.json();
         if(!Array.isArray(data)) return [];
@@ -7255,7 +7268,7 @@
         return;
       }
 
-      banner.innerHTML = images.map((src, index) => `<img class="home-banner-slide${index === 0 ? ' active' : ''}" src="${src}" alt="首頁 Banner ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}">`).join('');
+      banner.innerHTML = images.map((src, index) => `<img class="home-banner-slide${index === 0 ? ' active' : ''}" src="${src}" alt="首頁 Banner ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${index === 0 ? 'high' : 'low'}">`).join('');
       banner.classList.remove('is-empty');
       banner.classList.add('is-ready');
 
