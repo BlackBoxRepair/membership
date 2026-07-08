@@ -597,7 +597,7 @@
       width:100%;
       max-width:430px;
       border-radius:26px;
-      padding:28px 24px 26px;
+      padding:24px 24px 24px;
       background:rgba(255,255,255,.88);
       border:1px solid rgba(255,255,255,.82);
       box-shadow:0 30px 70px rgba(16,24,36,.13);
@@ -684,12 +684,17 @@
       color:#fff;
       font-size:16px;
       font-weight:1000;
-      box-shadow:0 8px 18px rgba(247,181,0,.24);
+      box-shadow:none!important;
     }
-    .member-signup-submit:disabled{opacity:.65;cursor:wait;}
+    .member-signup-submit:disabled{
+      opacity:.42;
+      cursor:not-allowed;
+      background:#cfd4dc;
+      color:#ffffff;
+    }
     @media (max-width:390px){
       .member-signup-screen{min-height:calc(100vh - 180px);padding:20px 0 28px;}
-      .member-signup-panel{padding:24px 20px 24px;border-radius:24px;}
+      .member-signup-panel{padding:22px 20px 22px;border-radius:24px;}
       .member-signup-title{font-size:28px;}
       .member-signup-birthday{gap:7px;}
     }
@@ -5998,25 +6003,22 @@
       return `
         <div class="member-signup-screen">
           <div class="member-signup-panel">
-            <div class="member-signup-icon"><iconify-icon icon="solar:user-plus-bold"></iconify-icon></div>
-            <h3 class="member-signup-title">加入會員</h3>
-            <p class="member-signup-hint">已完成 LINE 連動，請補齊資料以啟用會員功能。</p>
             <div class="member-signup-form">
               <label class="member-signup-field">
                 <span>真實姓名 *</span>
-                <input id="memberSignupName" class="member-signup-input" type="text" value="${escapeAttr(name)}" autocomplete="name">
+                <input id="memberSignupName" class="member-signup-input" type="text" value="${escapeAttr(name)}" autocomplete="name" oninput="updateMemberSignupSubmitState()">
               </label>
               <label class="member-signup-field">
                 <span>連絡電話 *</span>
-                <input id="memberSignupPhone" class="member-signup-input" type="tel" maxlength="10" value="${escapeAttr(phone)}" autocomplete="tel" oninput="validateMemberSignupPhone()">
+                <input id="memberSignupPhone" class="member-signup-input" type="tel" maxlength="10" value="${escapeAttr(phone)}" autocomplete="tel" oninput="validateMemberSignupPhone();updateMemberSignupSubmitState()">
                 <small id="memberSignupPhoneError" class="member-signup-error" hidden>電話格式需為 09 開頭共 10 碼</small>
               </label>
               <div class="member-signup-field">
                 <span>會員生日 *</span>
                 <div class="member-signup-birthday">
-                  <select id="memberSignupBirthYear" class="member-signup-input" onchange="updateMemberSignupDays()">${years}</select>
-                  <select id="memberSignupBirthMonth" class="member-signup-input" onchange="updateMemberSignupDays()">${months}</select>
-                  <select id="memberSignupBirthDay" class="member-signup-input"><option value="">日</option></select>
+                  <select id="memberSignupBirthYear" class="member-signup-input" onchange="updateMemberSignupDays();updateMemberSignupSubmitState()">${years}</select>
+                  <select id="memberSignupBirthMonth" class="member-signup-input" onchange="updateMemberSignupDays();updateMemberSignupSubmitState()">${months}</select>
+                  <select id="memberSignupBirthDay" class="member-signup-input" onchange="updateMemberSignupSubmitState()"><option value="">日</option></select>
                 </div>
               </div>
               <label class="member-signup-field">
@@ -6028,7 +6030,7 @@
                 <input id="memberSignupEmail" class="member-signup-input" type="email" value="${escapeAttr(email)}" autocomplete="email">
               </label>
               <p class="member-signup-note">請填寫正確實名資料，以免影響會員權益與票券使用。</p>
-              <button id="memberSignupSubmit" class="member-signup-submit" type="button" onclick="saveNewMemberProfile()">確認加入</button>
+              <button id="memberSignupSubmit" class="member-signup-submit" type="button" onclick="saveNewMemberProfile()" disabled>確認加入</button>
             </div>
           </div>
         </div>`;
@@ -6050,6 +6052,7 @@
         dayEl.insertAdjacentHTML('beforeend', `<option value="${value}">${d}日</option>`);
       }
       if(selected && Number(selected) <= total) dayEl.value = selected.padStart(2, '0');
+      updateMemberSignupSubmitState();
     }
 
     function initMemberSignupForm(){
@@ -6063,6 +6066,7 @@
         updateMemberSignupDays();
       }
       validateMemberSignupPhone();
+      updateMemberSignupSubmitState();
     }
 
     function validateMemberSignupPhone(){
@@ -6073,6 +6077,21 @@
       const valid = !value || /^09\d{8}$/.test(value);
       errEl.hidden = valid;
       return valid;
+    }
+
+    function isMemberSignupFormValid(){
+      const name = document.getElementById('memberSignupName')?.value.trim() || '';
+      const phone = document.getElementById('memberSignupPhone')?.value.trim() || '';
+      const year = document.getElementById('memberSignupBirthYear')?.value || '';
+      const month = document.getElementById('memberSignupBirthMonth')?.value || '';
+      const day = document.getElementById('memberSignupBirthDay')?.value || '';
+      return Boolean(name && /^09\d{8}$/.test(phone) && year && month && day);
+    }
+
+    function updateMemberSignupSubmitState(){
+      const btn = document.getElementById('memberSignupSubmit');
+      if(!btn) return;
+      btn.disabled = !isMemberSignupFormValid();
     }
 
     async function saveNewMemberProfile(){
@@ -6091,8 +6110,8 @@
         return;
       }
       if(!name || !/^09\d{8}$/.test(phone) || !year || !month || !day){
-        alert('請正確填寫姓名、手機號碼與生日。');
         validateMemberSignupPhone();
+        updateMemberSignupSubmitState();
         return;
       }
 
@@ -6147,6 +6166,7 @@
 
     window.updateMemberSignupDays = updateMemberSignupDays;
     window.validateMemberSignupPhone = validateMemberSignupPhone;
+    window.updateMemberSignupSubmitState = updateMemberSignupSubmitState;
     window.saveNewMemberProfile = saveNewMemberProfile;
 
     function renderMemberState(){
