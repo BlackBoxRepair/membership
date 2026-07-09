@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
@@ -87,13 +88,15 @@
         .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px;
             top: 50%; transform: translateY(-50%); pointer-events: none; }
             
-        .dash-btn { flex: 1; border-radius: 1rem; 
-            padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s;
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); border: 1px solid white;
-            min-height: 120px;
+        iconify-icon { display: inline-block; line-height: 1; vertical-align: middle; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+        .dash-btn { width: 100%; aspect-ratio: 1 / 1; border-radius: 1rem; 
+            padding: 1rem 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 10px 20px -8px rgba(0,0,0,0.16); border: 1px solid rgba(255,255,255,0.9);
         }
         .dash-btn:active { transform: scale(0.96); }
         .dash-btn-light { background: white; color: #111; }
+        .dash-icon { font-size: 2rem; color: #ca8a04; }
         
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
     </style>
@@ -122,10 +125,10 @@
     <div id="activity-lock-modal" class="hidden fixed inset-0 bg-gray-100/90 z-[60] flex flex-col items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center relative">
             <button onclick="closeActivityLock()" class="absolute top-5 right-5 text-gray-400 font-bold p-2 active:scale-95">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
             </button>
             <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                <iconify-icon icon="mdi:lock" class="text-4xl text-yellow-600"></iconify-icon>
             </div>
             <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">活動通道</h1>
             <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SECURE ACCESS</p>
@@ -145,26 +148,26 @@
                 </div>
             </div>
             <button onclick="enterMode('lookup')" class="w-9 h-9 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                </svg>
+                <iconify-icon icon="mdi:file-document-outline" class="text-lg"></iconify-icon>
             </button>
         </header>
         
-        <div class="flex flex-col gap-3 flex-1 mb-6 overflow-y-auto">
+        <div class="dashboard-grid flex-1 mb-6 overflow-y-auto">
             <button onclick="enterMode('issue')" class="dash-btn dash-btn-light">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
-                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">會員作業</h2><p class="text-gray-400 text-[10px] mt-1">積分/優惠券發放&折抵</p></div>
+                <iconify-icon icon="mdi:account-star" class="dash-icon"></iconify-icon>
+                <div class="text-center"><h2 class="text-base font-black text-yellow-600">會員作業</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">積分/優惠券<br>發放&折抵</p></div>
             </button>
             <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M12 10v4"/><path d="M10 12h4"/></svg>
-                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">票券核銷</h2><p class="text-gray-400 text-[10px] mt-1">掃描 QR Code 核銷</p></div>
+                <iconify-icon icon="mdi:qrcode-scan" class="dash-icon"></iconify-icon>
+                <div class="text-center"><h2 class="text-base font-black text-yellow-600">票券核銷</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">掃描 QR Code<br>核銷票券</p></div>
+            </button>
+            <button onclick="enterMode('warranty')" class="dash-btn dash-btn-light">
+                <iconify-icon icon="mdi:shield-check" class="dash-icon"></iconify-icon>
+                <div class="text-center"><h2 class="text-base font-black text-yellow-600">終身保固</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">保固資料<br>查詢/登錄</p></div>
             </button>
             <button onclick="openActivityLock()" class="dash-btn dash-btn-light">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">活動通道</h2><p class="text-gray-400 text-[10px] mt-1">專屬活動與特殊作業</p></div>
+                <iconify-icon icon="mdi:lightning-bolt" class="dash-icon"></iconify-icon>
+                <div class="text-center"><h2 class="text-base font-black text-yellow-600">活動通道</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">專屬活動<br>特殊作業</p></div>
             </button>
         </div>
         <button onclick="lockSystem()" class="text-xs text-gray-400 font-bold py-4 text-center w-full shrink-0">重新鎖定系統</button>
@@ -331,10 +334,26 @@
             <div class="h-24 w-full shrink-0"></div>
         </div>
 
+        <div id="action-view-warranty" class="hidden scrollable-content flex flex-col p-6 pb-32">
+            <div class="bg-white w-full rounded-2xl p-8 shadow-sm text-center border border-gray-100">
+                <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <iconify-icon icon="mdi:shield-check" class="text-4xl text-yellow-600"></iconify-icon>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">終身保固</h3>
+                <p class="text-gray-400 text-xs mb-6 uppercase tracking-widest">LIFETIME WARRANTY</p>
+                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-left space-y-2">
+                    <p class="text-sm font-bold text-gray-800">功能入口已建立</p>
+                    <p class="text-xs leading-relaxed text-gray-500">這裡先保留為終身保固模組入口，後續可以再接保固登錄、保固查詢、會員綁定或掃描 QR Code 流程。</p>
+                </div>
+                <button onclick="returnToDashboard()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg active:scale-95 transition mt-8">回主選單</button>
+            </div>
+            <div class="h-24 w-full shrink-0"></div>
+        </div>
+
         <div id="action-view-redeem" class="hidden scrollable-content flex flex-col p-6 pb-80">
             <div class="bg-white w-full rounded-2xl p-8 shadow-xl relative text-center">
                 <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                    <iconify-icon icon="mdi:ticket-confirmation" class="text-4xl text-gray-800"></iconify-icon>
                 </div>
                 <h3 class="text-2xl font-black text-gray-900 mb-2">確認核銷</h3>
                 <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest">VERIFY COUPON</p>
@@ -651,6 +670,7 @@
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-issue').classList.add('hidden');
             document.getElementById('action-view-activity').classList.add('hidden');
+            document.getElementById('action-view-warranty').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
             document.getElementById('action-view-lookup').classList.add('hidden');
             
@@ -672,6 +692,13 @@
                 badgeEl.className = "text-[10px] font-bold text-green-600 tracking-widest uppercase";
                 currentActivityCode = null;
                 resetScan();
+            } else if (mode === 'warranty') {
+                titleEl.innerText = "終身保固";
+                badgeEl.innerText = "LIFETIME WARRANTY";
+                badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
+                currentActivityCode = null;
+                cleanupScanner();
+                document.getElementById('action-view-warranty').classList.remove('hidden');
             } else if (mode === 'lookup') {
                 titleEl.innerText = "資料調閱";
                 badgeEl.innerText = "DATA LOOKUP";
@@ -813,6 +840,7 @@
             document.getElementById('scan-view').classList.remove('hidden');
             document.getElementById('action-view-issue').classList.add('hidden');
             document.getElementById('action-view-activity').classList.add('hidden');
+            document.getElementById('action-view-warranty').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
             document.getElementById('action-view-lookup').classList.add('hidden');
             
