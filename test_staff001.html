@@ -98,6 +98,27 @@
         .dash-btn-light { background: white; color: #111; }
         .dash-icon { font-size: 2rem; color: #ca8a04; }
         
+
+        .app-wide { max-width: 1080px !important; }
+        .member-sheet { background: #f7f7f5; border: 1px solid #e6e1d8; border-radius: 24px; box-shadow: 0 22px 55px -35px rgba(17,24,39,.38); overflow: hidden; }
+        .member-topbar { background: linear-gradient(135deg, #ffffff 0%, #f6f1e8 100%); border-bottom: 1px solid #e8dfd0; }
+        .folio-title { color: #1f2937; letter-spacing: -0.04em; }
+        .folio-muted { color: #8b8172; }
+        .folio-cell { padding: 12px 0; border-bottom: 1px solid #e9e4dc; }
+        .folio-label { font-size: 10px; font-weight: 900; letter-spacing: .12em; color: #9b9286; text-transform: uppercase; margin-bottom: 4px; }
+        .folio-value { font-size: 15px; font-weight: 800; color: #1f2937; word-break: break-word; }
+        .folio-panel { background: rgba(255,255,255,.72); border: 1px solid #ebe4d9; border-radius: 18px; padding: 18px; }
+        .folio-section-title { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 900; color: #1f2937; letter-spacing: .12em; text-transform: uppercase; padding-bottom: 10px; border-bottom: 1px solid #e7dfd3; margin-bottom: 12px; }
+        .folio-list { max-height: 270px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
+        .folio-item { background: #fff; border: 1px solid #eee7dc; border-radius: 14px; padding: 12px; margin-bottom: 9px; }
+        .folio-status { font-size: 10px; font-weight: 900; border-radius: 999px; padding: 4px 8px; white-space: nowrap; }
+        .folio-status-ok { background: #ecfdf5; color: #059669; }
+        .folio-status-used { background: #f3f4f6; color: #6b7280; }
+        .folio-status-warn { background: #fff7ed; color: #ea580c; }
+        .metric-card { background: #111827; color: white; border-radius: 18px; padding: 16px; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; }
+        .signature-box { min-height: 180px; background: rgba(255,255,255,.62); border: 1px dashed #d9cdbb; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #9b9286; font-size: 12px; font-weight: 800; text-align: center; padding: 18px; }
+        @media (min-width: 768px) { .folio-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } .folio-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
     </style>
 </head>
@@ -164,6 +185,10 @@
             <button onclick="enterMode('warranty')" class="dash-btn dash-btn-light">
                 <iconify-icon icon="mdi:shield-check" class="dash-icon"></iconify-icon>
                 <div class="text-center"><h2 class="text-base font-black text-yellow-600">終身保固</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">保固資料<br>查詢/登錄</p></div>
+            </button>
+            <button onclick="enterMode('boxcore')" class="dash-btn dash-btn-light">
+                <iconify-icon icon="mdi:card-account-details-outline" class="dash-icon"></iconify-icon>
+                <div class="text-center"><h2 class="text-base font-black text-yellow-600">盒芯會籍</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">會員資料<br>票券/保固</p></div>
             </button>
             <button onclick="openActivityLock()" class="dash-btn dash-btn-light">
                 <iconify-icon icon="mdi:lightning-bolt" class="dash-icon"></iconify-icon>
@@ -346,6 +371,90 @@
                     <p class="text-xs leading-relaxed text-gray-500">這裡先保留為終身保固模組入口，後續可以再接保固登錄、保固查詢、會員綁定或掃描 QR Code 流程。</p>
                 </div>
                 <button onclick="returnToDashboard()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg active:scale-95 transition mt-8">回主選單</button>
+            </div>
+            <div class="h-24 w-full shrink-0"></div>
+        </div>
+
+
+        <div id="action-view-boxcore" class="hidden scrollable-content p-4 md:p-6 pb-32">
+            <div class="member-sheet">
+                <div class="member-topbar p-5 md:p-7">
+                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                        <div>
+                            <div class="text-[10px] font-black tracking-[0.24em] folio-muted uppercase mb-2">BLACKBOX BOXCORE MEMBERSHIP</div>
+                            <h2 id="boxcore-name" class="folio-title text-3xl md:text-4xl font-black">---</h2>
+                            <p id="boxcore-phone" class="folio-muted text-sm font-bold mt-1">---</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 min-w-[260px]">
+                            <div class="metric-card">
+                                <span class="text-[10px] text-white/50 font-black tracking-widest">POINTS</span>
+                                <strong id="boxcore-points" class="text-3xl font-black text-yellow-300">0</strong>
+                            </div>
+                            <div class="metric-card">
+                                <span class="text-[10px] text-white/50 font-black tracking-widest">YEARLY</span>
+                                <strong id="boxcore-accumulated" class="text-3xl font-black text-yellow-300">0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-5 md:p-7 space-y-5">
+                    <div class="folio-three-col">
+                        <div class="folio-panel">
+                            <div class="folio-label">持有票券</div>
+                            <div class="flex items-end justify-between"><span id="boxcore-coupons-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:ticket-percent" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        </div>
+                        <div class="folio-panel">
+                            <div class="folio-label">保固資料</div>
+                            <div class="flex items-end justify-between"><span id="boxcore-warranty-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        </div>
+                        <div class="folio-panel">
+                            <div class="folio-label">積分紀錄</div>
+                            <div class="flex items-end justify-between"><span id="boxcore-logs-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        </div>
+                    </div>
+
+                    <div class="folio-two-col">
+                        <div class="folio-panel">
+                            <h3 class="folio-section-title"><iconify-icon icon="mdi:account-circle-outline"></iconify-icon>基本資料</h3>
+                            <div class="grid grid-cols-2 gap-x-5">
+                                <div class="folio-cell"><div class="folio-label">姓名</div><div id="boxcore-basic-name" class="folio-value">---</div></div>
+                                <div class="folio-cell"><div class="folio-label">電話</div><div id="boxcore-basic-phone" class="folio-value font-mono">---</div></div>
+                                <div class="folio-cell"><div class="folio-label">生日</div><div id="boxcore-birthday" class="folio-value">---</div></div>
+                                <div class="folio-cell"><div class="folio-label">地區</div><div id="boxcore-area" class="folio-value">---</div></div>
+                                <div class="folio-cell"><div class="folio-label">加入時間</div><div id="boxcore-created" class="folio-value">---</div></div>
+                                <div class="folio-cell"><div class="folio-label">更新時間</div><div id="boxcore-updated" class="folio-value">---</div></div>
+                            </div>
+                            <div class="folio-cell border-b-0"><div class="folio-label">會員識別碼</div><div id="boxcore-lineid" class="folio-value font-mono text-xs">---</div></div>
+                        </div>
+
+                        <div class="folio-panel">
+                            <h3 class="folio-section-title"><iconify-icon icon="mdi:signature-freehand"></iconify-icon>會員摘要</h3>
+                            <div class="signature-box">
+                                <div>
+                                    <div class="text-lg font-black text-gray-900 mb-1">盒芯會籍資料總覽</div>
+                                    <div id="boxcore-summary-note">掃描或輸入會員電話後，即時調閱會員資料、票券、積分紀錄與終身保固。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="folio-two-col">
+                        <div class="folio-panel">
+                            <h3 class="folio-section-title"><iconify-icon icon="mdi:ticket-confirmation-outline"></iconify-icon>持有票券</h3>
+                            <div id="boxcore-coupons-list" class="folio-list"></div>
+                        </div>
+                        <div class="folio-panel">
+                            <h3 class="folio-section-title"><iconify-icon icon="mdi:history"></iconify-icon>近期積分紀錄</h3>
+                            <div id="boxcore-points-list" class="folio-list"></div>
+                        </div>
+                    </div>
+
+                    <div class="folio-panel">
+                        <h3 class="folio-section-title"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固資料</h3>
+                        <div id="boxcore-warranty-list" class="folio-list max-h-[360px]"></div>
+                    </div>
+                </div>
             </div>
             <div class="h-24 w-full shrink-0"></div>
         </div>
@@ -591,6 +700,7 @@
             currentStaffName = '';
             document.getElementById('dashboard-view').classList.add('hidden');
             document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('app-wide');
             document.getElementById('confirm-modal').style.display = 'none';
             document.getElementById('lock-screen').classList.remove('hidden');
             document.getElementById('staff-email').value = '';
@@ -601,6 +711,7 @@
         }
         function returnToDashboard() {
             cleanupScanner();
+            document.getElementById('app-container').classList.remove('app-wide');
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
         }
@@ -666,11 +777,15 @@
             document.getElementById('app-container').classList.remove('hidden');
             const titleEl = document.getElementById('mode-title');
             const badgeEl = document.getElementById('mode-badge');
+            const appContainer = document.getElementById('app-container');
+            if (mode === 'boxcore') appContainer.classList.add('app-wide');
+            else appContainer.classList.remove('app-wide');
             
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-issue').classList.add('hidden');
             document.getElementById('action-view-activity').classList.add('hidden');
             document.getElementById('action-view-warranty').classList.add('hidden');
+            document.getElementById('action-view-boxcore').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
             document.getElementById('action-view-lookup').classList.add('hidden');
             
@@ -699,6 +814,12 @@
                 currentActivityCode = null;
                 cleanupScanner();
                 document.getElementById('action-view-warranty').classList.remove('hidden');
+            } else if (mode === 'boxcore') {
+                titleEl.innerText = "盒芯會籍";
+                badgeEl.innerText = "BOXCORE MEMBER";
+                badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
+                currentActivityCode = null;
+                resetScan();
             } else if (mode === 'lookup') {
                 titleEl.innerText = "資料調閱";
                 badgeEl.innerText = "DATA LOOKUP";
@@ -820,6 +941,202 @@
             }
         }
 
+
+        function profileSafeClone(profile) {
+            return JSON.parse(JSON.stringify(profile || {}));
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function formatDateTime(value, withTime = false) {
+            if (!value) return '---';
+            const str = String(value);
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+            const d = new Date(str);
+            if (Number.isNaN(d.getTime())) return str.substring(0, withTime ? 16 : 10);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mi = String(d.getMinutes()).padStart(2, '0');
+            return withTime ? `${yyyy}/${mm}/${dd} ${hh}:${mi}` : `${yyyy}/${mm}/${dd}`;
+        }
+
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = value ?? '---';
+        }
+
+        function pickValue(obj, keys) {
+            for (const key of keys) {
+                if (obj && obj[key] !== undefined && obj[key] !== null && String(obj[key]).trim() !== '') return obj[key];
+            }
+            return null;
+        }
+
+        function couponStatusMeta(coupon) {
+            const today = new Date().toISOString().split('T')[0];
+            if (coupon.status === 'used') return { text: '已使用', cls: 'folio-status-used' };
+            if (coupon.valid_until && coupon.valid_until < today) return { text: '已過期', cls: 'folio-status-warn' };
+            return { text: '可使用', cls: 'folio-status-ok' };
+        }
+
+        async function renderBoxcoreMember(profile) {
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view-boxcore').classList.remove('hidden');
+
+            const fullName = profile.full_name || '未填寫姓名';
+            const phone = profile.phone || '---';
+            const points = profile.total_points || 0;
+            const accumulated = profile.accumulated_points || 0;
+
+            setText('boxcore-name', fullName);
+            setText('boxcore-phone', phone);
+            setText('boxcore-points', points.toLocaleString());
+            setText('boxcore-accumulated', accumulated.toLocaleString());
+            setText('boxcore-basic-name', fullName);
+            setText('boxcore-basic-phone', phone);
+            setText('boxcore-birthday', profile.birthday || '---');
+            setText('boxcore-area', profile.area || '---');
+            setText('boxcore-created', formatDateTime(profile.created_at));
+            setText('boxcore-updated', formatDateTime(profile.updated_at, true));
+            setText('boxcore-lineid', profile.line_id || '---');
+            setText('boxcore-summary-note', `目前可用積分 ${points.toLocaleString()} 點，年度累積 ${accumulated.toLocaleString()} 點。`);
+
+            setText('boxcore-coupons-count', '...');
+            setText('boxcore-warranty-count', '...');
+            setText('boxcore-logs-count', '...');
+            document.getElementById('boxcore-coupons-list').innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">票券讀取中...</p>';
+            document.getElementById('boxcore-points-list').innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">積分紀錄讀取中...</p>';
+            document.getElementById('boxcore-warranty-list').innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">終身保固資料讀取中...</p>';
+
+            const [couponsResult, logsResult, warrantyResult] = await Promise.allSettled([
+                _supabase.from('user_coupons').select('*').eq('line_id', profile.line_id).order('created_at', { ascending: false }),
+                _supabase.from('point_logs').select('*').eq('line_id', profile.line_id).order('created_at', { ascending: false }).limit(30),
+                fetchLifetimeWarrantyRecords(profile)
+            ]);
+
+            const couponsData = couponsResult.status === 'fulfilled' && !couponsResult.value.error ? (couponsResult.value.data || []) : [];
+            const logsData = logsResult.status === 'fulfilled' && !logsResult.value.error ? (logsResult.value.data || []) : [];
+            const warrantyData = warrantyResult.status === 'fulfilled' ? (warrantyResult.value || []) : [];
+
+            renderBoxcoreCoupons(couponsData);
+            renderBoxcoreLogs(logsData);
+            renderBoxcoreWarranty(warrantyData);
+        }
+
+        async function fetchLifetimeWarrantyRecords(profile) {
+            if (!profile) return [];
+            let result = await _supabase
+                .from('lifetime_warranty')
+                .select('*')
+                .eq('line_id', profile.line_id)
+                .order('created_at', { ascending: false });
+
+            if (!result.error) return result.data || [];
+
+            if (profile.phone) {
+                result = await _supabase
+                    .from('lifetime_warranty')
+                    .select('*')
+                    .eq('phone', profile.phone)
+                    .order('created_at', { ascending: false });
+                if (!result.error) return result.data || [];
+            }
+            console.warn('終身保固資料讀取失敗，請確認 lifetime_warranty 欄位是否有 line_id 或 phone', result.error);
+            return [];
+        }
+
+        function renderBoxcoreCoupons(coupons) {
+            const list = document.getElementById('boxcore-coupons-list');
+            const activeCoupons = (coupons || []).filter(c => c.status !== 'used');
+            setText('boxcore-coupons-count', activeCoupons.length.toLocaleString());
+            if (!coupons || coupons.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">目前沒有票券資料</p>';
+                return;
+            }
+            list.innerHTML = coupons.map(c => {
+                const meta = couponStatusMeta(c);
+                const amountText = c.type === 'cash' && c.discount_amount ? `｜折抵 $${Number(c.discount_amount).toLocaleString()}` : '';
+                return `
+                <div class="folio-item">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="font-black text-sm text-gray-900">${escapeHtml(c.coupon_name || '未命名票券')}</p>
+                            <p class="text-[11px] text-gray-500 mt-1 leading-relaxed">${escapeHtml(c.description || '無說明')}${amountText}</p>
+                            <p class="text-[10px] text-gray-400 mt-2 font-bold">取得 ${formatDateTime(c.created_at)}｜效期 ${c.valid_until || '永久'}</p>
+                        </div>
+                        <span class="folio-status ${meta.cls}">${meta.text}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderBoxcoreLogs(logs) {
+            const list = document.getElementById('boxcore-points-list');
+            setText('boxcore-logs-count', (logs || []).length.toLocaleString());
+            if (!logs || logs.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">目前沒有積分紀錄</p>';
+                return;
+            }
+            list.innerHTML = logs.map(l => {
+                const plus = Number(l.points_change || 0);
+                const minus = Number(l.points_redeemed || 0);
+                const change = plus > 0 ? `<span class="text-green-600">+${plus.toLocaleString()}</span>` : (minus > 0 ? `<span class="text-red-500">-${minus.toLocaleString()}</span>` : '<span class="text-gray-400">0</span>');
+                return `
+                <div class="folio-item">
+                    <div class="flex justify-between items-start gap-3">
+                        <div>
+                            <p class="font-black text-sm text-gray-900">${escapeHtml(l.store_name || '系統操作')}</p>
+                            <p class="text-[10px] text-gray-400 mt-1 font-bold">${formatDateTime(l.created_at, true)}｜${escapeHtml(l.staff_name || '系統')}</p>
+                            <p class="text-[10px] text-gray-400 mt-1">單號 ${escapeHtml(l.order_number || '無')}｜消費 $${Number(l.amount || 0).toLocaleString()}</p>
+                        </div>
+                        <p class="font-black text-base">${change}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderBoxcoreWarranty(records) {
+            const list = document.getElementById('boxcore-warranty-list');
+            setText('boxcore-warranty-count', (records || []).length.toLocaleString());
+            if (!records || records.length === 0) {
+                list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">目前沒有終身保固資料</p>';
+                return;
+            }
+            list.innerHTML = records.map((w, index) => {
+                const title = pickValue(w, ['device_model', 'model', 'product_model', 'model_name', 'product_name', 'item_name', 'repair_item']) || `保固資料 #${index + 1}`;
+                const serial = pickValue(w, ['serial_number', 'imei', 'sn', 'warranty_code', 'device_serial']) || '---';
+                const status = pickValue(w, ['status', 'warranty_status', 'state']) || '已登錄';
+                const date = pickValue(w, ['created_at', 'registered_at', 'purchase_date', 'warranty_start_date']) || null;
+                const ignored = new Set(['id','line_id','profile_id','auth_user_id','created_by','updated_at']);
+                const detailRows = Object.entries(w)
+                    .filter(([key, value]) => !ignored.has(key) && value !== null && value !== undefined && String(value).trim() !== '')
+                    .slice(0, 10)
+                    .map(([key, value]) => `<div class="text-[10px] text-gray-500"><span class="font-black text-gray-700">${escapeHtml(key)}</span>：${escapeHtml(String(value).substring(0, 80))}</div>`)
+                    .join('');
+                return `
+                <div class="folio-item">
+                    <div class="flex justify-between items-start gap-3 mb-2">
+                        <div>
+                            <p class="font-black text-base text-gray-900">${escapeHtml(title)}</p>
+                            <p class="text-[11px] text-gray-500 mt-1 font-mono">${escapeHtml(serial)}</p>
+                            <p class="text-[10px] text-gray-400 mt-1 font-bold">登錄 ${formatDateTime(date, true)}</p>
+                        </div>
+                        <span class="folio-status folio-status-ok">${escapeHtml(status)}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t border-gray-100">${detailRows}</div>
+                </div>`;
+            }).join('');
+        }
+
         async function cleanupScanner() {
             if (html5QrcodeScanner) {
                 try { if (html5QrcodeScanner.isScanning) await html5QrcodeScanner.stop(); } catch (e) {}
@@ -841,6 +1158,7 @@
             document.getElementById('action-view-issue').classList.add('hidden');
             document.getElementById('action-view-activity').classList.add('hidden');
             document.getElementById('action-view-warranty').classList.add('hidden');
+            document.getElementById('action-view-boxcore').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
             document.getElementById('action-view-lookup').classList.add('hidden');
             
@@ -858,8 +1176,8 @@
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
                 document.getElementById('scan-hint').innerHTML = "請將 QR Code 對準框內";
                 
-                if (currentSystemMode === 'issue' || currentSystemMode === 'activity') {
-                    hintText.innerText = "手動查詢會員";
+                if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore') {
+                    hintText.innerText = currentSystemMode === 'boxcore' ? "輸入會員電話進入盒芯會籍" : "手動查詢會員";
                     manualPhone.placeholder = "輸入會員電話";
                 } else {
                     document.getElementById('manual-input-section').classList.add('hidden');
@@ -909,7 +1227,7 @@
                 return;
             }
 
-            if (currentSystemMode === 'issue' || currentSystemMode === 'activity') {
+            if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore') {
                 if (text.startsWith('BBX-')) {
                     isScanLocked = true;
                     await cleanupScanner();
@@ -984,6 +1302,9 @@
                 const btnNext = document.getElementById('btn-activity-next');
                 btnNext.disabled = true; // 預設強制防呆
                 btnNext.classList.add('opacity-50', 'cursor-not-allowed');
+
+            } else if (currentSystemMode === 'boxcore') {
+                await renderBoxcoreMember(profileSafeClone(data));
 
             } else if (currentSystemMode === 'issue') {
                 document.getElementById('action-view-issue').classList.remove('hidden');
@@ -1496,6 +1817,8 @@
             } else if (currentSystemMode === 'redeem') {
                 document.getElementById('scan-view').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.remove('hidden');
+            } else if (currentSystemMode === 'boxcore') {
+                returnToDashboard();
             }
         }
 
