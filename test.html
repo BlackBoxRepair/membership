@@ -8136,3 +8136,82 @@
 }
 
 </style>
+
+<!-- 2026-07-09：會員登入/LINE按鈕/終身保盒/頁面英文標題改為 #437497，首頁圖卡調淺 -->
+<style id="bb-final-color-437497-20260709">
+  :root{
+    --bb-title-blue:#437497!important;
+  }
+
+  /* 頁面英文標題字 */
+  .page-title small,
+  .bb-lifetime-page-head .page-title small,
+  #member .page-title small,
+  #wallet .page-title small,
+  #reservation .page-title small,
+  #flow .page-title small,
+  #quote .page-title small,
+  #booking .page-title small,
+  #lifetimeWarranty .page-title small{
+    color:#437497!important;
+  }
+
+  /* 會員登入標題 */
+  .member-login-title{
+    color:#437497!important;
+  }
+
+  /* LINE 連動登入按鈕 */
+  .member-login-submit.line-login-real{
+    background:#437497!important;
+    color:#ffffff!important;
+    box-shadow:none!important;
+  }
+  .member-login-submit.line-login-real iconify-icon,
+  .member-login-submit.line-login-real span{
+    color:#ffffff!important;
+  }
+
+  /* 終身保盒按鈕文字 */
+  .member-lifetime-btn,
+  .member-lifetime-btn span,
+  .member-lifetime-btn iconify-icon{
+    color:#437497!important;
+  }
+
+  /* 首頁選單圖卡調淺 */
+  #home .feature-card,
+  #home .feature-card.big,
+  #home .feature-card.dark,
+  #home .feature-card:nth-child(2),
+  #home .feature-card:nth-child(3),
+  #home .feature-card:nth-child(4),
+  #home .feature-card:nth-child(5){
+    background:#747474!important;
+    color:#ffffff!important;
+    border-color:rgba(255,255,255,.24)!important;
+    box-shadow:0 12px 28px rgba(37,37,37,.12)!important;
+  }
+  #home .feature-card::before,
+  #home .feature-card.big::before,
+  #home .feature-card.dark::before{
+    background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(67,116,151,.10))!important;
+    opacity:1!important;
+  }
+  #home .feature-card .card-kicker,
+  #home .feature-card.big .card-kicker,
+  #home .feature-card.dark .card-kicker,
+  #home .feature-card:nth-child(3) .card-kicker,
+  #home .feature-card .card-subtitle,
+  #home .feature-card.big .card-subtitle,
+  #home .feature-card.dark .card-subtitle,
+  #home .feature-card:nth-child(3) .card-subtitle{
+    color:rgba(255,255,255,.76)!important;
+  }
+  #home .feature-card .card-title,
+  #home .feature-card.big .card-title,
+  #home .feature-card.dark .card-title,
+  #home .feature-card:nth-child(3) .card-title{
+    color:#ffffff!important;
+  }
+</style>
