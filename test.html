@@ -5221,7 +5221,7 @@
     </section>
 
     <section id="reservation" class="section">
-      <div class="page-head"><div class="page-title"><small>MEMBER ACTIVITY</small><h2>會員動態</h2></div></div>
+      <div class="page-head"><div class="page-title"><small>MY ACTIVITY</small><h2>會員動態</h2></div></div>
       <div class="member-dynamic-page">
         <div class="member-dynamic-tabs" aria-label="會員動態分類">
           <button type="button" class="member-dynamic-tab active" data-member-dynamic-tab="booking">我的預約</button>
@@ -5838,6 +5838,7 @@
     localStorage.removeItem('bb_member');
 
     let liffReadyPromise = null;
+    const BB_AFTER_LINE_LOGIN_KEY = 'bb_after_line_login_member';
 
     function getCleanRedirectUri(){
       // GitHub Pages 單頁網站：LINE 登入回來仍保留目前網址，不使用子路徑，避免重新整理 404。
@@ -5853,6 +5854,7 @@
     }
 
     async function initLiffMember(){
+      const shouldOpenMemberAfterLogin = sessionStorage.getItem(BB_AFTER_LINE_LOGIN_KEY) === '1';
       try{
         if(!window.liff){ renderMemberState(); return; }
         await ensureLiffReady();
@@ -5864,8 +5866,13 @@
         }
       }catch(err){
         console.warn('LIFF init failed', err);
+        sessionStorage.removeItem(BB_AFTER_LINE_LOGIN_KEY);
       }finally{
         renderMemberState();
+        if(shouldOpenMemberAfterLogin){
+          sessionStorage.removeItem(BB_AFTER_LINE_LOGIN_KEY);
+          requestAnimationFrame(() => routeTo('member'));
+        }
       }
     }
 
@@ -5875,6 +5882,8 @@
         if(btn){ btn.disabled = true; btn.innerHTML = '<span>LINE 連動中...</span>'; }
         await ensureLiffReady();
         if(!liff.isLoggedIn()){
+          // LINE 登入若發生跳轉，回來後直接進入「我的會員」；初次會員則顯示加入會員表單。
+          sessionStorage.setItem(BB_AFTER_LINE_LOGIN_KEY, '1');
           liff.login({ redirectUri: getCleanRedirectUri() });
           return;
         }
@@ -5882,16 +5891,14 @@
         currentLineProfile = profile;
         localStorage.setItem('bb_line_profile', JSON.stringify(profile));
         await loadMemberByLine(profile);
+
+        // 連動成功後不再跳成功提示：既有會員顯示我的會員，初次會員顯示加入會員表單。
+        sessionStorage.removeItem(BB_AFTER_LINE_LOGIN_KEY);
         renderMemberState();
-        if(currentMember){
-          alert('LINE 會員連動成功');
-        }else if(memberLookupStatus === 'not_found' || memberLookupStatus === 'profile_incomplete'){
-          // 初次登入或資料未補齊時，直接顯示加入會員表單，不再跳出查無資料錯誤。
-        }else{
-          alert(memberLookupMessage || 'LINE 已連動，但暫時無法取得會員資料。');
-        }
+        routeTo('member');
       }catch(err){
         console.error(err);
+        sessionStorage.removeItem(BB_AFTER_LINE_LOGIN_KEY);
         alert('LINE 連動失敗：請確認 LIFF ID、Endpoint URL 與 LINE Developers 設定是否一致。');
         const btn = e?.currentTarget || document.querySelector('.member-login-submit');
         if(btn){ btn.disabled = false; btn.innerHTML = '<iconify-icon icon="ri:line-fill"></iconify-icon><span>LINE 連動登入</span>'; }
@@ -7181,6 +7188,8 @@
       const hostname = window.location.hostname || '';
       const owner = hostname.endsWith('.github.io') ? hostname.split('.')[0] : 'blackboxrepair';
       const repo = `${owner}.github.io`;
+      const BANNER_CACHE_KEY = 'bb_home_banner_images_v3';
+      const BANNER_CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 7;
 
       const cleanPath = (path) => path.replace(/^\/+|\/+$/g,'');
       const encodePath = (path) => cleanPath(path).split('/').filter(Boolean).map(encodeURIComponent).join('/');
@@ -7197,19 +7206,65 @@
         'home_banner'
       ].filter(Boolean)));
 
+      function renderBannerImages(images){
+        const uniqueImages = Array.from(new Set((images || []).filter(Boolean)));
+        if(!uniqueImages.length) return false;
+        banner.innerHTML = uniqueImages.map((src, index) => `<img class="home-banner-slide${index === 0 ? ' active' : ''}" src="${src}" alt="首頁 Banner ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${index === 0 ? 'high' : 'low'}">`).join('');
+        banner.classList.remove('is-empty');
+        banner.classList.add('is-ready');
+
+        window.clearInterval(window.__blackboxHomeBannerTimer);
+        if(uniqueImages.length > 1){
+          let activeIndex = 0;
+          const slides = Array.from(banner.querySelectorAll('.home-banner-slide'));
+          window.__blackboxHomeBannerTimer = window.setInterval(() => {
+            slides[activeIndex]?.classList.remove('active');
+            activeIndex = (activeIndex + 1) % slides.length;
+            slides[activeIndex]?.classList.add('active');
+          }, 5000);
+        }
+        return true;
+      }
+
+      function readBannerCache(){
+        try{
+          const cache = JSON.parse(localStorage.getItem(BANNER_CACHE_KEY) || 'null');
+          if(!cache || !Array.isArray(cache.images)) return [];
+          if(Date.now() - Number(cache.savedAt || 0) > BANNER_CACHE_MAX_AGE) return [];
+          return cache.images.filter(src => typeof src === 'string' && src);
+        }catch(err){
+          return [];
+        }
+      }
+
+      function writeBannerCache(images){
+        try{
+          localStorage.setItem(BANNER_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), images }));
+        }catch(err){
+          // localStorage 可能被瀏覽器限制，忽略即可。
+        }
+      }
+
+      function fetchWithTimeout(url, options={}, timeout=2800){
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+      }
+
       function testImage(src){
         return new Promise(resolve => {
           const img = new Image();
           img.onload = () => resolve(src);
           img.onerror = () => resolve(null);
           img.decoding = 'async';
+          img.fetchPriority = 'low';
           img.src = src;
         });
       }
 
       async function fetchBannerManifest(folderPath){
         const manifestUrl = `/${encodePath(folderPath)}/banner-list.json`;
-        const res = await fetch(manifestUrl, { cache:'default' });
+        const res = await fetchWithTimeout(manifestUrl, { cache:'default' }, 2200);
         if(!res.ok) return [];
         const data = await res.json();
         const names = Array.isArray(data) ? data : (Array.isArray(data.images) ? data.images : []);
@@ -7221,7 +7276,7 @@
 
       async function fetchBannerImagesFromGithubApi(folderPath){
         const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${encodePath(folderPath)}`;
-        const res = await fetch(apiUrl, { cache:'default' });
+        const res = await fetchWithTimeout(apiUrl, { cache:'default' }, 3200);
         if(!res.ok) return [];
         const data = await res.json();
         if(!Array.isArray(data)) return [];
@@ -7233,14 +7288,9 @@
       }
 
       async function findCommonBannerFiles(folderPath){
-        const baseNames = [
-          '01','02','03','04','05','06','07','08','09','10',
-          '1','2','3','4','5',
-          'banner','banner01','banner02','banner03','banner04','banner05',
-          'banner_01','banner_02','banner_03','banner_04','banner_05',
-          'home_banner','home-banner','homebanner','homeBanner'
-        ];
-        const exts = ['webp','jpg','jpeg','png','gif','avif'];
+        // 原本會大量掃描可能檔名，手機上很慢；現在只測常見首頁 Banner 檔名。
+        const baseNames = ['banner','banner01','banner_01','01','1','home_banner','home-banner'];
+        const exts = ['webp','jpg','jpeg','png'];
         const urls = [];
         for(const name of baseNames){
           for(const ext of exts){
@@ -7251,8 +7301,10 @@
         return Array.from(new Set(found));
       }
 
-      let images = [];
+      const cachedImages = readBannerCache();
+      const hadCache = renderBannerImages(cachedImages);
 
+      let images = [];
       for(const folderPath of candidatePaths){
         try{
           images = await fetchBannerManifest(folderPath);
@@ -7286,26 +7338,17 @@
 
       images = Array.from(new Set(images)).sort((a,b) => a.localeCompare(b, 'zh-Hant', { numeric:true }));
 
-      if(!images.length){
-        banner.classList.remove('is-ready');
-        banner.classList.add('is-empty');
-        banner.innerHTML = '';
+      if(images.length){
+        writeBannerCache(images);
+        if(JSON.stringify(images) !== JSON.stringify(cachedImages)) renderBannerImages(images);
         return;
       }
 
-      banner.innerHTML = images.map((src, index) => `<img class="home-banner-slide${index === 0 ? ' active' : ''}" src="${src}" alt="首頁 Banner ${index + 1}" loading="${index === 0 ? 'eager' : 'lazy'}" decoding="async" fetchpriority="${index === 0 ? 'high' : 'low'}">`).join('');
-      banner.classList.remove('is-empty');
-      banner.classList.add('is-ready');
-
-      if(images.length <= 1) return;
-      let activeIndex = 0;
-      const slides = Array.from(banner.querySelectorAll('.home-banner-slide'));
-      window.clearInterval(window.__blackboxHomeBannerTimer);
-      window.__blackboxHomeBannerTimer = window.setInterval(() => {
-        slides[activeIndex]?.classList.remove('active');
-        activeIndex = (activeIndex + 1) % slides.length;
-        slides[activeIndex]?.classList.add('active');
-      }, 5000);
+      if(!hadCache){
+        banner.classList.remove('is-ready');
+        banner.classList.add('is-empty');
+        banner.innerHTML = '';
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => { initHomeBannerCarousel(); initLiffMember(); });
@@ -8187,7 +8230,7 @@
   #home .feature-card:nth-child(3),
   #home .feature-card:nth-child(4),
   #home .feature-card:nth-child(5){
-    background:#747474!important;
+    background:#8a8a8a!important;
     color:#ffffff!important;
     border-color:rgba(255,255,255,.24)!important;
     box-shadow:0 12px 28px rgba(37,37,37,.12)!important;
@@ -8213,5 +8256,68 @@
   #home .feature-card.dark .card-title,
   #home .feature-card:nth-child(3) .card-title{
     color:#ffffff!important;
+  }
+</style>
+
+
+<!-- 2026-07-09：會員動態標題、票券高度、Banner 快取、LINE 登入導向調整 -->
+<style id="bb-final-tuning-20260709-b">
+  /* 會員動態英文標題：MY ACTIVITY */
+  #reservation .page-title small{color:#437497!important;}
+
+  /* 票券錢包：票券清單高度稍微縮短 */
+  #wallet .bb-wallet-coupon{margin-top:12px!important;}
+  #wallet .bb-wallet-card{
+    height:140px!important;
+    border-radius:20px!important;
+  }
+  #wallet .bb-wallet-card-main{
+    padding:16px 14px 0!important;
+    gap:10px!important;
+  }
+  #wallet .bb-wallet-card-icon{
+    width:36px!important;
+    height:36px!important;
+  }
+  #wallet .bb-wallet-card-icon iconify-icon{font-size:22px!important;}
+  #wallet .bb-wallet-card-name{
+    font-size:18px!important;
+    line-height:1.08!important;
+  }
+  #wallet .bb-wallet-card-expiry{font-size:11px!important;}
+  #wallet .bb-wallet-card-type{
+    max-width:86px!important;
+    padding:5px 8px!important;
+    font-size:10.5px!important;
+  }
+  #wallet .bb-wallet-card-action{
+    height:46px!important;
+    font-size:16px!important;
+  }
+  @media (max-width:390px){
+    #wallet .bb-wallet-card{height:132px!important;border-radius:18px!important;}
+    #wallet .bb-wallet-card-main{padding:14px 12px 0!important;gap:8px!important;}
+    #wallet .bb-wallet-card-icon{width:34px!important;height:34px!important;}
+    #wallet .bb-wallet-card-name{font-size:17px!important;}
+    #wallet .bb-wallet-card-expiry{font-size:10.5px!important;}
+    #wallet .bb-wallet-card-action{height:42px!important;font-size:15px!important;}
+  }
+
+  /* 首頁選單圖卡再調淺 */
+  #home .feature-card,
+  #home .feature-card.big,
+  #home .feature-card.dark,
+  #home .feature-card:nth-child(2),
+  #home .feature-card:nth-child(3),
+  #home .feature-card:nth-child(4),
+  #home .feature-card:nth-child(5){
+    background:#8a8a8a!important;
+    color:#ffffff!important;
+    border-color:rgba(255,255,255,.28)!important;
+    box-shadow:0 12px 26px rgba(37,37,37,.10)!important;
+  }
+  #home .feature-card .card-kicker,
+  #home .feature-card .card-subtitle{
+    color:rgba(255,255,255,.82)!important;
   }
 </style>
