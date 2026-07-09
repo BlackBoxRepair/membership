@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BLACKBOX | 店員管理終端</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="shortcut icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    <link rel="apple-touch-icon-precomposed" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
+    
+    <style>
+        /* 樣式優化：全面調小圓角弧度 */
+        html, body { 
+            font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827; 
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
+        }
+        .soft-input { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; 
+            padding: 12px 14px; font-size: 16px; width: 100%; outline: none; appearance: none; transition: all 0.2s; color: #111;
+        }
+        .soft-input:focus { border-color: #ca8a04; box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1); }
+        
+        .card-black-gold { background: linear-gradient(135deg, #2a2a2a 0%, #000000 100%);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5); border-radius: 1.25rem; 
+        }
+        .rank-badge { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 215, 0, 0.2); display: flex; align-items: center; justify-content: center; min-width: 80px; height: 28px; border-radius: 0.5rem; 
+        }
+        .coupon-card { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; 
+            padding: 16px; transition: all 0.2s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+        }
+        .coupon-card.selected { border-color: #ca8a04; background: #fffbeb; transform: scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(202, 138, 4, 0.3); }
+        .coupon-card.selected::after { content: '✓';
+            position: absolute; bottom: 8px; right: 8px; color: #ca8a04; font-weight: 900; font-size: 1.2rem;
+        }
+        .date-badge { font-size: 9px; color: #6b7280; background: #f3f4f6; padding: 2px 6px;
+            border-radius: 4px; display: inline-block; margin-top: 6px; font-weight: 500; }
+            
+        .cash-coupon-item { display: flex;
+            justify-content: space-between; align-items: center; padding: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; 
+            margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .cash-coupon-item.active { border-color: #ca8a04; background: #fffbeb; }
+        .cash-coupon-item .checkbox-circle { width: 20px; height: 20px; border-radius: 50%;
+            border: 2px solid #d1d5db; margin-right: 10px; flex-shrink: 0; position: relative; }
+        .cash-coupon-item.active .checkbox-circle { border-color: #ca8a04; background: #ca8a04; }
+        .cash-coupon-item.active .checkbox-circle::after { content: ''; position: absolute; top: 50%; left: 50%;
+            width: 6px; height: 10px; border: solid white; border-width: 0 2px 2px 0; transform: translate(-50%, -60%) rotate(45deg); }
+            
+        .scan-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: flex; align-items: center; justify-content: center; z-index: 10;
+        }
+        .scan-box { position: relative; width: 260px; height: 260px; border-radius: 16px; 
+            box-shadow: 0 0 0 2000px rgba(0,0,0,0.7); overflow: hidden; }
+        .corner { position: absolute;
+            width: 30px; height: 30px; border-color: #fff; border-style: solid; border-width: 4px; border-radius: 4px; filter: drop-shadow(0 0 4px rgba(0,0,0,0.5));
+        }
+        .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; } 
+        .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 12px; }
+        .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 12px; }
+        .br { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
+        
+        .scan-laser { position: absolute; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, #eab308, transparent); top: 0; animation: laserMove 2s infinite ease-in-out; box-shadow: 0 0 15px #eab308; opacity: 0.8;
+        }
+        @keyframes laserMove { 0% {top: 10%; opacity: 0;} 20% {opacity: 1;} 80% {opacity: 1;} 100% {top: 90%; opacity: 0;} }
+        #reader div { box-shadow: none !important; border: none !important; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { max-height: 90vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        
+        .confirm-row { display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; font-size: 14px; }
+        .confirm-label { color: #6b7280; font-size: 12px; font-weight: bold;
+            letter-spacing: 0.05em; text-transform: uppercase; }
+        .confirm-value { color: #111; font-weight: 700; text-align: right;
+            word-break: break-all; max-width: 70%; }
+            
+        .select-wrapper { position: relative; width: 100%; }
+        .select-wrapper::after { content: '▼'; font-size: 8px; color: #9ca3af; position: absolute; right: 12px;
+            top: 50%; transform: translateY(-50%); pointer-events: none; }
+            
+        .dash-btn { flex: 1; border-radius: 1rem; 
+            padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); border: 1px solid white;
+            min-height: 120px;
+        }
+        .dash-btn:active { transform: scale(0.96); }
+        .dash-btn-light { background: white; color: #111; }
+        
+        .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+    </style>
+</head>
+<body class="flex flex-col h-full w-full">
+
+    <div id="loading-overlay" class="hidden fixed inset-0 z-[150] bg-black flex flex-col items-center justify-center">
+        <video id="success-video" src="printer.mp4" muted playsinline class="w-64 h-64 object-contain"></video>
+        <p class="text-white/80 font-bold mt-4 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
+    </div>
+
+    <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center modal-content">
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">員工登入</h1>
+            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SUPABASE STAFF AUTH</p>
+            <div class="space-y-4">
+                <input id="staff-email" type="email" inputmode="email" autocomplete="username" placeholder="員工帳號 Email" class="soft-input text-center font-bold text-base h-14">
+                <input id="staff-password" type="password" autocomplete="current-password" placeholder="員工密碼" class="soft-input text-center font-bold text-base h-14">
+                <button id="login-btn" onclick="staffLogin()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-xl active:scale-95 transition">登入系統</button>
+            </div>
+            <p id="login-error" class="text-red-500 text-xs font-bold mt-4 tracking-widest hidden animate-pulse">帳號或密碼錯誤，或沒有員工權限</p>
+        </div>
+    </div>
+
+    <div id="activity-lock-modal" class="hidden fixed inset-0 bg-gray-100/90 z-[60] flex flex-col items-center justify-center p-6 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center relative">
+            <button onclick="closeActivityLock()" class="absolute top-5 right-5 text-gray-400 font-bold p-2 active:scale-95">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+            </div>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">活動通道</h1>
+            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SECURE ACCESS</p>
+            <div class="space-y-4">
+                <input id="activity-code-input" type="password" inputmode="numeric" placeholder="輸入活動授權碼" class="soft-input text-center font-bold text-xl tracking-widest h-14">
+                <button id="btn-verify-activity" onclick="verifyActivityCode()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-xl active:scale-95 transition">解鎖</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
+        <header class="mb-4 mt-2 shrink-0 flex justify-between items-center">
+            <div>
+                <div class="flex items-end gap-2 mb-1">
+                    <img src="site logo.png" alt="Blackbox Logo" class="h-9 object-contain">
+                    <span id="dashboard-staff-name" class="text-[10px] text-gray-400 font-bold mb-1 tracking-widest">員工端</span>
+                </div>
+            </div>
+            <button onclick="enterMode('lookup')" class="w-9 h-9 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition text-gray-700">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+            </button>
+        </header>
+        
+        <div class="flex flex-col gap-3 flex-1 mb-6 overflow-y-auto">
+            <button onclick="enterMode('issue')" class="dash-btn dash-btn-light">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>
+                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">會員作業</h2><p class="text-gray-400 text-[10px] mt-1">積分/優惠券發放&折抵</p></div>
+            </button>
+            <button onclick="enterMode('redeem')" class="dash-btn dash-btn-light">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/><path d="M12 10v4"/><path d="M10 12h4"/></svg>
+                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">票券核銷</h2><p class="text-gray-400 text-[10px] mt-1">掃描 QR Code 核銷</p></div>
+            </button>
+            <button onclick="openActivityLock()" class="dash-btn dash-btn-light">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <div class="text-center"><h2 class="text-lg font-black text-yellow-600">活動通道</h2><p class="text-gray-400 text-[10px] mt-1">專屬活動與特殊作業</p></div>
+            </button>
+        </div>
+        <button onclick="lockSystem()" class="text-xs text-gray-400 font-bold py-4 text-center w-full shrink-0">重新鎖定系統</button>
+    </div>
+
+    <div id="app-container" class="hidden fixed inset-0 flex flex-col w-full max-w-md mx-auto z-30 bg-[#f3f4f6]">
+        <div class="p-6 pb-2 flex justify-between items-center bg-[#f3f4f6] z-20 shrink-0">
+            <div class="flex flex-col">
+               <span id="mode-badge" class="text-[10px] font-bold text-yellow-600 tracking-widest uppercase">MODE</span>
+                <h1 id="mode-title" class="text-2xl font-black text-gray-900 tracking-tight">---</h1>
+            </div>
+            <button onclick="returnToDashboard()" class="bg-white px-4 py-2 rounded-full text-xs font-bold text-gray-900 shadow-sm active:scale-95 transition">回選單</button>
+        </div>
+
+        <div id="scan-view" class="scrollable-content flex flex-col items-center justify-start pt-4 p-6">
+            <div class="w-full aspect-square bg-black rounded-2xl overflow-hidden relative shadow-lg shrink-0 mb-6 max-h-[50vh]">
+                <div id="reader" class="w-full h-full object-cover"></div>
+                <div class="scan-container"><div class="scan-box"><div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div><div class="scan-laser"></div></div></div>
+            </div>
+            <p id="scan-error-msg" class="text-red-500 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4 hidden animate-pulse"></p>
+            <p id="scan-success-msg" class="text-green-600 text-[10px] font-black tracking-wider uppercase text-center mb-4 hidden animate-bounce bg-green-50 py-2 px-4 rounded-xl border border-green-100 shadow-sm"></p>
+            <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-8">請將 QR Code 對準框內</p>
+            <div id="manual-input-section" class="w-full border-t border-gray-200 pt-8 pb-8 hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm">
+                    <p id="manual-hint-text" class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center">手動查詢會員</p>
+                    <div class="flex gap-2">
+                        <input id="manual-phone" type="tel" placeholder="輸入電話" class="soft-input font-mono text-center tracking-widest" maxlength="10">
+                        <button id="manual-btn" onclick="handleManualInput()" class="bg-black text-white px-6 rounded-lg font-bold shadow-md active:scale-95 transition">Go</button>
+                    </div>
+                </div>
+            </div>
+            <button id="cancel-scan-btn" onclick="resetToForm()" class="hidden mt-4 mb-10 text-gray-400 text-sm font-bold border-b border-gray-300 pb-1">取消掃描</button>
+            <div class="h-24 shrink-0"></div> 
+        </div>
+
+        <div id="action-view-issue" class="hidden scrollable-content flex flex-col p-6 pb-80">
+            <div class="card-black-gold p-7 mb-8 relative overflow-hidden shrink-0">
+                <div class="relative z-10 flex justify-between items-start mb-10">
+                    <div><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="user-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
+                    <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p><p id="user-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p></div>
+                </div>
+                <div class="relative z-10 flex justify-between items-end">
+                    <div class="flex gap-8">
+                        <div>
+                            <span class="text-[8px] text-white/30 uppercase tracking-widest mb-1 font-bold">Phone Number</span>
+                            <p id="user-phone" class="text-xs text-white/70 font-mono tracking-widest font-bold">---</p>
+                        </div>
+                        <div>
+                            <span class="text-[8px] text-yellow-500/80 uppercase tracking-widest mb-1 font-bold">Yearly Total</span>
+                            <p id="user-accumulated" class="text-xs text-yellow-500 font-mono tracking-widest font-bold">0</p>
+                         </div>
+                    </div>
+                    <div class="rank-badge px-3"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">MEMBER</span></div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">訂單資訊</h3>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="select-wrapper"><select id="store-select" class="soft-input bg-gray-50 cursor-pointer"><option value="勤美公益店">勤美公益店</option><option value="沙鹿站前店">沙鹿站前店</option></select></div>
+                        <input id="order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                        <input id="amount-input" type="tel" pattern="[0-9]*" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="cleanInput(this); calcPreview()">
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
+                            <input id="redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" 
+                                   oninput="cleanInput(this); calcPreview()" onblur="roundToTen(this)">
+                        </div>
+                        <button onclick="redeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-lg font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
+                    </div>
+                    <div id="cash-coupon-section" class="hidden border-t border-gray-100 pt-3 mt-1">
+                        <p class="text-xs text-gray-400 font-bold mb-2">持有現金抵用券</p>
+                        <div id="cash-coupon-list"></div>
+                    </div>
+                    <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
+                        <span class="text-xs text-gray-400 font-bold">本次應收費總額</span>
+                        <span id="total-due" class="text-xl font-black text-gray-900">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2 pt-1">
+                        <span class="text-xs text-gray-400 font-bold">預計獲得積分</span>
+                        <span id="preview-points" class="text-xl font-black text-green-500">+0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-8">
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券 (可多選)</h3>
+                <div id="coupon-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[50px]"></div>
+            </div>
+            <button onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">下一步</button>
+            <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
+            <div class="h-24 w-full shrink-0"></div>
+        </div>
+
+        <div id="action-view-activity" class="hidden scrollable-content flex flex-col p-6 pb-80">
+            <div class="card-black-gold p-7 mb-8 relative overflow-hidden shrink-0">
+                <div class="relative z-10 flex justify-between items-start mb-10">
+                    <div><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p><h2 id="activity-user-name" class="text-xl font-black text-white tracking-tight italic">---</h2></div>
+                    <div class="text-right"><p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p><p id="activity-user-points" class="text-4xl font-black text-yellow-400 tracking-tighter">0</p></div>
+                </div>
+                <div class="relative z-10 flex justify-between items-end">
+                    <div class="flex gap-8">
+                        <div>
+                            <span class="text-[8px] text-white/30 uppercase tracking-widest mb-1 font-bold">Phone Number</span>
+                            <p id="activity-user-phone" class="text-xs text-white/70 font-mono tracking-widest font-bold">---</p>
+                        </div>
+                        <div>
+                            <span class="text-[8px] text-yellow-500/80 uppercase tracking-widest mb-1 font-bold">Yearly Total</span>
+                            <p id="activity-user-accumulated" class="text-xs text-yellow-500 font-mono tracking-widest font-bold">0</p>
+                         </div>
+                    </div>
+                    <div class="rank-badge px-3"><span class="text-[10px] text-yellow-500 font-black tracking-[0.2em] uppercase leading-none">EVENT</span></div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">活動訂單資訊</h3>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="select-wrapper"><select id="activity-store-select" class="soft-input bg-gray-50 cursor-pointer"><option value="勤美公益店">勤美公益店</option><option value="沙鹿站前店">沙鹿站前店</option></select></div>
+                        <input id="activity-order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                        <input id="activity-amount-input" type="tel" pattern="[0-9]*" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="cleanInput(this); calcActivityPreview()">
+                    </div>
+                    <div class="flex gap-2 items-center mb-1">
+                        <div class="relative flex-[2]">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
+                            <input id="activity-redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" 
+                                   oninput="cleanInput(this); calcActivityPreview()" onblur="roundToTenActivity(this)">
+                        </div>
+                        <div class="flex-1 bg-gray-50 border border-gray-200 rounded-lg h-[46px] flex items-center justify-center shadow-inner">
+                            <span id="activity-calculated-deduction" class="text-red-500 font-black text-sm">-$0</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center mb-2 px-1">
+                        <input type="checkbox" id="activity-double-check" class="w-4 h-4 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500" onchange="calcActivityPreview()">
+                        <label for="activity-double-check" class="ml-2 text-xs font-bold text-gray-600">小星運｜積分加倍折抵</label>
+                    </div>
+                    
+                    <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
+                        <span class="text-xs text-gray-400 font-bold">本次應收費總額</span>
+                        <span id="activity-total-due" class="text-xl font-black text-gray-900">$0</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2 pt-1">
+                        <span class="text-xs text-gray-400 font-bold">預計獲得積分</span>
+                        <span id="activity-preview-points" class="text-xl font-black text-green-500">+0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl p-6 shadow-sm mb-8">
+                <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">發送優惠券 (可多選)</h3>
+                <div id="activity-coupon-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[50px]"></div>
+            </div>
+            <button id="btn-activity-next" onclick="startStaffAuth()" class="w-full bg-black text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition mb-4 shrink-0">下一步</button>
+            <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mb-8 shrink-0">放棄並重新掃描</button>
+            <div class="h-24 w-full shrink-0"></div>
+        </div>
+
+        <div id="action-view-redeem" class="hidden scrollable-content flex flex-col p-6 pb-80">
+            <div class="bg-white w-full rounded-2xl p-8 shadow-xl relative text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                </div>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">確認核銷</h3>
+                <p class="text-gray-400 text-xs mb-8 uppercase tracking-widest">VERIFY COUPON</p>
+                <div class="text-left bg-gray-50 p-6 rounded-xl border border-gray-100 mb-8 space-y-3">
+                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">優惠券名稱</p><p id="redeem-name" class="text-lg font-black text-gray-900">---</p></div>
+                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">內容說明</p><p id="redeem-desc" class="text-sm text-gray-600">---</p></div>
+                    <div><p class="text-[10px] text-gray-400 uppercase font-bold">有效期限</p><p id="redeem-date" class="text-sm font-mono text-gray-600">---</p></div>
+                    <div class="pt-2 border-t border-gray-200 mt-2"><p class="text-[10px] text-gray-400 uppercase font-bold">持有會員姓名</p><p id="redeem-user" class="text-base font-bold text-gray-900 truncate">讀取中...</p></div>
+                </div>
+                <button onclick="startRedeemAuth()" class="w-full bg-black text-white py-4 rounded-xl font-black text-lg shadow-lg active:scale-95 transition">工作人員驗證</button>
+                <p class="text-[10px] text-gray-400 mt-2 font-bold tracking-widest">(下一步需掃描員工證或輸入電話)</p>
+                <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-4 mt-2">取消</button>
+            </div>
+            <div class="h-24 w-full shrink-0"></div>
+        </div>
+
+        <div id="action-view-lookup" class="hidden scrollable-content flex flex-col p-6 pb-32">
+            <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
+                <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center">查詢會員資料</p>
+                <div class="flex gap-2">
+                    <input id="lookup-phone" type="tel" placeholder="輸入會員電話" class="soft-input font-mono text-center tracking-widest" maxlength="10">
+                    <button onclick="searchMemberData()" class="bg-black text-white px-6 rounded-lg font-bold shadow-md active:scale-95 transition">查詢</button>
+                </div>
+            </div>
+
+            <div id="lookup-results" class="hidden space-y-6">
+                <div class="card-black-gold p-6 relative overflow-hidden">
+                    <div class="relative z-10 flex justify-between items-start">
+                        <div>
+                            <p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p>
+                            <h2 id="lookup-name" class="text-xl font-black text-white tracking-tight italic">---</h2>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p>
+                            <p id="lookup-points" class="text-3xl font-black text-yellow-400 tracking-tighter">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4 border-b pb-2">票券錢包狀態</h3>
+                    <div id="lookup-coupons-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4 border-b pb-2">近期積分紀錄</h3>
+                    <div id="lookup-points-list" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl relative modal-content">
+            <h3 id="cfm-title" class="text-2xl font-black text-gray-900 mb-1 tracking-tight">送出確認</h3>
+            <p class="text-gray-400 text-[10px] mb-8 tracking-wider uppercase font-bold italic">STAFF VERIFIED</p>
+            
+            <div id="cfm-content-issue" class="space-y-2 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100 hidden">
+                <div class="confirm-row"><span class="confirm-label">會員姓名</span><span id="cfm-name" class="confirm-value">---</span></div>
+                <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-amount" class="confirm-value text-xl font-black">$0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-red-500">積分折抵</span><span id="cfm-redeem" class="confirm-value text-red-500 font-bold">-0</span></div>
+                <div id="cfm-cash-row" class="confirm-row hidden"><span class="confirm-label text-red-500">現金券折抵</span><span id="cfm-cash-coupon" class="confirm-value text-red-500 font-bold">-0</span></div>
+                <div class="confirm-row border-t border-gray-200 pt-2 mt-2"><span class="confirm-label text-black">實收金額</span><span id="cfm-total-due" class="confirm-value text-2xl font-black">$0</span></div>
+                <div class="confirm-row mt-2"><span class="confirm-label">獲取積分</span><span id="cfm-points" class="confirm-value text-green-600 font-black">+0</span></div>
+                <div class="confirm-row items-start"><span class="confirm-label mt-1">發送優惠券</span><span id="cfm-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span></div>
+            </div>
+            
+            <div id="cfm-content-activity" class="space-y-2 mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100 hidden">
+                <div class="confirm-row"><span class="confirm-label">會員姓名</span><span id="cfm-act-name" class="confirm-value">---</span></div>
+                <div class="confirm-row"><span class="confirm-label">消費金額</span><span id="cfm-act-amount" class="confirm-value text-xl font-black">$0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-gray-500">實際扣除帳戶積分</span><span id="cfm-act-raw-redeem" class="confirm-value text-gray-500 font-mono">-0</span></div>
+                <div class="confirm-row"><span class="confirm-label text-red-500">活動加碼</span><span id="cfm-act-bonus" class="confirm-value text-red-500 font-bold">-0</span></div>
+                <div class="confirm-row border-t border-gray-200 pt-2 mt-2"><span class="confirm-label text-black">實收金額</span><span id="cfm-act-total-due" class="confirm-value text-2xl font-black">$0</span></div>
+                <div class="confirm-row mt-2"><span class="confirm-label">獲取積分</span><span id="cfm-act-points" class="confirm-value text-green-600 font-black">+0</span></div>
+                <div class="confirm-row items-start"><span class="confirm-label mt-1">發送優惠券</span><span id="cfm-act-coupon" class="confirm-value text-yellow-600 font-bold text-right leading-tight">無</span></div>
+            </div>
+
+            <div id="cfm-content-redeem" class="space-y-2 mb-8 bg-green-50 p-6 rounded-xl border border-green-100 hidden">
+                <p class="text-center text-green-800 font-bold text-lg mb-2">核銷準備就緒</p>
+                <p class="text-center text-xs text-green-600">按下確認後將標記為已使用。</p>
+            </div>
+            <div class="text-right mb-6 px-2">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Handled By</p>
+                <p id="cfm-staff" class="text-sm font-bold text-gray-900">---</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 bg-gray-100 text-gray-500 py-4 rounded-xl font-bold active:scale-95 transition">返回</button>
+                <button id="btn-submit-real" class="flex-[2] bg-black text-white py-4 rounded-xl font-bold shadow-xl active:scale-95 transition">確認送出</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                persistSession: false,
+                autoRefreshToken: true,
+                detectSessionInUrl: false
+            }
+        });
+        const AUTO_LOCK_TIME = 30 * 60 * 1000;
+        let idleTimer;
+        let currentSystemMode = 'issue';
+        let html5QrcodeScanner = null;
+        let currentTargetLineId = null; 
+        let currentTargetCouponId = null; 
+        let selectedCoupons = [];
+        let selectedCashCoupons = []; 
+        let userCashCoupons = [];      
+        let calculatedPoints = 0;
+        let calculatedRedeem = 0; 
+        let calculatedCashDiscount = 0;
+        let currentStaffName = '';
+        let currentLoggedInStaff = null;
+        let allCouponsData = []; 
+        let currentMemberPoints = 0; 
+        let isScanLocked = false;
+        let errorMsgTimeout;
+        let isStaffAuthStep = false; 
+
+        // 活動通道專屬變數
+        let selectedActivityCoupons = [];
+        let calculatedActivityPoints = 0;
+        let calculatedActivityRedeem = 0; // 原始扣除點數
+        let calculatedActivityDeductionValue = 0; // 換算後的折抵金額
+        let currentActivityCode = null; // 儲存活動授權碼
+
+        function cleanInput(el) {
+            el.value = el.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+        }
+
+        function roundToTen(el) {
+            let val = parseInt(el.value) || 0;
+            el.value = Math.floor(val / 10) * 10;
+            calcPreview();
+        }
+
+        function roundToTenActivity(el) {
+            let val = parseInt(el.value) || 0;
+            el.value = Math.floor(val / 10) * 10;
+            calcActivityPreview();
+        }
+
+        function showLoginError(message) {
+            const errorEl = document.getElementById('login-error');
+            errorEl.innerText = message || '帳號或密碼錯誤，或沒有員工權限';
+            errorEl.classList.remove('hidden');
+        }
+
+        async function staffLogin() {
+            const emailInput = document.getElementById('staff-email');
+            const passwordInput = document.getElementById('staff-password');
+            const btn = document.getElementById('login-btn');
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            document.getElementById('login-error').classList.add('hidden');
+
+            if (!email || !password) {
+                showLoginError('請輸入員工帳號與密碼');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = '登入中...';
+
+            try {
+                const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (authError || !authData || !authData.user) {
+                    throw new Error('帳號或密碼錯誤');
+                }
+
+                const { data: staffProfile, error: staffError } = await _supabase
+                    .from('profiles')
+                    .select('id, full_name, phone, role, line_id')
+                    .eq('id', authData.user.id)
+                    .maybeSingle();
+
+                if (staffError || !staffProfile || staffProfile.role !== 'staff') {
+                    await _supabase.auth.signOut();
+                    throw new Error('此帳號沒有員工權限');
+                }
+
+                unlockSystem(staffProfile);
+            } catch (err) {
+                console.error(err);
+                showLoginError(err.message || '登入失敗，請確認帳號與密碼');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '登入系統';
+            }
+        }
+
+        function unlockSystem(staffProfile) {
+            currentLoggedInStaff = staffProfile || null;
+            currentStaffName = staffProfile?.full_name || '已登入員工';
+            document.getElementById('lock-screen').classList.add('hidden');
+            document.getElementById('staff-password').value = '';
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            const staffLabel = document.getElementById('dashboard-staff-name');
+            if (staffLabel && staffProfile?.full_name) staffLabel.innerText = `${staffProfile.full_name}｜員工端`;
+            resetIdleTimer();
+            loadCoupons();
+        }
+
+        async function lockSystem() {
+            clearTimeout(idleTimer);
+            await cleanupScanner();
+            try { await _supabase.auth.signOut(); } catch (e) {}
+            currentLoggedInStaff = null;
+            currentStaffName = '';
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('confirm-modal').style.display = 'none';
+            document.getElementById('lock-screen').classList.remove('hidden');
+            document.getElementById('staff-email').value = '';
+            document.getElementById('staff-password').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            const staffLabel = document.getElementById('dashboard-staff-name');
+            if (staffLabel) staffLabel.innerText = '員工端';
+        }
+        function returnToDashboard() {
+            cleanupScanner();
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (currentLoggedInStaff) idleTimer = setTimeout(lockSystem, AUTO_LOCK_TIME);
+        }
+        ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
+        document.addEventListener('DOMContentLoaded', () => {
+            ['staff-email', 'staff-password'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') staffLogin();
+                });
+            });
+        });
+        
+        function openActivityLock() {
+            document.getElementById('activity-code-input').value = '';
+            document.getElementById('activity-lock-modal').classList.remove('hidden');
+        }
+        function closeActivityLock() {
+            document.getElementById('activity-lock-modal').classList.add('hidden');
+        }
+
+        async function verifyActivityCode() {
+            const codeInput = document.getElementById('activity-code-input').value;
+            if (!codeInput) return;
+
+            const btn = document.getElementById('btn-verify-activity');
+            btn.disabled = true;
+            btn.innerText = "驗證中...";
+
+            try {
+                const { data, error } = await _supabase
+                    .from('profiles')
+                    .select('avatar_url')
+                    .eq('id', 'bc6d110e-8afd-44c6-a4b5-937180f1b292')
+                    .single();
+
+                if (error || !data) throw new Error('Query failed');
+
+                if (data.avatar_url && data.avatar_url === codeInput) {
+                    currentActivityCode = codeInput; // 紀錄授權碼
+                    closeActivityLock();
+                    enterMode('activity');
+                } else {
+                    // 密碼錯誤：無聲防呆，僅清空欄位
+                    document.getElementById('activity-code-input').value = '';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('activity-code-input').value = '';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "解鎖";
+            }
+        }
+
+        function enterMode(mode) {
+            currentSystemMode = mode;
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            const titleEl = document.getElementById('mode-title');
+            const badgeEl = document.getElementById('mode-badge');
+            
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view-issue').classList.add('hidden');
+            document.getElementById('action-view-activity').classList.add('hidden');
+            document.getElementById('action-view-redeem').classList.add('hidden');
+            document.getElementById('action-view-lookup').classList.add('hidden');
+            
+            if (mode === 'issue' || mode === 'activity') {
+                if (mode === 'issue') {
+                    titleEl.innerText = "會員作業";
+                    badgeEl.innerText = "MEMBERSHIP"; 
+                    badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
+                    currentActivityCode = null; // 確保一般作業時清除授權碼
+                } else {
+                    titleEl.innerText = "活動通道";
+                    badgeEl.innerText = "EVENT CHANNEL"; 
+                    badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
+                }
+                resetScan();
+            } else if (mode === 'redeem') {
+                titleEl.innerText = "票券核銷";
+                badgeEl.innerText = "REDEEM MODE";
+                badgeEl.className = "text-[10px] font-bold text-green-600 tracking-widest uppercase";
+                currentActivityCode = null;
+                resetScan();
+            } else if (mode === 'lookup') {
+                titleEl.innerText = "資料調閱";
+                badgeEl.innerText = "DATA LOOKUP";
+                badgeEl.className = "text-[10px] font-bold text-blue-600 tracking-widest uppercase";
+                currentActivityCode = null;
+                cleanupScanner();
+                document.getElementById('action-view-lookup').classList.remove('hidden');
+                document.getElementById('lookup-results').classList.add('hidden');
+                document.getElementById('lookup-phone').value = '';
+            }
+        }
+
+        async function searchMemberData() {
+            const phone = document.getElementById('lookup-phone').value;
+            if (!/^09\d{8}$/.test(phone)) { alert('電話格式錯誤，請輸入完整的09開頭10碼數字'); return; }
+
+            showLoading();
+            
+            try {
+                const { data: profile, error: profileErr } = await _supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('phone', phone)
+                    .single();
+
+                if (profileErr || !profile) throw new Error('查無此會員資料');
+
+                document.getElementById('lookup-name').innerText = profile.full_name;
+                document.getElementById('lookup-points').innerText = (profile.total_points || 0).toLocaleString();
+
+                const { data: coupons } = await _supabase
+                    .from('user_coupons')
+                    .select('*')
+                    .eq('line_id', profile.line_id)
+                    .order('created_at', { ascending: false });
+
+                const couponsList = document.getElementById('lookup-coupons-list');
+                if (coupons && coupons.length > 0) {
+                    couponsList.innerHTML = coupons.map(c => {
+                        const statusColor = c.status === 'used' ? 'text-gray-400 bg-gray-100' : 'text-green-600 bg-green-50';
+                        const statusText = c.status === 'used' ? `已使用` : '未使用';
+                        
+                        let dateLabel = '取得';
+                        let displayDate = c.created_at ? c.created_at.substring(0, 10) : '未知';
+                        
+                        if (c.status === 'used') {
+                            dateLabel = '使用';
+                            displayDate = c.used_at ? c.used_at.substring(0, 10) : '未知';
+                        }
+                        
+                        return `
+                        <div class="p-3 border border-gray-100 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-sm text-gray-800">${c.coupon_name}</p>
+                                <p class="text-[10px] text-gray-400 mt-1">${dateLabel}：${displayDate} | 效期：${c.valid_until || '永久'}</p>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-md flex-shrink-0 ml-2 ${statusColor}">${statusText}</span>
+                        </div>`;
+                    }).join('');
+                } else {
+                    couponsList.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">無票券紀錄</p>';
+                }
+
+                const { data: logs } = await _supabase
+                    .from('point_logs')
+                    .select('*')
+                    .eq('line_id', profile.line_id)
+                    .order('created_at', { ascending: false })
+                    .limit(30); 
+
+                const pointsList = document.getElementById('lookup-points-list');
+                if (logs && logs.length > 0) {
+                    pointsList.innerHTML = logs.map(l => {
+                        let date = '未知';
+                        if (l.created_at && l.created_at.length >= 16) {
+                            const mmdd = l.created_at.substring(5, 10).replace('-', '/');
+                            const hhmm = l.created_at.substring(11, 16);
+                            date = `${mmdd} ${hhmm}`;
+                        }
+                        
+                        let changeHtml = '';
+                        if (l.points_change > 0) {
+                            changeHtml += `<span class="text-green-500">+${l.points_change}</span>`;
+                        }
+                        if (l.points_redeemed > 0) {
+                            if (changeHtml !== '') changeHtml += `<span class="text-gray-300 mx-1 text-xs font-normal">|</span>`;
+                            changeHtml += `<span class="text-red-500">-${l.points_redeemed}</span>`;
+                        }
+                        if (changeHtml === '') {
+                            changeHtml = `<span class="text-gray-400">0</span>`;
+                        }
+                        
+                        const storeName = l.store_name || '系統操作';
+                        const orderNoText = (l.order_number && l.order_number !== '無單號') ? `<span class="text-[10px] text-gray-400 font-normal ml-2">#${l.order_number}</span>` : '';
+
+                        return `
+                        <div class="p-3 border border-gray-100 rounded-lg flex flex-col gap-1">
+                            <div class="flex justify-between items-center">
+                                <p class="font-bold text-sm text-gray-800">${storeName}${orderNoText}</p>
+                                <p class="font-black flex items-center">${changeHtml}</p>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-gray-400">
+                                <span>${date} | ${l.staff_name || '系統'}</span>
+                                <span>消費: $${l.amount || 0}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else {
+                    pointsList.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">無紀錄</p>';
+                }
+
+                document.getElementById('lookup-results').classList.remove('hidden');
+
+            } catch (err) {
+                alert(err.message);
+                document.getElementById('lookup-results').classList.add('hidden');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function cleanupScanner() {
+            if (html5QrcodeScanner) {
+                try { if (html5QrcodeScanner.isScanning) await html5QrcodeScanner.stop(); } catch (e) {}
+                try { html5QrcodeScanner.clear(); } catch (e) {}
+                html5QrcodeScanner = null;
+            }
+        }
+
+        async function startScanner(type) { 
+            await cleanupScanner();
+            isScanLocked = false; 
+            document.getElementById('scan-error-msg').classList.add('hidden');
+            document.getElementById('scan-success-msg').classList.add('hidden');
+            document.getElementById('manual-phone').value = ''; 
+
+            isStaffAuthStep = (type === 'staff_auth');
+            
+            document.getElementById('scan-view').classList.remove('hidden');
+            document.getElementById('action-view-issue').classList.add('hidden');
+            document.getElementById('action-view-activity').classList.add('hidden');
+            document.getElementById('action-view-redeem').classList.add('hidden');
+            document.getElementById('action-view-lookup').classList.add('hidden');
+            
+            document.getElementById('manual-input-section').classList.remove('hidden');
+            const hintText = document.getElementById('manual-hint-text');
+            const manualPhone = document.getElementById('manual-phone');
+
+            if (isStaffAuthStep) {
+                document.getElementById('scan-hint').innerHTML = "請掃描店員識別證";
+                document.getElementById('cancel-scan-btn').classList.remove('hidden');
+                
+                hintText.innerText = "或輸入員工電話驗證";
+                manualPhone.placeholder = "輸入員工電話";
+            } else {
+                document.getElementById('cancel-scan-btn').classList.add('hidden');
+                document.getElementById('scan-hint').innerHTML = "請將 QR Code 對準框內";
+                
+                if (currentSystemMode === 'issue' || currentSystemMode === 'activity') {
+                    hintText.innerText = "手動查詢會員";
+                    manualPhone.placeholder = "輸入會員電話";
+                } else {
+                    document.getElementById('manual-input-section').classList.add('hidden');
+                }
+            }
+
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 260, height: 260 } }, 
+                (decodedText) => onScanSuccess(decodedText, type)
+            ).catch(err => alert("相機啟動失敗"));
+        }
+
+        async function handleManualInput() {
+            const phone = document.getElementById('manual-phone').value;
+            if (!/^09\d{8}$/.test(phone)) { alert('電話格式錯誤'); return; }
+
+            if (isStaffAuthStep) {
+                verifyStaffByPhone(phone);
+            } else {
+                const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
+                if (error || !data) { alert('查無此會員！'); return; }
+                await cleanupScanner();
+                fetchMemberData(data.line_id);
+            }
+        }
+
+        async function verifyStaffByPhone(phone) {
+            const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('phone', phone).single();
+            if (error || !data || data.role !== 'staff') {
+                alert('權限不足或非員工電話');
+                return;
+            }
+            await cleanupScanner(); 
+            currentStaffName = data.full_name;
+            showConfirmModal();
+        }
+
+        async function onScanSuccess(text, type) {
+            if (isScanLocked) return;
+            if (type === 'staff_auth') {
+                if (text.startsWith('BBX-')) {
+                    isScanLocked = true;
+                    verifyStaff(text.replace('BBX-', ''));
+                } else {
+                    handleScanError('錯誤：請掃描員工憑證碼');
+                }
+                return;
+            }
+
+            if (currentSystemMode === 'issue' || currentSystemMode === 'activity') {
+                if (text.startsWith('BBX-')) {
+                    isScanLocked = true;
+                    await cleanupScanner();
+                    fetchMemberData(text.replace('BBX-', ''));
+                } else {
+                    handleScanError('錯誤：請掃描會員憑證碼');
+                }
+            } else { 
+                if (text.startsWith('CPN-')) {
+                    isScanLocked = true;
+                    await cleanupScanner();
+                    fetchCouponData(text.replace('CPN-', ''));
+                } else {
+                    handleScanError('錯誤：請掃描優惠券憑證碼');
+                }
+            }
+        }
+
+        function handleScanError(msg) {
+            isScanLocked = true;
+            const errorEl = document.getElementById('scan-error-msg');
+            errorEl.innerText = msg;
+            errorEl.classList.remove('hidden');
+            if (errorMsgTimeout) clearTimeout(errorMsgTimeout);
+            errorMsgTimeout = setTimeout(() => {
+                errorEl.classList.add('hidden');
+                isScanLocked = false; 
+            }, 1500);
+        }
+
+        function handleSuccessMsg(msg) {
+            const successEl = document.getElementById('scan-success-msg');
+            successEl.innerText = msg;
+            successEl.classList.remove('hidden');
+            setTimeout(() => { successEl.classList.add('hidden'); }, 3000);
+        }
+
+        async function fetchMemberData(lineId) {
+            currentTargetLineId = lineId;
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('line_id', lineId)
+                .single();
+            if (error || !data) { alert('查無此會員'); resetScan(); return; }
+
+            currentMemberPoints = data.total_points || 0;
+
+            document.getElementById('scan-view').classList.add('hidden');
+            
+            if (currentSystemMode === 'activity') {
+                document.getElementById('action-view-activity').classList.remove('hidden');
+                document.getElementById('activity-user-name').innerText = data.full_name;
+                document.getElementById('activity-user-phone').innerText = data.phone;
+                document.getElementById('activity-user-points').innerText = (data.total_points || 0).toLocaleString();
+                document.getElementById('activity-user-accumulated').innerText = (data.accumulated_points || 0).toLocaleString();
+                document.getElementById('activity-amount-input').value = '';
+                document.getElementById('activity-redeem-input').value = ''; 
+                document.getElementById('activity-order-no').value = '';
+                document.getElementById('activity-double-check').checked = false;
+                document.getElementById('activity-preview-points').innerText = '+0';
+                document.getElementById('activity-total-due').innerText = '$0'; 
+                document.getElementById('activity-calculated-deduction').innerText = '-$0';
+                
+                selectedActivityCoupons = [];
+                document.querySelectorAll('#activity-coupon-container .coupon-card').forEach(el => el.classList.remove('selected'));
+                
+                calculatedActivityPoints = 0;
+                calculatedActivityRedeem = 0;
+                calculatedActivityDeductionValue = 0;
+                
+                const btnNext = document.getElementById('btn-activity-next');
+                btnNext.disabled = true; // 預設強制防呆
+                btnNext.classList.add('opacity-50', 'cursor-not-allowed');
+
+            } else if (currentSystemMode === 'issue') {
+                document.getElementById('action-view-issue').classList.remove('hidden');
+                document.getElementById('user-name').innerText = data.full_name;
+                document.getElementById('user-phone').innerText = data.phone;
+                document.getElementById('user-points').innerText = (data.total_points || 0).toLocaleString();
+                document.getElementById('user-accumulated').innerText = (data.accumulated_points || 0).toLocaleString();
+                document.getElementById('amount-input').value = '';
+                document.getElementById('redeem-input').value = ''; 
+                document.getElementById('order-no').value = '';
+                document.getElementById('preview-points').innerText = '+0';
+                document.getElementById('total-due').innerText = '$0'; 
+                
+                selectedCoupons = [];
+                selectedCashCoupons = []; 
+                document.querySelectorAll('.coupon-card').forEach(el => el.classList.remove('selected'));
+
+                calculatedPoints = 0;
+                calculatedRedeem = 0;
+                calculatedCashDiscount = 0;
+
+                const { data: cashCoupons } = await _supabase.from('user_coupons')
+                    .select('*')
+                    .eq('line_id', lineId)
+                    .eq('status', 'unused')
+                    .eq('type', 'cash');
+                userCashCoupons = cashCoupons || [];
+                renderCashCoupons();
+            }
+        }
+
+        function renderCashCoupons() {
+            const container = document.getElementById('cash-coupon-list');
+            const section = document.getElementById('cash-coupon-section');
+            container.innerHTML = '';
+            
+            if (userCashCoupons.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            
+            section.classList.remove('hidden');
+            const today = new Date().toISOString().split('T')[0];
+            const validCoupons = userCashCoupons.filter(c => !c.valid_until || c.valid_until >= today);
+            if (validCoupons.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            container.innerHTML = validCoupons.map(c => {
+                return `
+                <div class="cash-coupon-item" onclick="toggleCashCoupon(this, '${c.id}', ${c.discount_amount})">
+                    <div class="flex items-center">
+                        <div class="checkbox-circle"></div>
+                        <div>
+                            <p class="font-bold text-sm text-gray-800">${c.coupon_name}</p>
+                            <p class="text-[10px] text-gray-400">效期：${c.valid_until || '永久'}</p>
+                        </div>
+                    </div>
+                    <div class="font-black text-red-500 text-lg">-$${c.discount_amount}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleCashCoupon(el, id, discountAmount) {
+            const amountVal = document.getElementById('amount-input').value;
+            const billAmount = amountVal ? parseInt(amountVal) : 0;
+            const redeemVal = document.getElementById('redeem-input').value;
+            const pointDeduction = redeemVal ? parseInt(redeemVal) : 0;
+            
+            if (selectedCashCoupons.includes(id)) {
+                selectedCashCoupons = selectedCashCoupons.filter(cid => cid !== id);
+                el.classList.remove('active');
+            } else {
+                let currentCouponTotal = 0;
+                selectedCashCoupons.forEach(cid => {
+                    const c = userCashCoupons.find(x => x.id === cid);
+                    if(c) currentCouponTotal += (c.discount_amount || 0);
+                });
+                const remainingBill = billAmount - pointDeduction;
+
+                if ((currentCouponTotal + discountAmount) > remainingBill) {
+                    const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
+                    if (!confirmOverpay) return;
+                }
+
+                selectedCashCoupons.push(id);
+                el.classList.add('active');
+            }
+            calcPreview();
+        }
+
+        async function fetchCouponUuid(couponUuid) {
+            currentTargetCouponId = couponUuid;
+            const { data, error } = await _supabase.from('user_coupons').select('*').eq('id', couponUuid).single();
+
+            if (error || !data) { alert('無效的票券代碼！'); resetScan(); return; }
+            
+            if (data.status === 'used') { 
+                alert('此票券已經核銷過了！\n核銷人：' + (data.used_by || 'Unknown') + '\n時間：' + (data.used_at ? data.used_at.replace('T', ' ').substring(0, 16) : '未知'));
+                resetScan(); 
+                return; 
+            }
+
+            if (data.type === 'cash') {
+                await startScanner('normal');
+                handleScanError('錯誤：此為現金折抵券，請至會員作業使用');
+                return;
+            }
+
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view-redeem').classList.remove('hidden');
+
+            document.getElementById('redeem-name').innerText = data.coupon_name;
+            document.getElementById('redeem-desc').innerText = data.description || '';
+            document.getElementById('redeem-date').innerText = data.valid_until ? data.valid_until : '永久有效';
+            document.getElementById('redeem-user').innerText = '讀取中...';
+
+            let memberName = '未知會員';
+            if (data.line_id) {
+                const { data: profileData } = await _supabase.from('profiles').select('full_name').eq('line_id', data.line_id).maybeSingle();
+                if (profileData && profileData.full_name) memberName = profileData.full_name;
+            }
+            document.getElementById('redeem-user').innerText = memberName;
+        }
+        
+        async function fetchCouponData(couponUuid) {
+             fetchCouponUuid(couponUuid);
+        }
+
+        function startStaffAuth() {
+            if (currentSystemMode === 'issue') {
+                const amount = document.getElementById('amount-input').value;
+                if (!amount && selectedCoupons.length === 0) {
+                    alert('請至少輸入金額或選擇一張優惠券');
+                    return;
+                }
+            } else if (currentSystemMode === 'activity') {
+                const amount = document.getElementById('activity-amount-input').value;
+                if (!amount && selectedActivityCoupons.length === 0) {
+                    alert('請至少輸入金額或選擇一張優惠券');
+                    return;
+                }
+            }
+            startScanner('staff_auth');
+        }
+        
+        function startRedeemAuth() {
+            startScanner('staff_auth');
+        }
+
+        async function verifyStaff(staffId) {
+            await cleanupScanner();
+            const { data, error } = await _supabase.from('profiles').select('full_name, role').eq('line_id', staffId).single();
+            if (error || !data || data.role !== 'staff') {
+                alert('權限不足或驗證失敗');
+                resetToForm();
+                return;
+            }
+            currentStaffName = data.full_name;
+            showConfirmModal();
+        }
+
+        function showConfirmModal() {
+            document.getElementById('cfm-staff').innerText = currentStaffName;
+            document.getElementById('confirm-modal').style.display = 'flex';
+            const btn = document.getElementById('btn-submit-real');
+
+            if (currentSystemMode === 'issue') {
+                document.getElementById('cfm-title').innerText = "送出確認";
+                document.getElementById('cfm-content-issue').classList.remove('hidden');
+                document.getElementById('cfm-content-activity').classList.add('hidden');
+                document.getElementById('cfm-content-redeem').classList.add('hidden');
+                btn.onclick = executeIssue;
+                btn.innerText = "確認送出";
+                
+                document.getElementById('cfm-name').innerText = document.getElementById('user-name').innerText;
+                document.getElementById('cfm-amount').innerText = '$' + (document.getElementById('amount-input').value || '0');
+                let rawAmount = parseInt(document.getElementById('amount-input').value) || 0;
+                let actualDue = rawAmount - calculatedRedeem - calculatedCashDiscount; 
+                
+                document.getElementById('cfm-redeem').innerText = '-' + calculatedRedeem;
+                const cashRow = document.getElementById('cfm-cash-row');
+                const cashVal = document.getElementById('cfm-cash-coupon');
+                if (calculatedCashDiscount > 0) {
+                    cashRow.classList.remove('hidden');
+                    cashVal.innerText = '-' + calculatedCashDiscount;
+                } else {
+                    cashRow.classList.add('hidden');
+                }
+
+                document.getElementById('cfm-total-due').innerText = '$' + Math.max(0, actualDue).toLocaleString();
+                document.getElementById('cfm-points').innerText = document.getElementById('preview-points').innerText;
+                document.getElementById('cfm-coupon').innerText = selectedCoupons.length > 0 ? selectedCoupons.join('、') : '無';
+                
+            } else if (currentSystemMode === 'activity') {
+                document.getElementById('cfm-title').innerText = "活動作業確認";
+                document.getElementById('cfm-content-issue').classList.add('hidden');
+                document.getElementById('cfm-content-redeem').classList.add('hidden');
+                document.getElementById('cfm-content-activity').classList.remove('hidden');
+                btn.onclick = executeActivity;
+                btn.innerText = "確認送出";
+                
+                document.getElementById('cfm-act-name').innerText = document.getElementById('activity-user-name').innerText;
+                document.getElementById('cfm-act-amount').innerText = '$' + (document.getElementById('activity-amount-input').value || '0');
+                
+                let rawAmount = parseInt(document.getElementById('activity-amount-input').value) || 0;
+                let actualDue = rawAmount - calculatedActivityDeductionValue; 
+                let bonusValue = calculatedActivityDeductionValue - calculatedActivityRedeem;
+                
+                document.getElementById('cfm-act-raw-redeem').innerText = '-' + calculatedActivityRedeem;
+                document.getElementById('cfm-act-bonus').innerText = '-$' + bonusValue;
+                document.getElementById('cfm-act-total-due').innerText = '$' + Math.max(0, actualDue).toLocaleString();
+                document.getElementById('cfm-act-points').innerText = (calculatedActivityPoints >= 0 ? '+' : '') + calculatedActivityPoints;
+                document.getElementById('cfm-act-coupon').innerText = selectedActivityCoupons.length > 0 ? selectedActivityCoupons.join('、') : '無';
+                
+            } else {
+                document.getElementById('cfm-title').innerText = "核銷確認";
+                document.getElementById('cfm-content-issue').classList.add('hidden');
+                document.getElementById('cfm-content-activity').classList.add('hidden');
+                document.getElementById('cfm-content-redeem').classList.remove('hidden');
+                btn.onclick = executeRedeem;
+                btn.innerText = "確認核銷";
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            const video = document.getElementById('success-video');
+            if (video) {
+                video.currentTime = 0;
+                video.play().catch(e => console.log('Auto-play blocked:', e));
+            }
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            const video = document.getElementById('success-video');
+            if (video) {
+                video.pause();
+            }
+        }
+
+        // 活動通道專屬送出邏輯
+        async function executeActivity() {
+            const btn = document.getElementById('btn-submit-real');
+            btn.disabled = true; 
+            showLoading(); 
+
+            const store = document.getElementById('activity-store-select').value;
+            const orderNo = document.getElementById('activity-order-no').value || '無單號';
+            const amountInput = document.getElementById('activity-amount-input').value;
+            const inputBillAmount = amountInput ? parseInt(amountInput) : 0;
+            
+            if (!currentTargetLineId) {
+                hideLoading();
+                alert("錯誤：會員 ID 遺失，請重新掃描");
+                btn.disabled = false;
+                return;
+            }
+
+            const finalCashCollected = Math.max(0, inputBillAmount - calculatedActivityDeductionValue);
+            
+            try {
+                await new Promise(r => setTimeout(r, 800));
+                
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('total_points, accumulated_points')
+                    .eq('line_id', currentTargetLineId)
+                    .single();
+                    
+                if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
+                if (!profile) throw new Error("找不到此會員資料");
+                
+                const newTotal = (profile.total_points || 0) + calculatedActivityPoints - calculatedActivityRedeem;
+                const newAccumulated = (profile.accumulated_points || 0) + calculatedActivityPoints;
+                
+                if (newTotal < 0) {
+                    hideLoading();
+                    alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n欲扣除: ${calculatedActivityRedeem}`);
+                    btn.disabled = false; 
+                    return;
+                }
+
+                const { error: updateError } = await _supabase
+                    .from('profiles')
+                    .update({ total_points: newTotal, accumulated_points: newAccumulated })
+                    .eq('line_id', currentTargetLineId);
+                    
+                if (updateError) throw new Error("更新積分失敗: " + updateError.message);
+
+                const extraDiscount = calculatedActivityDeductionValue - calculatedActivityRedeem;
+
+                const { error: logError } = await _supabase.from('point_logs').insert({
+                    line_id: currentTargetLineId, staff_name: currentStaffName,
+                    store_name: store, 
+                    order_number: orderNo, 
+                    amount: finalCashCollected, 
+                    points_change: calculatedActivityPoints,        
+                    points_redeemed: calculatedActivityRedeem,    
+                    coupon_discount: extraDiscount > 0 ? extraDiscount : 0,
+                    activity_code: currentActivityCode 
+                });
+                if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
+                
+                if (selectedActivityCoupons.length > 0) {
+                    const couponsToInsert = selectedActivityCoupons.map(name => {
+                        const org = allCouponsData.find(c => c.name === name);
+                        if (!org) return null;
+                        
+                        let expiryDate = null;
+                        if (org.validity_days && org.validity_days > 0) {
+                            const d = new Date(); d.setDate(d.getDate() + org.validity_days);
+                            expiryDate = d.toISOString().split('T')[0];
+                        } else {
+                            expiryDate = org.valid_until;
+                        }
+                        
+                        return {
+                            line_id: currentTargetLineId, coupon_name: name,
+                            description: org.description || '', valid_until: expiryDate,
+                            status: 'unused', type: org.type || 'exchange',
+                            discount_amount: org.discount_amount || 0,
+                            activity_code: currentActivityCode 
+                        };
+                    }).filter(c => c !== null);
+
+                    if (couponsToInsert.length > 0) {
+                        const { error: insertError } = await _supabase.from('user_coupons').insert(couponsToInsert);
+                        if (insertError) throw new Error("發送優惠券失敗: " + insertError.message);
+                    }
+                }
+
+                closeConfirmModal();
+                hideLoading(); 
+                await resetScan('活動作業完成！');
+                
+            } catch (err) { 
+                hideLoading();
+                alert('系統錯誤：' + err.message); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false;
+            }
+        }
+
+        async function executeIssue() {
+            const btn = document.getElementById('btn-submit-real');
+            btn.disabled = true; 
+            
+            showLoading(); 
+
+            const store = document.getElementById('store-select').value;
+            const orderNo = document.getElementById('order-no').value || '無單號';
+            
+            const amountInput = document.getElementById('amount-input').value;
+            const inputBillAmount = amountInput ? parseInt(amountInput) : 0;
+            if (!currentTargetLineId) {
+                hideLoading();
+                alert("錯誤：會員 ID 遺失，請重新掃描");
+                btn.disabled = false;
+                return;
+            }
+
+            const redeemInputVal = document.getElementById('redeem-input').value;
+            const pointsRedeemed = Math.floor((parseInt(redeemInputVal) || 0) / 10) * 10;
+            let couponValue = 0;
+            selectedCashCoupons.forEach(id => {
+                const coupon = userCashCoupons.find(c => c.id === id);
+                if (coupon) couponValue += (coupon.discount_amount || 0);
+            });
+            const finalCashCollected = Math.max(0, inputBillAmount - pointsRedeemed - couponValue);
+            const pointsEarned = calculatedPoints;
+            
+            try {
+                await new Promise(r => setTimeout(r, 800));
+                
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('total_points, accumulated_points')
+                    .eq('line_id', currentTargetLineId)
+                    .single();
+                    
+                if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
+                if (!profile) throw new Error("找不到此會員資料");
+                
+                const newTotal = (profile.total_points || 0) + pointsEarned - pointsRedeemed;
+                const newAccumulated = (profile.accumulated_points || 0) + pointsEarned;
+                
+                if (newTotal < 0) {
+                    hideLoading();
+                    alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n欲抵扣: ${pointsRedeemed}`);
+                    btn.disabled = false; 
+                    return;
+                }
+
+                const { error: updateError } = await _supabase
+                    .from('profiles')
+                    .update({ 
+                        total_points: newTotal,
+                        accumulated_points: newAccumulated
+                    })
+                    .eq('line_id', currentTargetLineId);
+                    
+                if (updateError) throw new Error("更新積分失敗: " + updateError.message);
+
+                if (selectedCashCoupons.length > 0) {
+                    const now = new Date().toISOString();
+                    const { error: couponError } = await _supabase.from('user_coupons')
+                        .update({ status: 'used', used_at: now, used_by: currentStaffName })
+                        .in('id', selectedCashCoupons);
+                        
+                    if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
+                }
+
+                const { error: logError } = await _supabase.from('point_logs').insert({
+                    line_id: currentTargetLineId, staff_name: currentStaffName,
+                    store_name: store, order_number: orderNo, 
+                    amount: finalCashCollected, 
+                    points_change: pointsEarned,        
+                    points_redeemed: pointsRedeemed,    
+                    coupon_discount: couponValue        
+                });
+                if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
+                
+                if (selectedCoupons.length > 0) {
+                    const couponsToInsert = selectedCoupons.map(name => {
+                        const org = allCouponsData.find(c => c.name === name);
+                        if (!org) return null;
+                        
+                        let expiryDate = null;
+                        if (org.validity_days && org.validity_days > 0) {
+                            const d = new Date(); d.setDate(d.getDate() + org.validity_days);
+                            expiryDate = d.toISOString().split('T')[0];
+                        } else {
+                            expiryDate = org.valid_until;
+                        }
+                        
+                        return {
+                            line_id: currentTargetLineId, coupon_name: name,
+                            description: org.description || '', valid_until: expiryDate,
+                            status: 'unused', type: org.type || 'exchange',
+                            discount_amount: org.discount_amount || 0
+                        };
+                    }).filter(c => c !== null);
+
+                    if (couponsToInsert.length > 0) {
+                        const { error: insertError } = await _supabase.from('user_coupons').insert(couponsToInsert);
+                        if (insertError) throw new Error("發送優惠券失敗: " + insertError.message);
+                    }
+                }
+
+                closeConfirmModal();
+                hideLoading(); 
+                await resetScan('系統發放完成！');
+                
+            } catch (err) { 
+                hideLoading();
+                alert('系統錯誤：' + err.message); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false;
+            }
+        }
+
+        async function executeRedeem() {
+            const btn = document.getElementById('btn-submit-real');
+            btn.disabled = true; 
+            
+            showLoading(); 
+
+            try {
+                await new Promise(r => setTimeout(r, 800));
+                
+                const { error } = await _supabase.rpc('redeem_coupon', {
+                    target_coupon_id: currentTargetCouponId, staff_name: currentStaffName
+                });
+                
+                if (error) { 
+                    hideLoading();
+                    alert('核銷失敗：' + error.message); 
+                } else { 
+                    closeConfirmModal();
+                    hideLoading(); 
+                    await resetScan('核銷已完成');
+                }
+            } catch (err) { 
+                hideLoading();
+                alert('系統錯誤'); 
+                console.error(err); 
+            } finally { 
+                btn.disabled = false;
+            }
+        }
+
+        function resetToForm() {
+            cleanupScanner();
+            if (currentSystemMode === 'issue' || currentSystemMode === 'activity') {
+                document.getElementById('scan-view').classList.add('hidden');
+                if(currentSystemMode === 'issue') {
+                    document.getElementById('action-view-issue').classList.remove('hidden');
+                } else {
+                    document.getElementById('action-view-activity').classList.remove('hidden');
+                }
+            } else if (currentSystemMode === 'redeem') {
+                document.getElementById('scan-view').classList.add('hidden');
+                document.getElementById('action-view-redeem').classList.remove('hidden');
+            }
+        }
+
+        async function resetScan(successMsg) {
+            await cleanupScanner();
+            currentTargetLineId = null;
+            currentTargetCouponId = null;
+            await startScanner('normal');
+            
+            calculatedPoints = 0;
+            calculatedRedeem = 0;
+            calculatedCashDiscount = 0;
+
+            calculatedActivityPoints = 0;
+            calculatedActivityRedeem = 0;
+            calculatedActivityDeductionValue = 0;
+
+            if (successMsg) {
+                handleSuccessMsg(successMsg);
+            }
+        }
+
+        function redeemAll() {
+            const amount = parseInt(document.getElementById('amount-input').value) || 0;
+            const rawMax = Math.min(amount, currentMemberPoints);
+            const maxRedeem = Math.floor(rawMax / 10) * 10;
+            
+            document.getElementById('redeem-input').value = maxRedeem > 0 ? maxRedeem : '';
+            calcPreview();
+        }
+
+        function calcPreview() {
+            const amountInput = document.getElementById('amount-input');
+            const redeemInput = document.getElementById('redeem-input');
+            amountInput.value = amountInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+            redeemInput.value = redeemInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+
+            let amount = parseInt(amountInput.value) || 0;
+            let redeem = parseInt(redeemInput.value) || 0;
+
+            if (redeem > amount) { redeem = amount; redeemInput.value = redeem; }
+            if (redeem > currentMemberPoints) { redeem = currentMemberPoints; redeemInput.value = redeem; }
+
+            calculatedCashDiscount = 0;
+            selectedCashCoupons.forEach(id => {
+                const coupon = userCashCoupons.find(c => c.id === id);
+                if (coupon) calculatedCashDiscount += (coupon.discount_amount || 0);
+            });
+            
+            const totalDue = Math.max(0, amount - redeem - calculatedCashDiscount);
+            
+            calculatedPoints = Math.floor(totalDue / 100);
+            calculatedRedeem = redeem; 
+
+            document.getElementById('total-due').innerText = '$' + totalDue.toLocaleString();
+            document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
+        }
+
+        // 活動通道專屬計算邏輯
+        function calcActivityPreview() {
+            const amountInput = document.getElementById('activity-amount-input');
+            const redeemInput = document.getElementById('activity-redeem-input');
+            const doubleCheck = document.getElementById('activity-double-check').checked;
+            const nextBtn = document.getElementById('btn-activity-next');
+
+            amountInput.value = amountInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+            redeemInput.value = redeemInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+
+            let amount = parseInt(amountInput.value) || 0;
+            let redeemPoints = parseInt(redeemInput.value) || 0;
+
+            if (redeemPoints > currentMemberPoints) {
+                redeemPoints = currentMemberPoints;
+                redeemInput.value = redeemPoints;
+            }
+
+            let deductionValue = redeemPoints * (doubleCheck ? 2 : 1);
+
+            document.getElementById('activity-calculated-deduction').innerText = '-$' + deductionValue;
+
+            let totalDue = amount - deductionValue;
+
+            // 防呆：如果超額折抵 或 沒有勾選活動加碼
+            let isOverDeducted = (deductionValue > amount && amount > 0);
+            if (isOverDeducted) {
+                totalDue = 0; 
+            }
+
+            if (!doubleCheck || isOverDeducted) {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+
+            calculatedActivityPoints = Math.floor(Math.max(0, totalDue) / 100);
+            calculatedActivityRedeem = redeemPoints;
+            calculatedActivityDeductionValue = deductionValue;
+
+            document.getElementById('activity-total-due').innerText = '$' + Math.max(0, totalDue).toLocaleString();
+            document.getElementById('activity-preview-points').innerText = (calculatedActivityPoints >= 0 ? '+' : '') + calculatedActivityPoints;
+        }
+
+        async function loadCoupons() {
+            const container = document.getElementById('coupon-container');
+            const actContainer = document.getElementById('activity-coupon-container');
+            const today = new Date().toISOString().split('T')[0];
+            const { data } = await _supabase.from('coupons').select('*').eq('is_active', true);
+            if (!data) return;
+            allCouponsData = data;
+            
+            const validCoupons = data.filter(c => 
+                (!c.valid_until || c.valid_until >= today) && 
+                (c.is_show_on_staff !== false)
+            ).sort((a, b) => {
+                if (a.valid_until && b.valid_until) return a.valid_until.localeCompare(b.valid_until);
+                if (a.valid_until && !b.valid_until) return -1;
+                if (!a.valid_until && b.valid_until) return 1;
+                return 0;
+            });
+            
+            const generateHtml = (isActivity) => validCoupons.map(c => {
+                let expiryText = '永久有效';
+                if (c.validity_days > 0) {
+                    const d = new Date(); d.setDate(d.getDate() + c.validity_days);
+                    const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                    expiryText = `效期：${dateStr}`;
+                } else if (c.valid_until) {
+                    expiryText = `效期：${c.valid_until}`;
+                }
+          
+                let typeBadge = (c.type === 'cash') 
+                    ? `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${c.discount_amount || 0}</span>`
+                    : `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
+                const badge = `<span class="date-badge">${expiryText}</span>`;
+                
+                const fnName = isActivity ? 'toggleActivityCoupon' : 'toggleCoupon';
+                return `<div class="coupon-card" onclick="${fnName}(this, '${c.name}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${c.name}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
+            }).join('');
+
+            container.innerHTML = generateHtml(false);
+            actContainer.innerHTML = generateHtml(true);
+        }
+        
+        function toggleCoupon(el, name) {
+            if (selectedCoupons.includes(name)) {
+                selectedCoupons = selectedCoupons.filter(c => c !== name);
+                el.classList.remove('selected');
+            } else {
+                selectedCoupons.push(name);
+                el.classList.add('selected');
+            }
+        }
+
+        function toggleActivityCoupon(el, name) {
+            if (selectedActivityCoupons.includes(name)) {
+                selectedActivityCoupons = selectedActivityCoupons.filter(c => c !== name);
+                el.classList.remove('selected');
+            } else {
+                selectedActivityCoupons.push(name);
+                el.classList.add('selected');
+            }
+        }
+    </script>
+</body>
+</html>
