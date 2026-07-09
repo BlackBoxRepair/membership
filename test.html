@@ -8321,3 +8321,97 @@
     color:rgba(255,255,255,.82)!important;
   }
 </style>
+
+<!-- 2026-07-09：首頁選單圖卡改為接近背景的淡白灰、加輕陰影、文字改深色提高辨識度 -->
+<style id="bb-final-home-cards-soft-white-20260709">
+  #home .feature-card,
+  #home .feature-card.big,
+  #home .feature-card.dark,
+  #home .feature-card:nth-child(2),
+  #home .feature-card:nth-child(3),
+  #home .feature-card:nth-child(4),
+  #home .feature-card:nth-child(5){
+    background:linear-gradient(145deg,#f7f9fb 0%,#eef3f6 100%)!important;
+    color:#203241!important;
+    border:1px solid rgba(67,116,151,.14)!important;
+    box-shadow:
+      0 10px 24px rgba(32,50,65,.075),
+      0 2px 8px rgba(32,50,65,.045),
+      inset 0 1px 0 rgba(255,255,255,.92)!important;
+  }
+
+  #home .feature-card::before,
+  #home .feature-card.big::before,
+  #home .feature-card.dark::before,
+  #home .feature-card:nth-child(2)::before,
+  #home .feature-card:nth-child(3)::before,
+  #home .feature-card:nth-child(4)::before,
+  #home .feature-card:nth-child(5)::before{
+    background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(67,116,151,.055))!important;
+    opacity:1!important;
+  }
+
+  #home .feature-card .card-kicker,
+  #home .feature-card.big .card-kicker,
+  #home .feature-card.dark .card-kicker,
+  #home .feature-card:nth-child(2) .card-kicker,
+  #home .feature-card:nth-child(3) .card-kicker,
+  #home .feature-card:nth-child(4) .card-kicker,
+  #home .feature-card:nth-child(5) .card-kicker{
+    color:#437497!important;
+  }
+
+  #home .feature-card .card-title,
+  #home .feature-card.big .card-title,
+  #home .feature-card.dark .card-title,
+  #home .feature-card:nth-child(2) .card-title,
+  #home .feature-card:nth-child(3) .card-title,
+  #home .feature-card:nth-child(4) .card-title,
+  #home .feature-card:nth-child(5) .card-title{
+    color:#203241!important;
+  }
+
+  #home .feature-card .card-subtitle,
+  #home .feature-card.big .card-subtitle,
+  #home .feature-card.dark .card-subtitle,
+  #home .feature-card:nth-child(2) .card-subtitle,
+  #home .feature-card:nth-child(3) .card-subtitle,
+  #home .feature-card:nth-child(4) .card-subtitle,
+  #home .feature-card:nth-child(5) .card-subtitle{
+    color:#5f7180!important;
+  }
+
+  #home .feature-card .card-pill,
+  #home .feature-card.big .card-pill,
+  #home .feature-card.dark .card-pill,
+  #home .feature-card .mini-btn,
+  #home .feature-card.big .mini-btn,
+  #home .feature-card.dark .mini-btn{
+    background:#437497!important;
+    color:#ffffff!important;
+    box-shadow:0 9px 18px rgba(67,116,151,.18)!important;
+    filter:none!important;
+  }
+
+  #home .feature-card .card-pill iconify-icon,
+  #home .feature-card.big .card-pill iconify-icon,
+  #home .feature-card.dark .card-pill iconify-icon,
+  #home .feature-card .mini-btn iconify-icon,
+  #home .feature-card.big .mini-btn iconify-icon,
+  #home .feature-card.dark .mini-btn iconify-icon{
+    color:#ffffff!important;
+  }
+
+  #home .feature-card .card-icon,
+  #home .feature-card.big .card-icon,
+  #home .feature-card.dark .card-icon{
+    color:#437497!important;
+    filter:drop-shadow(0 10px 14px rgba(67,116,151,.13))!important;
+  }
+
+  #home .feature-card .tag,
+  #home .feature-card:not(.big):not(.dark) .tag{
+    background:rgba(67,116,151,.10)!important;
+    color:#437497!important;
+  }
+</style>
