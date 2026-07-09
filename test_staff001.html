@@ -100,8 +100,22 @@
         
 
         .app-wide { max-width: 1080px !important; }
-        .member-sheet { background: #f7f7f5; border: 1px solid #e6e1d8; border-radius: 24px; box-shadow: 0 22px 55px -35px rgba(17,24,39,.38); overflow: hidden; }
-        .member-topbar { background: linear-gradient(135deg, #ffffff 0%, #f6f1e8 100%); border-bottom: 1px solid #e8dfd0; }
+        .member-sheet { background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+        .member-topbar { background: transparent; border-bottom: 0; }
+        .boxcore-metric-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+        .boxcore-count-card { min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; }
+        .boxcore-count-card .boxcore-count-line { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+        .boxcore-main-grid { display: grid; grid-template-columns: minmax(240px, .58fr) minmax(0, 1.42fr); gap: 18px; align-items: start; }
+        .boxcore-operation-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 16px; align-items: start; }
+        .boxcore-member-detail-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; padding-top: 12px; }
+        .boxcore-member-detail-row .folio-cell { border-bottom: 0; padding: 8px 0 0; }
+        .boxcore-store-btn { border: 1px solid #e5e7eb; background: #f9fafb; color: #6b7280; border-radius: 12px; padding: 13px 10px; font-size: 13px; font-weight: 900; transition: all .15s; }
+        .boxcore-store-btn.active { background: #111827; border-color: #111827; color: #fff; box-shadow: 0 10px 18px -12px rgba(0,0,0,.45); }
+        .boxcore-subpanel { background: rgba(255,255,255,.72); border: 1px solid #f0ebe2; border-radius: 18px; padding: 16px; }
+        .boxcore-subtitle { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 900; color: #9b9286; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
+        @media (max-width: 920px) { .boxcore-main-grid, .boxcore-operation-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 620px) { .boxcore-member-detail-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 520px) { .boxcore-metric-row { gap: 8px; } .metric-card, .boxcore-count-card { min-height: 82px; padding: 10px; border-radius: 14px; } .boxcore-count-card iconify-icon { display: none; } }
         .folio-title { color: #1f2937; letter-spacing: -0.04em; }
         .folio-muted { color: #8b8172; }
         .folio-cell { padding: 12px 0; border-bottom: 1px solid #e9e4dc; }
@@ -377,83 +391,122 @@
 
 
         <div id="action-view-boxcore" class="hidden scrollable-content p-4 md:p-6 pb-32">
-            <div class="member-sheet">
-                <div class="member-topbar p-5 md:p-7">
-                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                        <div>
-                            <div class="text-[10px] font-black tracking-[0.24em] folio-muted uppercase mb-2">BLACKBOX BOXCORE MEMBERSHIP</div>
-                            <h2 id="boxcore-name" class="folio-title text-3xl md:text-4xl font-black">---</h2>
-                            <p id="boxcore-phone" class="folio-muted text-sm font-bold mt-1">---</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 min-w-[260px]">
-                            <div class="metric-card">
-                                <span class="text-[10px] text-white/50 font-black tracking-widest">POINTS</span>
-                                <strong id="boxcore-points" class="text-3xl font-black text-yellow-300">0</strong>
-                            </div>
-                            <div class="metric-card">
-                                <span class="text-[10px] text-white/50 font-black tracking-widest">YEARLY</span>
-                                <strong id="boxcore-accumulated" class="text-3xl font-black text-yellow-300">0</strong>
-                            </div>
-                        </div>
+            <div class="member-sheet space-y-5">
+                <div class="boxcore-metric-row">
+                    <div class="metric-card">
+                        <span class="text-[10px] text-white/50 font-black tracking-widest">POINTS</span>
+                        <strong id="boxcore-points" class="text-3xl font-black text-yellow-300">0</strong>
+                    </div>
+                    <div class="metric-card">
+                        <span class="text-[10px] text-white/50 font-black tracking-widest">YEARLY</span>
+                        <strong id="boxcore-accumulated" class="text-3xl font-black text-yellow-300">0</strong>
+                    </div>
+                    <div class="folio-panel boxcore-count-card">
+                        <div class="folio-label">持有票券</div>
+                        <div class="boxcore-count-line"><span id="boxcore-coupons-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:ticket-percent" class="text-3xl text-yellow-600"></iconify-icon></div>
+                    </div>
+                    <div class="folio-panel boxcore-count-card">
+                        <div class="folio-label">保固資料</div>
+                        <div class="boxcore-count-line"><span id="boxcore-warranty-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-3xl text-yellow-600"></iconify-icon></div>
+                    </div>
+                    <div class="folio-panel boxcore-count-card">
+                        <div class="folio-label">積分紀錄</div>
+                        <div class="boxcore-count-line"><span id="boxcore-logs-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-3xl text-yellow-600"></iconify-icon></div>
                     </div>
                 </div>
 
-                <div class="p-5 md:p-7 space-y-5">
-                    <div class="folio-three-col">
-                        <div class="folio-panel">
-                            <div class="folio-label">持有票券</div>
-                            <div class="flex items-end justify-between"><span id="boxcore-coupons-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:ticket-percent" class="text-3xl text-yellow-600"></iconify-icon></div>
+                <div class="boxcore-main-grid">
+                    <div class="folio-panel">
+                        <h3 class="folio-section-title"><iconify-icon icon="mdi:account-circle-outline"></iconify-icon>會員資料</h3>
+                        <div class="folio-cell">
+                            <div class="folio-label">會員姓名</div>
+                            <div id="boxcore-basic-name" class="folio-value text-lg">---</div>
                         </div>
-                        <div class="folio-panel">
-                            <div class="folio-label">保固資料</div>
-                            <div class="flex items-end justify-between"><span id="boxcore-warranty-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-3xl text-yellow-600"></iconify-icon></div>
-                        </div>
-                        <div class="folio-panel">
-                            <div class="folio-label">積分紀錄</div>
-                            <div class="flex items-end justify-between"><span id="boxcore-logs-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-3xl text-yellow-600"></iconify-icon></div>
-                        </div>
-                    </div>
-
-                    <div class="folio-two-col">
-                        <div class="folio-panel">
-                            <h3 class="folio-section-title"><iconify-icon icon="mdi:account-circle-outline"></iconify-icon>基本資料</h3>
-                            <div class="grid grid-cols-2 gap-x-5">
-                                <div class="folio-cell"><div class="folio-label">姓名</div><div id="boxcore-basic-name" class="folio-value">---</div></div>
-                                <div class="folio-cell"><div class="folio-label">電話</div><div id="boxcore-basic-phone" class="folio-value font-mono">---</div></div>
-                                <div class="folio-cell"><div class="folio-label">生日</div><div id="boxcore-birthday" class="folio-value">---</div></div>
-                                <div class="folio-cell"><div class="folio-label">地區</div><div id="boxcore-area" class="folio-value">---</div></div>
-                                <div class="folio-cell"><div class="folio-label">加入時間</div><div id="boxcore-created" class="folio-value">---</div></div>
-                                <div class="folio-cell"><div class="folio-label">更新時間</div><div id="boxcore-updated" class="folio-value">---</div></div>
-                            </div>
-                            <div class="folio-cell border-b-0"><div class="folio-label">會員識別碼</div><div id="boxcore-lineid" class="folio-value font-mono text-xs">---</div></div>
-                        </div>
-
-                        <div class="folio-panel">
-                            <h3 class="folio-section-title"><iconify-icon icon="mdi:signature-freehand"></iconify-icon>會員摘要</h3>
-                            <div class="signature-box">
-                                <div>
-                                    <div class="text-lg font-black text-gray-900 mb-1">盒芯會籍資料總覽</div>
-                                    <div id="boxcore-summary-note">掃描或輸入會員電話後，即時調閱會員資料、票券、積分紀錄與終身保固。</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="folio-two-col">
-                        <div class="folio-panel">
-                            <h3 class="folio-section-title"><iconify-icon icon="mdi:ticket-confirmation-outline"></iconify-icon>持有票券</h3>
-                            <div id="boxcore-coupons-list" class="folio-list"></div>
-                        </div>
-                        <div class="folio-panel">
-                            <h3 class="folio-section-title"><iconify-icon icon="mdi:history"></iconify-icon>近期積分紀錄</h3>
-                            <div id="boxcore-points-list" class="folio-list"></div>
+                        <div class="boxcore-member-detail-row">
+                            <div class="folio-cell"><div class="folio-label">會員生日</div><div id="boxcore-birthday" class="folio-value">---</div></div>
+                            <div class="folio-cell"><div class="folio-label">會員電話</div><div id="boxcore-basic-phone" class="folio-value font-mono">---</div></div>
+                            <div class="folio-cell"><div class="folio-label">所在地區</div><div id="boxcore-area" class="folio-value">---</div></div>
+                            <div class="folio-cell"><div class="folio-label">更新時間</div><div id="boxcore-updated" class="folio-value">---</div></div>
                         </div>
                     </div>
 
                     <div class="folio-panel">
-                        <h3 class="folio-section-title"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固資料</h3>
-                        <div id="boxcore-warranty-list" class="folio-list max-h-[360px]"></div>
+                        <h3 class="folio-section-title"><iconify-icon icon="mdi:crown-outline"></iconify-icon>會員作業</h3>
+                        <div class="boxcore-operation-grid">
+                            <div class="space-y-4">
+                                <div class="boxcore-subpanel">
+                                    <h4 class="boxcore-subtitle"><iconify-icon icon="mdi:cash-register"></iconify-icon>結算</h4>
+                                    <div class="space-y-3">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div class="grid grid-cols-2 gap-2">
+                                                <button type="button" class="boxcore-store-btn active" data-store="勤美公益店" onclick="selectBoxcoreStore('勤美公益店')">勤美公益店</button>
+                                                <button type="button" class="boxcore-store-btn" data-store="沙鹿站前店" onclick="selectBoxcoreStore('沙鹿站前店')">沙鹿站前店</button>
+                                                <input id="boxcore-store-select" type="hidden" value="勤美公益店">
+                                            </div>
+                                            <input id="boxcore-order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
+                                        </div>
+                                        <div class="relative">
+                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                            <input id="boxcore-amount-input" type="tel" pattern="[0-9]*" placeholder="帳單金額" class="soft-input pl-8 font-bold text-lg" oninput="cleanInput(this); calcBoxcorePreview()">
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <div class="relative flex-1">
+                                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">-</span>
+                                                <input id="boxcore-redeem-input" type="tel" pattern="[0-9]*" placeholder="積分折抵" class="soft-input pl-8 font-bold text-lg text-red-500" oninput="cleanInput(this); calcBoxcorePreview()" onblur="roundToTenBoxcore(this)">
+                                            </div>
+                                            <button onclick="boxcoreRedeemAll()" class="bg-gray-200 text-gray-600 px-4 rounded-lg font-bold text-xs shadow-sm active:scale-95 transition shrink-0">全數折抵</button>
+                                        </div>
+                                        <div id="boxcore-cash-coupon-section" class="hidden border-t border-gray-100 pt-3 mt-1">
+                                            <p class="text-xs text-gray-400 font-bold mb-2">持有現金抵用券</p>
+                                            <div id="boxcore-cash-coupon-list"></div>
+                                        </div>
+                                        <div class="flex justify-between items-center px-2 pt-2 border-t border-gray-100 mt-1">
+                                            <span class="text-xs text-gray-400 font-bold">本次應收費總額</span>
+                                            <span id="boxcore-total-due" class="text-xl font-black text-gray-900">$0</span>
+                                        </div>
+                                        <div class="flex justify-between items-center px-2 pt-1">
+                                            <span class="text-xs text-gray-400 font-bold">預計獲得積分</span>
+                                            <span id="boxcore-preview-points" class="text-xl font-black text-green-500">+0</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="boxcore-subpanel">
+                                    <h4 class="boxcore-subtitle"><iconify-icon icon="mdi:ticket-percent-outline"></iconify-icon>發送票券</h4>
+                                    <div id="boxcore-coupon-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[50px]"></div>
+                                </div>
+                            </div>
+
+                            <div class="boxcore-subpanel h-full">
+                                <h4 class="boxcore-subtitle"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固</h4>
+                                <div class="space-y-3">
+                                    <input id="boxcore-warranty-device-model" type="text" placeholder="設備型號" class="soft-input font-bold">
+                                    <input id="boxcore-warranty-imei" type="text" inputmode="url" autocapitalize="characters" placeholder="IMEI" class="soft-input font-mono uppercase">
+                                    <input id="boxcore-warranty-project" type="text" placeholder="保固項目" class="soft-input font-bold">
+                                    <textarea id="boxcore-warranty-remarks" placeholder="註記" class="soft-input min-h-[110px] resize-none"></textarea>
+                                    <p class="text-[10px] text-gray-400 leading-relaxed font-bold">送出時會使用此會員的 line_id 寫入 lifetime_warranty。</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="startBoxcoreStaffAuth()" class="w-full bg-black text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition mt-5 mb-3 shrink-0">下一步</button>
+                        <button onclick="resetScan()" class="w-full text-gray-400 text-xs font-bold py-3 shrink-0">放棄並重新掃描</button>
                     </div>
+                </div>
+
+                <div class="folio-two-col">
+                    <div class="folio-panel">
+                        <h3 class="folio-section-title"><iconify-icon icon="mdi:ticket-confirmation-outline"></iconify-icon>持有票券</h3>
+                        <div id="boxcore-coupons-list" class="folio-list"></div>
+                    </div>
+                    <div class="folio-panel">
+                        <h3 class="folio-section-title"><iconify-icon icon="mdi:history"></iconify-icon>近期積分紀錄</h3>
+                        <div id="boxcore-points-list" class="folio-list"></div>
+                    </div>
+                </div>
+
+                <div class="folio-panel">
+                    <h3 class="folio-section-title"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固資料</h3>
+                    <div id="boxcore-warranty-list" class="folio-list max-h-[360px]"></div>
                 </div>
             </div>
             <div class="h-24 w-full shrink-0"></div>
@@ -613,6 +666,12 @@
             let val = parseInt(el.value) || 0;
             el.value = Math.floor(val / 10) * 10;
             calcPreview();
+        }
+
+        function roundToTenBoxcore(el) {
+            let val = parseInt(el.value) || 0;
+            el.value = Math.floor(val / 10) * 10;
+            calcBoxcorePreview();
         }
 
         function roundToTenActivity(el) {
@@ -988,6 +1047,18 @@
             return { text: '可使用', cls: 'folio-status-ok' };
         }
 
+        function normalizeScanText(value) {
+            try { return decodeURIComponent(String(value || '').trim()); }
+            catch (e) { return String(value || '').trim(); }
+        }
+
+        function extractPrefixedScanCode(value, prefix) {
+            const text = normalizeScanText(value);
+            const pattern = new RegExp(prefix + '([A-Za-z0-9_-]+)', 'i');
+            const match = text.match(pattern);
+            return match ? match[1] : null;
+        }
+
         async function renderBoxcoreMember(profile) {
             document.getElementById('scan-view').classList.add('hidden');
             document.getElementById('action-view-boxcore').classList.remove('hidden');
@@ -997,6 +1068,15 @@
             const points = profile.total_points || 0;
             const accumulated = profile.accumulated_points || 0;
 
+            currentTargetLineId = profile.line_id;
+            currentMemberPoints = points;
+
+            // 同步隱藏的「會員作業」表單資料，盒芯會籍送出時沿用同一套正式寫入邏輯。
+            setText('user-name', fullName);
+            setText('user-phone', phone);
+            setText('user-points', points.toLocaleString());
+            setText('user-accumulated', accumulated.toLocaleString());
+
             setText('boxcore-name', fullName);
             setText('boxcore-phone', phone);
             setText('boxcore-points', points.toLocaleString());
@@ -1005,10 +1085,21 @@
             setText('boxcore-basic-phone', phone);
             setText('boxcore-birthday', profile.birthday || '---');
             setText('boxcore-area', profile.area || '---');
-            setText('boxcore-created', formatDateTime(profile.created_at));
             setText('boxcore-updated', formatDateTime(profile.updated_at, true));
-            setText('boxcore-lineid', profile.line_id || '---');
-            setText('boxcore-summary-note', `目前可用積分 ${points.toLocaleString()} 點，年度累積 ${accumulated.toLocaleString()} 點。`);
+
+            document.getElementById('boxcore-amount-input').value = '';
+            document.getElementById('boxcore-redeem-input').value = '';
+            document.getElementById('boxcore-order-no').value = '';
+            selectBoxcoreStore('勤美公益店', false);
+            clearBoxcoreWarrantyFields();
+            setText('boxcore-preview-points', '+0');
+            setText('boxcore-total-due', '$0');
+            selectedCoupons = [];
+            selectedCashCoupons = [];
+            calculatedPoints = 0;
+            calculatedRedeem = 0;
+            calculatedCashDiscount = 0;
+            document.querySelectorAll('#boxcore-coupon-container .coupon-card').forEach(el => el.classList.remove('selected'));
 
             setText('boxcore-coupons-count', '...');
             setText('boxcore-warranty-count', '...');
@@ -1030,6 +1121,9 @@
             renderBoxcoreCoupons(couponsData);
             renderBoxcoreLogs(logsData);
             renderBoxcoreWarranty(warrantyData);
+
+            userCashCoupons = couponsData.filter(c => c.status === 'unused' && c.type === 'cash');
+            renderBoxcoreCashCoupons();
         }
 
         async function fetchLifetimeWarrantyRecords(profile) {
@@ -1174,10 +1268,10 @@
                 manualPhone.placeholder = "輸入員工電話";
             } else {
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
-                document.getElementById('scan-hint').innerHTML = "請將 QR Code 對準框內";
+                document.getElementById('scan-hint').innerHTML = currentSystemMode === 'boxcore' ? "請掃描會員碼進入盒芯會籍" : "請將 QR Code 對準框內";
                 
                 if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore') {
-                    hintText.innerText = currentSystemMode === 'boxcore' ? "輸入會員電話進入盒芯會籍" : "手動查詢會員";
+                    hintText.innerText = currentSystemMode === 'boxcore' ? "或輸入會員電話進入盒芯會籍" : "手動查詢會員";
                     manualPhone.placeholder = "輸入會員電話";
                 } else {
                     document.getElementById('manual-input-section').classList.add('hidden');
@@ -1217,10 +1311,21 @@
 
         async function onScanSuccess(text, type) {
             if (isScanLocked) return;
+
+            const memberCode = extractPrefixedScanCode(text, 'BBX-');
+            const couponCode = extractPrefixedScanCode(text, 'CPN-');
+
             if (type === 'staff_auth') {
-                if (text.startsWith('BBX-')) {
+                if (memberCode) {
                     isScanLocked = true;
-                    verifyStaff(text.replace('BBX-', ''));
+                    try {
+                        await cleanupScanner();
+                        await verifyStaff(memberCode);
+                    } catch (err) {
+                        console.error(err);
+                        alert('員工驗證失敗，請重新掃描');
+                        resetToForm();
+                    }
                 } else {
                     handleScanError('錯誤：請掃描員工憑證碼');
                 }
@@ -1228,21 +1333,34 @@
             }
 
             if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore') {
-                if (text.startsWith('BBX-')) {
+                if (memberCode) {
                     isScanLocked = true;
-                    await cleanupScanner();
-                    fetchMemberData(text.replace('BBX-', ''));
+                    try {
+                        await cleanupScanner();
+                        await fetchMemberData(memberCode);
+                    } catch (err) {
+                        console.error(err);
+                        alert('會員資料讀取失敗，請重新掃描或改用電話查詢');
+                        resetScan();
+                    }
                 } else {
                     handleScanError('錯誤：請掃描會員憑證碼');
                 }
-            } else { 
-                if (text.startsWith('CPN-')) {
-                    isScanLocked = true;
+                return;
+            }
+
+            if (couponCode) {
+                isScanLocked = true;
+                try {
                     await cleanupScanner();
-                    fetchCouponData(text.replace('CPN-', ''));
-                } else {
-                    handleScanError('錯誤：請掃描優惠券憑證碼');
+                    await fetchCouponData(couponCode);
+                } catch (err) {
+                    console.error(err);
+                    alert('票券資料讀取失敗，請重新掃描');
+                    resetScan();
                 }
+            } else {
+                handleScanError('錯誤：請掃描優惠券憑證碼');
             }
         }
 
@@ -1369,6 +1487,57 @@
             }).join('');
         }
 
+
+        function renderBoxcoreCashCoupons() {
+            const container = document.getElementById('boxcore-cash-coupon-list');
+            const section = document.getElementById('boxcore-cash-coupon-section');
+            if (!container || !section) return;
+            container.innerHTML = '';
+            const today = new Date().toISOString().split('T')[0];
+            const validCoupons = (userCashCoupons || []).filter(c => !c.valid_until || c.valid_until >= today);
+            if (validCoupons.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            section.classList.remove('hidden');
+            container.innerHTML = validCoupons.map(c => `
+                <div class="cash-coupon-item" onclick="toggleBoxcoreCashCoupon(this, '${c.id}', ${c.discount_amount || 0})">
+                    <div class="flex items-center">
+                        <div class="checkbox-circle"></div>
+                        <div>
+                            <p class="font-bold text-sm text-gray-800">${escapeHtml(c.coupon_name || '現金抵用券')}</p>
+                            <p class="text-[10px] text-gray-400">效期：${c.valid_until || '永久'}</p>
+                        </div>
+                    </div>
+                    <div class="font-black text-red-500 text-lg">-$${Number(c.discount_amount || 0).toLocaleString()}</div>
+                </div>`).join('');
+        }
+
+        function toggleBoxcoreCashCoupon(el, id, discountAmount) {
+            const amountVal = document.getElementById('boxcore-amount-input').value;
+            const billAmount = amountVal ? parseInt(amountVal) : 0;
+            const redeemVal = document.getElementById('boxcore-redeem-input').value;
+            const pointDeduction = redeemVal ? parseInt(redeemVal) : 0;
+            if (selectedCashCoupons.includes(id)) {
+                selectedCashCoupons = selectedCashCoupons.filter(cid => cid !== id);
+                el.classList.remove('active');
+            } else {
+                let currentCouponTotal = 0;
+                selectedCashCoupons.forEach(cid => {
+                    const c = userCashCoupons.find(x => x.id === cid);
+                    if (c) currentCouponTotal += (c.discount_amount || 0);
+                });
+                const remainingBill = billAmount - pointDeduction;
+                if ((currentCouponTotal + discountAmount) > remainingBill) {
+                    const confirmOverpay = confirm("應收金額低於該票券可折抵金額，超額不退還現金或積分，請向會員確認是否進行折抵");
+                    if (!confirmOverpay) return;
+                }
+                selectedCashCoupons.push(id);
+                el.classList.add('active');
+            }
+            calcBoxcorePreview();
+        }
+
         function toggleCashCoupon(el, id, discountAmount) {
             const amountVal = document.getElementById('amount-input').value;
             const billAmount = amountVal ? parseInt(amountVal) : 0;
@@ -1435,8 +1604,85 @@
              fetchCouponUuid(couponUuid);
         }
 
+
+        function selectBoxcoreStore(storeName, shouldSync = true) {
+            const hidden = document.getElementById('boxcore-store-select');
+            if (hidden) hidden.value = storeName;
+            document.querySelectorAll('.boxcore-store-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.store === storeName);
+            });
+            if (shouldSync) syncBoxcoreOperationToIssueForm();
+        }
+
+        function clearBoxcoreWarrantyFields() {
+            ['boxcore-warranty-device-model', 'boxcore-warranty-imei', 'boxcore-warranty-project', 'boxcore-warranty-remarks'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+        }
+
+        function getBoxcoreWarrantyForm() {
+            const get = id => (document.getElementById(id)?.value || '').trim();
+            return {
+                device_model: get('boxcore-warranty-device-model'),
+                imei: get('boxcore-warranty-imei'),
+                project: get('boxcore-warranty-project'),
+                remarks: get('boxcore-warranty-remarks')
+            };
+        }
+
+        function hasBoxcoreWarrantyInput() {
+            const form = getBoxcoreWarrantyForm();
+            return Object.values(form).some(v => v !== '');
+        }
+
+        function validateBoxcoreWarrantyPayload() {
+            const form = getBoxcoreWarrantyForm();
+            const hasInput = Object.values(form).some(v => v !== '');
+            if (!hasInput) return null;
+            if (!form.device_model || !form.imei || !form.project) {
+                throw new Error('請完整填寫終身保固的「設備型號」、「IMEI」、「保固項目」。');
+            }
+            if (!currentTargetLineId) {
+                throw new Error('會員 line_id 遺失，請重新掃描會員。');
+            }
+            return {
+                line_id: currentTargetLineId,
+                device_model: form.device_model,
+                imei: form.imei,
+                project: form.project,
+                remarks: form.remarks || null
+            };
+        }
+
+        function syncBoxcoreOperationToIssueForm() {
+            document.getElementById('store-select').value = document.getElementById('boxcore-store-select').value;
+            document.getElementById('order-no').value = document.getElementById('boxcore-order-no').value;
+            document.getElementById('amount-input').value = document.getElementById('boxcore-amount-input').value;
+            document.getElementById('redeem-input').value = document.getElementById('boxcore-redeem-input').value;
+            document.getElementById('total-due').innerText = document.getElementById('boxcore-total-due').innerText;
+            document.getElementById('preview-points').innerText = document.getElementById('boxcore-preview-points').innerText;
+        }
+
+        function startBoxcoreStaffAuth() {
+            const amount = document.getElementById('boxcore-amount-input').value;
+            let warrantyPayload = null;
+            try {
+                warrantyPayload = validateBoxcoreWarrantyPayload();
+            } catch (err) {
+                alert(err.message);
+                return;
+            }
+            if (!amount && selectedCoupons.length === 0 && !warrantyPayload) {
+                alert('請至少輸入金額、選擇一張優惠券，或填寫終身保固資料');
+                return;
+            }
+            syncBoxcoreOperationToIssueForm();
+            startScanner('staff_auth');
+        }
+
         function startStaffAuth() {
-            if (currentSystemMode === 'issue') {
+            if (currentSystemMode === 'issue' || currentSystemMode === 'boxcore') {
                 const amount = document.getElementById('amount-input').value;
                 if (!amount && selectedCoupons.length === 0) {
                     alert('請至少輸入金額或選擇一張優惠券');
@@ -1473,8 +1719,8 @@
             document.getElementById('confirm-modal').style.display = 'flex';
             const btn = document.getElementById('btn-submit-real');
 
-            if (currentSystemMode === 'issue') {
-                document.getElementById('cfm-title').innerText = "送出確認";
+            if (currentSystemMode === 'issue' || currentSystemMode === 'boxcore') {
+                document.getElementById('cfm-title').innerText = currentSystemMode === 'boxcore' ? "盒芯會籍作業確認" : "送出確認";
                 document.getElementById('cfm-content-issue').classList.remove('hidden');
                 document.getElementById('cfm-content-activity').classList.add('hidden');
                 document.getElementById('cfm-content-redeem').classList.add('hidden');
@@ -1667,6 +1913,17 @@
             
             const amountInput = document.getElementById('amount-input').value;
             const inputBillAmount = amountInput ? parseInt(amountInput) : 0;
+            let boxcoreWarrantyPayload = null;
+            if (currentSystemMode === 'boxcore') {
+                try {
+                    boxcoreWarrantyPayload = validateBoxcoreWarrantyPayload();
+                } catch (err) {
+                    hideLoading();
+                    alert(err.message);
+                    btn.disabled = false;
+                    return;
+                }
+            }
             if (!currentTargetLineId) {
                 hideLoading();
                 alert("錯誤：會員 ID 遺失，請重新掃描");
@@ -1762,6 +2019,13 @@
                     }
                 }
 
+                if (currentSystemMode === 'boxcore' && boxcoreWarrantyPayload) {
+                    const { error: warrantyError } = await _supabase
+                        .from('lifetime_warranty')
+                        .insert(boxcoreWarrantyPayload);
+                    if (warrantyError) throw new Error("寫入終身保固失敗: " + warrantyError.message);
+                }
+
                 closeConfirmModal();
                 hideLoading(); 
                 await resetScan('系統發放完成！');
@@ -1818,7 +2082,8 @@
                 document.getElementById('scan-view').classList.add('hidden');
                 document.getElementById('action-view-redeem').classList.remove('hidden');
             } else if (currentSystemMode === 'boxcore') {
-                returnToDashboard();
+                document.getElementById('scan-view').classList.add('hidden');
+                document.getElementById('action-view-boxcore').classList.remove('hidden');
             }
         }
 
@@ -1877,6 +2142,41 @@
             document.getElementById('preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
         }
 
+
+        function boxcoreRedeemAll() {
+            const amount = parseInt(document.getElementById('boxcore-amount-input').value) || 0;
+            const rawMax = Math.min(amount, currentMemberPoints);
+            const maxRedeem = Math.floor(rawMax / 10) * 10;
+            document.getElementById('boxcore-redeem-input').value = maxRedeem > 0 ? maxRedeem : '';
+            calcBoxcorePreview();
+        }
+
+        function calcBoxcorePreview() {
+            const amountInput = document.getElementById('boxcore-amount-input');
+            const redeemInput = document.getElementById('boxcore-redeem-input');
+            if (!amountInput || !redeemInput) return;
+            amountInput.value = amountInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+            redeemInput.value = redeemInput.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+
+            let amount = parseInt(amountInput.value) || 0;
+            let redeem = parseInt(redeemInput.value) || 0;
+            if (redeem > amount) { redeem = amount; redeemInput.value = redeem; }
+            if (redeem > currentMemberPoints) { redeem = currentMemberPoints; redeemInput.value = redeem; }
+
+            calculatedCashDiscount = 0;
+            selectedCashCoupons.forEach(id => {
+                const coupon = userCashCoupons.find(c => c.id === id);
+                if (coupon) calculatedCashDiscount += (coupon.discount_amount || 0);
+            });
+
+            const totalDue = Math.max(0, amount - redeem - calculatedCashDiscount);
+            calculatedPoints = Math.floor(totalDue / 100);
+            calculatedRedeem = redeem;
+            document.getElementById('boxcore-total-due').innerText = '$' + totalDue.toLocaleString();
+            document.getElementById('boxcore-preview-points').innerText = (calculatedPoints >= 0 ? '+' : '') + calculatedPoints;
+            syncBoxcoreOperationToIssueForm();
+        }
+
         // 活動通道專屬計算邏輯
         function calcActivityPreview() {
             const amountInput = document.getElementById('activity-amount-input');
@@ -1926,6 +2226,7 @@
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const actContainer = document.getElementById('activity-coupon-container');
+            const boxContainer = document.getElementById('boxcore-coupon-container');
             const today = new Date().toISOString().split('T')[0];
             const { data } = await _supabase.from('coupons').select('*').eq('is_active', true);
             if (!data) return;
@@ -1941,7 +2242,7 @@
                 return 0;
             });
             
-            const generateHtml = (isActivity) => validCoupons.map(c => {
+            const generateHtml = (mode) => validCoupons.map(c => {
                 let expiryText = '永久有效';
                 if (c.validity_days > 0) {
                     const d = new Date(); d.setDate(d.getDate() + c.validity_days);
@@ -1956,12 +2257,14 @@
                     : `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
                 const badge = `<span class="date-badge">${expiryText}</span>`;
                 
-                const fnName = isActivity ? 'toggleActivityCoupon' : 'toggleCoupon';
-                return `<div class="coupon-card" onclick="${fnName}(this, '${c.name}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${c.name}</p><p class="text-[10px] text-gray-400 leading-tight">${c.description||''}</p>${badge}</div>`;
+                const safeName = String(c.name || '').replace(/'/g, "\'");
+                const fnName = mode === 'activity' ? 'toggleActivityCoupon' : (mode === 'boxcore' ? 'toggleBoxcoreCoupon' : 'toggleCoupon');
+                return `<div class="coupon-card" onclick="${fnName}(this, '${safeName}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${escapeHtml(c.name)}</p><p class="text-[10px] text-gray-400 leading-tight">${escapeHtml(c.description || '')}</p>${badge}</div>`;
             }).join('');
 
-            container.innerHTML = generateHtml(false);
-            actContainer.innerHTML = generateHtml(true);
+            container.innerHTML = generateHtml('issue');
+            actContainer.innerHTML = generateHtml('activity');
+            if (boxContainer) boxContainer.innerHTML = generateHtml('boxcore');
         }
         
         function toggleCoupon(el, name) {
@@ -1972,6 +2275,18 @@
                 selectedCoupons.push(name);
                 el.classList.add('selected');
             }
+        }
+
+
+        function toggleBoxcoreCoupon(el, name) {
+            if (selectedCoupons.includes(name)) {
+                selectedCoupons = selectedCoupons.filter(c => c !== name);
+                el.classList.remove('selected');
+            } else {
+                selectedCoupons.push(name);
+                el.classList.add('selected');
+            }
+            syncBoxcoreOperationToIssueForm();
         }
 
         function toggleActivityCoupon(el, name) {
