@@ -108,13 +108,14 @@
     <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center modal-content">
             <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">員工登入</h1>
-            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SUPABASE STAFF AUTH</p>
+            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SUPABASE STAFF AUTH｜SAFE TEST</p>
             <div class="space-y-4">
                 <input id="staff-email" type="email" inputmode="email" autocomplete="username" placeholder="員工帳號 Email" class="soft-input text-center font-bold text-base h-14">
                 <input id="staff-password" type="password" autocomplete="current-password" placeholder="員工密碼" class="soft-input text-center font-bold text-base h-14">
                 <button id="login-btn" onclick="staffLogin()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-xl active:scale-95 transition">登入系統</button>
             </div>
             <p id="login-error" class="text-red-500 text-xs font-bold mt-4 tracking-widest hidden animate-pulse">帳號或密碼錯誤，或沒有員工權限</p>
+            <p class="text-gray-400 text-[10px] leading-relaxed mt-4">測試版不會寫入 Supabase 登入狀態，不影響舊版正式員工端。</p>
         </div>
     </div>
 
@@ -431,10 +432,21 @@
     <script>
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
+        // 主資料操作維持 anon client，避免新版測試登入影響舊版正在使用的 RLS / 權限流程。
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
             auth: {
                 persistSession: false,
-                autoRefreshToken: true,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
+            }
+        });
+
+        // 員工帳密只用這個獨立 client 驗證，且不保存 session 到 localStorage。
+        const _staffAuth = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: {
+                storageKey: 'blackbox-staff-v2-safe-test-auth',
+                persistSession: false,
+                autoRefreshToken: false,
                 detectSessionInUrl: false
             }
         });
@@ -505,7 +517,7 @@
             btn.innerText = '登入中...';
 
             try {
-                const { data: authData, error: authError } = await _supabase.auth.signInWithPassword({
+                const { data: authData, error: authError } = await _staffAuth.auth.signInWithPassword({
                     email,
                     password
                 });
@@ -514,16 +526,19 @@
                     throw new Error('帳號或密碼錯誤');
                 }
 
-                // 你的 profiles 表是用 auth_user_id 欄位綁定 Supabase Auth Users，
-                // 所以這裡不能查 profiles.id，必須查 profiles.auth_user_id。
+                // 只檢查 Supabase Auth 帳號是否有綁定 profiles.auth_user_id，且 role 為 staff。
+                // 這裡使用主 anon client 查詢，避免把後續資料操作切換成 authenticated role。
                 const { data: staffProfile, error: staffError } = await _supabase
                     .from('profiles')
                     .select('id, full_name, phone, role, line_id, auth_user_id')
                     .eq('auth_user_id', authData.user.id)
+                    .eq('role', 'staff')
                     .maybeSingle();
 
-                if (staffError || !staffProfile || staffProfile.role !== 'staff') {
-                    await _supabase.auth.signOut();
+                // 驗證完立刻清掉 Auth client 的 session；測試版不保留登入狀態。
+                try { await _staffAuth.auth.signOut(); } catch (e) {}
+
+                if (staffError || !staffProfile) {
                     throw new Error('此帳號沒有員工權限');
                 }
 
@@ -552,7 +567,7 @@
         async function lockSystem() {
             clearTimeout(idleTimer);
             await cleanupScanner();
-            try { await _supabase.auth.signOut(); } catch (e) {}
+            try { await _staffAuth.auth.signOut(); } catch (e) {}
             currentLoggedInStaff = null;
             currentStaffName = '';
             document.getElementById('dashboard-view').classList.add('hidden');
