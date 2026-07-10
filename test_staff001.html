@@ -28,7 +28,6 @@
         #app-container > .p-6 { flex: 0 0 auto; }
         #action-view-boxcore { flex: 1 1 auto; min-height: 0; overflow: hidden !important; padding-bottom: 0 !important; }
         #action-view-boxcore .member-sheet { height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 14px; }
-        #action-view-boxcore .boxcore-metric-row { flex: 0 0 auto; }
         #action-view-boxcore .boxcore-fixed-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
         #action-view-boxcore .boxcore-fixed-scroll > * + * { margin-top: 20px; }
         @media (max-width: 520px) {
@@ -118,7 +117,7 @@
         .member-topbar { background: transparent; border-bottom: 0; }
         .boxcore-metric-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
         .boxcore-count-card { aspect-ratio: auto; height: 68px; min-height: 68px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; overflow: hidden; padding: 12px 14px; }
-        .boxcore-count-card .folio-label, .metric-card > span { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px !important; letter-spacing: .04em !important; }
+        .boxcore-count-card .folio-label, .metric-card > span { margin: 0; white-space: nowrap; overflow: visible; text-overflow: clip; font-size: 12px !important; line-height: 1.15; letter-spacing: .02em !important; }
         .boxcore-count-card .boxcore-count-line { flex: 0 0 auto; align-items: center; }
         .boxcore-count-card .boxcore-count-line > span { font-size: 22px !important; line-height: 1; }
         .boxcore-count-card iconify-icon { font-size: 20px !important; }
@@ -144,14 +143,14 @@
         .boxcore-name-summary-main { min-width:0; flex:1; }
         .boxcore-member-points { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; flex:0 0 auto; }
         .boxcore-member-point-item { min-width:72px; padding:8px 10px; border-left:1px solid #ece7df; }
-        .boxcore-member-point-item .label { font-size:8px; font-weight:900; color:#9b9286; letter-spacing:.08em; white-space:nowrap; }
-        .boxcore-member-point-item .value { margin-top:3px; font-size:18px; line-height:1; font-weight:900; color:#111827; }
+        .boxcore-member-point-item .label { font-size:9px; font-weight:900; color:#9b9286; letter-spacing:.06em; white-space:nowrap; }
+        .boxcore-member-point-item .value { margin-top:4px; font-size:23px; line-height:1; font-weight:900; color:#111827; }
         @media (max-width:520px) {
             .boxcore-name-summary { align-items:flex-start; gap:8px; }
             .boxcore-member-points { gap:3px; }
             .boxcore-member-point-item { min-width:58px; padding:5px 7px; }
-            .boxcore-member-point-item .label { font-size:7px; }
-            .boxcore-member-point-item .value { font-size:15px; }
+            .boxcore-member-point-item .label { font-size:8px; }
+            .boxcore-member-point-item .value { font-size:19px; }
         }
         .boxcore-coupon-row { display:flex; align-items:center; gap:10px; border:1px solid #ece7df; border-radius:14px; padding:12px; background:#fff; }
         .boxcore-coupon-main { min-width:0; flex:1; cursor:pointer; }
@@ -183,7 +182,7 @@
         @media (max-width: 520px) {
             .boxcore-metric-row { gap: 7px; }
             .metric-card, .boxcore-count-card { aspect-ratio: auto; height: 54px; min-height: 54px; padding: 8px 10px; border-radius: 13px; }
-            .metric-card > span, .boxcore-count-card .folio-label { font-size: 7px !important; line-height: 1.2; letter-spacing: .04em; }
+            .metric-card > span, .boxcore-count-card .folio-label { font-size: 10px !important; line-height: 1.15; letter-spacing: .01em; }
             .metric-card > strong, .boxcore-count-card .boxcore-count-line > span { font-size: 19px !important; line-height: 1; }
             .boxcore-count-card iconify-icon { display: none; }
             .model-builder-row { grid-template-columns: 32px 32px 44px auto auto auto; gap: 4px; }
@@ -546,6 +545,7 @@
 
         <div id="action-view-boxcore" class="hidden scrollable-content p-4 md:p-6 pb-32">
             <div class="member-sheet space-y-5">
+                <div class="boxcore-fixed-scroll">
                 <div class="boxcore-metric-row">
                     <div class="folio-panel boxcore-count-card">
                         <div class="folio-label">持有票券</div>
@@ -560,8 +560,6 @@
                         <div class="boxcore-count-line"><span id="boxcore-logs-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                 </div>
-
-                <div class="boxcore-fixed-scroll">
                 <div class="boxcore-main-grid">
                     <div class="folio-panel">
                         <h3 class="folio-section-title"><iconify-icon icon="mdi:account-circle-outline"></iconify-icon>會員資料</h3>
@@ -1438,12 +1436,6 @@
                 const serial = pickValue(w, ['serial_number', 'imei', 'sn', 'warranty_code', 'device_serial']) || '---';
                 const status = pickValue(w, ['status', 'warranty_status', 'state']) || '已登錄';
                 const date = pickValue(w, ['created_at', 'registered_at', 'purchase_date', 'warranty_start_date']) || null;
-                const ignored = new Set(['id','line_id','profile_id','auth_user_id','created_by','updated_at']);
-                const detailRows = Object.entries(w)
-                    .filter(([key, value]) => !ignored.has(key) && value !== null && value !== undefined && String(value).trim() !== '')
-                    .slice(0, 10)
-                    .map(([key, value]) => `<div class="text-[10px] text-gray-500"><span class="font-black text-gray-700">${escapeHtml(key)}</span>：${escapeHtml(String(value).substring(0, 80))}</div>`)
-                    .join('');
                 return `
                 <div class="folio-item">
                     <div class="flex justify-between items-start gap-3 mb-2">
@@ -1454,7 +1446,6 @@
                         </div>
                         <span class="folio-status folio-status-ok">${escapeHtml(status)}</span>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t border-gray-100">${detailRows}</div>
                 </div>`;
             }).join('');
         }
