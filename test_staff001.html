@@ -164,6 +164,49 @@
         .signature-box { min-height: 180px; background: rgba(255,255,255,.62); border: 1px dashed #d9cdbb; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #9b9286; font-size: 12px; font-weight: 800; text-align: center; padding: 18px; }
         @media (min-width: 768px) { .folio-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } .folio-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
 
+
+        /* v10：修正盒芯會籍手機版右側內容溢出 */
+        *, *::before, *::after { box-sizing: border-box; }
+        #app-container,
+        #action-view-boxcore,
+        #action-view-boxcore .member-sheet,
+        #action-view-boxcore .boxcore-fixed-scroll,
+        #action-view-boxcore .boxcore-metric-row,
+        #action-view-boxcore .boxcore-main-grid,
+        #action-view-boxcore .boxcore-operation-grid,
+        #action-view-boxcore .folio-panel,
+        #action-view-boxcore .boxcore-subpanel {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+        #action-view-boxcore .boxcore-fixed-scroll { overflow-x: clip !important; }
+        #action-view-boxcore .boxcore-main-grid > *,
+        #action-view-boxcore .boxcore-operation-grid > *,
+        #action-view-boxcore .boxcore-member-detail-row > *,
+        #action-view-boxcore .boxcore-metric-row > * { min-width: 0; }
+        #action-view-boxcore .folio-value,
+        #action-view-boxcore .folio-label,
+        #action-view-boxcore input,
+        #action-view-boxcore textarea,
+        #action-view-boxcore select {
+            max-width: 100%;
+            min-width: 0;
+        }
+        #action-view-boxcore .folio-value {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        @media (max-width: 520px) {
+            #app-container.app-wide { width: 100% !important; max-width: 100% !important; }
+            #action-view-boxcore { width: 100%; padding-left: 14px !important; padding-right: 14px !important; }
+            #action-view-boxcore .boxcore-member-detail-row { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; }
+            #action-view-boxcore .boxcore-member-detail-row .folio-value { font-size: 13px; line-height: 1.35; letter-spacing: -0.02em; }
+            #action-view-boxcore #boxcore-basic-phone { font-size: 12px; letter-spacing: -0.05em; white-space: nowrap; }
+            #action-view-boxcore #boxcore-updated { font-size: 11px; line-height: 1.4; }
+            #action-view-boxcore .boxcore-metric-row { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+        }
+
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
     </style>
 </head>
