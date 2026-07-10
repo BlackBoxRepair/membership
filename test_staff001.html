@@ -1054,9 +1054,44 @@
 
         function extractPrefixedScanCode(value, prefix) {
             const text = normalizeScanText(value);
-            const pattern = new RegExp(prefix + '([A-Za-z0-9_-]+)', 'i');
+            const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\]/g, '\\$&');
+            const pattern = new RegExp(escapedPrefix + '([^\s?#&]+)', 'i');
             const match = text.match(pattern);
-            return match ? match[1] : null;
+            return match ? match[1].trim() : null;
+        }
+
+        // 相容舊版與新版會員 QR Code：
+        // BBX-xxxx、網址 query、JSON，以及 LINE UID 原始字串。
+        function extractMemberIdentifier(value) {
+            const text = normalizeScanText(value);
+            if (!text) return null;
+
+            const prefixed = extractPrefixedScanCode(text, 'BBX-');
+            if (prefixed) return prefixed;
+
+            try {
+                const url = new URL(text);
+                for (const key of ['line_id', 'lineId', 'member_id', 'memberId', 'uid', 'code']) {
+                    const candidate = url.searchParams.get(key);
+                    if (!candidate) continue;
+                    const nested = extractPrefixedScanCode(candidate, 'BBX-');
+                    return nested || candidate.trim();
+                }
+            } catch (e) {}
+
+            try {
+                const obj = JSON.parse(text);
+                for (const key of ['line_id', 'lineId', 'member_id', 'memberId', 'uid', 'code']) {
+                    const candidate = obj?.[key];
+                    if (!candidate) continue;
+                    const nested = extractPrefixedScanCode(candidate, 'BBX-');
+                    return nested || String(candidate).trim();
+                }
+            } catch (e) {}
+
+            // LINE user ID 通常為 U 開頭，保留此格式以相容早期會員碼。
+            if (/^U[a-zA-Z0-9_-]{20,}$/.test(text)) return text;
+            return null;
         }
 
         async function renderBoxcoreMember(profile) {
@@ -1294,7 +1329,7 @@
                 const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
                 if (error || !data) { alert('查無此會員！'); return; }
                 await cleanupScanner();
-                fetchMemberData(data.line_id);
+                await fetchMemberData(data.line_id);
             }
         }
 
@@ -1312,7 +1347,7 @@
         async function onScanSuccess(text, type) {
             if (isScanLocked) return;
 
-            const memberCode = extractPrefixedScanCode(text, 'BBX-');
+            const memberCode = extractMemberIdentifier(text);
             const couponCode = extractPrefixedScanCode(text, 'CPN-');
 
             if (type === 'staff_auth') {
@@ -1336,11 +1371,20 @@
                 if (memberCode) {
                     isScanLocked = true;
                     try {
-                        await cleanupScanner();
+                        // 不在掃描 callback 裡立即 stop，避免部分 iPhone / Safari 卡住而看似沒有反應。
+                        if (html5QrcodeScanner && typeof html5QrcodeScanner.pause === 'function') {
+                            try { html5QrcodeScanner.pause(true); } catch (e) {}
+                        }
+                        const successEl = document.getElementById('scan-success-msg');
+                        successEl.innerText = '已讀取會員碼，正在載入會員資料…';
+                        successEl.classList.remove('hidden');
+
                         await fetchMemberData(memberCode);
+                        await cleanupScanner();
                     } catch (err) {
-                        console.error(err);
-                        alert('會員資料讀取失敗，請重新掃描或改用電話查詢');
+                        console.error('Boxcore/member QR lookup failed:', err, { rawText: text, memberCode });
+                        await cleanupScanner();
+                        alert('會員碼已讀取，但查無對應會員。請確認會員碼格式或改用電話查詢。');
                         resetScan();
                     }
                 } else {
