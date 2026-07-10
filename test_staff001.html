@@ -103,7 +103,7 @@
         .member-sheet { background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
         .member-topbar { background: transparent; border-bottom: 0; }
         .boxcore-metric-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
-        .boxcore-count-card { min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; }
+        .boxcore-count-card { aspect-ratio: 1 / 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
         .boxcore-count-card .boxcore-count-line { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
         .boxcore-main-grid { display: grid; grid-template-columns: minmax(240px, .58fr) minmax(0, 1.42fr); gap: 18px; align-items: start; }
         .boxcore-operation-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 16px; align-items: start; }
@@ -115,7 +115,7 @@
         .boxcore-subtitle { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 900; color: #9b9286; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
         @media (max-width: 920px) { .boxcore-main-grid, .boxcore-operation-grid { grid-template-columns: 1fr; } }
         @media (max-width: 620px) { .boxcore-member-detail-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (max-width: 520px) { .boxcore-metric-row { gap: 8px; } .metric-card, .boxcore-count-card { min-height: 82px; padding: 10px; border-radius: 14px; } .boxcore-count-card iconify-icon { display: none; } }
+        @media (max-width: 520px) { .boxcore-metric-row { gap: 7px; } .metric-card, .boxcore-count-card { aspect-ratio: 1 / 1; min-height: 0; padding: 9px; border-radius: 14px; } .metric-card > span, .boxcore-count-card .folio-label { font-size: 8px !important; line-height: 1.35; letter-spacing: .08em; } .metric-card > strong, .boxcore-count-card .boxcore-count-line > span { font-size: 24px !important; line-height: 1; } .boxcore-count-card iconify-icon { display: none; } }
         .folio-title { color: #1f2937; letter-spacing: -0.04em; }
         .folio-muted { color: #8b8172; }
         .folio-cell { padding: 12px 0; border-bottom: 1px solid #e9e4dc; }
@@ -129,7 +129,7 @@
         .folio-status-ok { background: #ecfdf5; color: #059669; }
         .folio-status-used { background: #f3f4f6; color: #6b7280; }
         .folio-status-warn { background: #fff7ed; color: #ea580c; }
-        .metric-card { background: #111827; color: white; border-radius: 18px; padding: 16px; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; }
+        .metric-card { background: #111827; color: white; border-radius: 18px; padding: 16px; aspect-ratio: 1 / 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
         .signature-box { min-height: 180px; background: rgba(255,255,255,.62); border: 1px dashed #d9cdbb; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #9b9286; font-size: 12px; font-weight: 800; text-align: center; padding: 18px; }
         @media (min-width: 768px) { .folio-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } .folio-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
 
@@ -394,24 +394,24 @@
             <div class="member-sheet space-y-5">
                 <div class="boxcore-metric-row">
                     <div class="metric-card">
-                        <span class="text-[10px] text-white/50 font-black tracking-widest">POINTS</span>
-                        <strong id="boxcore-points" class="text-3xl font-black text-yellow-300">0</strong>
+                        <span class="text-[9px] text-white/50 font-black tracking-widest">POINTS</span>
+                        <strong id="boxcore-points" class="text-2xl font-black text-yellow-300">0</strong>
                     </div>
                     <div class="metric-card">
-                        <span class="text-[10px] text-white/50 font-black tracking-widest">YEARLY</span>
-                        <strong id="boxcore-accumulated" class="text-3xl font-black text-yellow-300">0</strong>
+                        <span class="text-[9px] text-white/50 font-black tracking-widest">YEARLY</span>
+                        <strong id="boxcore-accumulated" class="text-2xl font-black text-yellow-300">0</strong>
                     </div>
                     <div class="folio-panel boxcore-count-card">
                         <div class="folio-label">持有票券</div>
-                        <div class="boxcore-count-line"><span id="boxcore-coupons-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:ticket-percent" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        <div class="boxcore-count-line"><span id="boxcore-coupons-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:ticket-percent" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                     <div class="folio-panel boxcore-count-card">
                         <div class="folio-label">保固資料</div>
-                        <div class="boxcore-count-line"><span id="boxcore-warranty-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        <div class="boxcore-count-line"><span id="boxcore-warranty-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                     <div class="folio-panel boxcore-count-card">
                         <div class="folio-label">積分紀錄</div>
-                        <div class="boxcore-count-line"><span id="boxcore-logs-count" class="text-3xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-3xl text-yellow-600"></iconify-icon></div>
+                        <div class="boxcore-count-line"><span id="boxcore-logs-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                 </div>
 
