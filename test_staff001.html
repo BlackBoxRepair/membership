@@ -208,6 +208,40 @@
         }
 
         .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+    
+        /* v11：會員作業內層段落改為平面配置，不再套用第二層圖卡 */
+        #action-view-boxcore .boxcore-subpanel {
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        #action-view-boxcore .boxcore-operation-grid > .space-y-4 {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+        #action-view-boxcore .boxcore-operation-grid > .space-y-4 > .boxcore-subpanel + .boxcore-subpanel {
+            border-top: 1px solid #e7dfd3;
+            padding-top: 20px;
+        }
+        #action-view-boxcore .boxcore-operation-grid > .boxcore-subpanel {
+            border-left: 1px solid #e7dfd3;
+            padding-left: 18px;
+        }
+        #action-view-boxcore .boxcore-subtitle {
+            margin-bottom: 14px;
+        }
+        @media (max-width: 920px) {
+            #action-view-boxcore .boxcore-operation-grid > .boxcore-subpanel {
+                border-left: 0;
+                border-top: 1px solid #e7dfd3;
+                padding-left: 0;
+                padding-top: 20px;
+            }
+        }
+
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
