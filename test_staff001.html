@@ -117,8 +117,28 @@
         .member-sheet { background: transparent; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
         .member-topbar { background: transparent; border-bottom: 0; }
         .boxcore-metric-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-        .boxcore-count-card { aspect-ratio: 1 / 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
-        .boxcore-count-card .folio-label, .metric-card > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px !important; letter-spacing: .04em !important; }
+        .boxcore-count-card { aspect-ratio: auto; height: 68px; min-height: 68px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; overflow: hidden; padding: 12px 14px; }
+        .boxcore-count-card .folio-label, .metric-card > span { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px !important; letter-spacing: .04em !important; }
+        .boxcore-count-card .boxcore-count-line { flex: 0 0 auto; align-items: center; }
+        .boxcore-count-card .boxcore-count-line > span { font-size: 22px !important; line-height: 1; }
+        .boxcore-count-card iconify-icon { font-size: 20px !important; }
+        .folio-two-col { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .model-builder-row { display: grid; grid-template-columns: 34px 34px minmax(42px, 1fr) auto auto auto; align-items: center; gap: 5px; width: 100%; min-width: 0; }
+        .model-builder-row .soft-input { min-width: 0; width: 100%; padding-left: 6px; padding-right: 6px; }
+        .model-builder-row .model-chip.square { padding-left: 7px; padding-right: 7px; white-space: nowrap; }
+        .model-builder-row .model-chip[data-model-suffix="Pro Max"] { padding-left: 6px; padding-right: 6px; font-size: 10px; }
+        .boxcore-warranty-summary { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer; }
+        .boxcore-warranty-summary:active { transform: scale(.995); }
+        .boxcore-warranty-summary-main { min-width: 0; display: flex; align-items: center; gap: 10px; }
+        .boxcore-warranty-summary-icon { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 12px; background: #fffbeb; color: #ca8a04; display: grid; place-items: center; }
+        .boxcore-warranty-summary-icon iconify-icon { font-size: 21px; }
+        .boxcore-warranty-summary-title { font-size: 13px; font-weight: 900; color: #111827; }
+        .boxcore-warranty-summary-hint { margin-top: 3px; font-size: 9px; font-weight: 800; color: #9ca3af; letter-spacing: .04em; }
+        .warranty-log-list { display: grid; gap: 10px; max-height: 56vh; overflow-y: auto; padding-right: 2px; -webkit-overflow-scrolling: touch; }
+        .warranty-log-item { border: 1px solid #eee7dc; border-radius: 14px; padding: 13px; background: #fff; }
+        .warranty-log-item time { display: block; font-size: 10px; font-weight: 900; color: #9b9286; letter-spacing: .04em; }
+        .warranty-log-item .reason { margin-top: 6px; font-size: 13px; line-height: 1.6; font-weight: 800; color: #1f2937; white-space: pre-wrap; }
+        .warranty-log-item .meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 9px; font-weight: 800; color: #9ca3af; }
 
         .boxcore-name-summary { display:flex; align-items:flex-end; justify-content:space-between; gap:14px; }
         .boxcore-name-summary-main { min-width:0; flex:1; }
@@ -160,7 +180,18 @@
         .boxcore-subtitle { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 900; color: #9b9286; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 12px; }
         @media (max-width: 920px) { .boxcore-main-grid, .boxcore-operation-grid { grid-template-columns: 1fr; } }
         @media (max-width: 620px) { .boxcore-member-detail-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-        @media (max-width: 520px) { .boxcore-metric-row { gap: 7px; } .metric-card, .boxcore-count-card { aspect-ratio: 1 / 1; min-height: 0; padding: 9px; border-radius: 14px; } .metric-card > span, .boxcore-count-card .folio-label { font-size: 8px !important; line-height: 1.35; letter-spacing: .08em; } .metric-card > strong, .boxcore-count-card .boxcore-count-line > span { font-size: 24px !important; line-height: 1; } .boxcore-count-card iconify-icon { display: none; } }
+        @media (max-width: 520px) {
+            .boxcore-metric-row { gap: 7px; }
+            .metric-card, .boxcore-count-card { aspect-ratio: auto; height: 54px; min-height: 54px; padding: 8px 10px; border-radius: 13px; }
+            .metric-card > span, .boxcore-count-card .folio-label { font-size: 7px !important; line-height: 1.2; letter-spacing: .04em; }
+            .metric-card > strong, .boxcore-count-card .boxcore-count-line > span { font-size: 19px !important; line-height: 1; }
+            .boxcore-count-card iconify-icon { display: none; }
+            .model-builder-row { grid-template-columns: 32px 32px minmax(38px, 1fr) auto auto auto; gap: 4px; }
+            .model-builder-row .model-chip.round { width: 32px; height: 32px; }
+            .model-builder-row .model-chip.square { height: 32px; padding-left: 5px; padding-right: 5px; font-size: 10px; }
+            .model-builder-row .model-chip[data-model-suffix="Pro Max"] { padding-left: 4px; padding-right: 4px; font-size: 9px; }
+            .model-builder-row .soft-input { height: 38px; font-size: 13px; }
+        }
         .folio-title { color: #1f2937; letter-spacing: -0.04em; }
         .folio-muted { color: #8b8172; }
         .folio-cell { padding: 12px 0; border-bottom: 1px solid #e9e4dc; }
@@ -176,7 +207,7 @@
         .folio-status-warn { background: #fff7ed; color: #ea580c; }
         .metric-card { background: #111827; color: white; border-radius: 18px; padding: 16px; aspect-ratio: 1 / 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
         .signature-box { min-height: 180px; background: rgba(255,255,255,.62); border: 1px dashed #d9cdbb; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: #9b9286; font-size: 12px; font-weight: 800; text-align: center; padding: 18px; }
-        @media (min-width: 768px) { .folio-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; } .folio-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
+        @media (min-width: 768px) { .folio-two-col { grid-template-columns: 1fr 1fr; gap: 18px; } .folio-three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; } }
 
 
         /* v10：修正盒芯會籍手機版右側內容溢出 */
@@ -256,6 +287,7 @@
             }
         }
 
+            /* v13：精簡計數卡、固定型號單行、保固紀錄彈窗 */
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
@@ -611,10 +643,10 @@
                                 <h4 class="boxcore-subtitle"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固</h4>
                                 <div class="space-y-3">
                                     <div class="space-y-2">
-                                        <div class="flex items-center gap-2 flex-wrap">
+                                        <div class="model-builder-row">
                                             <button type="button" class="model-chip round" data-model-prefix="SE" onclick="toggleModelPrefix('SE')">SE</button>
                                             <button type="button" class="model-chip round" data-model-prefix="Air" onclick="toggleModelPrefix('Air')">Air</button>
-                                            <input id="boxcore-warranty-model-number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="數字" class="soft-input font-black text-center w-20" oninput="this.value=this.value.replace(/\D/g,''); updateWarrantyDeviceModel()">
+                                            <input id="boxcore-warranty-model-number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="數字" class="soft-input font-black text-center" oninput="this.value=this.value.replace(/\D/g,''); updateWarrantyDeviceModel()">
                                             <button type="button" class="model-chip square" data-model-suffix="Plus" onclick="toggleModelSuffix('Plus')">Plus</button>
                                             <button type="button" class="model-chip square" data-model-suffix="Pro" onclick="toggleModelSuffix('Pro')">Pro</button>
                                             <button type="button" class="model-chip square" data-model-suffix="Pro Max" onclick="toggleModelSuffix('Pro Max')">Pro Max</button>
@@ -725,6 +757,23 @@
                 <button onclick="closeCouponDescription()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"><iconify-icon icon="mdi:close"></iconify-icon></button>
             </div>
             <p id="coupon-description-body" class="text-sm leading-7 text-gray-600 whitespace-pre-wrap"></p>
+        </div>
+    </div>
+
+    <div id="boxcore-warranty-logs-modal" class="modal-overlay" onclick="if(event.target===this) closeBoxcoreWarrantyLogs()">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-7 shadow-2xl modal-content">
+            <div class="flex justify-between items-start gap-4 mb-5">
+                <div>
+                    <p class="text-[10px] font-black tracking-widest text-yellow-600 mb-1">WARRANTY HISTORY</p>
+                    <h3 class="text-xl font-black text-gray-900">保固紀錄</h3>
+                </div>
+                <button type="button" onclick="closeBoxcoreWarrantyLogs()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                    <iconify-icon icon="mdi:close"></iconify-icon>
+                </button>
+            </div>
+            <div id="boxcore-warranty-logs-content" class="warranty-log-list">
+                <p class="text-xs text-gray-400 text-center py-8 font-bold">保固紀錄讀取中...</p>
+            </div>
         </div>
     </div>
 
@@ -1401,30 +1450,127 @@
                 list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">目前沒有終身保固資料</p>';
                 return;
             }
+
+            // 清單表面不顯示 lifetime_warranty 的設備、IMEI、門市、日期、項目、註記或 user_check。
+            // 僅提供一個乾淨入口，點擊後再讀取 warranty_logs。
             list.innerHTML = records.map((w, index) => {
-                const title = pickValue(w, ['device_model', 'model', 'product_model', 'model_name', 'product_name', 'item_name', 'repair_item']) || `保固資料 #${index + 1}`;
-                const serial = pickValue(w, ['serial_number', 'imei', 'sn', 'warranty_code', 'device_serial']) || '---';
-                const status = pickValue(w, ['status', 'warranty_status', 'state']) || '已登錄';
-                const date = pickValue(w, ['created_at', 'registered_at', 'purchase_date', 'warranty_start_date']) || null;
-                const ignored = new Set(['id','line_id','profile_id','auth_user_id','created_by','updated_at']);
-                const detailRows = Object.entries(w)
-                    .filter(([key, value]) => !ignored.has(key) && value !== null && value !== undefined && String(value).trim() !== '')
-                    .slice(0, 10)
-                    .map(([key, value]) => `<div class="text-[10px] text-gray-500"><span class="font-black text-gray-700">${escapeHtml(key)}</span>：${escapeHtml(String(value).substring(0, 80))}</div>`)
-                    .join('');
+                const warrantyId = String(w?.id ?? '').trim();
+                const safeId = encodeURIComponent(warrantyId);
                 return `
-                <div class="folio-item">
-                    <div class="flex justify-between items-start gap-3 mb-2">
-                        <div>
-                            <p class="font-black text-base text-gray-900">${escapeHtml(title)}</p>
-                            <p class="text-[11px] text-gray-500 mt-1 font-mono">${escapeHtml(serial)}</p>
-                            <p class="text-[10px] text-gray-400 mt-1 font-bold">登錄 ${formatDateTime(date, true)}</p>
-                        </div>
-                        <span class="folio-status folio-status-ok">${escapeHtml(status)}</span>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t border-gray-100">${detailRows}</div>
-                </div>`;
+                <button type="button" class="folio-item boxcore-warranty-summary" onclick="openBoxcoreWarrantyLogs(decodeURIComponent('${safeId}'))">
+                    <span class="boxcore-warranty-summary-main">
+                        <span class="boxcore-warranty-summary-icon"><iconify-icon icon="mdi:shield-history-outline"></iconify-icon></span>
+                        <span>
+                            <span class="boxcore-warranty-summary-title">終身保固 #${index + 1}</span>
+                            <span class="boxcore-warranty-summary-hint">點擊查看保固紀錄</span>
+                        </span>
+                    </span>
+                    <iconify-icon icon="mdi:chevron-right" class="text-xl text-gray-400 shrink-0"></iconify-icon>
+                </button>`;
             }).join('');
+        }
+
+        let currentBoxcoreWarrantyLogId = '';
+
+        function closeBoxcoreWarrantyLogs() {
+            const modal = document.getElementById('boxcore-warranty-logs-modal');
+            if (modal) modal.style.display = 'none';
+            currentBoxcoreWarrantyLogId = '';
+        }
+
+        function warrantyLogMatchesContract(row, warrantyId) {
+            const target = String(warrantyId ?? '').trim();
+            if (!target) return false;
+            const relationKeys = [
+                // 相容目前 warranty_logs.id 直接對應 lifetime_warranty.id 的資料。
+                'id',
+                // 同時相容未來改成獨立外鍵的常見欄位。
+                'lifetime_warranty_id', 'warranty_id', 'warranty_contract_id',
+                'contract_id', 'lifetime_warranty', 'lifetime_id',
+                'warranty_card_id', 'card_id', 'warranty_code', 'warranty_no'
+            ];
+            return relationKeys.some(key => String(row?.[key] ?? '').trim() === target);
+        }
+
+        function sortWarrantyLogs(rows) {
+            const dateKeys = ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'];
+            return [...(rows || [])].sort((a, b) => {
+                const at = new Date(pickValue(a, dateKeys) || 0).getTime();
+                const bt = new Date(pickValue(b, dateKeys) || 0).getTime();
+                return (Number.isFinite(bt) ? bt : 0) - (Number.isFinite(at) ? at : 0);
+            });
+        }
+
+        async function fetchBoxcoreWarrantyLogs(warrantyId) {
+            const id = String(warrantyId ?? '').trim();
+            if (!id) return [];
+
+            // 優先使用標準外鍵欄位，避免資料量增大時讀取整張表。
+            try {
+                const direct = await _supabase
+                    .from('warranty_logs')
+                    .select('*')
+                    .eq('lifetime_warranty_id', id)
+                    .order('created_at', { ascending: false });
+                if (!direct.error && Array.isArray(direct.data) && direct.data.length > 0) {
+                    return direct.data;
+                }
+            } catch (e) {}
+
+            // 舊資料可能是 warranty_logs.id 直接對應 lifetime_warranty.id，因此做相容查找。
+            try {
+                const fallback = await _supabase.from('warranty_logs').select('*');
+                if (fallback.error) throw fallback.error;
+                return sortWarrantyLogs((fallback.data || []).filter(row => warrantyLogMatchesContract(row, id)));
+            } catch (err) {
+                console.warn('保固紀錄讀取失敗：', err?.message || err);
+                return [];
+            }
+        }
+
+        function warrantyLogItemHtml(row, index) {
+            const usedAt = pickValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date']);
+            const reason = pickValue(row, ['reason','warranty_reason','content','remarks','note','description','issue','reason_text','service_reason','problem']) || '未填寫保固原因';
+            const store = pickValue(row, ['service_store','store_name','store','branch_name']);
+            const staff = pickValue(row, ['staff_name','handled_by','used_by','operator_name','staff']);
+            const status = pickValue(row, ['status','result','state']);
+            const meta = [
+                store ? `門市：${escapeHtml(store)}` : '',
+                staff ? `人員：${escapeHtml(staff)}` : '',
+                status ? `狀態：${escapeHtml(status)}` : ''
+            ].filter(Boolean).map(item => `<span>${item}</span>`).join('');
+
+            return `
+            <article class="warranty-log-item">
+                <time>#${index + 1}　${escapeHtml(formatDateTime(usedAt, true))}</time>
+                <div class="reason">${escapeHtml(reason)}</div>
+                ${meta ? `<div class="meta">${meta}</div>` : ''}
+            </article>`;
+        }
+
+        async function openBoxcoreWarrantyLogs(warrantyId) {
+            const modal = document.getElementById('boxcore-warranty-logs-modal');
+            const content = document.getElementById('boxcore-warranty-logs-content');
+            if (!modal || !content) return;
+
+            const id = String(warrantyId ?? '').trim();
+            currentBoxcoreWarrantyLogId = id;
+            modal.style.display = 'flex';
+
+            if (!id) {
+                content.innerHTML = '<p class="text-xs text-red-500 text-center py-8 font-bold">這筆終身保固缺少可查詢的識別碼</p>';
+                return;
+            }
+
+            content.innerHTML = '<p class="text-xs text-gray-400 text-center py-8 font-bold">保固紀錄讀取中...</p>';
+            const rows = await fetchBoxcoreWarrantyLogs(id);
+            if (currentBoxcoreWarrantyLogId !== id) return;
+
+            if (!rows.length) {
+                content.innerHTML = '<p class="text-xs text-gray-400 text-center py-8 font-bold">目前尚無保固使用紀錄</p>';
+                return;
+            }
+            content.innerHTML = rows.map(warrantyLogItemHtml).join('');
         }
 
         async function cleanupScanner() {
