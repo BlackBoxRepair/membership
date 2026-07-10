@@ -104,6 +104,23 @@
         .member-topbar { background: transparent; border-bottom: 0; }
         .boxcore-metric-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
         .boxcore-count-card { aspect-ratio: 1 / 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+        .boxcore-count-card .folio-label, .metric-card > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9px !important; letter-spacing: .04em !important; }
+        .boxcore-coupon-row { display:flex; align-items:center; gap:10px; border:1px solid #ece7df; border-radius:14px; padding:12px; background:#fff; }
+        .boxcore-coupon-main { min-width:0; flex:1; cursor:pointer; }
+        .boxcore-coupon-main .name { font-size:13px; font-weight:900; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .boxcore-coupon-main .expiry { font-size:10px; font-weight:700; color:#9b9286; margin-top:4px; }
+        .qty-stepper { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        .qty-stepper button { width:28px; height:28px; border-radius:8px; border:1px solid #e5e7eb; background:#f9fafb; font-weight:900; }
+        .qty-stepper span { min-width:20px; text-align:center; font-size:13px; font-weight:900; }
+        .model-chip { border:1px solid #d8d2c8; background:#fff; color:#6b7280; font-size:11px; font-weight:900; transition:.15s; }
+        .model-chip.active { background:#111827; border-color:#111827; color:#fff; }
+        .model-chip.round { width:34px; height:34px; border-radius:999px; }
+        .model-chip.square { height:34px; padding:0 9px; border-radius:9px; }
+        .imei-group { display:flex; align-items:center; gap:4px; flex-wrap:nowrap; }
+        .imei-gap { width:8px; flex:0 0 8px; }
+        .imei-box { width:25px; height:38px; text-align:center; border:1px solid #d8d2c8; border-radius:7px; background:#fff; font:700 16px/1 monospace; outline:none; }
+        .imei-box:focus { border-color:#ca8a04; box-shadow:0 0 0 2px rgba(202,138,4,.12); }
+        @media(max-width:520px){ .imei-box{width:20px;height:34px;font-size:14px}.imei-group{gap:2px}.imei-gap{width:5px;flex-basis:5px} }
         .boxcore-count-card .boxcore-count-line { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
         .boxcore-main-grid { display: grid; grid-template-columns: minmax(240px, .58fr) minmax(0, 1.42fr); gap: 18px; align-items: start; }
         .boxcore-operation-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 16px; align-items: start; }
@@ -443,7 +460,10 @@
                                                 <button type="button" class="boxcore-store-btn" data-store="沙鹿站前店" onclick="selectBoxcoreStore('沙鹿站前店')">沙鹿站前店</button>
                                                 <input id="boxcore-store-select" type="hidden" value="勤美公益店">
                                             </div>
-                                            <input id="boxcore-order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（選填）" class="soft-input uppercase">
+                                            <div class="flex gap-2">
+                                                <input id="boxcore-order-no" type="text" inputmode="url" autocapitalize="characters" placeholder="維修單號（必填）" class="soft-input uppercase" required>
+                                                <button type="button" onclick="setBoxcoreAccOrder()" class="shrink-0 px-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-xs font-black">保貼配件</button>
+                                            </div>
                                         </div>
                                         <div class="relative">
                                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
@@ -480,8 +500,24 @@
                             <div class="boxcore-subpanel h-full">
                                 <h4 class="boxcore-subtitle"><iconify-icon icon="mdi:shield-star-outline"></iconify-icon>終身保固</h4>
                                 <div class="space-y-3">
-                                    <input id="boxcore-warranty-device-model" type="text" placeholder="設備型號" class="soft-input font-bold">
-                                    <input id="boxcore-warranty-imei" type="text" inputmode="url" autocapitalize="characters" placeholder="IMEI" class="soft-input font-mono uppercase">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="font-black text-gray-800 text-sm">iPhone</span>
+                                            <button type="button" class="model-chip round" data-model-prefix="SE" onclick="toggleModelPrefix('SE')">SE</button>
+                                            <button type="button" class="model-chip round" data-model-prefix="Air" onclick="toggleModelPrefix('Air')">Air</button>
+                                            <input id="boxcore-warranty-model-number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="數字" class="soft-input font-black text-center w-20" oninput="this.value=this.value.replace(/\D/g,''); updateWarrantyDeviceModel()">
+                                            <button type="button" class="model-chip square" data-model-suffix="Plus" onclick="toggleModelSuffix('Plus')">Plus</button>
+                                            <button type="button" class="model-chip square" data-model-suffix="Pro" onclick="toggleModelSuffix('Pro')">Pro</button>
+                                            <button type="button" class="model-chip square" data-model-suffix="Pro Max" onclick="toggleModelSuffix('Pro Max')">Pro Max</button>
+                                        </div>
+                                        <input id="boxcore-warranty-device-model" type="hidden">
+                                        <p id="boxcore-device-model-preview" class="text-[11px] font-bold text-yellow-700 min-h-[16px]"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-black text-gray-400 mb-2 tracking-widest">IMEI（15碼）</p>
+                                        <div id="boxcore-imei-boxes" class="imei-group"></div>
+                                        <input id="boxcore-warranty-imei" type="hidden">
+                                    </div>
                                     <input id="boxcore-warranty-project" type="text" placeholder="保固項目" class="soft-input font-bold">
                                     <textarea id="boxcore-warranty-remarks" placeholder="註記" class="soft-input min-h-[110px] resize-none"></textarea>
                                     <p class="text-[10px] text-gray-400 leading-relaxed font-bold">送出時會使用此會員的 line_id 寫入 lifetime_warranty。</p>
@@ -570,6 +606,16 @@
         </div>
     </div>
 
+    <div id="coupon-description-modal" class="modal-overlay" onclick="if(event.target===this) closeCouponDescription()">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-7 shadow-2xl">
+            <div class="flex justify-between items-start gap-4 mb-5">
+                <div><p class="text-[10px] font-black tracking-widest text-yellow-600 mb-1">COUPON DETAILS</p><h3 id="coupon-description-title" class="text-xl font-black text-gray-900"></h3></div>
+                <button onclick="closeCouponDescription()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"><iconify-icon icon="mdi:close"></iconify-icon></button>
+            </div>
+            <p id="coupon-description-body" class="text-sm leading-7 text-gray-600 whitespace-pre-wrap"></p>
+        </div>
+    </div>
+
     <div id="confirm-modal" class="modal-overlay">
         <div class="bg-white w-full max-w-sm rounded-2xl p-8 shadow-2xl relative modal-content">
             <h3 id="cfm-title" class="text-2xl font-black text-gray-900 mb-1 tracking-tight">送出確認</h3>
@@ -638,6 +684,9 @@
         let currentTargetLineId = null; 
         let currentTargetCouponId = null; 
         let selectedCoupons = [];
+        let boxcoreCouponQuantities = {};
+        let selectedModelPrefix = "";
+        let selectedModelSuffix = "";
         let selectedCashCoupons = []; 
         let userCashCoupons = [];      
         let calculatedPoints = 0;
@@ -1130,6 +1179,7 @@
             setText('boxcore-preview-points', '+0');
             setText('boxcore-total-due', '$0');
             selectedCoupons = [];
+            boxcoreCouponQuantities = {};
             selectedCashCoupons = [];
             calculatedPoints = 0;
             calculatedRedeem = 0;
@@ -1658,21 +1708,57 @@
             if (shouldSync) syncBoxcoreOperationToIssueForm();
         }
 
+        function setBoxcoreAccOrder() {
+            const el = document.getElementById('boxcore-order-no');
+            el.value = 'ACC';
+            syncBoxcoreOperationToIssueForm();
+        }
+
+        function toggleModelPrefix(value) {
+            selectedModelPrefix = selectedModelPrefix === value ? '' : value;
+            document.querySelectorAll('[data-model-prefix]').forEach(b => b.classList.toggle('active', b.dataset.modelPrefix === selectedModelPrefix));
+            updateWarrantyDeviceModel();
+        }
+        function toggleModelSuffix(value) {
+            selectedModelSuffix = selectedModelSuffix === value ? '' : value;
+            document.querySelectorAll('[data-model-suffix]').forEach(b => b.classList.toggle('active', b.dataset.modelSuffix === selectedModelSuffix));
+            updateWarrantyDeviceModel();
+        }
+        function updateWarrantyDeviceModel() {
+            const n = (document.getElementById('boxcore-warranty-model-number')?.value || '').trim();
+            const parts = ['iPhone'];
+            if (selectedModelPrefix) parts.push(selectedModelPrefix);
+            if (n) parts.push(n);
+            if (selectedModelSuffix) parts.push(selectedModelSuffix);
+            const value = (selectedModelPrefix || n || selectedModelSuffix) ? parts.join(' ') : '';
+            document.getElementById('boxcore-warranty-device-model').value = value;
+            document.getElementById('boxcore-device-model-preview').innerText = value;
+        }
+        function initImeiBoxes() {
+            const wrap = document.getElementById('boxcore-imei-boxes');
+            if (!wrap || wrap.children.length) return;
+            for (let i=0;i<15;i++) {
+                if (i===2 || i===8 || i===14) { const gap=document.createElement('span'); gap.className='imei-gap'; wrap.appendChild(gap); }
+                const input=document.createElement('input');
+                input.type='text'; input.inputMode='numeric'; input.maxLength=1; input.className='imei-box'; input.dataset.index=i;
+                input.addEventListener('input', e => { e.target.value=e.target.value.replace(/\D/g,'').slice(0,1); syncImeiValue(); if(e.target.value && i<14) wrap.querySelector(`[data-index="${i+1}"]`)?.focus(); });
+                input.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && i>0) wrap.querySelector(`[data-index="${i-1}"]`)?.focus(); });
+                input.addEventListener('paste', e => { e.preventDefault(); const digits=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,15); [...wrap.querySelectorAll('.imei-box')].forEach((box,j)=>box.value=digits[j]||''); syncImeiValue(); wrap.querySelector(`[data-index="${Math.min(digits.length,14)}"]`)?.focus(); });
+                wrap.appendChild(input);
+            }
+        }
+        function syncImeiValue() { const digits=[...document.querySelectorAll('#boxcore-imei-boxes .imei-box')].map(x=>x.value).join(''); document.getElementById('boxcore-warranty-imei').value=digits; }
         function clearBoxcoreWarrantyFields() {
-            ['boxcore-warranty-device-model', 'boxcore-warranty-imei', 'boxcore-warranty-project', 'boxcore-warranty-remarks'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+            selectedModelPrefix=''; selectedModelSuffix='';
+            document.querySelectorAll('[data-model-prefix],[data-model-suffix]').forEach(b=>b.classList.remove('active'));
+            ['boxcore-warranty-device-model','boxcore-warranty-model-number','boxcore-warranty-imei','boxcore-warranty-project','boxcore-warranty-remarks'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+            document.querySelectorAll('#boxcore-imei-boxes .imei-box').forEach(x=>x.value='');
+            const preview=document.getElementById('boxcore-device-model-preview'); if(preview) preview.innerText='';
         }
 
         function getBoxcoreWarrantyForm() {
             const get = id => (document.getElementById(id)?.value || '').trim();
-            return {
-                device_model: get('boxcore-warranty-device-model'),
-                imei: get('boxcore-warranty-imei'),
-                project: get('boxcore-warranty-project'),
-                remarks: get('boxcore-warranty-remarks')
-            };
+            return { device_model:get('boxcore-warranty-device-model'), imei:get('boxcore-warranty-imei'), project:get('boxcore-warranty-project'), remarks:get('boxcore-warranty-remarks') };
         }
 
         function hasBoxcoreWarrantyInput() {
@@ -1684,9 +1770,8 @@
             const form = getBoxcoreWarrantyForm();
             const hasInput = Object.values(form).some(v => v !== '');
             if (!hasInput) return null;
-            if (!form.device_model || !form.imei || !form.project) {
-                throw new Error('請完整填寫終身保固的「設備型號」、「IMEI」、「保固項目」。');
-            }
+            if (!form.device_model || !form.imei || !form.project) { throw new Error('請完整填寫終身保固的「設備型號」、「IMEI」、「保固項目」。'); }
+            if (!/^\d{15}$/.test(form.imei)) { throw new Error('IMEI 必須完整填寫 15 碼數字。'); }
             if (!currentTargetLineId) {
                 throw new Error('會員 line_id 遺失，請重新掃描會員。');
             }
@@ -1710,6 +1795,8 @@
 
         function startBoxcoreStaffAuth() {
             const amount = document.getElementById('boxcore-amount-input').value;
+            const orderNo = document.getElementById('boxcore-order-no').value.trim();
+            if (!orderNo) { alert('請填寫維修單號；保貼或配件可點選「保貼配件」自動填入 ACC。'); return; }
             let warrantyPayload = null;
             try {
                 warrantyPayload = validateBoxcoreWarrantyPayload();
@@ -2286,26 +2373,18 @@
                 return 0;
             });
             
+            const expiryFor = c => {
+                if (c.validity_days > 0) { const d=new Date(); d.setDate(d.getDate()+c.validity_days); return `效期：${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+                if (c.valid_until) return `效期：${c.valid_until}`;
+                return '永久有效';
+            };
             const generateHtml = (mode) => validCoupons.map(c => {
-                let expiryText = '永久有效';
-                if (c.validity_days > 0) {
-                    const d = new Date(); d.setDate(d.getDate() + c.validity_days);
-                    const dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-                    expiryText = `效期：${dateStr}`;
-                } else if (c.valid_until) {
-                    expiryText = `效期：${c.valid_until}`;
-                }
-          
-                let typeBadge = (c.type === 'cash') 
-                    ? `<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${c.discount_amount || 0}</span>`
-                    : `<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
-                const badge = `<span class="date-badge">${expiryText}</span>`;
-                
-                const safeName = String(c.name || '').replace(/'/g, "\'");
-                const fnName = mode === 'activity' ? 'toggleActivityCoupon' : (mode === 'boxcore' ? 'toggleBoxcoreCoupon' : 'toggleCoupon');
-                return `<div class="coupon-card" onclick="${fnName}(this, '${safeName}')">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${escapeHtml(c.name)}</p><p class="text-[10px] text-gray-400 leading-tight">${escapeHtml(c.description || '')}</p>${badge}</div>`;
+                const expiryText=expiryFor(c); const safeName=encodeURIComponent(c.name||''); const safeDesc=encodeURIComponent(c.description||'');
+                if (mode === 'boxcore') return `<div class="boxcore-coupon-row"><div class="boxcore-coupon-main" onclick="showCouponDescription(decodeURIComponent('${safeName}'), decodeURIComponent('${safeDesc}'))"><div class="name">${escapeHtml(c.name)}</div><div class="expiry">${expiryText}</div></div><div class="qty-stepper"><button type="button" onclick="changeBoxcoreCouponQty(decodeURIComponent('${safeName}'),-1)">−</button><span id="boxcore-qty-${safeName.replace(/%/g,'_')}">0</span><button type="button" onclick="changeBoxcoreCouponQty(decodeURIComponent('${safeName}'),1)">＋</button></div></div>`;
+                let typeBadge=(c.type==='cash')?`<span class="absolute top-2 right-2 text-[9px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100 tracking-wider">-$${c.discount_amount||0}</span>`:`<span class="absolute top-2 right-2 text-[9px] font-black text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200 tracking-wider">兌換</span>`;
+                const fnName=mode==='activity'?'toggleActivityCoupon':'toggleCoupon';
+                return `<div class="coupon-card" onclick="${fnName}(this, decodeURIComponent('${safeName}'))">${typeBadge}<p class="font-bold text-sm mb-1 pr-8">${escapeHtml(c.name)}</p><p class="text-[10px] text-gray-400 leading-tight">${escapeHtml(c.description||'')}</p><span class="date-badge">${expiryText}</span></div>`;
             }).join('');
-
             container.innerHTML = generateHtml('issue');
             actContainer.innerHTML = generateHtml('activity');
             if (boxContainer) boxContainer.innerHTML = generateHtml('boxcore');
@@ -2322,14 +2401,12 @@
         }
 
 
-        function toggleBoxcoreCoupon(el, name) {
-            if (selectedCoupons.includes(name)) {
-                selectedCoupons = selectedCoupons.filter(c => c !== name);
-                el.classList.remove('selected');
-            } else {
-                selectedCoupons.push(name);
-                el.classList.add('selected');
-            }
+        function showCouponDescription(name, description) { document.getElementById('coupon-description-title').innerText=name; document.getElementById('coupon-description-body').innerText=description||'此票券沒有額外說明。'; document.getElementById('coupon-description-modal').style.display='flex'; }
+        function closeCouponDescription() { document.getElementById('coupon-description-modal').style.display='none'; }
+        function changeBoxcoreCouponQty(name, delta) {
+            const next=Math.max(0,Math.min(99,(boxcoreCouponQuantities[name]||0)+delta)); boxcoreCouponQuantities[name]=next;
+            selectedCoupons=[]; Object.entries(boxcoreCouponQuantities).forEach(([n,q])=>{ for(let i=0;i<q;i++) selectedCoupons.push(n); });
+            const id='boxcore-qty-'+encodeURIComponent(name).replace(/%/g,'_'); const el=document.getElementById(id); if(el) el.innerText=next;
             syncBoxcoreOperationToIssueForm();
         }
 
@@ -2342,6 +2419,7 @@
                 el.classList.add('selected');
             }
         }
+        document.addEventListener('DOMContentLoaded', initImeiBoxes);
     </script>
 </body>
 </html>
