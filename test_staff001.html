@@ -1054,8 +1054,8 @@
 
         function extractPrefixedScanCode(value, prefix) {
             const text = normalizeScanText(value);
-            const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\]/g, '\\$&');
-            const pattern = new RegExp(escapedPrefix + '([^\s?#&]+)', 'i');
+            const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp(escapedPrefix + '([^\\s?#&]+)', 'i');
             const match = text.match(pattern);
             return match ? match[1].trim() : null;
         }
