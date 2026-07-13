@@ -1735,23 +1735,18 @@
             const originalText = button.innerText;
             button.innerText = '送出中...';
             try {
-                let result = await _supabase.from('warranty_logs').insert({
-                    warranty_id: currentWarrantyContract.id,
-                    reason
+                // 透過資料庫函式送出。函式內發生任何錯誤時，PostgreSQL 會整筆回滾。
+                const { error } = await _supabase.rpc('submit_warranty_service_atomic_v1', {
+                    p_warranty_id: currentWarrantyContract.id,
+                    p_reason: reason
                 });
-                if (result.error && /warranty_id/i.test(result.error.message || '')) {
-                    result = await _supabase.from('warranty_logs').insert({
-                        lifetime_warranty_id: currentWarrantyContract.id,
-                        reason
-                    });
-                }
-                if (result.error) throw result.error;
+                if (error) throw error;
                 reasonEl.value = '';
                 await loadWarrantyServiceLogs(currentWarrantyContract.id);
                 alert('保固申請已成功送出。');
             } catch (err) {
                 console.error('寫入 warranty_logs 失敗:', err);
-                alert('保固申請送出失敗：' + (err?.message || '未知錯誤'));
+                alert('保固申請送出失敗，資料未寫入：' + (err?.message || '未知錯誤'));
             } finally {
                 button.disabled = false;
                 button.innerText = originalText;
@@ -2921,15 +2916,16 @@
 
         async function executeIssue() {
             const btn = document.getElementById('btn-submit-real');
-            btn.disabled = true; 
-            
-            showLoading(); 
+            btn.disabled = true;
+            showLoading();
 
-            const store = document.getElementById('store-select').value;
-            const orderNo = document.getElementById('order-no').value || '無單號';
-            
+            const store = document.getElementById('store-select').value.trim();
+            const orderNo = document.getElementById('order-no').value.trim();
             const amountInput = document.getElementById('amount-input').value;
-            const inputBillAmount = amountInput ? parseInt(amountInput) : 0;
+            const inputBillAmount = amountInput ? parseInt(amountInput, 10) : 0;
+            const redeemInputVal = document.getElementById('redeem-input').value;
+            const pointsRedeemed = Math.floor((parseInt(redeemInputVal, 10) || 0) / 10) * 10;
+
             let boxcoreWarrantyPayload = null;
             if (currentSystemMode === 'boxcore') {
                 try {
@@ -2941,117 +2937,74 @@
                     return;
                 }
             }
+
             if (!currentTargetLineId) {
                 hideLoading();
-                alert("錯誤：會員 ID 遺失，請重新掃描");
+                alert('錯誤：會員 ID 遺失，請重新掃描');
+                btn.disabled = false;
+                return;
+            }
+            if (!store) {
+                hideLoading();
+                alert('請先選擇門市。');
+                btn.disabled = false;
+                return;
+            }
+            if (!orderNo) {
+                hideLoading();
+                alert('請填寫維修單號。');
                 btn.disabled = false;
                 return;
             }
 
-            const redeemInputVal = document.getElementById('redeem-input').value;
-            const pointsRedeemed = Math.floor((parseInt(redeemInputVal) || 0) / 10) * 10;
-            let couponValue = 0;
-            selectedCashCoupons.forEach(id => {
-                const coupon = userCashCoupons.find(c => c.id === id);
-                if (coupon) couponValue += (coupon.discount_amount || 0);
+            // 把目前選擇的發送票券整理成 JSON；重複名稱代表一次發送多張。
+            const couponsToIssue = selectedCoupons.map(name => {
+                const org = allCouponsData.find(c => c.name === name);
+                if (!org) throw new Error(`找不到票券設定：${name}`);
+
+                let expiryDate = null;
+                if (org.validity_days && org.validity_days > 0) {
+                    const d = new Date();
+                    d.setDate(d.getDate() + org.validity_days);
+                    expiryDate = d.toISOString().split('T')[0];
+                } else {
+                    expiryDate = org.valid_until || null;
+                }
+
+                return {
+                    coupon_name: name,
+                    description: org.description || '',
+                    valid_until: expiryDate,
+                    type: org.type || 'exchange',
+                    discount_amount: Number(org.discount_amount || 0)
+                };
             });
-            const finalCashCollected = Math.max(0, inputBillAmount - pointsRedeemed - couponValue);
-            const pointsEarned = calculatedPoints;
-            
+
             try {
-                await new Promise(r => setTimeout(r, 800));
-                
-                const { data: profile, error: profileError } = await _supabase
-                    .from('profiles')
-                    .select('total_points, accumulated_points')
-                    .eq('line_id', currentTargetLineId)
-                    .single();
-                    
-                if (profileError) throw new Error("讀取會員資料失敗: " + profileError.message);
-                if (!profile) throw new Error("找不到此會員資料");
-                
-                const newTotal = (profile.total_points || 0) + pointsEarned - pointsRedeemed;
-                const newAccumulated = (profile.accumulated_points || 0) + pointsEarned;
-                
-                if (newTotal < 0) {
-                    hideLoading();
-                    alert(`交易失敗：積分餘額不足！\n現有: ${profile.total_points}\n欲抵扣: ${pointsRedeemed}`);
-                    btn.disabled = false; 
-                    return;
-                }
-
-                const { error: updateError } = await _supabase
-                    .from('profiles')
-                    .update({ 
-                        total_points: newTotal,
-                        accumulated_points: newAccumulated
-                    })
-                    .eq('line_id', currentTargetLineId);
-                    
-                if (updateError) throw new Error("更新積分失敗: " + updateError.message);
-
-                if (selectedCashCoupons.length > 0) {
-                    const now = new Date().toISOString();
-                    const { error: couponError } = await _supabase.from('user_coupons')
-                        .update({ status: 'used', used_at: now, used_by: currentStaffName })
-                        .in('id', selectedCashCoupons);
-                        
-                    if (couponError) throw new Error("更新優惠券失敗: " + couponError.message);
-                }
-
-                const { error: logError } = await _supabase.from('point_logs').insert({
-                    line_id: currentTargetLineId, staff_name: currentStaffName,
-                    store_name: store, order_number: orderNo, 
-                    amount: finalCashCollected, 
-                    points_change: pointsEarned,        
-                    points_redeemed: pointsRedeemed,    
-                    coupon_discount: couponValue        
+                // 一次 RPC 完成：積分、現金券核銷、消費紀錄、票券發送與終身保固。
+                // PostgreSQL 函式內任一步驟失敗，整個交易會自動回滾，不會留下部分資料。
+                const { data, error } = await _supabase.rpc('process_frontdesk_checkout_atomic_v1', {
+                    p_line_id: currentTargetLineId,
+                    p_staff_name: currentStaffName || '',
+                    p_store_name: store,
+                    p_order_number: orderNo,
+                    p_bill_amount: inputBillAmount,
+                    p_points_redeemed: pointsRedeemed,
+                    p_cash_coupon_ids: selectedCashCoupons,
+                    p_coupons_to_issue: couponsToIssue,
+                    p_warranty: boxcoreWarrantyPayload
                 });
-                if (logError) throw new Error("寫入紀錄失敗: " + logError.message);
-                
-                if (selectedCoupons.length > 0) {
-                    const couponsToInsert = selectedCoupons.map(name => {
-                        const org = allCouponsData.find(c => c.name === name);
-                        if (!org) return null;
-                        
-                        let expiryDate = null;
-                        if (org.validity_days && org.validity_days > 0) {
-                            const d = new Date(); d.setDate(d.getDate() + org.validity_days);
-                            expiryDate = d.toISOString().split('T')[0];
-                        } else {
-                            expiryDate = org.valid_until;
-                        }
-                        
-                        return {
-                            line_id: currentTargetLineId, coupon_name: name,
-                            description: org.description || '', valid_until: expiryDate,
-                            status: 'unused', type: org.type || 'exchange',
-                            discount_amount: org.discount_amount || 0
-                        };
-                    }).filter(c => c !== null);
 
-                    if (couponsToInsert.length > 0) {
-                        const { error: insertError } = await _supabase.from('user_coupons').insert(couponsToInsert);
-                        if (insertError) throw new Error("發送優惠券失敗: " + insertError.message);
-                    }
-                }
-
-                if (currentSystemMode === 'boxcore' && boxcoreWarrantyPayload) {
-                    const { error: warrantyError } = await _supabase
-                        .from('lifetime_warranty')
-                        .insert(boxcoreWarrantyPayload);
-                    if (warrantyError) throw new Error("寫入終身保固失敗: " + warrantyError.message);
-                }
+                if (error) throw error;
 
                 closeConfirmModal();
-                hideLoading(); 
-                await resetScan('系統發放完成！');
-                
-            } catch (err) { 
                 hideLoading();
-                alert('系統錯誤：' + err.message); 
-                console.error(err); 
-            } finally { 
+                await resetScan('系統發放完成！');
+            } catch (err) {
+                hideLoading();
+                alert('整筆作業失敗，所有資料均未寫入：' + (err?.message || '未知錯誤'));
+                console.error('Atomic checkout failed:', err);
+            } finally {
                 btn.disabled = false;
             }
         }
