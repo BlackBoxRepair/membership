@@ -1493,8 +1493,24 @@
         function classifyWarrantyIdentifier(value) {
             const raw = normalizeScanText(value).trim();
             if (!raw) return null;
-            const uuidMatch = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
-            if (uuidMatch) return { type: 'id', value: uuidMatch[0] };
+
+            // 會員端保固 QR Code 直接放 lifetime_warranty.id。
+            // 舊版只接受 UUID v1-v5，若資料庫使用其他 UUID 版本（例如 v7）就會被誤判為無效。
+            // 這裡改成接受所有標準 8-4-4-4-12 UUID 格式，不限制版本與 variant。
+            const uuidMatch = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+            if (uuidMatch) return { type: 'id', value: uuidMatch[0].toLowerCase() };
+
+            // 同時相容沒有連字號的 32 碼 UUID。
+            const compactMatch = raw.match(/(?:^|[^0-9a-f])([0-9a-f]{32})(?:[^0-9a-f]|$)/i);
+            if (compactMatch) {
+                const value32 = compactMatch[1].toLowerCase();
+                return {
+                    type: 'id',
+                    value: `${value32.slice(0,8)}-${value32.slice(8,12)}-${value32.slice(12,16)}-${value32.slice(16,20)}-${value32.slice(20)}`
+                };
+            }
+
+            // 相容直接以 IMEI 生成的 QR Code，以及含空格或連字號的 IMEI。
             const digits = raw.replace(/\D/g, '');
             if (digits.length === 15) return { type: 'imei', value: digits };
             return null;
@@ -2097,10 +2113,37 @@
                 }
             }
 
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            html5QrcodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 260, height: 260 } }, 
-                (decodedText) => onScanSuccess(decodedText, type)
-            ).catch(err => alert("相機啟動失敗"));
+            const scannerOptions = { verbose: false };
+            if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+                scannerOptions.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+            }
+            html5QrcodeScanner = new Html5Qrcode("reader", scannerOptions);
+            const scanBoxSize = Math.max(210, Math.min(280, window.innerWidth - 72));
+            html5QrcodeScanner.start(
+                { facingMode: { exact: "environment" } },
+                {
+                    fps: 15,
+                    qrbox: { width: scanBoxSize, height: scanBoxSize },
+                    aspectRatio: 1,
+                    disableFlip: false,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                },
+                (decodedText) => onScanSuccess(decodedText, type),
+                () => {}
+            ).catch(async () => {
+                // 某些 iPhone / 瀏覽器不接受 exact facingMode，改用較寬鬆設定重試。
+                try {
+                    await html5QrcodeScanner.start(
+                        { facingMode: "environment" },
+                        { fps: 15, qrbox: { width: scanBoxSize, height: scanBoxSize }, disableFlip: false },
+                        (decodedText) => onScanSuccess(decodedText, type),
+                        () => {}
+                    );
+                } catch (err) {
+                    console.error('相機啟動失敗:', err);
+                    alert("相機啟動失敗，請確認已允許相機權限");
+                }
+            });
         }
 
         async function handleManualInput() {
@@ -2155,6 +2198,7 @@
             }
 
             if (currentSystemMode === 'warranty') {
+                console.debug('Warranty QR decoded:', { rawText: text, parsed: warrantyCode });
                 if (warrantyCode) {
                     isScanLocked = true;
                     try {
