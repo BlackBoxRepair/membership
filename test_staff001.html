@@ -287,6 +287,185 @@
         }
 
             /* v14：恢復終身保固清單原樣，縮窄型號輸入欄位 */
+    
+
+        /* v17：盒芯會籍保固內容底部抽屜 */
+        .boxcore-warranty-sheet-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 220;
+            align-items: flex-end;
+            justify-content: center;
+            background: rgba(17, 24, 39, .48);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            overscroll-behavior: contain;
+        }
+        .boxcore-warranty-sheet-overlay.is-open { display: flex; }
+        .boxcore-warranty-sheet {
+            width: min(100%, 720px);
+            max-height: min(86dvh, 820px);
+            background: #f8f8f7;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -20px 60px rgba(17,24,39,.25);
+            transform: translateY(102%);
+            transition: transform .28s cubic-bezier(.22,.8,.22,1);
+            overflow: hidden;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .boxcore-warranty-sheet-overlay.is-visible .boxcore-warranty-sheet { transform: translateY(0); }
+        .boxcore-warranty-sheet-handle {
+            width: 44px;
+            height: 5px;
+            border-radius: 999px;
+            background: #d1d5db;
+            margin: 10px auto 5px;
+        }
+        .boxcore-warranty-sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 10px 18px 14px;
+            border-bottom: 1px solid #e8e2d8;
+            background: rgba(255,255,255,.92);
+        }
+        .boxcore-warranty-sheet-header .eyebrow {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .16em;
+            color: #ca8a04;
+        }
+        .boxcore-warranty-sheet-header h3 {
+            margin-top: 2px;
+            font-size: 21px;
+            line-height: 1.2;
+            font-weight: 900;
+            color: #111827;
+        }
+        .boxcore-warranty-sheet-close {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .boxcore-warranty-sheet-body {
+            max-height: calc(min(86dvh, 820px) - 88px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px 16px 24px;
+            overscroll-behavior-y: contain;
+        }
+        .boxcore-warranty-sheet-section {
+            background: #fff;
+            border: 1px solid #ebe4d9;
+            border-radius: 17px;
+            padding: 15px;
+        }
+        .boxcore-warranty-sheet-section + .boxcore-warranty-sheet-section { margin-top: 14px; }
+        .boxcore-warranty-sheet-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding-bottom: 10px;
+            margin-bottom: 11px;
+            border-bottom: 1px solid #ece7df;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .1em;
+            color: #1f2937;
+        }
+        .boxcore-warranty-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 14px;
+        }
+        .boxcore-warranty-detail-item { min-width: 0; }
+        .boxcore-warranty-detail-item.full { grid-column: 1 / -1; }
+        .boxcore-warranty-detail-item .label {
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            color: #9b9286;
+            margin-bottom: 4px;
+        }
+        .boxcore-warranty-detail-item .value {
+            font-size: 13px;
+            line-height: 1.55;
+            font-weight: 800;
+            color: #1f2937;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+        .boxcore-warranty-log-card {
+            position: relative;
+            padding: 13px 13px 13px 42px;
+            border: 1px solid #ece7df;
+            border-radius: 14px;
+            background: #fff;
+        }
+        .boxcore-warranty-log-card + .boxcore-warranty-log-card { margin-top: 9px; }
+        .boxcore-warranty-log-index {
+            position: absolute;
+            left: 12px;
+            top: 13px;
+            width: 22px;
+            height: 22px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: #111827;
+            color: #fff;
+            font-size: 9px;
+            font-weight: 900;
+        }
+        .boxcore-warranty-log-card time {
+            display: block;
+            font-size: 10px;
+            font-weight: 900;
+            color: #9b9286;
+        }
+        .boxcore-warranty-log-card .reason {
+            margin-top: 5px;
+            font-size: 13px;
+            line-height: 1.6;
+            font-weight: 800;
+            color: #1f2937;
+            white-space: pre-wrap;
+        }
+        .boxcore-warranty-log-card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px 9px;
+            margin-top: 8px;
+            color: #9ca3af;
+            font-size: 9px;
+            font-weight: 800;
+        }
+        .boxcore-warranty-sheet-empty {
+            padding: 24px 10px;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.7;
+            font-weight: 800;
+            color: #9ca3af;
+        }
+        #boxcore-warranty-list .folio-item[role="button"] { cursor: pointer; }
+        #boxcore-warranty-list .folio-item[role="button"]:active { transform: scale(.995); }
+        @media (max-width: 520px) {
+            .boxcore-warranty-sheet { max-height: 88dvh; border-radius: 22px 22px 0 0; }
+            .boxcore-warranty-sheet-body { max-height: calc(88dvh - 86px); padding: 13px 13px 20px; }
+            .boxcore-warranty-sheet-header { padding-left: 15px; padding-right: 15px; }
+            .boxcore-warranty-sheet-header h3 { font-size: 19px; }
+            .boxcore-warranty-detail-grid { gap: 11px 12px; }
+        }
+
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
@@ -541,7 +720,7 @@
                         <div class="boxcore-count-line"><span id="boxcore-warranty-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:shield-check" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                     <div class="folio-panel boxcore-count-card">
-                        <div class="folio-label">積分紀錄</div>
+                        <div class="folio-label">消費紀錄</div>
                         <div class="boxcore-count-line"><span id="boxcore-logs-count" class="text-2xl font-black text-gray-900">0</span><iconify-icon icon="mdi:chart-timeline-variant" class="text-2xl text-yellow-600"></iconify-icon></div>
                     </div>
                 </div>
@@ -731,6 +910,33 @@
                 </div>
             </div>
         </div>
+    </div>
+
+
+
+    <div id="boxcore-warranty-sheet-overlay" class="boxcore-warranty-sheet-overlay" onclick="if(event.target===this) closeBoxcoreWarrantySheet()" aria-hidden="true">
+        <section class="boxcore-warranty-sheet" role="dialog" aria-modal="true" aria-labelledby="boxcore-warranty-sheet-title">
+            <div class="boxcore-warranty-sheet-handle" aria-hidden="true"></div>
+            <header class="boxcore-warranty-sheet-header">
+                <div class="min-w-0">
+                    <p class="eyebrow">LIFETIME WARRANTY</p>
+                    <h3 id="boxcore-warranty-sheet-title">保固內容</h3>
+                </div>
+                <button type="button" class="boxcore-warranty-sheet-close" onclick="closeBoxcoreWarrantySheet()" aria-label="關閉保固內容">
+                    <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+                </button>
+            </header>
+            <div class="boxcore-warranty-sheet-body">
+                <section class="boxcore-warranty-sheet-section">
+                    <h4 class="boxcore-warranty-sheet-title"><iconify-icon icon="mdi:shield-check-outline"></iconify-icon>基本保固資料</h4>
+                    <div id="boxcore-warranty-basic-content" class="boxcore-warranty-detail-grid"></div>
+                </section>
+                <section class="boxcore-warranty-sheet-section">
+                    <h4 class="boxcore-warranty-sheet-title"><iconify-icon icon="mdi:history"></iconify-icon>保固服務紀錄</h4>
+                    <div id="boxcore-warranty-log-content"><div class="boxcore-warranty-sheet-empty">保固服務紀錄讀取中...</div></div>
+                </section>
+            </div>
+        </section>
     </div>
 
     <div id="coupon-description-modal" class="modal-overlay" onclick="if(event.target===this) closeCouponDescription()">
@@ -1301,30 +1507,160 @@
             }).join('');
         }
 
+        let boxcoreWarrantyRecords = [];
+        let currentBoxcoreWarrantySheetId = '';
+
+        function formatWarrantyImei(value) {
+            const raw = String(value ?? '').replace(/\s+/g, '');
+            if (!raw) return '---';
+            if (/^\d{15}$/.test(raw)) return `${raw.slice(0,2)} ${raw.slice(2,8)} ${raw.slice(8,14)} ${raw.slice(14)}`;
+            return String(value);
+        }
+
         function renderBoxcoreWarranty(records) {
             const list = document.getElementById('boxcore-warranty-list');
-            setText('boxcore-warranty-count', (records || []).length.toLocaleString());
-            if (!records || records.length === 0) {
+            boxcoreWarrantyRecords = Array.isArray(records) ? records : [];
+            setText('boxcore-warranty-count', boxcoreWarrantyRecords.length.toLocaleString());
+            if (boxcoreWarrantyRecords.length === 0) {
                 list.innerHTML = '<p class="text-xs text-gray-400 text-center py-6 font-bold">目前沒有終身保固資料</p>';
                 return;
             }
-            list.innerHTML = records.map((w, index) => {
+            list.innerHTML = boxcoreWarrantyRecords.map((w, index) => {
                 const title = pickValue(w, ['device_model', 'model', 'product_model', 'model_name', 'product_name', 'item_name', 'repair_item']) || `保固資料 #${index + 1}`;
                 const serial = pickValue(w, ['serial_number', 'imei', 'sn', 'warranty_code', 'device_serial']) || '---';
                 const status = pickValue(w, ['status', 'warranty_status', 'state']) || '已登錄';
                 const date = pickValue(w, ['created_at', 'registered_at', 'purchase_date', 'warranty_start_date']) || null;
                 return `
-                <div class="folio-item">
+                <div class="folio-item" role="button" tabindex="0" onclick="openBoxcoreWarrantySheet(${index})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBoxcoreWarrantySheet(${index});}">
                     <div class="flex justify-between items-start gap-3 mb-2">
-                        <div>
+                        <div class="min-w-0">
                             <p class="font-black text-base text-gray-900">${escapeHtml(title)}</p>
-                            <p class="text-[11px] text-gray-500 mt-1 font-mono">${escapeHtml(serial)}</p>
+                            <p class="text-[11px] text-gray-500 mt-1 font-mono">${escapeHtml(formatWarrantyImei(serial))}</p>
                             <p class="text-[10px] text-gray-400 mt-1 font-bold">登錄 ${formatDateTime(date, true)}</p>
                         </div>
-                        <span class="folio-status folio-status-ok">${escapeHtml(status)}</span>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="folio-status folio-status-ok">${escapeHtml(status)}</span>
+                            <iconify-icon icon="mdi:chevron-up" class="text-lg text-gray-400"></iconify-icon>
+                        </div>
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        function warrantyDetailItem(label, value, full = false) {
+            const display = value === null || value === undefined || String(value).trim() === '' ? '---' : String(value);
+            return `<div class="boxcore-warranty-detail-item${full ? ' full' : ''}"><div class="label">${escapeHtml(label)}</div><div class="value">${escapeHtml(display)}</div></div>`;
+        }
+
+        function buildWarrantyBasicHtml(row) {
+            const device = pickValue(row, ['device_model','model','product_model','model_name','product_name','item_name','repair_item']) || '---';
+            const imei = formatWarrantyImei(pickValue(row, ['imei','serial_number','sn','device_serial','warranty_code']) || '');
+            const project = pickValue(row, ['project','warranty_project','service_item','repair_item','item']) || '---';
+            const store = pickValue(row, ['service_store','store_name','store','branch_name']) || '---';
+            const created = pickValue(row, ['created_at','registered_at','purchase_date','warranty_start_date']);
+            const status = pickValue(row, ['status','warranty_status','state']) || (row?.user_check === true ? '已登錄' : '---');
+            const remarks = pickValue(row, ['remarks','note','description','memo']) || '無';
+            return [
+                warrantyDetailItem('設備型號', device),
+                warrantyDetailItem('IMEI', imei),
+                warrantyDetailItem('保固項目', project),
+                warrantyDetailItem('服務門市', store),
+                warrantyDetailItem('登錄時間', formatDateTime(created, true)),
+                warrantyDetailItem('保固狀態', status),
+                warrantyDetailItem('註記', remarks, true)
+            ].join('');
+        }
+
+        function warrantyLogMatchesContract(row, warrantyId) {
+            const target = String(warrantyId ?? '').trim();
+            if (!target) return false;
+            const relationKeys = [
+                'id', 'lifetime_warranty_id', 'warranty_id', 'warranty_contract_id',
+                'contract_id', 'lifetime_warranty', 'lifetime_id',
+                'warranty_card_id', 'card_id', 'warranty_code', 'warranty_no'
+            ];
+            return relationKeys.some(key => String(row?.[key] ?? '').trim() === target);
+        }
+
+        function sortBoxcoreWarrantyLogs(rows) {
+            const dateKeys = ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date'];
+            return [...(rows || [])].sort((a, b) => {
+                const at = new Date(pickValue(a, dateKeys) || 0).getTime();
+                const bt = new Date(pickValue(b, dateKeys) || 0).getTime();
+                return (Number.isFinite(bt) ? bt : 0) - (Number.isFinite(at) ? at : 0);
+            });
+        }
+
+        async function fetchBoxcoreWarrantyLogs(warrantyId) {
+            const id = String(warrantyId ?? '').trim();
+            if (!id) return [];
+
+            try {
+                const direct = await _supabase
+                    .from('warranty_logs')
+                    .select('*')
+                    .eq('lifetime_warranty_id', id)
+                    .order('created_at', { ascending: false });
+                if (!direct.error && Array.isArray(direct.data) && direct.data.length > 0) return direct.data;
+            } catch (e) {}
+
+            try {
+                const fallback = await _supabase.from('warranty_logs').select('*');
+                if (fallback.error) throw fallback.error;
+                return sortBoxcoreWarrantyLogs((fallback.data || []).filter(row => warrantyLogMatchesContract(row, id)));
+            } catch (err) {
+                console.warn('保固服務紀錄讀取失敗：', err?.message || err);
+                return [];
+            }
+        }
+
+        function buildWarrantyLogHtml(row, index) {
+            const usedAt = pickValue(row, ['used_at','warranty_used_at','service_at','created_at','date','logged_at','use_date','used_date','repair_date']);
+            const reason = pickValue(row, ['reason','warranty_reason','content','remarks','note','description','issue','reason_text','service_reason','problem']) || '未填寫服務內容';
+            const store = pickValue(row, ['service_store','store_name','store','branch_name']);
+            const staff = pickValue(row, ['staff_name','handled_by','used_by','operator_name','staff']);
+            const status = pickValue(row, ['status','result','state']);
+            const meta = [
+                store ? `門市：${escapeHtml(store)}` : '',
+                staff ? `人員：${escapeHtml(staff)}` : '',
+                status ? `狀態：${escapeHtml(status)}` : ''
+            ].filter(Boolean).map(item => `<span>${item}</span>`).join('');
+            return `<article class="boxcore-warranty-log-card"><div class="boxcore-warranty-log-index">${index + 1}</div><time>${escapeHtml(formatDateTime(usedAt, true))}</time><div class="reason">${escapeHtml(reason)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</article>`;
+        }
+
+        async function openBoxcoreWarrantySheet(index) {
+            const row = boxcoreWarrantyRecords[index];
+            const overlay = document.getElementById('boxcore-warranty-sheet-overlay');
+            const basic = document.getElementById('boxcore-warranty-basic-content');
+            const logsBox = document.getElementById('boxcore-warranty-log-content');
+            if (!row || !overlay || !basic || !logsBox) return;
+
+            const id = String(row?.id ?? '').trim();
+            currentBoxcoreWarrantySheetId = id;
+            basic.innerHTML = buildWarrantyBasicHtml(row);
+            logsBox.innerHTML = '<div class="boxcore-warranty-sheet-empty">保固服務紀錄讀取中...</div>';
+            overlay.classList.add('is-open');
+            overlay.setAttribute('aria-hidden', 'false');
+            requestAnimationFrame(() => overlay.classList.add('is-visible'));
+
+            if (!id) {
+                logsBox.innerHTML = '<div class="boxcore-warranty-sheet-empty">這筆保固資料缺少識別碼，無法查詢服務紀錄。</div>';
+                return;
+            }
+            const logs = await fetchBoxcoreWarrantyLogs(id);
+            if (currentBoxcoreWarrantySheetId !== id) return;
+            logsBox.innerHTML = logs.length
+                ? logs.map(buildWarrantyLogHtml).join('')
+                : '<div class="boxcore-warranty-sheet-empty">目前尚無保固服務紀錄。</div>';
+        }
+
+        function closeBoxcoreWarrantySheet() {
+            const overlay = document.getElementById('boxcore-warranty-sheet-overlay');
+            if (!overlay) return;
+            currentBoxcoreWarrantySheetId = '';
+            overlay.classList.remove('is-visible');
+            overlay.setAttribute('aria-hidden', 'true');
+            window.setTimeout(() => overlay.classList.remove('is-open'), 280);
         }
 
         async function cleanupScanner() {
@@ -2453,6 +2789,7 @@
                 el.classList.add('selected');
             }
         }
+        document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeBoxcoreWarrantySheet(); });
         document.addEventListener('DOMContentLoaded', initImeiBoxes);
     </script>
 </body>
