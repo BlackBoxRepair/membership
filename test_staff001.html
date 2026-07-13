@@ -1444,6 +1444,11 @@
             const text = normalizeScanText(value);
             if (!text) return null;
 
+            // 會員網站的會員碼固定為 BBX- + profiles.line_id。
+            // 先用最直接的前綴切割，避免部分掃描器回傳控制字元或網址編碼時正規式漏判。
+            const directBbxMatch = text.match(/BBX-[^\s?#&]+/i);
+            if (directBbxMatch) return directBbxMatch[0].slice(4).trim();
+
             const prefixed = extractPrefixedScanCode(text, 'BBX-');
             if (prefixed) return prefixed;
 
@@ -2113,37 +2118,81 @@
                 }
             }
 
-            const scannerOptions = { verbose: false };
-            if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
-                scannerOptions.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
-            }
-            html5QrcodeScanner = new Html5Qrcode("reader", scannerOptions);
-            const scanBoxSize = Math.max(210, Math.min(280, window.innerWidth - 72));
-            html5QrcodeScanner.start(
-                { facingMode: { exact: "environment" } },
-                {
-                    fps: 15,
-                    qrbox: { width: scanBoxSize, height: scanBoxSize },
-                    aspectRatio: 1,
-                    disableFlip: false,
-                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-                },
-                (decodedText) => onScanSuccess(decodedText, type),
-                () => {}
-            ).catch(async () => {
-                // 某些 iPhone / 瀏覽器不接受 exact facingMode，改用較寬鬆設定重試。
+            const decodedCallback = (decodedText) => onScanSuccess(decodedText, type);
+            const emptyErrorCallback = () => {};
+            const isWarrantyScan = currentSystemMode === 'warranty' && !isStaffAuthStep;
+
+            if (isWarrantyScan) {
+                // 終身保固 QR 內容是 UUID，沿用較大的掃描框與 QR 專用設定。
+                const scannerOptions = { verbose: false };
+                if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+                    scannerOptions.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+                }
+                html5QrcodeScanner = new Html5Qrcode("reader", scannerOptions);
+                const scanBoxSize = Math.max(210, Math.min(280, window.innerWidth - 72));
+
+                try {
+                    await html5QrcodeScanner.start(
+                        { facingMode: { exact: "environment" } },
+                        {
+                            fps: 15,
+                            qrbox: { width: scanBoxSize, height: scanBoxSize },
+                            aspectRatio: 1,
+                            disableFlip: false,
+                            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                        },
+                        decodedCallback,
+                        emptyErrorCallback
+                    );
+                } catch (firstError) {
+                    try {
+                        await html5QrcodeScanner.start(
+                            { facingMode: "environment" },
+                            { fps: 15, qrbox: { width: scanBoxSize, height: scanBoxSize }, disableFlip: false },
+                            decodedCallback,
+                            emptyErrorCallback
+                        );
+                    } catch (err) {
+                        console.error('保固掃描相機啟動失敗:', firstError, err);
+                        alert("相機啟動失敗，請確認已允許相機權限");
+                    }
+                }
+            } else {
+                // 前台系統、票券核銷、活動通道與員工驗證恢復原本較穩定的掃描設定。
+                // 不使用 BarcodeDetector 實驗功能，也不強制 exact 後鏡頭，避免 iPhone Safari
+                // 在短內容會員碼（BBX-line_id）上只顯示鏡頭卻不觸發解碼回呼。
+                html5QrcodeScanner = new Html5Qrcode("reader");
+                const normalScanBoxSize = Math.max(220, Math.min(260, window.innerWidth - 72));
+                const normalConfig = {
+                    fps: 10,
+                    qrbox: { width: normalScanBoxSize, height: normalScanBoxSize },
+                    disableFlip: false
+                };
+
                 try {
                     await html5QrcodeScanner.start(
                         { facingMode: "environment" },
-                        { fps: 15, qrbox: { width: scanBoxSize, height: scanBoxSize }, disableFlip: false },
-                        (decodedText) => onScanSuccess(decodedText, type),
-                        () => {}
+                        normalConfig,
+                        decodedCallback,
+                        emptyErrorCallback
                     );
-                } catch (err) {
-                    console.error('相機啟動失敗:', err);
-                    alert("相機啟動失敗，請確認已允許相機權限");
+                } catch (firstError) {
+                    try {
+                        const cameras = await Html5Qrcode.getCameras();
+                        const preferredCamera = (cameras || []).find(camera => /back|rear|environment|後置/i.test(camera.label || '')) || (cameras || [])[0];
+                        if (!preferredCamera) throw firstError;
+                        await html5QrcodeScanner.start(
+                            preferredCamera.id,
+                            normalConfig,
+                            decodedCallback,
+                            emptyErrorCallback
+                        );
+                    } catch (err) {
+                        console.error('一般掃描相機啟動失敗:', firstError, err);
+                        alert("相機啟動失敗，請確認已允許相機權限");
+                    }
                 }
-            });
+            }
         }
 
         async function handleManualInput() {
