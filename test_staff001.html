@@ -466,6 +466,50 @@
             .boxcore-warranty-detail-grid { gap: 11px 12px; }
         }
 
+        /* v23：終身保固查詢與保固服務工作區 */
+        .warranty-workspace { width: 100%; max-width: 760px; margin: 0 auto; min-width: 0; }
+        .warranty-hero-card, .warranty-section-card {
+            width: 100%; min-width: 0; background: #fff; border: 1px solid #e5e7eb;
+            border-radius: 18px; padding: 18px; box-shadow: 0 4px 16px rgba(17,24,39,.04);
+        }
+        .warranty-hero-card { display: flex; align-items: center; gap: 13px; }
+        .warranty-hero-icon { width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; border-radius: 14px; background: #fffbeb; color: #ca8a04; }
+        .warranty-hero-icon iconify-icon { font-size: 26px; }
+        .warranty-eyebrow { color: #ca8a04; font-size: 9px; line-height: 1.2; font-weight: 900; letter-spacing: .16em; }
+        .warranty-page-title { margin-top: 4px; color: #111827; font-size: 20px; line-height: 1.25; font-weight: 900; }
+        .warranty-page-subtitle { margin-top: 4px; color: #9ca3af; font-size: 11px; line-height: 1.5; font-weight: 700; overflow-wrap: anywhere; }
+        .warranty-count-badge, .warranty-small-count { display: grid; place-items: center; flex: 0 0 auto; border-radius: 999px; background: #111827; color: #fff; font-weight: 900; }
+        .warranty-count-badge { min-width: 38px; height: 38px; padding: 0 10px; font-size: 14px; }
+        .warranty-small-count { min-width: 28px; height: 28px; padding: 0 8px; font-size: 11px; }
+        .warranty-contract-card { width: 100%; min-width: 0; display: flex; align-items: center; gap: 12px; padding: 16px; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 3px 12px rgba(17,24,39,.035); transition: transform .15s, border-color .15s; }
+        .warranty-contract-card:active { transform: scale(.985); border-color: #d1a469; }
+        .warranty-contract-index { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 11px; background: #f3f4f6; color: #6b7280; font-size: 11px; font-weight: 900; }
+        .warranty-contract-main { min-width: 0; flex: 1; }
+        .warranty-contract-device { color: #111827; font-size: 15px; line-height: 1.35; font-weight: 900; overflow-wrap: anywhere; }
+        .warranty-contract-meta { display: flex; flex-wrap: wrap; gap: 5px 10px; margin-top: 6px; color: #9ca3af; font-size: 10px; line-height: 1.5; font-weight: 700; }
+        .warranty-contract-arrow { flex: 0 0 auto; color: #9ca3af; font-size: 22px; }
+        .warranty-back-button { display: inline-flex; align-items: center; gap: 2px; height: 38px; padding: 0 13px 0 8px; border-radius: 999px; background: #fff; border: 1px solid #e5e7eb; color: #374151; font-size: 11px; font-weight: 900; box-shadow: 0 2px 8px rgba(17,24,39,.04); }
+        .warranty-back-button iconify-icon { font-size: 21px; }
+        .warranty-service-badge { padding: 7px 11px; border-radius: 999px; background: #fffbeb; color: #a16207; font-size: 10px; font-weight: 900; letter-spacing: .08em; }
+        .warranty-section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .warranty-section-title { margin-top: 3px; color: #111827; font-size: 17px; line-height: 1.3; font-weight: 900; }
+        .warranty-info-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 15px; }
+        .warranty-info-item { min-width: 0; }
+        .warranty-info-item.full { grid-column: 1 / -1; }
+        .warranty-info-label { color: #9ca3af; font-size: 9px; line-height: 1.3; font-weight: 900; letter-spacing: .08em; }
+        .warranty-info-value { margin-top: 4px; color: #1f2937; font-size: 12px; line-height: 1.65; font-weight: 800; overflow-wrap: anywhere; white-space: pre-wrap; }
+        .warranty-service-log-card { position: relative; padding: 14px 14px 14px 48px; border: 1px solid #eee7dc; border-radius: 15px; background: #fffdf9; min-width: 0; }
+        .warranty-service-log-number { position: absolute; left: 13px; top: 13px; width: 25px; height: 25px; display: grid; place-items: center; border-radius: 8px; background: #f7b500; color: #111; font-size: 9px; font-weight: 900; }
+        .warranty-service-log-date { color: #9ca3af; font-size: 9px; font-weight: 900; letter-spacing: .05em; }
+        .warranty-service-log-reason { margin-top: 6px; color: #1f2937; font-size: 13px; line-height: 1.7; font-weight: 800; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .warranty-empty-state { padding: 25px 10px; border: 1px dashed #e5e7eb; border-radius: 14px; text-align: center; color: #9ca3af; font-size: 11px; line-height: 1.7; font-weight: 800; }
+        @media (max-width: 420px) {
+            .warranty-hero-card, .warranty-section-card { padding: 15px; border-radius: 16px; }
+            .warranty-page-title { font-size: 18px; }
+            .warranty-info-grid { gap: 12px; }
+            .warranty-contract-card { padding: 14px; }
+        }
+
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
@@ -686,18 +730,65 @@
             <div class="h-24 w-full shrink-0"></div>
         </div>
 
-        <div id="action-view-warranty" class="hidden scrollable-content flex flex-col p-6 pb-32">
-            <div class="bg-white w-full rounded-2xl p-8 shadow-sm text-center border border-gray-100">
-                <div class="w-16 h-16 bg-yellow-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <iconify-icon icon="mdi:shield-check" class="text-4xl text-yellow-600"></iconify-icon>
+        <div id="action-view-warranty" class="hidden scrollable-content flex flex-col p-4 md:p-6 pb-32">
+            <div id="warranty-contract-list-view" class="hidden warranty-workspace space-y-4">
+                <section class="warranty-hero-card">
+                    <div class="warranty-hero-icon"><iconify-icon icon="mdi:shield-search-outline"></iconify-icon></div>
+                    <div class="min-w-0 flex-1">
+                        <p class="warranty-eyebrow">WARRANTY CONTRACTS</p>
+                        <h3 class="warranty-page-title">保固契約清單</h3>
+                        <p id="warranty-list-member" class="warranty-page-subtitle">請選擇本次要處理的設備</p>
+                    </div>
+                    <div id="warranty-list-count" class="warranty-count-badge">0</div>
+                </section>
+                <div id="warranty-contract-list" class="space-y-3"></div>
+                <button type="button" onclick="resetScan()" class="w-full bg-white border border-gray-200 text-gray-700 py-4 rounded-xl font-black shadow-sm active:scale-95 transition">重新查詢</button>
+            </div>
+
+            <div id="warranty-service-view" class="hidden warranty-workspace space-y-5">
+                <div class="flex items-center justify-between gap-3">
+                    <button type="button" onclick="backFromWarrantyService()" class="warranty-back-button">
+                        <iconify-icon icon="mdi:chevron-left"></iconify-icon><span>返回</span>
+                    </button>
+                    <span class="warranty-service-badge">保固服務</span>
                 </div>
-                <h3 class="text-2xl font-black text-gray-900 mb-2">終身保固</h3>
-                <p class="text-gray-400 text-xs mb-6 uppercase tracking-widest">LIFETIME WARRANTY</p>
-                <div class="bg-gray-50 border border-gray-100 rounded-xl p-5 text-left space-y-2">
-                    <p class="text-sm font-bold text-gray-800">功能入口已建立</p>
-                    <p class="text-xs leading-relaxed text-gray-500">這裡先保留為終身保固模組入口，後續可以再接保固登錄、保固查詢、會員綁定或掃描 QR Code 流程。</p>
-                </div>
-                <button onclick="returnToDashboard()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-lg active:scale-95 transition mt-8">回主選單</button>
+
+                <section class="warranty-section-card">
+                    <div class="warranty-section-heading">
+                        <div>
+                            <p class="warranty-eyebrow">CONTRACT DETAILS</p>
+                            <h3 class="warranty-section-title">保固契約資料</h3>
+                        </div>
+                        <iconify-icon icon="mdi:shield-check-outline" class="text-2xl text-yellow-600"></iconify-icon>
+                    </div>
+                    <div id="warranty-service-contract-info" class="warranty-info-grid"></div>
+                </section>
+
+                <section class="warranty-section-card">
+                    <div class="warranty-section-heading">
+                        <div>
+                            <p class="warranty-eyebrow">SERVICE HISTORY</p>
+                            <h3 class="warranty-section-title">保固服務紀錄</h3>
+                        </div>
+                        <span id="warranty-service-log-count" class="warranty-small-count">0</span>
+                    </div>
+                    <div id="warranty-service-log-list" class="space-y-3">
+                        <div class="warranty-empty-state">保固服務紀錄讀取中...</div>
+                    </div>
+                </section>
+
+                <section class="warranty-section-card">
+                    <div class="warranty-section-heading">
+                        <div>
+                            <p class="warranty-eyebrow">WARRANTY REQUEST</p>
+                            <h3 class="warranty-section-title">保固申請作業</h3>
+                        </div>
+                        <iconify-icon icon="mdi:clipboard-text-outline" class="text-2xl text-yellow-600"></iconify-icon>
+                    </div>
+                    <label for="warranty-service-reason" class="block text-xs font-black text-gray-500 mb-2">出保原因 <span class="text-red-500">*</span></label>
+                    <textarea id="warranty-service-reason" class="soft-input min-h-[130px] resize-none leading-7" placeholder="請填寫本次出保原因與設備狀況"></textarea>
+                    <button id="warranty-service-submit" type="button" onclick="submitWarrantyServiceApplication()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-xl active:scale-95 transition mt-4">送出保固申請</button>
+                </section>
             </div>
             <div class="h-24 w-full shrink-0"></div>
         </div>
@@ -1023,6 +1114,12 @@
         let calculatedActivityDeductionValue = 0; // 換算後的折抵金額
         let currentActivityCode = null; // 儲存活動授權碼
 
+        // 終身保固模組狀態
+        let currentWarrantyContract = null;
+        let currentWarrantyContracts = [];
+        let currentWarrantyMember = null;
+        let warrantyServiceReturnTarget = 'scan';
+
         function cleanInput(el) {
             el.value = el.value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
         }
@@ -1047,6 +1144,7 @@
 
         function returnToDashboard() {
             cleanupScanner();
+            if (currentSystemMode === 'warranty') resetWarrantyModuleState();
             document.getElementById('app-container').classList.remove('app-wide');
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
@@ -1141,8 +1239,8 @@
                 badgeEl.innerText = "LIFETIME WARRANTY";
                 badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
                 currentActivityCode = null;
-                cleanupScanner();
-                document.getElementById('action-view-warranty').classList.remove('hidden');
+                resetWarrantyModuleState();
+                resetScan();
             } else if (mode === 'boxcore') {
                 titleEl.innerText = "前台系統";
                 badgeEl.innerText = "FRONT DESK SYSTEM";
@@ -1372,6 +1470,281 @@
             // LINE user ID 通常為 U 開頭，保留此格式以相容早期會員碼。
             if (/^U[a-zA-Z0-9_-]{20,}$/.test(text)) return text;
             return null;
+        }
+
+
+        function resetWarrantyModuleState() {
+            currentWarrantyContract = null;
+            currentWarrantyContracts = [];
+            currentWarrantyMember = null;
+            warrantyServiceReturnTarget = 'scan';
+            const action = document.getElementById('action-view-warranty');
+            const listView = document.getElementById('warranty-contract-list-view');
+            const serviceView = document.getElementById('warranty-service-view');
+            const list = document.getElementById('warranty-contract-list');
+            const reason = document.getElementById('warranty-service-reason');
+            if (action) action.classList.add('hidden');
+            if (listView) listView.classList.add('hidden');
+            if (serviceView) serviceView.classList.add('hidden');
+            if (list) list.innerHTML = '';
+            if (reason) reason.value = '';
+        }
+
+        function classifyWarrantyIdentifier(value) {
+            const raw = normalizeScanText(value).trim();
+            if (!raw) return null;
+            const uuidMatch = raw.match(/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
+            if (uuidMatch) return { type: 'id', value: uuidMatch[0] };
+            const digits = raw.replace(/\D/g, '');
+            if (digits.length === 15) return { type: 'imei', value: digits };
+            return null;
+        }
+
+        function extractWarrantyIdentifier(value) {
+            const text = normalizeScanText(value);
+            if (!text) return null;
+
+            const direct = classifyWarrantyIdentifier(text);
+            if (direct) return direct;
+
+            for (const prefix of ['LWT-', 'LTW-', 'WRT-', 'WARRANTY-', 'BBX-WARRANTY-', 'BBX-']) {
+                const candidate = extractPrefixedScanCode(text, prefix);
+                const parsed = classifyWarrantyIdentifier(candidate || '');
+                if (parsed) return parsed;
+            }
+
+            try {
+                const url = new URL(text);
+                for (const key of ['warranty_id','warrantyId','lifetime_warranty_id','contract_id','contractId','imei','id','code']) {
+                    const parsed = classifyWarrantyIdentifier(url.searchParams.get(key) || '');
+                    if (parsed) return parsed;
+                }
+            } catch (e) {}
+
+            try {
+                const obj = JSON.parse(text);
+                for (const key of ['warranty_id','warrantyId','lifetime_warranty_id','contract_id','contractId','imei','id','code']) {
+                    const parsed = classifyWarrantyIdentifier(obj?.[key] || '');
+                    if (parsed) return parsed;
+                }
+            } catch (e) {}
+
+            return null;
+        }
+
+        function formatWarrantyImeiDisplay(value) {
+            const digits = String(value || '').replace(/\D/g, '');
+            if (digits.length !== 15) return value || '---';
+            return `${digits.slice(0,2)} ${digits.slice(2,8)} ${digits.slice(8,14)} ${digits.slice(14)}`;
+        }
+
+        function warrantyInfoItem(label, value, full = false) {
+            const display = value === undefined || value === null || String(value).trim() === '' ? '---' : String(value);
+            return `<div class="warranty-info-item${full ? ' full' : ''}"><div class="warranty-info-label">${escapeHtml(label)}</div><div class="warranty-info-value">${escapeHtml(display)}</div></div>`;
+        }
+
+        async function fetchWarrantyMemberByLineId(lineId) {
+            if (!lineId) return null;
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('line_id, full_name, phone, member_level')
+                .eq('line_id', lineId)
+                .maybeSingle();
+            if (error) {
+                console.warn('讀取保固會員資料失敗:', error);
+                return null;
+            }
+            return data || null;
+        }
+
+        async function fetchWarrantyContractFromScan(identifier) {
+            let query = _supabase.from('lifetime_warranty').select('*');
+            if (identifier.type === 'imei') query = query.eq('imei', identifier.value);
+            else query = query.eq('id', identifier.value);
+            const { data, error } = await query.limit(1).maybeSingle();
+            if (error) throw new Error('讀取保固契約失敗：' + error.message);
+            if (!data) throw new Error('查無此保固契約，請確認 QR Code 是否正確。');
+            const member = await fetchWarrantyMemberByLineId(data.line_id);
+            await showWarrantyService(data, member, 'scan');
+        }
+
+        async function searchWarrantyContractsByPhone(phone) {
+            const button = document.getElementById('manual-btn');
+            if (button) { button.disabled = true; button.innerText = '查詢中'; }
+            try {
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('line_id, full_name, phone, member_level')
+                    .eq('phone', phone)
+                    .maybeSingle();
+                if (profileError) throw new Error('會員資料查詢失敗：' + profileError.message);
+                if (!profile || !profile.line_id) throw new Error('查無此會員，或會員尚未綁定 LINE。');
+
+                const { data: contracts, error: warrantyError } = await _supabase
+                    .from('lifetime_warranty')
+                    .select('*')
+                    .eq('line_id', profile.line_id)
+                    .order('created_at', { ascending: false });
+                if (warrantyError) throw new Error('保固契約查詢失敗：' + warrantyError.message);
+                if (!contracts || contracts.length === 0) throw new Error('此會員目前沒有登錄任何終身保固契約。');
+
+                await cleanupScanner();
+                renderWarrantyContractList(profile, contracts);
+            } catch (err) {
+                alert(err?.message || '查詢失敗，請稍後再試。');
+                isScanLocked = false;
+            } finally {
+                if (button) { button.disabled = false; button.innerText = 'Go'; }
+            }
+        }
+
+        function renderWarrantyContractList(profile, contracts) {
+            currentWarrantyMember = profile || null;
+            currentWarrantyContracts = Array.isArray(contracts) ? contracts : [];
+            currentWarrantyContract = null;
+            warrantyServiceReturnTarget = 'list';
+
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view-warranty').classList.remove('hidden');
+            document.getElementById('warranty-contract-list-view').classList.remove('hidden');
+            document.getElementById('warranty-service-view').classList.add('hidden');
+
+            setText('warranty-list-count', currentWarrantyContracts.length.toLocaleString());
+            const memberText = profile
+                ? `${profile.full_name || '未填寫姓名'}｜${profile.phone || '---'}｜請選擇要處理的設備`
+                : '請選擇本次要處理的設備';
+            setText('warranty-list-member', memberText);
+
+            const list = document.getElementById('warranty-contract-list');
+            list.innerHTML = currentWarrantyContracts.map((row, index) => {
+                const device = row.device_model || '未填寫設備型號';
+                const imei = formatWarrantyImeiDisplay(row.imei || '---');
+                const project = row.project || '未填寫保固項目';
+                const date = row.created_at ? formatDateTime(row.created_at, false) : '---';
+                return `<button type="button" class="warranty-contract-card" onclick="openWarrantyContractFromList(${index})"><span class="warranty-contract-index">${index + 1}</span><span class="warranty-contract-main"><span class="warranty-contract-device">${escapeHtml(device)}</span><span class="warranty-contract-meta"><span>${escapeHtml(project)}</span><span>IMEI ${escapeHtml(imei)}</span><span>${escapeHtml(date)}</span></span></span><iconify-icon icon="mdi:chevron-right" class="warranty-contract-arrow"></iconify-icon></button>`;
+            }).join('');
+        }
+
+        async function openWarrantyContractFromList(index) {
+            const contract = currentWarrantyContracts[index];
+            if (!contract) return;
+            await showWarrantyService(contract, currentWarrantyMember, 'list');
+        }
+
+        async function showWarrantyService(contract, member, returnTarget = 'scan') {
+            currentWarrantyContract = contract;
+            currentWarrantyMember = member || await fetchWarrantyMemberByLineId(contract?.line_id);
+            warrantyServiceReturnTarget = returnTarget;
+
+            document.getElementById('scan-view').classList.add('hidden');
+            document.getElementById('action-view-warranty').classList.remove('hidden');
+            document.getElementById('warranty-contract-list-view').classList.add('hidden');
+            document.getElementById('warranty-service-view').classList.remove('hidden');
+            document.getElementById('warranty-service-reason').value = '';
+
+            renderWarrantyServiceContractInfo(contract, currentWarrantyMember);
+            await loadWarrantyServiceLogs(contract.id);
+        }
+
+        function renderWarrantyServiceContractInfo(contract, member) {
+            const status = contract?.user_check === true ? '已確認' : contract?.user_check === false ? '未確認' : '已登錄';
+            const info = [
+                warrantyInfoItem('會員姓名', member?.full_name || '---'),
+                warrantyInfoItem('會員電話', member?.phone || '---'),
+                warrantyInfoItem('設備型號', contract?.device_model || '---'),
+                warrantyInfoItem('IMEI', formatWarrantyImeiDisplay(contract?.imei || '---')),
+                warrantyInfoItem('保固項目', contract?.project || '---'),
+                warrantyInfoItem('服務門市', contract?.service_store || '---'),
+                warrantyInfoItem('登錄時間', contract?.created_at ? formatDateTime(contract.created_at, true) : '---'),
+                warrantyInfoItem('契約狀態', status),
+                warrantyInfoItem('註記', contract?.remarks || '---', true)
+            ];
+            document.getElementById('warranty-service-contract-info').innerHTML = info.join('');
+        }
+
+        async function queryWarrantyServiceLogs(warrantyId) {
+            let result = await _supabase
+                .from('warranty_logs')
+                .select('*')
+                .eq('warranty_id', warrantyId)
+                .order('created_at', { ascending: false });
+            if (!result.error) return result.data || [];
+
+            // 相容較早期測試資料可能使用的欄位名稱。
+            const fallback = await _supabase
+                .from('warranty_logs')
+                .select('*')
+                .eq('lifetime_warranty_id', warrantyId)
+                .order('created_at', { ascending: false });
+            if (fallback.error) throw result.error;
+            return fallback.data || [];
+        }
+
+        async function loadWarrantyServiceLogs(warrantyId) {
+            const list = document.getElementById('warranty-service-log-list');
+            list.innerHTML = '<div class="warranty-empty-state">保固服務紀錄讀取中...</div>';
+            setText('warranty-service-log-count', '...');
+            try {
+                const logs = await queryWarrantyServiceLogs(warrantyId);
+                setText('warranty-service-log-count', logs.length.toLocaleString());
+                if (!logs.length) {
+                    list.innerHTML = '<div class="warranty-empty-state">這筆契約目前尚無保固服務紀錄</div>';
+                    return;
+                }
+                list.innerHTML = logs.map((row, index) => {
+                    const date = row.created_at ? formatDateTime(row.created_at, true) : '---';
+                    const reason = row.reason || '未填寫出保原因';
+                    return `<article class="warranty-service-log-card"><span class="warranty-service-log-number">${logs.length - index}</span><time class="warranty-service-log-date">${escapeHtml(date)}</time><div class="warranty-service-log-reason">${escapeHtml(reason)}</div></article>`;
+                }).join('');
+            } catch (err) {
+                console.error('讀取 warranty_logs 失敗:', err);
+                setText('warranty-service-log-count', '0');
+                list.innerHTML = `<div class="warranty-empty-state">保固服務紀錄讀取失敗<br>${escapeHtml(err?.message || '')}</div>`;
+            }
+        }
+
+        async function submitWarrantyServiceApplication() {
+            const reasonEl = document.getElementById('warranty-service-reason');
+            const button = document.getElementById('warranty-service-submit');
+            const reason = (reasonEl?.value || '').trim();
+            if (!currentWarrantyContract?.id) { alert('目前沒有選取保固契約。'); return; }
+            if (!reason) { alert('請填寫出保原因。'); reasonEl?.focus(); return; }
+
+            button.disabled = true;
+            const originalText = button.innerText;
+            button.innerText = '送出中...';
+            try {
+                let result = await _supabase.from('warranty_logs').insert({
+                    warranty_id: currentWarrantyContract.id,
+                    reason
+                });
+                if (result.error && /warranty_id/i.test(result.error.message || '')) {
+                    result = await _supabase.from('warranty_logs').insert({
+                        lifetime_warranty_id: currentWarrantyContract.id,
+                        reason
+                    });
+                }
+                if (result.error) throw result.error;
+                reasonEl.value = '';
+                await loadWarrantyServiceLogs(currentWarrantyContract.id);
+                alert('保固申請已成功送出。');
+            } catch (err) {
+                console.error('寫入 warranty_logs 失敗:', err);
+                alert('保固申請送出失敗：' + (err?.message || '未知錯誤'));
+            } finally {
+                button.disabled = false;
+                button.innerText = originalText;
+            }
+        }
+
+        function backFromWarrantyService() {
+            if (warrantyServiceReturnTarget === 'list' && currentWarrantyContracts.length) {
+                document.getElementById('warranty-service-view').classList.add('hidden');
+                document.getElementById('warranty-contract-list-view').classList.remove('hidden');
+                currentWarrantyContract = null;
+            } else {
+                resetScan();
+            }
         }
 
         async function renderBoxcoreMember(profile) {
@@ -1706,10 +2079,18 @@
                 manualPhone.placeholder = "輸入員工電話";
             } else {
                 document.getElementById('cancel-scan-btn').classList.add('hidden');
-                document.getElementById('scan-hint').innerHTML = currentSystemMode === 'boxcore' ? "請掃描會員碼進入前台系統" : "請將 QR Code 對準框內";
+                if (currentSystemMode === 'boxcore') {
+                    document.getElementById('scan-hint').innerHTML = "請掃描會員碼進入前台系統";
+                } else if (currentSystemMode === 'warranty') {
+                    document.getElementById('scan-hint').innerHTML = "請掃描保固契約碼";
+                } else {
+                    document.getElementById('scan-hint').innerHTML = "請將 QR Code 對準框內";
+                }
                 
-                if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore') {
-                    hintText.innerText = currentSystemMode === 'boxcore' ? "或輸入會員電話進入前台系統" : "手動查詢會員";
+                if (currentSystemMode === 'issue' || currentSystemMode === 'activity' || currentSystemMode === 'boxcore' || currentSystemMode === 'warranty') {
+                    if (currentSystemMode === 'boxcore') hintText.innerText = "或輸入會員電話進入前台系統";
+                    else if (currentSystemMode === 'warranty') hintText.innerText = "或輸入會員電話查詢保固契約";
+                    else hintText.innerText = "手動查詢會員";
                     manualPhone.placeholder = "輸入會員電話";
                 } else {
                     document.getElementById('manual-input-section').classList.add('hidden');
@@ -1728,6 +2109,8 @@
 
             if (isStaffAuthStep) {
                 verifyStaffByPhone(phone);
+            } else if (currentSystemMode === 'warranty') {
+                await searchWarrantyContractsByPhone(phone);
             } else {
                 const { data, error } = await _supabase.from('profiles').select('line_id').eq('phone', phone).single();
                 if (error || !data) { alert('查無此會員！'); return; }
@@ -1752,6 +2135,7 @@
 
             const memberCode = extractMemberIdentifier(text);
             const couponCode = extractPrefixedScanCode(text, 'CPN-');
+            const warrantyCode = extractWarrantyIdentifier(text);
 
             if (type === 'staff_auth') {
                 if (memberCode) {
@@ -1766,6 +2150,30 @@
                     }
                 } else {
                     handleScanError('錯誤：請掃描員工憑證碼');
+                }
+                return;
+            }
+
+            if (currentSystemMode === 'warranty') {
+                if (warrantyCode) {
+                    isScanLocked = true;
+                    try {
+                        if (html5QrcodeScanner && typeof html5QrcodeScanner.pause === 'function') {
+                            try { html5QrcodeScanner.pause(true); } catch (e) {}
+                        }
+                        const successEl = document.getElementById('scan-success-msg');
+                        successEl.innerText = '已讀取保固契約碼，正在載入資料…';
+                        successEl.classList.remove('hidden');
+                        await fetchWarrantyContractFromScan(warrantyCode);
+                        await cleanupScanner();
+                    } catch (err) {
+                        console.error('Warranty QR lookup failed:', err, { rawText: text, warrantyCode });
+                        await cleanupScanner();
+                        alert(err?.message || '保固契約碼已讀取，但查無對應資料。');
+                        resetScan();
+                    }
+                } else {
+                    handleScanError('錯誤：請掃描保固契約碼');
                 }
                 return;
             }
@@ -2591,6 +2999,9 @@
             } else if (currentSystemMode === 'boxcore') {
                 document.getElementById('scan-view').classList.add('hidden');
                 document.getElementById('action-view-boxcore').classList.remove('hidden');
+            } else if (currentSystemMode === 'warranty') {
+                document.getElementById('scan-view').classList.add('hidden');
+                document.getElementById('action-view-warranty').classList.remove('hidden');
             }
         }
 
@@ -2598,6 +3009,7 @@
             await cleanupScanner();
             currentTargetLineId = null;
             currentTargetCouponId = null;
+            if (currentSystemMode === 'warranty') resetWarrantyModuleState();
             await startScanner('normal');
             
             calculatedPoints = 0;
