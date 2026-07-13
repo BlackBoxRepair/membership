@@ -746,7 +746,7 @@
                         <div class="boxcore-member-detail-row">
                             <div class="folio-cell"><div class="folio-label">會員生日</div><div id="boxcore-birthday" class="folio-value">---</div></div>
                             <div class="folio-cell"><div class="folio-label">會員電話</div><div id="boxcore-basic-phone" class="folio-value font-mono">---</div></div>
-                            <div class="folio-cell"><div class="folio-label">所在地區</div><div id="boxcore-area" class="folio-value">---</div></div>
+                            <div class="folio-cell"><div class="folio-label">會員等級</div><div id="boxcore-member-level" class="folio-value">---</div></div>
                             <div class="folio-cell"><div class="folio-label">更新時間</div><div id="boxcore-updated" class="folio-value">---</div></div>
                         </div>
                     </div>
@@ -1302,6 +1302,16 @@
             return withTime ? `${yyyy}/${mm}/${dd} ${hh}:${mi}` : `${yyyy}/${mm}/${dd}`;
         }
 
+        // profiles.updated_at 在後台顯示的是資料庫原始時間；這裡直接保留字串中的年月日時分，
+        // 不再交給 Date 物件轉換成裝置時區，避免 UTC +8 後多出 8 小時。
+        function formatDatabaseWallTime(value) {
+            if (!value) return '---';
+            const str = String(value).trim();
+            const match = str.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+            if (match) return `${match[1]}/${match[2]}/${match[3]} ${match[4]}:${match[5]}`;
+            return str;
+        }
+
         function setText(id, value) {
             const el = document.getElementById(id);
             if (el) el.innerText = value ?? '---';
@@ -1393,8 +1403,8 @@
             setText('boxcore-basic-name', fullName);
             setText('boxcore-basic-phone', phone);
             setText('boxcore-birthday', profile.birthday || '---');
-            setText('boxcore-area', profile.area || '---');
-            setText('boxcore-updated', formatDateTime(profile.updated_at, true));
+            setText('boxcore-member-level', profile.member_level || '---');
+            setText('boxcore-updated', formatDatabaseWallTime(profile.updated_at));
 
             document.getElementById('boxcore-amount-input').value = '';
             document.getElementById('boxcore-redeem-input').value = '';
