@@ -1864,7 +1864,11 @@
             list.innerHTML = activeCoupons.map(c => {
                 const safeName = encodeURIComponent(c.coupon_name || '未命名票券');
                 const safeDesc = encodeURIComponent(c.description || '此票券沒有額外說明。');
-                const acquired = formatDateTime(c.created_at);
+                // user_coupons.created_at 目前以台灣牆鐘時間寫入，但字串尾端仍帶 +00。
+                // 持有票券只顯示資料庫字串中的原始日期，避免瀏覽器再加上台灣時區後跨日。
+                const acquired = c.created_at
+                    ? formatDatabaseWallTime(c.created_at).split(' ')[0]
+                    : '---';
                 const expiry = c.valid_until || '永久';
                 return `
                 <button type="button" class="folio-item w-full text-left" onclick="showCouponDescription(decodeURIComponent('${safeName}'), decodeURIComponent('${safeDesc}'))">
