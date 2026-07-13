@@ -2650,12 +2650,21 @@
             if (!currentTargetLineId) {
                 throw new Error('會員 line_id 遺失，請重新掃描會員。');
             }
+
+            // 終身保固沿用「消費結帳」所選門市，不在保固段落重複選擇。
+            const serviceStore = (document.getElementById('boxcore-store-select')?.value || '').trim();
+            const allowedStores = ['勤美公益店', '沙鹿站前店'];
+            if (!allowedStores.includes(serviceStore)) {
+                throw new Error('請先在「消費結帳」選擇門市。');
+            }
+
             return {
                 line_id: currentTargetLineId,
                 device_model: form.device_model,
                 imei: form.imei,
                 project: form.project,
-                remarks: form.remarks || null
+                remarks: form.remarks || null,
+                service_store: serviceStore
             };
         }
 
