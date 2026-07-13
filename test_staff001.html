@@ -296,20 +296,6 @@
         <p class="text-white/80 font-bold mt-4 tracking-[0.3em] text-sm animate-pulse">PROCESSING</p>
     </div>
 
-    <div id="lock-screen" class="fixed inset-0 bg-gray-100 z-50 flex flex-col items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center modal-content">
-            <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-2">員工登入</h1>
-            <p class="text-gray-400 text-[10px] tracking-wider uppercase font-bold italic mb-8">SUPABASE STAFF AUTH｜SAFE TEST</p>
-            <div class="space-y-4">
-                <input id="staff-email" type="email" inputmode="email" autocomplete="username" placeholder="員工帳號 Email" class="soft-input text-center font-bold text-base h-14">
-                <input id="staff-password" type="password" autocomplete="current-password" placeholder="員工密碼" class="soft-input text-center font-bold text-base h-14">
-                <button id="login-btn" onclick="staffLogin()" class="w-full bg-black text-white py-4 rounded-xl font-black shadow-xl active:scale-95 transition">登入系統</button>
-            </div>
-            <p id="login-error" class="text-red-500 text-xs font-bold mt-4 tracking-widest hidden animate-pulse">帳號或密碼錯誤，或沒有員工權限</p>
-            <p class="text-gray-400 text-[10px] leading-relaxed mt-4">測試版不會寫入 Supabase 登入狀態，不影響舊版正式員工端。</p>
-        </div>
-    </div>
-
     <div id="activity-lock-modal" class="hidden fixed inset-0 bg-gray-100/90 z-[60] flex flex-col items-center justify-center p-6 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-2xl p-10 shadow-2xl text-center relative">
             <button onclick="closeActivityLock()" class="absolute top-5 right-5 text-gray-400 font-bold p-2 active:scale-95">
@@ -327,7 +313,7 @@
         </div>
     </div>
 
-    <div id="dashboard-view" class="hidden fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
+    <div id="dashboard-view" class="fixed inset-0 bg-[#f3f4f6] z-40 flex flex-col p-6">
         <header class="mb-4 mt-2 shrink-0 flex justify-between items-center">
             <div>
                 <div class="flex items-end gap-2 mb-1">
@@ -362,7 +348,6 @@
                 <div class="text-center"><h2 class="text-base font-black text-yellow-600">活動通道</h2><p class="text-gray-400 text-[10px] leading-tight mt-1">專屬活動<br>特殊作業</p></div>
             </button>
         </div>
-        <button onclick="lockSystem()" class="text-xs text-gray-400 font-bold py-4 text-center w-full shrink-0">重新鎖定系統</button>
     </div>
 
     <div id="app-container" class="hidden fixed inset-0 flex flex-col w-full max-w-md mx-auto z-30 bg-[#f3f4f6]">
@@ -801,7 +786,7 @@
     <script>
         const SUPABASE_URL = 'https://nszwpwimwxvjguoalzwt.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zendwd2ltd3h2amd1b2Fsend0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMzY1NzYsImV4cCI6MjA4MTcxMjU3Nn0.TaAt4aqEhDsONWtDCagD5rlTMknEWfhq8fMVL1Rt4lg';
-        // 主資料操作維持 anon client，避免新版測試登入影響舊版正在使用的 RLS / 權限流程。
+        // 資料操作維持 anon client，不使用網站登入 session。
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
             auth: {
                 persistSession: false,
@@ -809,18 +794,6 @@
                 detectSessionInUrl: false
             }
         });
-
-        // 員工帳密只用這個獨立 client 驗證，且不保存 session 到 localStorage。
-        const _staffAuth = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: {
-                storageKey: 'blackbox-staff-v2-safe-test-auth',
-                persistSession: false,
-                autoRefreshToken: false,
-                detectSessionInUrl: false
-            }
-        });
-        const AUTO_LOCK_TIME = 30 * 60 * 1000;
-        let idleTimer;
         let currentSystemMode = 'issue';
         let html5QrcodeScanner = null;
         let currentTargetLineId = null; 
@@ -835,7 +808,6 @@
         let calculatedRedeem = 0; 
         let calculatedCashDiscount = 0;
         let currentStaffName = '';
-        let currentLoggedInStaff = null;
         let allCouponsData = []; 
         let currentMemberPoints = 0; 
         let isScanLocked = false;
@@ -871,112 +843,17 @@
             calcActivityPreview();
         }
 
-        function showLoginError(message) {
-            const errorEl = document.getElementById('login-error');
-            errorEl.innerText = message || '帳號或密碼錯誤，或沒有員工權限';
-            errorEl.classList.remove('hidden');
-        }
-
-        async function staffLogin() {
-            const emailInput = document.getElementById('staff-email');
-            const passwordInput = document.getElementById('staff-password');
-            const btn = document.getElementById('login-btn');
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
-
-            document.getElementById('login-error').classList.add('hidden');
-
-            if (!email || !password) {
-                showLoginError('請輸入員工帳號與密碼');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = '登入中...';
-
-            try {
-                const { data: authData, error: authError } = await _staffAuth.auth.signInWithPassword({
-                    email,
-                    password
-                });
-
-                if (authError || !authData || !authData.user) {
-                    throw new Error('帳號或密碼錯誤');
-                }
-
-                // 只檢查 Supabase Auth 帳號是否有綁定 profiles.auth_user_id，且 role 為 staff。
-                // 這裡使用主 anon client 查詢，避免把後續資料操作切換成 authenticated role。
-                const { data: staffProfile, error: staffError } = await _supabase
-                    .from('profiles')
-                    .select('id, full_name, phone, role, line_id, auth_user_id')
-                    .eq('auth_user_id', authData.user.id)
-                    .eq('role', 'staff')
-                    .maybeSingle();
-
-                // 驗證完立刻清掉 Auth client 的 session；測試版不保留登入狀態。
-                try { await _staffAuth.auth.signOut(); } catch (e) {}
-
-                if (staffError || !staffProfile) {
-                    throw new Error('此帳號沒有員工權限');
-                }
-
-                unlockSystem(staffProfile);
-            } catch (err) {
-                console.error(err);
-                showLoginError(err.message || '登入失敗，請確認帳號與密碼');
-            } finally {
-                btn.disabled = false;
-                btn.innerText = '登入系統';
-            }
-        }
-
-        function unlockSystem(staffProfile) {
-            currentLoggedInStaff = staffProfile || null;
-            currentStaffName = staffProfile?.full_name || '已登入員工';
-            document.getElementById('lock-screen').classList.add('hidden');
-            document.getElementById('staff-password').value = '';
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            const staffLabel = document.getElementById('dashboard-staff-name');
-            if (staffLabel && staffProfile?.full_name) staffLabel.innerText = `${staffProfile.full_name}｜員工端`;
-            resetIdleTimer();
-            loadCoupons();
-        }
-
-        async function lockSystem() {
-            clearTimeout(idleTimer);
-            await cleanupScanner();
-            try { await _staffAuth.auth.signOut(); } catch (e) {}
-            currentLoggedInStaff = null;
-            currentStaffName = '';
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('app-wide');
-            document.getElementById('confirm-modal').style.display = 'none';
-            document.getElementById('lock-screen').classList.remove('hidden');
-            document.getElementById('staff-email').value = '';
-            document.getElementById('staff-password').value = '';
-            document.getElementById('login-error').classList.add('hidden');
-            const staffLabel = document.getElementById('dashboard-staff-name');
-            if (staffLabel) staffLabel.innerText = '員工端';
-        }
         function returnToDashboard() {
             cleanupScanner();
             document.getElementById('app-container').classList.remove('app-wide');
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('dashboard-view').classList.remove('hidden');
         }
-        function resetIdleTimer() {
-            clearTimeout(idleTimer);
-            if (currentLoggedInStaff) idleTimer = setTimeout(lockSystem, AUTO_LOCK_TIME);
-        }
-        ['mousemove', 'mousedown', 'keypress', 'touchstart'].forEach(e => document.addEventListener(e, resetIdleTimer));
+
         document.addEventListener('DOMContentLoaded', () => {
-            ['staff-email', 'staff-password'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('keydown', (event) => {
-                    if (event.key === 'Enter') staffLogin();
-                });
-            });
+            const staffLabel = document.getElementById('dashboard-staff-name');
+            if (staffLabel) staffLabel.innerText = '員工端';
+            loadCoupons();
         });
         
         function openActivityLock() {
