@@ -1603,8 +1603,11 @@
 
         async function fetchWarrantyContractFromScan(identifier) {
             let query = _supabase.from('lifetime_warranty').select('*');
-            if (identifier.type === 'imei') query = query.eq('imei', identifier.value);
-            else query = query.eq('id', identifier.value);
+            if (identifier.type === 'imei') {
+                // 同時相容舊資料的 15 碼純數字，以及新版 2+6+6+1 空格格式。
+                const formattedImei = formatWarrantyImeiDisplay(identifier.value);
+                query = query.in('imei', [...new Set([identifier.value, formattedImei])]);
+            } else query = query.eq('id', identifier.value);
             const { data, error } = await query.limit(1).maybeSingle();
             if (error) throw new Error('讀取保固契約失敗：' + error.message);
             if (!data) throw new Error('查無此保固契約，請確認 QR Code 是否正確。');
@@ -2685,7 +2688,8 @@
             return {
                 line_id: currentTargetLineId,
                 device_model: form.device_model,
-                imei: form.imei,
+                // 寫入 lifetime_warranty 時統一儲存為 2+6+6+1：12 345678 901234 5
+                imei: formatWarrantyImeiDisplay(form.imei),
                 project: form.project,
                 remarks: form.remarks || null,
                 service_store: serviceStore
