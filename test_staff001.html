@@ -1897,7 +1897,7 @@
                     <div class="flex justify-between items-start gap-3">
                         <div>
                             <p class="font-black text-sm text-gray-900">${escapeHtml(l.store_name || '系統操作')}</p>
-                            <p class="text-[10px] text-gray-400 mt-1 font-bold">${formatDateTime(l.created_at, true)}｜${escapeHtml(l.staff_name || '系統')}</p>
+                            <p class="text-[10px] text-gray-400 mt-1 font-bold">${formatDatabaseWallTime(l.created_at)}｜${escapeHtml(l.staff_name || '系統')}</p>
                             <p class="text-[10px] text-gray-400 mt-1">單號 ${escapeHtml(l.order_number || '無')}｜消費 $${Number(l.amount || 0).toLocaleString()}</p>
                         </div>
                         <p class="font-black text-base">${change}</p>
