@@ -563,13 +563,10 @@
         <header class="mb-4 mt-2 shrink-0 flex justify-between items-center">
             <div>
                 <div class="flex items-end gap-2 mb-1">
-                    <img src="site logo.png" alt="Blackbox Logo" class="h-9 object-contain">
+                    <img src="site logo.png" alt="Blackbox Logo" class="h-14 object-contain">
                     <span id="dashboard-staff-name" class="text-[10px] text-gray-400 font-bold mb-1 tracking-widest">員工端</span>
                 </div>
             </div>
-            <button onclick="enterMode('lookup')" class="w-9 h-9 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition text-gray-700">
-                <iconify-icon icon="mdi:file-document-outline" class="text-lg"></iconify-icon>
-            </button>
         </header>
         
         <div class="dashboard-grid flex-1 mb-6 overflow-y-auto">
@@ -984,42 +981,7 @@
             <div class="h-24 w-full shrink-0"></div>
         </div>
 
-        <div id="action-view-lookup" class="hidden scrollable-content flex flex-col p-6 pb-32">
-            <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
-                <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center">查詢會員資料</p>
-                <div class="flex gap-2">
-                    <input id="lookup-phone" type="tel" placeholder="輸入會員電話" class="soft-input font-mono text-center tracking-widest" maxlength="10">
-                    <button onclick="searchMemberData()" class="bg-black text-white px-6 rounded-lg font-bold shadow-md active:scale-95 transition">查詢</button>
-                </div>
-            </div>
 
-            <div id="lookup-results" class="hidden space-y-6">
-                <div class="card-black-gold p-6 relative overflow-hidden">
-                    <div class="relative z-10 flex justify-between items-start">
-                        <div>
-                            <p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Member Name</p>
-                            <h2 id="lookup-name" class="text-xl font-black text-white tracking-tight italic">---</h2>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-yellow-500/50 uppercase tracking-[0.2em] mb-1 font-bold">Points</p>
-                            <p id="lookup-points" class="text-3xl font-black text-yellow-400 tracking-tighter">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-sm">
-                    <h3 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4 border-b pb-2">票券錢包狀態</h3>
-                    <div id="lookup-coupons-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl p-6 shadow-sm">
-                    <h3 class="text-xs font-bold text-gray-900 uppercase tracking-widest mb-4 border-b pb-2">近期積分紀錄</h3>
-                    <div id="lookup-points-list" class="space-y-3 max-h-80 overflow-y-auto pr-2">
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 
@@ -1237,7 +1199,6 @@
             document.getElementById('action-view-warranty').classList.add('hidden');
             document.getElementById('action-view-boxcore').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
-            document.getElementById('action-view-lookup').classList.add('hidden');
             
             if (mode === 'issue' || mode === 'activity') {
                 if (mode === 'issue') {
@@ -1270,127 +1231,8 @@
                 badgeEl.className = "text-[10px] font-bold text-yellow-600 tracking-widest uppercase";
                 currentActivityCode = null;
                 resetScan();
-            } else if (mode === 'lookup') {
-                titleEl.innerText = "資料調閱";
-                badgeEl.innerText = "DATA LOOKUP";
-                badgeEl.className = "text-[10px] font-bold text-blue-600 tracking-widest uppercase";
-                currentActivityCode = null;
-                cleanupScanner();
-                document.getElementById('action-view-lookup').classList.remove('hidden');
-                document.getElementById('lookup-results').classList.add('hidden');
-                document.getElementById('lookup-phone').value = '';
             }
         }
-
-        async function searchMemberData() {
-            const phone = document.getElementById('lookup-phone').value;
-            if (!/^09\d{8}$/.test(phone)) { alert('電話格式錯誤，請輸入完整的09開頭10碼數字'); return; }
-
-            showLoading();
-            
-            try {
-                const { data: profile, error: profileErr } = await _supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('phone', phone)
-                    .single();
-
-                if (profileErr || !profile) throw new Error('查無此會員資料');
-
-                document.getElementById('lookup-name').innerText = profile.full_name;
-                document.getElementById('lookup-points').innerText = (profile.total_points || 0).toLocaleString();
-
-                const { data: coupons } = await _supabase
-                    .from('user_coupons')
-                    .select('*')
-                    .eq('line_id', profile.line_id)
-                    .order('created_at', { ascending: false });
-
-                const couponsList = document.getElementById('lookup-coupons-list');
-                if (coupons && coupons.length > 0) {
-                    couponsList.innerHTML = coupons.map(c => {
-                        const statusColor = c.status === 'used' ? 'text-gray-400 bg-gray-100' : 'text-green-600 bg-green-50';
-                        const statusText = c.status === 'used' ? `已使用` : '未使用';
-                        
-                        let dateLabel = '取得';
-                        let displayDate = c.created_at ? c.created_at.substring(0, 10) : '未知';
-                        
-                        if (c.status === 'used') {
-                            dateLabel = '使用';
-                            displayDate = c.used_at ? c.used_at.substring(0, 10) : '未知';
-                        }
-                        
-                        return `
-                        <div class="p-3 border border-gray-100 rounded-lg flex justify-between items-center">
-                            <div>
-                                <p class="font-bold text-sm text-gray-800">${c.coupon_name}</p>
-                                <p class="text-[10px] text-gray-400 mt-1">${dateLabel}：${displayDate} | 效期：${c.valid_until || '永久'}</p>
-                            </div>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded-md flex-shrink-0 ml-2 ${statusColor}">${statusText}</span>
-                        </div>`;
-                    }).join('');
-                } else {
-                    couponsList.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">無票券紀錄</p>';
-                }
-
-                const { data: logs } = await _supabase
-                    .from('point_logs')
-                    .select('*')
-                    .eq('line_id', profile.line_id)
-                    .order('created_at', { ascending: false })
-                    .limit(30); 
-
-                const pointsList = document.getElementById('lookup-points-list');
-                if (logs && logs.length > 0) {
-                    pointsList.innerHTML = logs.map(l => {
-                        let date = '未知';
-                        if (l.created_at && l.created_at.length >= 16) {
-                            const mmdd = l.created_at.substring(5, 10).replace('-', '/');
-                            const hhmm = l.created_at.substring(11, 16);
-                            date = `${mmdd} ${hhmm}`;
-                        }
-                        
-                        let changeHtml = '';
-                        if (l.points_change > 0) {
-                            changeHtml += `<span class="text-green-500">+${l.points_change}</span>`;
-                        }
-                        if (l.points_redeemed > 0) {
-                            if (changeHtml !== '') changeHtml += `<span class="text-gray-300 mx-1 text-xs font-normal">|</span>`;
-                            changeHtml += `<span class="text-red-500">-${l.points_redeemed}</span>`;
-                        }
-                        if (changeHtml === '') {
-                            changeHtml = `<span class="text-gray-400">0</span>`;
-                        }
-                        
-                        const storeName = l.store_name || '系統操作';
-                        const orderNoText = (l.order_number && l.order_number !== '無單號') ? `<span class="text-[10px] text-gray-400 font-normal ml-2">#${l.order_number}</span>` : '';
-
-                        return `
-                        <div class="p-3 border border-gray-100 rounded-lg flex flex-col gap-1">
-                            <div class="flex justify-between items-center">
-                                <p class="font-bold text-sm text-gray-800">${storeName}${orderNoText}</p>
-                                <p class="font-black flex items-center">${changeHtml}</p>
-                            </div>
-                            <div class="flex justify-between items-center text-[10px] text-gray-400">
-                                <span>${date} | ${l.staff_name || '系統'}</span>
-                                <span>消費: $${l.amount || 0}</span>
-                            </div>
-                        </div>`;
-                    }).join('');
-                } else {
-                    pointsList.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">無紀錄</p>';
-                }
-
-                document.getElementById('lookup-results').classList.remove('hidden');
-
-            } catch (err) {
-                alert(err.message);
-                document.getElementById('lookup-results').classList.add('hidden');
-            } finally {
-                hideLoading();
-            }
-        }
-
 
         function profileSafeClone(profile) {
             return JSON.parse(JSON.stringify(profile || {}));
@@ -2111,7 +1953,6 @@
             document.getElementById('action-view-warranty').classList.add('hidden');
             document.getElementById('action-view-boxcore').classList.add('hidden');
             document.getElementById('action-view-redeem').classList.add('hidden');
-            document.getElementById('action-view-lookup').classList.add('hidden');
             
             document.getElementById('manual-input-section').classList.remove('hidden');
             const hintText = document.getElementById('manual-hint-text');
