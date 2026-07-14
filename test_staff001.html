@@ -1263,6 +1263,7 @@
 
         // profiles.updated_at 在後台顯示的是資料庫原始時間；這裡直接保留字串中的年月日時分，
         // 不再交給 Date 物件轉換成裝置時區，避免 UTC +8 後多出 8 小時。
+        // 資料庫已直接記錄台灣牆鐘時間且尾端仍帶 +00；保固紀錄顯示時不可再交給 Date 加 8 小時。
         function formatDatabaseWallTime(value) {
             if (!value) return '---';
             const str = String(value).trim();
@@ -1581,7 +1582,7 @@
                     return;
                 }
                 list.innerHTML = logs.map((row, index) => {
-                    const date = row.created_at ? formatDateTime(row.created_at, true) : '---';
+                    const date = row.created_at ? formatDatabaseWallTime(row.created_at) : '---';
                     const reason = row.reason || '未填寫出保原因';
                     return `<article class="warranty-service-log-card"><span class="warranty-service-log-number">${logs.length - index}</span><time class="warranty-service-log-date">${escapeHtml(date)}</time><div class="warranty-service-log-reason">${escapeHtml(reason)}</div></article>`;
                 }).join('');
@@ -1892,7 +1893,7 @@
                 staff ? `人員：${escapeHtml(staff)}` : '',
                 status ? `狀態：${escapeHtml(status)}` : ''
             ].filter(Boolean).map(item => `<span>${item}</span>`).join('');
-            return `<article class="boxcore-warranty-log-card"><div class="boxcore-warranty-log-index">${index + 1}</div><time>${escapeHtml(formatDateTime(usedAt, true))}</time><div class="reason">${escapeHtml(reason)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</article>`;
+            return `<article class="boxcore-warranty-log-card"><div class="boxcore-warranty-log-index">${index + 1}</div><time>${escapeHtml(formatDatabaseWallTime(usedAt))}</time><div class="reason">${escapeHtml(reason)}</div>${meta ? `<div class="meta">${meta}</div>` : ''}</article>`;
         }
 
         async function openBoxcoreWarrantySheet(index) {
