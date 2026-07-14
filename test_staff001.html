@@ -251,7 +251,30 @@
             #action-view-boxcore .boxcore-metric-row { width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
 
-        .scrollable-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+        .scrollable-content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 150px; }
+
+        /* v30：票券核銷明細內容過長時，允許整頁垂直捲動 */
+        #action-view-redeem {
+            min-height: 0;
+            height: 100%;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+            touch-action: pan-y;
+            padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        #action-view-redeem > .bg-white {
+            flex: 0 0 auto;
+            margin-bottom: 20px;
+        }
+        #action-view-redeem #redeem-name,
+        #action-view-redeem #redeem-desc,
+        #action-view-redeem #redeem-user {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
     
         /* v11：會員作業內層段落改為平面配置，不再套用第二層圖卡 */
         #action-view-boxcore .boxcore-subpanel {
@@ -2532,7 +2555,9 @@
             }
 
             document.getElementById('scan-view').classList.add('hidden');
-            document.getElementById('action-view-redeem').classList.remove('hidden');
+            const redeemView = document.getElementById('action-view-redeem');
+            redeemView.classList.remove('hidden');
+            redeemView.scrollTop = 0;
 
             document.getElementById('redeem-name').innerText = data.coupon_name;
             document.getElementById('redeem-desc').innerText = data.description || '';
