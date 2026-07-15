@@ -584,6 +584,65 @@
             }
         }
 
+
+        /* v32：前台系統橫式欄寬與發送票券排版優化
+           僅調整橫式畫面，手機直式與平板直式維持既有排版 */
+        @media (orientation: landscape) and (min-width: 700px) {
+            /* 會員資料欄縮窄約三分之一，將更多寬度留給結帳作業 */
+            #action-view-boxcore .boxcore-main-grid {
+                grid-template-columns: minmax(210px, .42fr) minmax(0, 1.58fr);
+                gap: 16px;
+            }
+
+            /* 結帳作業內：消費結算與終身保固並排，保固欄保留足夠按鈕空間 */
+            #action-view-boxcore .boxcore-operation-grid {
+                grid-template-columns: minmax(0, 1fr) minmax(320px, .78fr);
+                gap: 16px;
+                align-items: start;
+            }
+
+            /* 讓原本包住「消費結算／發送票券」的容器不再佔據單一網格欄位 */
+            #action-view-boxcore .boxcore-operation-grid > .space-y-4 {
+                display: contents;
+            }
+            #action-view-boxcore .boxcore-operation-grid > .space-y-4 > .boxcore-subpanel {
+                min-width: 0;
+                margin-top: 0 !important;
+            }
+
+            /* 第一列：消費結算在左、終身保固在右 */
+            #action-view-boxcore .boxcore-operation-grid > .space-y-4 > .boxcore-subpanel:first-child {
+                grid-column: 1;
+                grid-row: 1;
+            }
+            #action-view-boxcore .boxcore-operation-grid > .boxcore-subpanel {
+                grid-column: 2;
+                grid-row: 1;
+                min-width: 0;
+            }
+
+            /* 第二列：發送票券橫跨消費結算與終身保固兩欄 */
+            #action-view-boxcore .boxcore-operation-grid > .space-y-4 > .boxcore-subpanel:last-child {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                margin-top: 2px !important;
+                padding-top: 20px;
+                border-top: 1px solid #e7dfd3;
+            }
+
+            /* 橫式票券清單維持兩欄，但允許名稱完整換行顯示 */
+            #action-view-boxcore #boxcore-coupon-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            #action-view-boxcore .boxcore-coupon-main .name {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+                overflow-wrap: anywhere;
+                line-height: 1.45;
+            }
+        }
+
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
