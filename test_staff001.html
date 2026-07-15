@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&family=TASA+Explorer:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
     <link rel="shortcut icon" type="image/jpeg" href="https://blackboxrepair.github.io/membership/icon.jpg?v=2">
@@ -19,11 +19,20 @@
     <style>
         /* 樣式優化：全面調小圓角弧度 */
         html, body {
-            font-family: 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827;
+            font-family: 'TASA Explorer', 'Noto Sans TC', sans-serif; background-color: #f3f4f6; color: #111827;
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; user-select: none;
             position: fixed; inset: 0; overscroll-behavior: none; -webkit-overflow-scrolling: auto;
         }
         body { touch-action: manipulation; }
+
+        /* v3：全站字體統一。TASA Explorer 負責英文與數字，中文使用一致的 Noto Sans TC 後備字體。 */
+        html, body, #dashboard-view, #app-container,
+        button, input, select, textarea, option {
+            font-family: 'TASA Explorer', 'Noto Sans TC', sans-serif !important;
+        }
+        .font-sans, .font-serif, .font-mono {
+            font-family: 'TASA Explorer', 'Noto Sans TC', sans-serif !important;
+        }
         #app-container { height: 100dvh; max-height: 100dvh; overflow: hidden; overscroll-behavior: none; }
         #app-container > .p-6 { flex: 0 0 auto; }
         #action-view-boxcore { flex: 1 1 auto; min-height: 0; overflow: hidden !important; padding-bottom: 0 !important; }
