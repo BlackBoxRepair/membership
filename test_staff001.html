@@ -533,6 +533,57 @@
             .warranty-contract-card { padding: 14px; }
         }
 
+
+
+        /* v31：前台系統橫式會員資料排版優化
+           僅在橫式且寬度達 700px 以上時啟用，手機直式排版維持原樣 */
+        @media (orientation: landscape) and (min-width: 700px) {
+            /* 會員姓名置頂，可用積分與累計積分移至姓名下方 */
+            #action-view-boxcore .boxcore-name-summary {
+                flex-direction: column;
+                align-items: stretch;
+                justify-content: flex-start;
+                gap: 12px;
+            }
+            #action-view-boxcore .boxcore-name-summary-main {
+                width: 100%;
+                flex: 0 0 auto;
+            }
+            #action-view-boxcore .boxcore-member-points {
+                width: 100%;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0;
+            }
+            #action-view-boxcore .boxcore-member-point-item {
+                min-width: 0;
+                padding: 6px 12px 4px 0;
+                border-left: 0;
+            }
+            #action-view-boxcore .boxcore-member-point-item + .boxcore-member-point-item {
+                padding-left: 12px;
+                padding-right: 0;
+                border-left: 1px solid #ece7df;
+            }
+
+            /* 生日、電話、等級、加入日期改為由上至下排列 */
+            #action-view-boxcore .boxcore-member-detail-row {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 0;
+                padding-top: 8px;
+            }
+            #action-view-boxcore .boxcore-member-detail-row .folio-cell {
+                padding: 10px 0;
+                border-bottom: 1px solid #e9e4dc;
+            }
+            #action-view-boxcore .boxcore-member-detail-row .folio-cell:last-child {
+                border-bottom: 0;
+                padding-bottom: 0;
+            }
+            #action-view-boxcore #boxcore-basic-phone {
+                white-space: normal;
+            }
+        }
+
     </style>
 </head>
 <body class="flex flex-col h-full w-full">
