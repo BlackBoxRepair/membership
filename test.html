@@ -9170,3 +9170,54 @@
     }
   }
 </style>
+
+<!-- 2026-07-16：強制修正舊版非首頁選單的上下排列規則 -->
+<style id="bb-desktop-left-nav-grid-force-20260716">
+  @media (min-width:1024px){
+    /* 相較上一版再向左移約 24px */
+    .bottom-nav{
+      left:max(0px,calc((100vw - 1280px) / 2 - 12px))!important;
+    }
+
+    /* 使用雙欄 Grid，避免舊版 :not(.home-center) 規則改回上下排列 */
+    .bottom-nav .bottom-shell > .bottom-link:not(.home-center),
+    .bottom-nav .bottom-shell > .bottom-link.home-center{
+      width:100%!important;
+      height:56px!important;
+      min-height:56px!important;
+      padding:0 14px!important;
+      display:grid!important;
+      grid-template-columns:28px minmax(0,1fr)!important;
+      align-items:center!important;
+      justify-content:stretch!important;
+      column-gap:12px!important;
+      row-gap:0!important;
+      flex-direction:row!important;
+    }
+    .bottom-nav .bottom-shell > .bottom-link:not(.home-center) iconify-icon,
+    .bottom-nav .bottom-shell > .bottom-link.home-center iconify-icon{
+      grid-column:1!important;
+      justify-self:start!important;
+      align-self:center!important;
+      width:28px!important;
+      margin:0!important;
+      text-align:left!important;
+    }
+    .bottom-nav .bottom-shell > .bottom-link:not(.home-center) span{
+      grid-column:2!important;
+      justify-self:end!important;
+      align-self:center!important;
+      width:auto!important;
+      margin:0!important;
+      text-align:right!important;
+    }
+    .bottom-nav .bottom-shell > .bottom-link.home-center::after{
+      grid-column:2!important;
+      justify-self:end!important;
+      align-self:center!important;
+      width:auto!important;
+      margin:0!important;
+      text-align:right!important;
+    }
+  }
+</style>
