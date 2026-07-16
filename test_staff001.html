@@ -119,6 +119,26 @@
         .dash-btn:active { transform: scale(0.96); }
         .dash-btn-light { background: white; color: #111; }
         .dash-icon { font-size: 2rem; color: #ca8a04; }
+
+        /* v5：首頁服務調查快捷按鈕 */
+        .dashboard-survey-btn {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #ca8a04;
+            border: 1px solid rgba(255,255,255,.95);
+            box-shadow: 0 8px 20px -10px rgba(17,24,39,.35);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .dashboard-survey-btn iconify-icon { font-size: 21px; }
+        .dashboard-survey-btn:active {
+            transform: scale(.94);
+            box-shadow: 0 4px 12px -8px rgba(17,24,39,.4);
+        }
         
 
         .app-wide { max-width: 1080px !important; }
@@ -544,6 +564,46 @@
 
 
 
+        /* v5：首頁橫式選單改為四欄長方形，直式排版維持原樣 */
+        @media (orientation: landscape) and (min-width: 700px) {
+            #dashboard-view {
+                padding: 18px 24px;
+            }
+            #dashboard-view > header {
+                margin-top: 0;
+                margin-bottom: 14px;
+            }
+            #dashboard-view .dashboard-grid {
+                flex: 0 0 auto;
+                width: 100%;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                grid-template-rows: 1fr;
+                gap: 14px;
+                align-content: start;
+                overflow: visible;
+                margin-bottom: 0;
+            }
+            #dashboard-view .dash-btn {
+                aspect-ratio: auto;
+                height: clamp(112px, 25vh, 154px);
+                min-height: 0;
+                padding: 14px 12px;
+                gap: 8px;
+                border-radius: 15px;
+            }
+            #dashboard-view .dash-icon {
+                font-size: clamp(1.55rem, 2.7vw, 2rem);
+            }
+            #dashboard-view .dash-btn h2 {
+                font-size: clamp(.82rem, 1.45vw, 1rem);
+            }
+            #dashboard-view .dash-btn p {
+                font-size: clamp(8px, .9vw, 10px);
+                line-height: 1.25;
+            }
+        }
+
+
         /* v31：前台系統橫式會員資料排版優化
            僅在橫式且寬度達 700px 以上時啟用，手機直式排版維持原樣 */
         @media (orientation: landscape) and (min-width: 700px) {
@@ -686,6 +746,12 @@
                     <span id="dashboard-staff-name" class="text-[10px] text-gray-400 font-bold mb-1 tracking-widest">員工端</span>
                 </div>
             </div>
+            <a href="https://blackboxrepair.github.io/membership/map_comment_helper"
+               class="dashboard-survey-btn"
+               aria-label="服務調查"
+               title="服務調查">
+                <iconify-icon icon="fa6-solid:ranking-star"></iconify-icon>
+            </a>
         </header>
         
         <div class="dashboard-grid flex-1 mb-6 overflow-y-auto">
