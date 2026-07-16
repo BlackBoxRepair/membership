@@ -3707,6 +3707,7 @@
 
 </style>
 
+
   <style id="bb-membership-progress-v4">
     /* 2026-07-04 會員等級進度條新版樣式 */
     #member .bb-annual-points-card{
@@ -8856,6 +8857,129 @@
     #wallet .bb-wallet-coupon:hover,
     .bb-warranty-sd-card:hover{
       transform:translateY(-2px)!important;
+    }
+  }
+</style>
+
+<!-- 2026-07-16：電腦版導覽列移至畫面右上角 -->
+<style id="bb-desktop-top-navigation-20260716">
+  @media (min-width:1024px){
+    /* 取消舊版左側導覽所預留的空間，讓內容重新置中並完整利用寬度 */
+    .app{
+      width:min(calc(100% - 48px),1280px)!important;
+      padding:28px 32px 54px!important;
+    }
+
+    /* 首頁 Logo 與右上選單共用同一個頁首區域 */
+    .topbar{
+      min-height:72px!important;
+      margin:16px 0 10px!important;
+      align-items:center!important;
+    }
+    #home .home-banner-placeholder{
+      margin:0 0 22px!important;
+    }
+
+    /* 其他功能頁沒有 Logo，因此替右上選單保留垂直空間 */
+    body:not(:has(#home.active)) .section.active{
+      margin-top:0!important;
+      padding-top:82px!important;
+    }
+
+    .bottom-nav{
+      left:auto!important;
+      right:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
+      top:24px!important;
+      bottom:auto!important;
+      transform:none!important;
+      width:auto!important;
+      padding:0!important;
+    }
+    .bottom-shell{
+      width:auto!important;
+      height:70px!important;
+      min-height:70px!important;
+      display:grid!important;
+      grid-template-columns:repeat(5,minmax(76px,92px))!important;
+      align-items:center!important;
+      gap:4px!important;
+      padding:6px 8px!important;
+      border-radius:24px!important;
+      background:rgba(255,255,255,.95)!important;
+      box-shadow:0 14px 38px rgba(32,50,65,.14)!important;
+    }
+    .bottom-link,
+    .bottom-link.home-center{
+      width:100%!important;
+      height:58px!important;
+      min-height:58px!important;
+      margin:0!important;
+      padding:5px 8px!important;
+      border:0!important;
+      border-radius:17px!important;
+      transform:none!important;
+      justify-self:stretch!important;
+      display:flex!important;
+      flex-direction:column!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:3px!important;
+      background:transparent!important;
+      box-shadow:none!important;
+      color:#667085!important;
+      font-size:11px!important;
+      line-height:1!important;
+      text-align:center!important;
+      white-space:nowrap!important;
+    }
+    .bottom-link iconify-icon,
+    .bottom-link.home-center iconify-icon{
+      flex:0 0 auto!important;
+      width:auto!important;
+      font-size:25px!important;
+      color:currentColor!important;
+    }
+    .bottom-link span{
+      display:block!important;
+      color:currentColor!important;
+      font-size:11px!important;
+      line-height:1!important;
+      font-weight:900!important;
+      white-space:nowrap!important;
+    }
+    .bottom-link.home-center::after{
+      content:"首頁";
+      display:block!important;
+      color:currentColor!important;
+      font-size:11px!important;
+      line-height:1!important;
+      font-weight:900!important;
+      white-space:nowrap!important;
+    }
+
+    /* 恢復與手機底部選單相同的排列順序 */
+    .bottom-link[data-route="gift"]{order:1!important;}
+    .bottom-link[data-route="reservation"]{order:2!important;}
+    .bottom-link.home-center{order:3!important;}
+    .bottom-link[data-route="wallet"]{order:4!important;}
+    .bottom-link[data-route="member"]{order:5!important;}
+
+    .bottom-link.active,
+    .bottom-link.active:not(.home-center),
+    .bottom-link.home-center.active{
+      background:rgba(67,116,151,.11)!important;
+      border:0!important;
+      border-radius:17px!important;
+      box-shadow:none!important;
+      color:#437497!important;
+      transform:none!important;
+    }
+    .bottom-link.active iconify-icon,
+    .bottom-link.active:not(.home-center) iconify-icon,
+    .bottom-link.home-center.active iconify-icon,
+    .bottom-link.active span,
+    .bottom-link.active:not(.home-center) span{
+      color:#437497!important;
     }
   }
 </style>
