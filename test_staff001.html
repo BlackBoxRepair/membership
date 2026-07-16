@@ -793,6 +793,10 @@
             <p id="scan-error-msg" class="text-red-500 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4 hidden animate-pulse"></p>
             <p id="scan-success-msg" class="text-green-600 text-[10px] font-black tracking-wider uppercase text-center mb-4 hidden animate-bounce bg-green-50 py-2 px-4 rounded-xl border border-green-100 shadow-sm"></p>
             <p id="scan-hint" class="text-gray-400 text-[10px] font-bold tracking-[0.2em] uppercase text-center mb-4">請將 QR Code 對準框內</p>
+            <p id="tablet-scan-tip" class="hidden text-gray-400 text-[10px] font-bold text-center mb-3">平板請與 QR Code 保持約 20～30 公分距離</p>
+            <button id="tablet-camera-switch-btn" type="button" onclick="switchTabletCamera()" class="hidden mb-4 items-center justify-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-full text-xs font-black shadow-sm active:scale-95 transition disabled:opacity-50">
+                <iconify-icon icon="mdi:camera-switch-outline" class="text-lg"></iconify-icon><span>切換鏡頭</span>
+            </button>
             <div id="manual-input-section" class="w-full border-t border-gray-200 pt-4 pb-8 hidden">
                 <div class="bg-white p-6 rounded-2xl shadow-sm">
                     <p id="manual-hint-text" class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center">手動查詢會員</p>
@@ -1261,6 +1265,10 @@
         });
         let currentSystemMode = 'issue';
         let html5QrcodeScanner = null;
+        let tabletCameraDevices = [];
+        let activeTabletCameraId = '';
+        let currentScannerRequestType = 'normal';
+        let tabletCameraSwitching = false;
         let currentTargetLineId = null; 
         let currentTargetCouponId = null; 
         let selectedCoupons = [];
@@ -2185,8 +2193,154 @@
             }
         }
 
-        async function startScanner(type) { 
+        function isTabletScannerDevice() {
+            const screenWidth = Number(window.screen?.width || 0);
+            const screenHeight = Number(window.screen?.height || 0);
+            const screenShortSide = Math.min(screenWidth || Infinity, screenHeight || Infinity);
+            const viewportShortSide = Math.min(window.innerWidth || Infinity, window.innerHeight || Infinity);
+            const effectiveShortSide = Math.max(
+                Number.isFinite(screenShortSide) ? screenShortSide : 0,
+                Number.isFinite(viewportShortSide) ? viewportShortSide : 0
+            );
+            const touchCapable = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+            return touchCapable && effectiveShortSide >= 600;
+        }
+
+        function getCameraPreferenceScore(camera) {
+            const label = String(camera?.label || '').toLowerCase();
+            let score = 0;
+            if (/back|rear|environment|後置|背面/.test(label)) score += 400;
+            if (/main|primary|standard|1x|wide camera|wide angle/.test(label)) score += 120;
+            if (/front|user|facetime|前置/.test(label)) score -= 800;
+            if (/ultra[ -]?wide|ultrawide|0[.,]5x|0[.,]6x/.test(label)) score -= 260;
+            if (/telephoto|tele camera|zoom|2x|3x|5x/.test(label)) score -= 160;
+            return score;
+        }
+
+        function orderTabletCameras(cameras) {
+            const list = Array.isArray(cameras) ? [...cameras] : [];
+            if (!list.length) return [];
+
+            const labelsAvailable = list.some(camera => String(camera?.label || '').trim());
+            if (!labelsAvailable) return list.reverse();
+
+            const rearCameras = list.filter(camera => {
+                const label = String(camera?.label || '');
+                return /back|rear|environment|後置|背面/i.test(label) && !/front|user|facetime|前置/i.test(label);
+            });
+            const pool = rearCameras.length ? rearCameras : list;
+            return pool
+                .map((camera, index) => ({ camera, index, score: getCameraPreferenceScore(camera) }))
+                .sort((a, b) => (b.score - a.score) || (a.index - b.index))
+                .map(item => item.camera);
+        }
+
+        function setTabletScannerControls(visible) {
+            const tip = document.getElementById('tablet-scan-tip');
+            const switchButton = document.getElementById('tablet-camera-switch-btn');
+            if (tip) tip.classList.toggle('hidden', !visible);
+            if (switchButton) {
+                const canSwitch = visible && tabletCameraDevices.length > 1;
+                switchButton.classList.toggle('hidden', !canSwitch);
+                switchButton.classList.toggle('flex', canSwitch);
+                switchButton.disabled = tabletCameraSwitching;
+            }
+        }
+
+        async function applyTabletCameraEnhancements() {
+            if (!html5QrcodeScanner || typeof html5QrcodeScanner.applyVideoConstraints !== 'function') return;
+            try {
+                const capabilities = typeof html5QrcodeScanner.getRunningTrackCapabilities === 'function'
+                    ? html5QrcodeScanner.getRunningTrackCapabilities()
+                    : null;
+                const focusModes = capabilities?.focusMode;
+                if (Array.isArray(focusModes) && focusModes.includes('continuous')) {
+                    await html5QrcodeScanner.applyVideoConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                }
+            } catch (error) {
+                console.debug('平板相機不支援連續對焦設定:', error);
+            }
+        }
+
+        async function startTabletOptimizedScanner(type, decodedCallback, emptyErrorCallback, requestedCameraId = '') {
+            try {
+                const cameras = await Html5Qrcode.getCameras();
+                tabletCameraDevices = orderTabletCameras(cameras);
+                if (!tabletCameraDevices.length) return false;
+
+                const requestedIndex = tabletCameraDevices.findIndex(camera => camera.id === requestedCameraId);
+                const startIndex = requestedIndex >= 0 ? requestedIndex : 0;
+                const candidates = [
+                    ...tabletCameraDevices.slice(startIndex),
+                    ...tabletCameraDevices.slice(0, startIndex)
+                ];
+                const scannerOptions = { verbose: false };
+                if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+                    scannerOptions.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+                }
+
+                const shortSide = Math.min(window.innerWidth, window.innerHeight);
+                const scanBoxSize = Math.max(230, Math.min(320, Math.floor(shortSide * 0.48)));
+                const tabletConfig = {
+                    fps: 15,
+                    qrbox: { width: scanBoxSize, height: scanBoxSize },
+                    aspectRatio: 1,
+                    disableFlip: false,
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+                };
+
+                let lastError = null;
+                for (const camera of candidates) {
+                    try {
+                        html5QrcodeScanner = new Html5Qrcode('reader', scannerOptions);
+                        await html5QrcodeScanner.start(
+                            camera.id,
+                            tabletConfig,
+                            decodedCallback,
+                            emptyErrorCallback
+                        );
+                        activeTabletCameraId = camera.id;
+                        await applyTabletCameraEnhancements();
+                        setTabletScannerControls(true);
+                        return true;
+                    } catch (error) {
+                        lastError = error;
+                        try { html5QrcodeScanner?.clear(); } catch (clearError) {}
+                        html5QrcodeScanner = null;
+                    }
+                }
+                console.warn('平板指定鏡頭啟動失敗，將改用原本掃描方式:', lastError);
+                return false;
+            } catch (error) {
+                console.warn('無法取得平板相機清單，將改用原本掃描方式:', error);
+                tabletCameraDevices = [];
+                activeTabletCameraId = '';
+                setTabletScannerControls(false);
+                return false;
+            }
+        }
+
+        async function switchTabletCamera() {
+            if (!isTabletScannerDevice() || tabletCameraSwitching || tabletCameraDevices.length < 2) return;
+            const currentIndex = tabletCameraDevices.findIndex(camera => camera.id === activeTabletCameraId);
+            const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % tabletCameraDevices.length : 0;
+            const nextCamera = tabletCameraDevices[nextIndex];
+            if (!nextCamera) return;
+
+            tabletCameraSwitching = true;
+            setTabletScannerControls(true);
+            try {
+                await startScanner(currentScannerRequestType, nextCamera.id);
+            } finally {
+                tabletCameraSwitching = false;
+                setTabletScannerControls(true);
+            }
+        }
+
+        async function startScanner(type, requestedTabletCameraId = '') { 
+            currentScannerRequestType = type;
             await cleanupScanner();
+            setTabletScannerControls(false);
             isScanLocked = false; 
             document.getElementById('scan-error-msg').classList.add('hidden');
             document.getElementById('scan-success-msg').classList.add('hidden');
@@ -2234,6 +2388,17 @@
             const decodedCallback = (decodedText) => onScanSuccess(decodedText, type);
             const emptyErrorCallback = () => {};
             const isWarrantyScan = currentSystemMode === 'warranty' && !isStaffAuthStep;
+
+            // 僅在平板啟用指定鏡頭、QR 專用解碼與連續對焦；手機維持原本已穩定的掃描流程。
+            if (isTabletScannerDevice()) {
+                const tabletStarted = await startTabletOptimizedScanner(
+                    type,
+                    decodedCallback,
+                    emptyErrorCallback,
+                    requestedTabletCameraId || activeTabletCameraId
+                );
+                if (tabletStarted) return;
+            }
 
             if (isWarrantyScan) {
                 // 終身保固 QR 內容是 UUID，沿用較大的掃描框與 QR 專用設定。
