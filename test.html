@@ -5410,6 +5410,131 @@
     const $ = (s, root=document) => root.querySelector(s);
     const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 
+    // BLACK BOX 時間規則：
+    // 1. 網站產生的「現在／今天／今年」一律以 Asia/Taipei 為準。
+    // 2. 寫入 timestamptz 時，沿用資料庫既有規則：把台灣牆鐘時間以 +00:00 儲存。
+    // 3. 顯示資料庫時間時只拆 Supabase 回傳字串，不交給 Date 重新換算時區。
+    const BLACKBOX_TIME_ZONE = 'Asia/Taipei';
+
+    function padDateTimePart(value){
+      return String(value ?? '').padStart(2, '0');
+    }
+
+    function getTaiwanDateTimeParts(referenceDate = new Date()){
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: BLACKBOX_TIME_ZONE,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+      }).formatToParts(referenceDate);
+      const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+      return {
+        year: values.year,
+        month: values.month,
+        day: values.day,
+        hour: values.hour,
+        minute: values.minute,
+        second: values.second
+      };
+    }
+
+    function formatUTCWallDate(date){
+      return {
+        year: String(date.getUTCFullYear()),
+        month: padDateTimePart(date.getUTCMonth() + 1),
+        day: padDateTimePart(date.getUTCDate()),
+        hour: padDateTimePart(date.getUTCHours()),
+        minute: padDateTimePart(date.getUTCMinutes()),
+        second: padDateTimePart(date.getUTCSeconds())
+      };
+    }
+
+    function getTaiwanToday(){
+      const parts = getTaiwanDateTimeParts();
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+
+    function getTaiwanCurrentYear(){
+      return Number(getTaiwanDateTimeParts().year);
+    }
+
+    function getTaiwanDatabaseTimestamp(){
+      const parts = getTaiwanDateTimeParts();
+      return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}+00:00`;
+    }
+
+    function getTaiwanDateAfterDays(days){
+      const parts = getTaiwanDateTimeParts();
+      const wallDate = new Date(Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day) + Number(days || 0)
+      ));
+      const result = formatUTCWallDate(wallDate);
+      return `${result.year}-${result.month}-${result.day}`;
+    }
+
+    function getTaiwanDatabaseTimestampYearsAgo(years = 1){
+      const parts = getTaiwanDateTimeParts();
+      const wallDate = new Date(Date.UTC(
+        Number(parts.year),
+        Number(parts.month) - 1,
+        Number(parts.day),
+        Number(parts.hour),
+        Number(parts.minute),
+        Number(parts.second)
+      ));
+      wallDate.setUTCFullYear(wallDate.getUTCFullYear() - Number(years || 0));
+      const result = formatUTCWallDate(wallDate);
+      return `${result.year}-${result.month}-${result.day}T${result.hour}:${result.minute}:${result.second}+00:00`;
+    }
+
+    function getDatabaseWallParts(value){
+      const raw = String(value ?? '').trim();
+      if(!raw) return null;
+      const match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.\d+)?)?)?/);
+      if(!match) return null;
+      return {
+        year: match[1],
+        month: padDateTimePart(match[2]),
+        day: padDateTimePart(match[3]),
+        hour: padDateTimePart(match[4] ?? 0),
+        minute: padDateTimePart(match[5] ?? 0),
+        second: padDateTimePart(match[6] ?? 0),
+        hasTime: match[4] != null
+      };
+    }
+
+    function getDatabaseWallComparable(value){
+      const parts = getDatabaseWallParts(value);
+      if(!parts) return '';
+      return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`;
+    }
+
+    function formatDatabaseWallDateTime(value, fallback = '未填寫時間'){
+      const parts = getDatabaseWallParts(value);
+      if(!parts) return String(value || fallback);
+      if(!parts.hasTime) return `${parts.year}.${parts.month}.${parts.day}`;
+      return `${parts.year}.${parts.month}.${parts.day} ${parts.hour}:${parts.minute}:${parts.second}`;
+    }
+
+    function getBookingWallComparable(row){
+      const dateRaw = String(row?.booking_date || row?.date || '').trim();
+      const timeRaw = String(row?.booking_time || row?.time || '00:00:00').trim();
+      const dateMatch = dateRaw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      const timeMatch = timeRaw.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+      if(!dateMatch) return '';
+      const date = `${dateMatch[1]}-${padDateTimePart(dateMatch[2])}-${padDateTimePart(dateMatch[3])}`;
+      const time = timeMatch
+        ? `${padDateTimePart(timeMatch[1])}:${padDateTimePart(timeMatch[2])}:${padDateTimePart(timeMatch[3] ?? 0)}`
+        : '00:00:00';
+      return `${date}T${time}`;
+    }
+
     const fallback = {
       stores: [
         { name:'勤美公益店', address:'台中市西區公益路145號', hours:'每日 11:00-20:00', phone:'04-23015157', map_url:'https://maps.app.goo.gl/tKzhoHtaeiHUD1d76?g_st=ic' },
@@ -5566,19 +5691,7 @@
     let currentWarrantyLogsContractId = '';
 
     function formatWarrantyLogDate(value){
-      if(!value) return '未填寫時間';
-      const d = new Date(value);
-      if(!Number.isNaN(d.getTime())){
-        return new Intl.DateTimeFormat('zh-TW', {
-          year:'numeric',
-          month:'2-digit',
-          day:'2-digit',
-          hour:'2-digit',
-          minute:'2-digit',
-          hour12:false
-        }).format(d).replace(/\//g,'.');
-      }
-      return String(value);
+      return formatDatabaseWallDateTime(value, '未填寫時間');
     }
 
     function normalizeWarrantyLogValue(value){
@@ -5804,7 +5917,7 @@
       e.preventDefault();
       const form = new FormData(e.currentTarget);
       const payload = Object.fromEntries(form.entries());
-      payload.created_at = new Date().toISOString();
+      payload.created_at = getTaiwanDatabaseTimestamp();
       const btn = e.currentTarget.querySelector('.submit-btn');
       const old = btn.textContent;
       btn.textContent = '送出中...'; btn.disabled = true;
@@ -6002,7 +6115,7 @@
       const area = base.area || '';
       const birthday = String(base.birthday || '');
       const [birthYear='', birthMonth='', birthDay=''] = birthday.includes('-') ? birthday.split('-') : ['', '', ''];
-      const currentYear = new Date().getFullYear();
+      const currentYear = getTaiwanCurrentYear();
       const years = ['<option value="">年</option>'].concat(
         Array.from({ length: currentYear - 1939 }, (_, i) => {
           const y = String(currentYear - i);
@@ -6066,7 +6179,7 @@
       const m = Number(monthEl.value);
       dayEl.innerHTML = '<option value="">日</option>';
       if(!y || !m) return;
-      const total = new Date(y, m, 0).getDate();
+      const total = new Date(Date.UTC(y, m, 0)).getUTCDate();
       for(let d = 1; d <= total; d++){
         const value = String(d).padStart(2, '0');
         dayEl.insertAdjacentHTML('beforeend', `<option value="${value}">${d}日</option>`);
@@ -6315,21 +6428,14 @@
 
     function formatLifetimeWarrantyDateParts(value){
       if(!value) return { year:'----', date:'--.--' };
-      const d = new Date(value);
-      if(!Number.isNaN(d.getTime())){
+      const parts = getDatabaseWallParts(value);
+      if(parts){
         return {
-          year:String(d.getFullYear()),
-          date:`${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`
+          year:parts.year,
+          date:`${parts.month}.${parts.day}`
         };
       }
       const raw = String(value).trim();
-      const match = raw.match(/(\d{4})[^\d]?(\d{1,2})[^\d]?(\d{1,2})/);
-      if(match){
-        return {
-          year:match[1],
-          date:`${String(match[2]).padStart(2,'0')}.${String(match[3]).padStart(2,'0')}`
-        };
-      }
       return { year:raw || '----', date:'' };
     }
 
@@ -6549,9 +6655,10 @@
     }
 
     function formatMemberActivityDate(value){
-      const d = value ? new Date(value) : null;
-      if(!d || Number.isNaN(d.getTime())) return '日期未提供';
-      return `${d.getFullYear()}年${d.getMonth()+1}月${String(d.getDate()).padStart(2,'0')}日`;
+      const parts = getDatabaseWallParts(value);
+      if(!parts) return '日期未提供';
+      if(!parts.hasTime) return `${parts.year}年${Number(parts.month)}月${parts.day}日`;
+      return `${parts.year}年${Number(parts.month)}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second}`;
     }
 
     function resolveActivityPoints(row){
@@ -6573,20 +6680,20 @@
       }
 
       try{
-        const oneYearAgo = new Date();
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        const oneYearAgo = getTaiwanDatabaseTimestampYearsAgo(1);
+        const oneYearAgoComparable = getDatabaseWallComparable(oneYearAgo);
 
         const { data, error } = await supabaseClient
           .from('point_logs')
           .select('*')
           .eq('line_id', lineId)
-          .gte('created_at', oneYearAgo.toISOString())
+          .gte('created_at', oneYearAgo)
           .order('created_at', { ascending:false });
         if(error) throw error;
         const rows = (data || []).filter(row => {
           const rawDate = row.created_at || row.date || row.log_date;
-          const d = rawDate ? new Date(rawDate) : null;
-          return d && !Number.isNaN(d.getTime()) && d >= oneYearAgo;
+          const comparable = getDatabaseWallComparable(rawDate);
+          return comparable && comparable >= oneYearAgoComparable;
         });
         if(!rows.length){
           list.innerHTML = '<div class="bb-member-activity-empty">近 1 年內尚無積分活動紀錄。</div>';
@@ -6620,8 +6727,8 @@
     async function getYearlyMemberStatus(){
       if(!currentMember) return { times:0, claimed:[] };
       const lineId = memberLineId();
-      const currentYear = new Date().getFullYear();
-      const startDate = `${currentYear}-01-01T00:00:00.000Z`;
+      const currentYear = getTaiwanCurrentYear();
+      const startDate = `${currentYear}-01-01T00:00:00+00:00`;
       let times = 0;
       let claimed = [];
       try{
@@ -6717,7 +6824,6 @@
     async function handleYearlyCardClick(){
       if(!currentMember){ routeTo('member'); return; }
       const milestones = [3, 6, 10, 15];
-      const currentYear = new Date().getFullYear();
       try{
         const status = await getYearlyMemberStatus();
         const yearlyTimes = Number(status.times || 0);
@@ -6789,9 +6895,10 @@
       if(!currentMember) return;
       const btn = document.getElementById('yearlyClaimBtn');
       const milestone = Number(currentClaimingMilestone || 0);
-      const currentYear = new Date().getFullYear();
+      const currentYear = getTaiwanCurrentYear();
       const rewardKey = `YR_${currentYear}_${milestone}`;
       const lineId = memberLineId();
+      const taiwanCreatedAt = getTaiwanDatabaseTimestamp();
       if(!milestone || !lineId) return;
 
       if(btn){ btn.disabled = true; btn.textContent = '處理中...'; }
@@ -6842,9 +6949,7 @@
           if(couponTemp){
             let expiryDate = null;
             if(couponTemp.validity_days && Number(couponTemp.validity_days) > 0){
-              const d = new Date();
-              d.setDate(d.getDate() + Number(couponTemp.validity_days));
-              expiryDate = d.toISOString().split('T')[0];
+              expiryDate = getTaiwanDateAfterDays(Number(couponTemp.validity_days));
             }else{
               expiryDate = couponTemp.valid_until || null;
             }
@@ -6857,7 +6962,8 @@
                 valid_until: expiryDate,
                 status: 'unused',
                 type: couponTemp.type || 'exchange',
-                discount_amount: couponTemp.discount_amount || 0
+                discount_amount: couponTemp.discount_amount || 0,
+                created_at: taiwanCreatedAt
               });
             if(insertCouponError) throw insertCouponError;
           }
@@ -6873,7 +6979,8 @@
             amount: 0,
             points_change: pointsToAdd,
             points_redeemed: 0,
-            coupon_discount: 0
+            coupon_discount: 0,
+            created_at: taiwanCreatedAt
           });
         if(logError) throw logError;
 
@@ -6913,7 +7020,7 @@
       if(!currentMember){ box.innerHTML = ''; return; }
       box.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
       const lineId = memberLineId();
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTaiwanToday();
       let coupons = [];
       try{
         const { data, error } = await supabaseClient
@@ -6925,7 +7032,7 @@
         if(error) throw error;
         coupons = (data || []).filter(c => !c.valid_until || c.valid_until >= today);
         coupons.sort((a,b)=>{
-          if(a.valid_until && b.valid_until) return new Date(a.valid_until)-new Date(b.valid_until);
+          if(a.valid_until && b.valid_until) return String(a.valid_until).localeCompare(String(b.valid_until));
           if(a.valid_until && !b.valid_until) return -1;
           if(!a.valid_until && b.valid_until) return 1;
           return 0;
@@ -7015,15 +7122,14 @@
           .select('*')
           .eq('phone', phone);
         if(error) throw error;
-        const now = new Date();
+        const nowComparable = getDatabaseWallComparable(getTaiwanDatabaseTimestamp());
         rows = (data || []).filter(b=>{
           if(!b.booking_date) return true;
-          const bookingDateTime = new Date(`${b.booking_date}T${b.booking_time || '00:00'}:00`);
-          return bookingDateTime >= now;
+          return getBookingWallComparable(b) >= nowComparable;
         }).sort((a,b)=>{
-          const timeA = new Date(`${a.booking_date || '2999-12-31'}T${a.booking_time || '00:00'}:00`).getTime();
-          const timeB = new Date(`${b.booking_date || '2999-12-31'}T${b.booking_time || '00:00'}:00`).getTime();
-          return timeA - timeB;
+          const timeA = getBookingWallComparable(a) || '2999-12-31T00:00:00';
+          const timeB = getBookingWallComparable(b) || '2999-12-31T00:00:00';
+          return timeA.localeCompare(timeB);
         });
       }catch(e){
         console.warn('booking load failed', e);
