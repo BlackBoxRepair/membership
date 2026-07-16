@@ -6730,6 +6730,7 @@
       const lineId = memberLineId();
       const currentYear = getTaiwanCurrentYear();
       const startDate = `${currentYear}-01-01T00:00:00+00:00`;
+      const endDate = `${currentYear + 1}-01-01T00:00:00+00:00`;
       let times = 0;
       let claimed = [];
       try{
@@ -6738,6 +6739,7 @@
           .select('*', { count:'exact', head:true })
           .eq('line_id', lineId)
           .gte('created_at', startDate)
+          .lt('created_at', endDate)
           .neq('store_name', '年度達成禮');
         if(error) throw error;
         times = count || 0;
@@ -6985,10 +6987,9 @@
           });
         if(logError) throw logError;
 
-        closeYearlySurpriseModal();
-        alert('獎勵已成功發放至您的帳戶！\n若為票券請至「票券錢包」查看。');
         if(currentLineProfile) await loadMemberByLine(currentLineProfile);
         renderMemberState();
+        closeYearlySurpriseModal();
       }catch(err){
         console.error('claim yearly reward failed', err);
         alert('領取失敗，請聯繫客服或稍後再試。');
