@@ -8983,3 +8983,39 @@
     }
   }
 </style>
+
+<!-- 2026-07-16：電腦版 Banner 等比例放大，右上選單固定於視窗 -->
+<style id="bb-desktop-banner-ratio-fixed-nav-20260716">
+  @media (min-width:1024px){
+    /* 手機版最大內容寬 440px、高 138px，電腦版沿用相同比例放大 */
+    #home .home-banner-placeholder,
+    #gift .gift-starbox-banner{
+      width:100%!important;
+      height:auto!important;
+      aspect-ratio:220 / 69!important;
+    }
+    #home .home-banner-placeholder{
+      margin:0 0 22px!important;
+    }
+    #gift .gift-starbox-banner{
+      margin:2px 0 22px!important;
+    }
+    #home .home-banner-placeholder .home-banner-slide,
+    #gift .gift-starbox-banner .home-banner-slide{
+      width:100%!important;
+      height:100%!important;
+      object-fit:cover!important;
+    }
+
+    /* 固定於瀏覽器右上角，頁面捲動時維持原位 */
+    .bottom-nav{
+      position:fixed!important;
+      left:auto!important;
+      right:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
+      top:24px!important;
+      bottom:auto!important;
+      transform:none!important;
+      z-index:1200!important;
+    }
+  }
+</style>
