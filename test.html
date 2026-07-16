@@ -5691,7 +5691,9 @@
     let currentWarrantyLogsContractId = '';
 
     function formatWarrantyLogDate(value){
-      return formatDatabaseWallDateTime(value, '未填寫時間');
+      const parts = getDatabaseWallParts(value);
+      if(!parts) return value ? String(value) : '未填寫日期';
+      return `${parts.year}.${parts.month}.${parts.day}`;
     }
 
     function normalizeWarrantyLogValue(value){
@@ -6657,8 +6659,7 @@
     function formatMemberActivityDate(value){
       const parts = getDatabaseWallParts(value);
       if(!parts) return '日期未提供';
-      if(!parts.hasTime) return `${parts.year}年${Number(parts.month)}月${parts.day}日`;
-      return `${parts.year}年${Number(parts.month)}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second}`;
+      return `${parts.year}年${Number(parts.month)}月${parts.day}日`;
     }
 
     function resolveActivityPoints(row){
