@@ -8984,6 +8984,7 @@
   }
 </style>
 
+
 <!-- 2026-07-16：電腦版 Banner 等比例放大，右上選單固定於視窗 -->
 <style id="bb-desktop-banner-ratio-fixed-nav-20260716">
   @media (min-width:1024px){
@@ -9136,6 +9137,36 @@
     .bottom-link.active span,
     .bottom-link.active:not(.home-center) span{
       color:#437497!important;
+    }
+  }
+</style>
+
+<!-- 2026-07-16：電腦版左側選單圖示與名稱分置兩側 -->
+<style id="bb-desktop-left-nav-item-alignment-20260716">
+  @media (min-width:1024px){
+    /* 整組選單比前一版再向左移 12px */
+    .bottom-nav{
+      left:max(12px,calc((100vw - 1280px) / 2 + 12px))!important;
+    }
+    .bottom-link,
+    .bottom-link.home-center{
+      justify-content:space-between!important;
+      gap:0!important;
+      padding-left:14px!important;
+      padding-right:14px!important;
+    }
+    .bottom-link iconify-icon,
+    .bottom-link.home-center iconify-icon{
+      margin:0!important;
+      text-align:left!important;
+    }
+    .bottom-link span{
+      margin-left:auto!important;
+      text-align:right!important;
+    }
+    .bottom-link.home-center::after{
+      margin-left:auto!important;
+      text-align:right!important;
     }
   }
 </style>
