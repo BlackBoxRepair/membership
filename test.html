@@ -9221,3 +9221,24 @@
     }
   }
 </style>
+
+<!-- 2026-07-20：放大電腦版首頁五張漂浮裝飾圖片 -->
+<style id="bb-desktop-home-ornaments-larger-20260720">
+  @media (min-width:1024px){
+    /* 第一張大型電池圖：226px → 290px */
+    #home .feature-card.big .card-ornament{
+      width:100%!important;
+      max-width:290px!important;
+      right:-17%!important;
+      top:-6px!important;
+    }
+
+    /* 其餘四張裝飾圖：92px → 128px */
+    #home .feature-card:not(.big) .card-ornament-small{
+      width:54%!important;
+      max-width:128px!important;
+      right:14px!important;
+      bottom:28px!important;
+    }
+  }
+</style>
