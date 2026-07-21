@@ -5588,6 +5588,20 @@
       return '/membership/test';
     }
 
+    function hasLiffLoginCallbackParams(){
+      try{
+        const params = new URLSearchParams(location.search);
+        const protectedKeys = new Set([
+          'code','state','access_token','id_token','client_id',
+          'liffClientId','liffRedirectUri','error','error_description'
+        ]);
+        return Array.from(params.keys()).some(key => protectedKeys.has(key) || key.startsWith('liff.'))
+          || /(?:access_token|id_token|code|state)=/i.test(location.hash || '');
+      }catch(err){
+        return false;
+      }
+    }
+
     const VALID_ROUTES = new Set(['home','flow','quote','search','stores','booking','wallet','member','reservation','gift','cases','lifetimeWarranty']);
 
     function routeTo(id){
@@ -5625,7 +5639,10 @@
       closeGiftLockedModal();
 
       const baseUrl = getBaseUrl();
-      history.replaceState({page:target}, '', baseUrl);
+      // LIFF 尚未處理完登入回呼時，不可改寫網址，否則會清掉完成登入所需的參數。
+      if(!hasLiffLoginCallbackParams()){
+        history.replaceState({page:target}, '', baseUrl);
+      }
     }
 
 
@@ -5838,7 +5855,7 @@
 
     $$('.section').forEach(s => s.classList.toggle('active', s.id === 'home'));
     $$('.bottom-link').forEach(b => b.classList.toggle('active', b.dataset.route === 'home'));
-    history.replaceState({page:'home'}, '', getBaseUrl());
+    // 網址必須原樣保留到 liff.init() 完成，避免 LINE 登入回跳參數被提前清除。
 
     $$('[data-route]').forEach(btn => btn.addEventListener('click', e => {
       e.preventDefault();
@@ -5954,8 +5971,8 @@
     const BB_AFTER_LINE_LOGIN_KEY = 'bb_after_line_login_member';
 
     function getCleanRedirectUri(){
-      // GitHub Pages 單頁網站：LINE 登入回來仍保留目前網址，不使用子路徑，避免重新整理 404。
-      return location.origin + location.pathname + location.search + location.hash;
+      // 一律使用不含舊 code / state / hash 的固定網址，避免登入回呼參數被重複包入而形成循環。
+      return new URL(getBaseUrl(), location.origin).href;
     }
 
     async function ensureLiffReady(){
@@ -5971,6 +5988,8 @@
       try{
         if(!window.liff){ renderMemberState(); return; }
         await ensureLiffReady();
+        // liff.init() 已完成回呼驗證，此時才安全地清除登入參數並恢復乾淨網址。
+        history.replaceState({page:'home'}, '', getBaseUrl());
         if(liff.isLoggedIn()){
           const profile = await liff.getProfile();
           currentLineProfile = profile;
