@@ -3707,7 +3707,6 @@
 
 </style>
 
-
   <style id="bb-membership-progress-v4">
     /* 2026-07-04 會員等級進度條新版樣式 */
     #member .bb-annual-points-card{
@@ -5136,7 +5135,7 @@
             <h3 class="card-title">線上報價<br>透明公開</h3>
             <p class="card-subtitle">針對各類設備提供各式維修與升級服務</p>
           </div>
-          <img class="card-ornament" src="./ornaments/ornaments_battery.png?v=20260720-optimized" onerror="this.onerror=null;this.src='./ornamets/ornaments_battery.png?v=20260720-optimized';" alt="" loading="eager" decoding="async" />
+          <img class="card-ornament" src="./ornaments/ornaments_battery.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_battery.png';" alt="" loading="lazy" decoding="async" />
           <span class="card-pill">立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
         </button>
 
@@ -5144,28 +5143,28 @@
           <span class="card-kicker">服務流程</span>
           <h3 class="card-title">快速維修<br>立即解決</h3>
           <p class="card-subtitle">現場最快 40 分鐘立即取件</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_repair.png?v=20260720-optimized" onerror="this.onerror=null;this.src='./ornamets/ornaments_repair.png?v=20260720-optimized';" alt="" loading="eager" decoding="async" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_repair.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card dark" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">線上預約</span>
           <h3 class="card-title">免等待<br>快速預約</h3>
           <p class="card-subtitle">選擇時間，輕鬆預約</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_booking.png?v=20260720-optimized" onerror="this.onerror=null;this.src='./ornamets/ornaments_booking.png?v=20260720-optimized';" alt="" loading="eager" decoding="async" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_booking.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_booking.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="cases">
           <span class="card-kicker">維修案例</span>
           <h3 class="card-title">各式型號<br>維修無礙</h3>
           <p class="card-subtitle">手機/平板/筆電/遊戲機</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_tool.png?v=20260720-optimized" onerror="this.onerror=null;this.src='./ornamets/ornaments_tool.png?v=20260720-optimized';" alt="" loading="eager" decoding="async" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_tool.png';" alt="" loading="lazy" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="gift">
           <span class="card-kicker">會員專屬</span>
           <h3 class="card-title">累積點數<br>換取折扣</h3>
           <p class="card-subtitle">更多會員專屬優惠等你來拿！</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_membership.png?v=20260720-optimized" onerror="this.onerror=null;this.src='./ornamets/ornaments_membership.png?v=20260720-optimized';" alt="" loading="eager" decoding="async" />
+          <img class="card-ornament-small" src="./ornaments/ornaments_membership.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_membership.png';" alt="" loading="lazy" decoding="async" />
         </button>
       </section>
 
@@ -5692,9 +5691,7 @@
     let currentWarrantyLogsContractId = '';
 
     function formatWarrantyLogDate(value){
-      const parts = getDatabaseWallParts(value);
-      if(!parts) return value ? String(value) : '未填寫日期';
-      return `${parts.year}.${parts.month}.${parts.day}`;
+      return formatDatabaseWallDateTime(value, '未填寫時間');
     }
 
     function normalizeWarrantyLogValue(value){
@@ -6660,7 +6657,8 @@
     function formatMemberActivityDate(value){
       const parts = getDatabaseWallParts(value);
       if(!parts) return '日期未提供';
-      return `${parts.year}年${Number(parts.month)}月${parts.day}日`;
+      if(!parts.hasTime) return `${parts.year}年${Number(parts.month)}月${parts.day}日`;
+      return `${parts.year}年${Number(parts.month)}月${parts.day}日 ${parts.hour}:${parts.minute}:${parts.second}`;
     }
 
     function resolveActivityPoints(row){
@@ -6731,7 +6729,6 @@
       const lineId = memberLineId();
       const currentYear = getTaiwanCurrentYear();
       const startDate = `${currentYear}-01-01T00:00:00+00:00`;
-      const endDate = `${currentYear + 1}-01-01T00:00:00+00:00`;
       let times = 0;
       let claimed = [];
       try{
@@ -6740,7 +6737,6 @@
           .select('*', { count:'exact', head:true })
           .eq('line_id', lineId)
           .gte('created_at', startDate)
-          .lt('created_at', endDate)
           .neq('store_name', '年度達成禮');
         if(error) throw error;
         times = count || 0;
@@ -6988,9 +6984,10 @@
           });
         if(logError) throw logError;
 
+        closeYearlySurpriseModal();
+        alert('獎勵已成功發放至您的帳戶！\n若為票券請至「票券錢包」查看。');
         if(currentLineProfile) await loadMemberByLine(currentLineProfile);
         renderMemberState();
-        closeYearlySurpriseModal();
       }catch(err){
         console.error('claim yearly reward failed', err);
         alert('領取失敗，請聯繫客服或稍後再試。');
@@ -8132,8 +8129,8 @@
   padding:0;
   overflow:hidden;
   color:#ffffff;
-  background:transparent url('warranty%20card.png?v=20260720-optimized') center/100% 100% no-repeat;
-  background-image:url('warranty%20card.png?v=20260720-optimized'),url('warranty card.png?v=20260720-optimized');
+  background:transparent url('warranty%20card.png') center/100% 100% no-repeat;
+  background-image:url('warranty%20card.png'),url('warranty card.png');
   background-position:center,center;
   background-size:100% 100%,100% 100%;
   background-repeat:no-repeat,no-repeat;
@@ -8525,720 +8522,5 @@
   #home .feature-card:not(.big):not(.dark) .tag{
     background:rgba(67,116,151,.10)!important;
     color:#437497!important;
-  }
-</style>
-
-<!-- 2026-07-16：平板／電腦響應式版面（手機版維持原樣） -->
-<style id="bb-responsive-layout-20260716">
-  /*
-    720px 起改為平板排版；1024px 起改為電腦排版。
-    全部依實際視窗寬度切換，不使用裝置名稱或瀏覽器判斷。
-  */
-  @media (min-width:720px){
-    html,body{min-width:0!important;overflow-x:hidden!important;}
-
-    .app{
-      width:min(calc(100% - 40px),900px)!important;
-      padding:28px 28px calc(112px + var(--safe-bottom))!important;
-    }
-    .topbar{margin:16px 0 4px!important;}
-    .brand-logo{width:184px!important;}
-
-    #home .home-banner-placeholder{
-      height:clamp(190px,24vw,238px)!important;
-      margin:-22px 0 18px!important;
-      border-radius:20px!important;
-    }
-    #home .home-banner-placeholder .home-banner-slide{
-      border-radius:20px!important;
-    }
-    #home .cards{
-      --card-gap:16px;
-      display:grid!important;
-      grid-template-columns:repeat(3,minmax(0,1fr))!important;
-      grid-template-rows:168px 168px!important;
-      gap:var(--card-gap)!important;
-      margin-top:0!important;
-    }
-    #home .feature-card.big{grid-column:1!important;grid-row:1 / span 2!important;}
-    #home .feature-card:nth-child(2){grid-column:2!important;grid-row:1!important;}
-    #home .feature-card:nth-child(3){grid-column:3!important;grid-row:1!important;}
-    #home .feature-card:nth-child(4){grid-column:2!important;grid-row:2!important;}
-    #home .feature-card:nth-child(5){grid-column:3!important;grid-row:2!important;}
-    #home .feature-card{
-      border-radius:20px!important;
-      padding:20px!important;
-    }
-    #home .feature-card.big .card-text-group{left:20px!important;right:20px!important;bottom:72px!important;}
-    #home .feature-card .card-title,
-    #home .feature-card:nth-child(2) .card-title,
-    #home .feature-card:nth-child(3) .card-title,
-    #home .feature-card:nth-child(4) .card-title,
-    #home .feature-card:nth-child(5) .card-title{font-size:18px!important;}
-    #home .feature-card .card-subtitle{font-size:11px!important;max-width:72%!important;}
-    #home .feature-card.big .card-subtitle{max-width:100%!important;}
-    #home .feature-card.big .card-pill{left:20px!important;bottom:24px!important;}
-
-    .member-strip{margin-top:18px!important;border-radius:20px!important;}
-    .member-item{min-height:76px!important;padding:14px 20px!important;}
-
-    .page-head{margin:24px 0 20px!important;}
-    .page-title h2{font-size:30px!important;}
-    body:not(:has(#home.active)) .section.active{
-      margin-top:0!important;
-      padding-top:16px!important;
-    }
-
-    #productList.list,
-    #storeList.list,
-    #reservationList.data-list,
-    #lifetimeWarrantyList.bb-lifetime-list{
-      grid-template-columns:repeat(2,minmax(0,1fr))!important;
-      gap:16px!important;
-      align-items:start!important;
-    }
-    #productList .empty,
-    #storeList .empty,
-    #reservationList .empty,
-    #lifetimeWarrantyList .bb-lifetime-empty,
-    #lifetimeWarrantyList .bb-lifetime-loading{
-      grid-column:1 / -1!important;
-    }
-
-    #wallet .bb-wallet-ledger{
-      display:grid!important;
-      grid-template-columns:repeat(2,minmax(0,1fr))!important;
-      gap:16px!important;
-      align-items:start!important;
-    }
-    #wallet .bb-wallet-coupon{margin-top:0!important;}
-    #wallet .bb-wallet-empty{grid-column:1 / -1!important;}
-
-    #reservation .bb-member-activity-list{
-      display:grid!important;
-      grid-template-columns:repeat(2,minmax(0,1fr))!important;
-      gap:14px!important;
-      overflow:visible!important;
-      background:transparent!important;
-      border:0!important;
-      box-shadow:none!important;
-    }
-    #reservation .bb-member-activity-row{
-      min-height:126px!important;
-      border:1px solid rgba(82,82,82,.10)!important;
-      border-radius:18px!important;
-      background:#ffffff!important;
-      box-shadow:0 10px 24px rgba(32,50,65,.07)!important;
-    }
-    #reservation .bb-member-activity-loading,
-    #reservation .bb-member-activity-empty{grid-column:1 / -1!important;}
-
-    .bottom-nav{
-      width:min(calc(100% - 40px),900px)!important;
-      padding-left:18px!important;
-      padding-right:18px!important;
-    }
-
-    .modal,
-    .bb-warranty-terms-modal{
-      align-items:center!important;
-      padding:24px!important;
-    }
-    .modal-card,
-    .bb-warranty-terms-card{
-      width:min(100%,540px)!important;
-      border-radius:26px!important;
-      padding:26px!important;
-      box-shadow:0 24px 70px rgba(0,0,0,.24)!important;
-    }
-    .bb-bottom-sheet-overlay{
-      justify-content:center!important;
-      padding:24px!important;
-    }
-    .bb-bottom-sheet-content{
-      width:min(100%,480px)!important;
-      border-radius:28px!important;
-      padding-bottom:28px!important;
-      max-height:calc(100dvh - 48px)!important;
-    }
-  }
-
-  @media (min-width:1024px){
-    .app{
-      width:min(calc(100% - 48px),1280px)!important;
-      min-height:100dvh!important;
-      padding:28px 32px 54px 230px!important;
-    }
-    .topbar{margin:16px 0 10px!important;}
-    .brand-logo{width:196px!important;}
-
-    #home .home-banner-placeholder{
-      height:clamp(220px,22vw,300px)!important;
-      margin:-22px 0 22px!important;
-      border-radius:24px!important;
-    }
-    #home .home-banner-placeholder .home-banner-slide{border-radius:24px!important;}
-    #home .cards{
-      grid-template-rows:184px 184px!important;
-      gap:18px!important;
-    }
-    #home .feature-card{border-radius:22px!important;}
-    #home .feature-card .card-title,
-    #home .feature-card:nth-child(2) .card-title,
-    #home .feature-card:nth-child(3) .card-title,
-    #home .feature-card:nth-child(4) .card-title,
-    #home .feature-card:nth-child(5) .card-title{font-size:20px!important;}
-    #home .feature-card .card-kicker{font-size:12px!important;}
-    #home .feature-card .card-subtitle{font-size:12px!important;}
-
-    .bottom-nav{
-      left:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
-      top:108px!important;
-      bottom:auto!important;
-      transform:none!important;
-      width:182px!important;
-      padding:0!important;
-    }
-    .bottom-shell{
-      width:100%!important;
-      height:auto!important;
-      min-height:0!important;
-      display:grid!important;
-      grid-template-columns:1fr!important;
-      align-items:stretch!important;
-      gap:6px!important;
-      padding:12px!important;
-      border-radius:24px!important;
-      background:rgba(255,255,255,.95)!important;
-      box-shadow:0 18px 44px rgba(32,50,65,.14)!important;
-    }
-    .bottom-link,
-    .bottom-link.home-center{
-      width:100%!important;
-      height:56px!important;
-      min-height:56px!important;
-      margin:0!important;
-      padding:0 14px!important;
-      border:0!important;
-      border-radius:15px!important;
-      transform:none!important;
-      justify-self:stretch!important;
-      display:flex!important;
-      flex-direction:row!important;
-      align-items:center!important;
-      justify-content:flex-start!important;
-      gap:12px!important;
-      background:transparent!important;
-      box-shadow:none!important;
-      color:#667085!important;
-      font-size:14px!important;
-      line-height:1!important;
-      text-align:left!important;
-    }
-    .bottom-link iconify-icon,
-    .bottom-link.home-center iconify-icon{
-      flex:0 0 28px!important;
-      width:28px!important;
-      font-size:27px!important;
-      color:currentColor!important;
-    }
-    .bottom-link span{
-      display:inline!important;
-      color:currentColor!important;
-      font-size:14px!important;
-      font-weight:900!important;
-    }
-    .bottom-link.home-center::after{
-      content:"首頁";
-      display:inline-block;
-      color:currentColor;
-      font-size:14px;
-      font-weight:900;
-    }
-    .bottom-link.home-center{order:1!important;}
-    .bottom-link[data-route="gift"]{order:2!important;}
-    .bottom-link[data-route="reservation"]{order:3!important;}
-    .bottom-link[data-route="wallet"]{order:4!important;}
-    .bottom-link[data-route="member"]{order:5!important;}
-    .bottom-link.active,
-    .bottom-link.active:not(.home-center),
-    .bottom-link.home-center.active{
-      background:rgba(67,116,151,.11)!important;
-      border:0!important;
-      border-radius:15px!important;
-      box-shadow:none!important;
-      color:#437497!important;
-      transform:none!important;
-    }
-    .bottom-link.active iconify-icon,
-    .bottom-link.active:not(.home-center) iconify-icon,
-    .bottom-link.home-center.active iconify-icon,
-    .bottom-link.active span,
-    .bottom-link.active:not(.home-center) span{
-      color:#437497!important;
-    }
-
-    .page-title h2{font-size:34px!important;}
-    .page-title small{font-size:13px!important;}
-
-    .process-page,
-    .price-page{
-      grid-template-columns:190px minmax(0,1fr)!important;
-      gap:22px!important;
-      align-items:start!important;
-    }
-    .process-tabs,
-    .price-tabs{
-      position:sticky!important;
-      top:28px!important;
-      grid-template-columns:1fr!important;
-      gap:8px!important;
-    }
-    .process-img-box,
-    .price-img-box{max-width:none!important;}
-
-    #member .bb-member-card-wrap{
-      grid-template-columns:minmax(0,1.18fr) minmax(330px,.82fr)!important;
-      grid-template-rows:auto 1fr!important;
-      column-gap:28px!important;
-      row-gap:14px!important;
-      align-items:start!important;
-    }
-    #member .bb-member-card-face{
-      grid-column:1!important;
-      grid-row:1 / span 2!important;
-      border-radius:28px!important;
-    }
-    #memberAnnualProgressMount{
-      grid-column:2!important;
-      grid-row:1!important;
-      margin:-8px 0 0!important;
-    }
-    #member .bb-member-points-inline{
-      grid-column:2!important;
-      grid-row:2!important;
-      grid-template-columns:1fr!important;
-      align-content:start!important;
-      gap:20px!important;
-      margin:8px 0 0!important;
-      padding:24px!important;
-      border-radius:22px!important;
-      background:#ffffff!important;
-      box-shadow:0 12px 28px rgba(32,50,65,.08)!important;
-    }
-    #member .bb-member-points-left{
-      display:grid!important;
-      grid-template-columns:48px 1fr!important;
-      column-gap:12px!important;
-      text-align:left!important;
-      align-items:center!important;
-    }
-    #member .bb-member-points-left > div:not(.bb-member-points-icon){text-align:left!important;}
-    #member .bb-member-points-rules{margin-left:0!important;}
-
-    #lifetimeWarrantyList.bb-lifetime-list{gap:22px!important;}
-    .bb-warranty-sd-card{border-radius:22px!important;}
-
-    .booking-frame-wrap{
-      height:calc(100dvh - 130px)!important;
-      min-height:660px!important;
-      border-radius:22px!important;
-    }
-  }
-
-  @media (min-width:1024px) and (hover:hover){
-    .bottom-link:hover{
-      background:rgba(67,116,151,.07)!important;
-      color:#437497!important;
-    }
-    #home .feature-card:hover,
-    .list-card:hover,
-    .booking-card:hover,
-    #wallet .bb-wallet-coupon:hover,
-    .bb-warranty-sd-card:hover{
-      transform:translateY(-2px)!important;
-    }
-  }
-</style>
-
-<!-- 2026-07-16：電腦版導覽列移至畫面右上角 -->
-<style id="bb-desktop-top-navigation-20260716">
-  @media (min-width:1024px){
-    /* 取消舊版左側導覽所預留的空間，讓內容重新置中並完整利用寬度 */
-    .app{
-      width:min(calc(100% - 48px),1280px)!important;
-      padding:28px 32px 54px!important;
-    }
-
-    /* 首頁 Logo 與右上選單共用同一個頁首區域 */
-    .topbar{
-      min-height:72px!important;
-      margin:16px 0 10px!important;
-      align-items:center!important;
-    }
-    #home .home-banner-placeholder{
-      margin:0 0 22px!important;
-    }
-
-    /* 其他功能頁沒有 Logo，因此替右上選單保留垂直空間 */
-    body:not(:has(#home.active)) .section.active{
-      margin-top:0!important;
-      padding-top:82px!important;
-    }
-
-    .bottom-nav{
-      left:auto!important;
-      right:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
-      top:24px!important;
-      bottom:auto!important;
-      transform:none!important;
-      width:auto!important;
-      padding:0!important;
-    }
-    .bottom-shell{
-      width:auto!important;
-      height:70px!important;
-      min-height:70px!important;
-      display:grid!important;
-      grid-template-columns:repeat(5,minmax(76px,92px))!important;
-      align-items:center!important;
-      gap:4px!important;
-      padding:6px 8px!important;
-      border-radius:24px!important;
-      background:rgba(255,255,255,.95)!important;
-      box-shadow:0 14px 38px rgba(32,50,65,.14)!important;
-    }
-    .bottom-link,
-    .bottom-link.home-center{
-      width:100%!important;
-      height:58px!important;
-      min-height:58px!important;
-      margin:0!important;
-      padding:5px 8px!important;
-      border:0!important;
-      border-radius:17px!important;
-      transform:none!important;
-      justify-self:stretch!important;
-      display:flex!important;
-      flex-direction:column!important;
-      align-items:center!important;
-      justify-content:center!important;
-      gap:3px!important;
-      background:transparent!important;
-      box-shadow:none!important;
-      color:#667085!important;
-      font-size:11px!important;
-      line-height:1!important;
-      text-align:center!important;
-      white-space:nowrap!important;
-    }
-    .bottom-link iconify-icon,
-    .bottom-link.home-center iconify-icon{
-      flex:0 0 auto!important;
-      width:auto!important;
-      font-size:25px!important;
-      color:currentColor!important;
-    }
-    .bottom-link span{
-      display:block!important;
-      color:currentColor!important;
-      font-size:11px!important;
-      line-height:1!important;
-      font-weight:900!important;
-      white-space:nowrap!important;
-    }
-    .bottom-link.home-center::after{
-      content:"首頁";
-      display:block!important;
-      color:currentColor!important;
-      font-size:11px!important;
-      line-height:1!important;
-      font-weight:900!important;
-      white-space:nowrap!important;
-    }
-
-    /* 恢復與手機底部選單相同的排列順序 */
-    .bottom-link[data-route="gift"]{order:1!important;}
-    .bottom-link[data-route="reservation"]{order:2!important;}
-    .bottom-link.home-center{order:3!important;}
-    .bottom-link[data-route="wallet"]{order:4!important;}
-    .bottom-link[data-route="member"]{order:5!important;}
-
-    .bottom-link.active,
-    .bottom-link.active:not(.home-center),
-    .bottom-link.home-center.active{
-      background:rgba(67,116,151,.11)!important;
-      border:0!important;
-      border-radius:17px!important;
-      box-shadow:none!important;
-      color:#437497!important;
-      transform:none!important;
-    }
-    .bottom-link.active iconify-icon,
-    .bottom-link.active:not(.home-center) iconify-icon,
-    .bottom-link.home-center.active iconify-icon,
-    .bottom-link.active span,
-    .bottom-link.active:not(.home-center) span{
-      color:#437497!important;
-    }
-  }
-</style>
-
-
-<!-- 2026-07-16：電腦版 Banner 等比例放大，右上選單固定於視窗 -->
-<style id="bb-desktop-banner-ratio-fixed-nav-20260716">
-  @media (min-width:1024px){
-    /* 手機版最大內容寬 440px、高 138px，電腦版沿用相同比例放大 */
-    #home .home-banner-placeholder,
-    #gift .gift-starbox-banner{
-      width:100%!important;
-      height:auto!important;
-      aspect-ratio:220 / 69!important;
-    }
-    #home .home-banner-placeholder{
-      margin:0 0 22px!important;
-    }
-    #gift .gift-starbox-banner{
-      margin:2px 0 22px!important;
-    }
-    #home .home-banner-placeholder .home-banner-slide,
-    #gift .gift-starbox-banner .home-banner-slide{
-      width:100%!important;
-      height:100%!important;
-      object-fit:cover!important;
-    }
-
-    /* 固定於瀏覽器右上角，頁面捲動時維持原位 */
-    .bottom-nav{
-      position:fixed!important;
-      left:auto!important;
-      right:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
-      top:24px!important;
-      bottom:auto!important;
-      transform:none!important;
-      z-index:1200!important;
-    }
-  }
-</style>
-
-<!-- 2026-07-16：電腦版選單改為固定左側直式排列 -->
-<style id="bb-desktop-left-fixed-navigation-20260716">
-  @media (min-width:1024px){
-    /* 左側保留導覽空間，主要內容不會被選單遮住 */
-    .app{
-      width:min(calc(100% - 48px),1280px)!important;
-      min-height:100dvh!important;
-      padding:28px 32px 54px 230px!important;
-    }
-    .topbar{
-      min-height:0!important;
-      margin:16px 0 10px!important;
-      align-items:flex-start!important;
-    }
-    body:not(:has(#home.active)) .section.active{
-      margin-top:0!important;
-      padding-top:16px!important;
-    }
-
-    /* 固定在瀏覽器左側，捲動頁面時維持原位 */
-    .bottom-nav{
-      position:fixed!important;
-      left:max(24px,calc((100vw - 1280px) / 2 + 24px))!important;
-      right:auto!important;
-      top:108px!important;
-      bottom:auto!important;
-      transform:none!important;
-      width:182px!important;
-      padding:0!important;
-      z-index:1200!important;
-    }
-    .bottom-shell{
-      width:100%!important;
-      height:auto!important;
-      min-height:0!important;
-      display:grid!important;
-      grid-template-columns:1fr!important;
-      align-items:stretch!important;
-      gap:6px!important;
-      padding:12px!important;
-      border-radius:24px!important;
-      background:rgba(255,255,255,.95)!important;
-      box-shadow:0 18px 44px rgba(32,50,65,.14)!important;
-    }
-    .bottom-link,
-    .bottom-link.home-center{
-      width:100%!important;
-      height:56px!important;
-      min-height:56px!important;
-      margin:0!important;
-      padding:0 14px!important;
-      border:0!important;
-      border-radius:15px!important;
-      transform:none!important;
-      justify-self:stretch!important;
-      display:flex!important;
-      flex-direction:row!important;
-      align-items:center!important;
-      justify-content:flex-start!important;
-      gap:12px!important;
-      background:transparent!important;
-      box-shadow:none!important;
-      color:#667085!important;
-      font-size:14px!important;
-      line-height:1!important;
-      text-align:left!important;
-      white-space:nowrap!important;
-    }
-    .bottom-link iconify-icon,
-    .bottom-link.home-center iconify-icon{
-      flex:0 0 28px!important;
-      width:28px!important;
-      font-size:27px!important;
-      color:currentColor!important;
-    }
-    .bottom-link span{
-      display:inline!important;
-      color:currentColor!important;
-      font-size:14px!important;
-      line-height:1!important;
-      font-weight:900!important;
-      white-space:nowrap!important;
-    }
-    .bottom-link.home-center::after{
-      content:"首頁";
-      display:inline-block!important;
-      color:currentColor!important;
-      font-size:14px!important;
-      line-height:1!important;
-      font-weight:900!important;
-      white-space:nowrap!important;
-    }
-
-    /* 直式選單以首頁為第一項 */
-    .bottom-link.home-center{order:1!important;}
-    .bottom-link[data-route="gift"]{order:2!important;}
-    .bottom-link[data-route="reservation"]{order:3!important;}
-    .bottom-link[data-route="wallet"]{order:4!important;}
-    .bottom-link[data-route="member"]{order:5!important;}
-
-    .bottom-link.active,
-    .bottom-link.active:not(.home-center),
-    .bottom-link.home-center.active{
-      background:rgba(67,116,151,.11)!important;
-      border:0!important;
-      border-radius:15px!important;
-      box-shadow:none!important;
-      color:#437497!important;
-      transform:none!important;
-    }
-    .bottom-link.active iconify-icon,
-    .bottom-link.active:not(.home-center) iconify-icon,
-    .bottom-link.home-center.active iconify-icon,
-    .bottom-link.active span,
-    .bottom-link.active:not(.home-center) span{
-      color:#437497!important;
-    }
-  }
-</style>
-
-<!-- 2026-07-16：電腦版左側選單圖示與名稱分置兩側 -->
-<style id="bb-desktop-left-nav-item-alignment-20260716">
-  @media (min-width:1024px){
-    /* 整組選單比前一版再向左移 12px */
-    .bottom-nav{
-      left:max(12px,calc((100vw - 1280px) / 2 + 12px))!important;
-    }
-    .bottom-link,
-    .bottom-link.home-center{
-      justify-content:space-between!important;
-      gap:0!important;
-      padding-left:14px!important;
-      padding-right:14px!important;
-    }
-    .bottom-link iconify-icon,
-    .bottom-link.home-center iconify-icon{
-      margin:0!important;
-      text-align:left!important;
-    }
-    .bottom-link span{
-      margin-left:auto!important;
-      text-align:right!important;
-    }
-    .bottom-link.home-center::after{
-      margin-left:auto!important;
-      text-align:right!important;
-    }
-  }
-</style>
-
-<!-- 2026-07-16：強制修正舊版非首頁選單的上下排列規則 -->
-<style id="bb-desktop-left-nav-grid-force-20260716">
-  @media (min-width:1024px){
-    /* 相較上一版再向左移約 24px */
-    .bottom-nav{
-      left:max(0px,calc((100vw - 1280px) / 2 - 12px))!important;
-    }
-
-    /* 使用雙欄 Grid，避免舊版 :not(.home-center) 規則改回上下排列 */
-    .bottom-nav .bottom-shell > .bottom-link:not(.home-center),
-    .bottom-nav .bottom-shell > .bottom-link.home-center{
-      width:100%!important;
-      height:56px!important;
-      min-height:56px!important;
-      padding:0 14px!important;
-      display:grid!important;
-      grid-template-columns:28px minmax(0,1fr)!important;
-      align-items:center!important;
-      justify-content:stretch!important;
-      column-gap:12px!important;
-      row-gap:0!important;
-      flex-direction:row!important;
-    }
-    .bottom-nav .bottom-shell > .bottom-link:not(.home-center) iconify-icon,
-    .bottom-nav .bottom-shell > .bottom-link.home-center iconify-icon{
-      grid-column:1!important;
-      justify-self:start!important;
-      align-self:center!important;
-      width:28px!important;
-      margin:0!important;
-      text-align:left!important;
-    }
-    .bottom-nav .bottom-shell > .bottom-link:not(.home-center) span{
-      grid-column:2!important;
-      justify-self:end!important;
-      align-self:center!important;
-      width:auto!important;
-      margin:0!important;
-      text-align:right!important;
-    }
-    .bottom-nav .bottom-shell > .bottom-link.home-center::after{
-      grid-column:2!important;
-      justify-self:end!important;
-      align-self:center!important;
-      width:auto!important;
-      margin:0!important;
-      text-align:right!important;
-    }
-  }
-</style>
-
-<!-- 2026-07-20：放大電腦版首頁五張漂浮裝飾圖片 -->
-<style id="bb-desktop-home-ornaments-larger-20260720">
-  @media (min-width:1024px){
-    /* 第一張大型電池圖：226px → 290px */
-    #home .feature-card.big .card-ornament{
-      width:100%!important;
-      max-width:290px!important;
-      right:-17%!important;
-      top:-6px!important;
-    }
-
-    /* 其餘四張裝飾圖：92px → 128px */
-    #home .feature-card:not(.big) .card-ornament-small{
-      width:54%!important;
-      max-width:128px!important;
-      right:14px!important;
-      bottom:28px!important;
-    }
   }
 </style>
