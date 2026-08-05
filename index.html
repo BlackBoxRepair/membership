@@ -5140,7 +5140,7 @@
             <h3 class="card-title">線上報價<br>透明公開</h3>
             <p class="card-subtitle">針對各類設備提供各式維修與升級服務</p>
           </div>
-          <img class="card-ornament" src="./ornaments/ornaments_battery.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_battery.png';" alt="" loading="lazy" decoding="async" />
+          <img class="card-ornament" src="/membership/ornamets/ornaments_battery.png?v=20260720-optimized" alt="" loading="eager" decoding="async" />
           <span class="card-pill">立即查看 <iconify-icon icon="solar:arrow-right-linear"></iconify-icon></span>
         </button>
 
@@ -5148,28 +5148,28 @@
           <span class="card-kicker">服務流程</span>
           <h3 class="card-title">快速維修<br>立即解決</h3>
           <p class="card-subtitle">現場最快 40 分鐘立即取件</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_repair.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_repair.png';" alt="" loading="lazy" decoding="async" />
+          <img class="card-ornament-small" src="/membership/ornamets/ornaments_repair.png?v=20260720-optimized" alt="" loading="eager" decoding="async" />
         </button>
 
         <button class="feature-card dark" onclick="window.location.href='https://blackboxrepair.github.io/bookingonline/'; return false;">
           <span class="card-kicker">線上預約</span>
           <h3 class="card-title">免等待<br>快速預約</h3>
           <p class="card-subtitle">選擇時間，輕鬆預約</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_booking.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_booking.png';" alt="" loading="lazy" decoding="async" />
+          <img class="card-ornament-small" src="/membership/ornamets/ornaments_booking.png?v=20260720-optimized" alt="" loading="eager" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="cases">
           <span class="card-kicker">維修案例</span>
           <h3 class="card-title">各式型號<br>維修無礙</h3>
           <p class="card-subtitle">手機/平板/筆電/遊戲機</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_tool.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_tool.png';" alt="" loading="lazy" decoding="async" />
+          <img class="card-ornament-small" src="/membership/ornamets/ornaments_tool.png?v=20260720-optimized" alt="" loading="eager" decoding="async" />
         </button>
 
         <button class="feature-card" data-route="gift">
           <span class="card-kicker">會員專屬</span>
           <h3 class="card-title">累積點數<br>換取折扣</h3>
           <p class="card-subtitle">更多會員專屬優惠等你來拿！</p>
-          <img class="card-ornament-small" src="./ornaments/ornaments_membership.png" onerror="this.onerror=null;this.src='./ornamets/ornaments_membership.png';" alt="" loading="lazy" decoding="async" />
+          <img class="card-ornament-small" src="/membership/ornamets/ornaments_membership.png?v=20260720-optimized" alt="" loading="eager" decoding="async" />
         </button>
       </section>
 
@@ -5585,11 +5585,12 @@
     }
 
     function getBaseUrl(){
-      // 正式首頁固定使用 /membership，與 /membership/test 測試頁完全分開。
+      // 正式首頁固定使用 GitHub Pages 的資料夾網址 /membership/。
+      // 保留尾斜線，確保所有 ./ 相對圖片都從 /membership/ 讀取，並與 /membership/test 完全分開。
       const path = location.pathname.replace(/\/$/, '');
-      if(path.endsWith('/index.html')) return path.replace(/\/index\.html$/, '');
-      if(path.endsWith('/membership')) return path;
-      return '/membership';
+      if(path.endsWith('/index.html')) return path.replace(/\/index\.html$/, '/');
+      if(path.endsWith('/membership')) return `${path}/`;
+      return '/membership/';
     }
 
     function hasLiffLoginCallbackParams(){
