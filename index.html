@@ -5580,12 +5580,11 @@
     }
 
     function getBaseUrl(){
-      // 統一所有站內頁面使用同一個網址，不再加入 # 或 /flow、/quote 等後綴。
+      // 正式首頁固定使用 /membership，與 /membership/test 測試頁完全分開。
       const path = location.pathname.replace(/\/$/, '');
-      if(path.endsWith('/test.html')) return path.replace('/test.html', '/test');
-      if(path.includes('/membership/test/')) return path.split('/membership/test/')[0] + '/membership/test';
-      if(path.endsWith('/membership/test')) return path;
-      return '/membership/test';
+      if(path.endsWith('/index.html')) return path.replace(/\/index\.html$/, '');
+      if(path.endsWith('/membership')) return path;
+      return '/membership';
     }
 
     function hasLiffLoginCallbackParams(){
