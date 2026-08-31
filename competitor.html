@@ -62,6 +62,57 @@
       padding: 28px 16px 40px;
     }
 
+    .page-view {
+      display: none;
+      min-height: calc(100vh - 68px);
+    }
+
+    .page-view.active {
+      display: block;
+      animation: pageIn 0.32s ease both;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      margin: 0 0 12px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 42px;
+      margin: 0;
+      padding: 8px 10px 8px 4px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--blue);
+      font-size: 15px;
+      line-height: 1;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.16s ease, transform 0.16s ease;
+    }
+
+    .back-button:hover {
+      background: var(--blue-soft);
+    }
+
+    .back-button:active {
+      transform: scale(0.97);
+    }
+
+    .back-icon {
+      display: inline-block;
+      font-size: 27px;
+      line-height: 0.7;
+      font-weight: 500;
+      transform: translateY(-1px);
+    }
+
     .hero {
       padding: 26px 4px 18px;
       text-align: center;
@@ -165,7 +216,7 @@
     }
 
     .selector-card {
-      display: none;
+      display: block;
     }
 
     .selector-card.unlocked {
@@ -182,47 +233,71 @@
       letter-spacing: -0.01em;
     }
 
-    .select-wrap {
-      position: relative;
+    .model-groups {
+      display: grid;
+      gap: 16px;
     }
 
-    select {
-      appearance: none;
-      width: 100%;
-      height: 56px;
-      border-radius: 17px;
+    .model-series {
+      border: 1px solid var(--soft-line);
+      border-radius: 20px;
+      background: #f7f7f9;
+      padding: 14px;
+    }
+
+    .model-series-title {
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.2;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+    }
+
+    .model-button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .model-button {
+      min-width: 0;
+      min-height: 50px;
+      padding: 10px 8px;
       border: 1px solid var(--line);
+      border-radius: 14px;
       outline: none;
       background: #fff;
       color: var(--text);
-      padding: 0 48px 0 16px;
-      font-size: 16px;
+      font-size: 14px;
+      line-height: 1.2;
       font-weight: 800;
       cursor: pointer;
-      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      text-align: center;
+      transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
     }
 
-    select:focus {
+    .model-button:hover {
+      border-color: rgba(0, 113, 227, 0.42);
+    }
+
+    .model-button:active {
+      transform: scale(0.97);
+    }
+
+    .model-button.active {
+      background: var(--blue);
       border-color: var(--blue);
-      box-shadow: 0 0 0 4px var(--blue-soft);
-      transform: translateY(-1px);
+      color: #fff;
+      box-shadow: 0 7px 16px rgba(0, 113, 227, 0.2);
     }
 
-    .select-arrow {
-      position: absolute;
-      right: 18px;
-      top: 50%;
-      width: 10px;
-      height: 10px;
-      border-right: 2px solid #86868b;
-      border-bottom: 2px solid #86868b;
-      transform: translateY(-65%) rotate(45deg);
-      pointer-events: none;
-      transition: transform 0.2s ease;
-    }
-
-    select:focus + .select-arrow {
-      transform: translateY(-35%) rotate(225deg);
+    .model-empty {
+      padding: 18px 4px 4px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
     }
 
     .summary {
@@ -231,6 +306,7 @@
 
     .price-panel {
       display: none;
+      scroll-margin-top: 16px;
       background: var(--card);
       border: 1px solid rgba(210, 210, 215, 0.62);
       border-radius: var(--radius);
@@ -404,6 +480,17 @@
       animation: fadeUp 0.55s 0.18s ease both;
     }
 
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     @keyframes fadeUp {
       from {
         opacity: 0;
@@ -493,62 +580,53 @@
 
 <body>
   <main class="page">
-    <section class="hero">
-      <h1>iPhone 同行維修報價</h1>
-    </section>
+    <div id="selectionPage" class="page-view active">
+      <section class="hero">
+        <h1>iPhone 同行維修報價</h1>
+      </section>
 
-    <section id="dealerGate" class="dealer-card">
-      <h2 class="dealer-title">請輸入經銷商代碼</h2>
-      <p class="dealer-desc">輸入正確代碼後，才可以查看同行 iPhone 維修報價。</p>
+      <section id="selectorCard" class="selector-card">
+        <div class="selector-label">選擇 iPhone 型號</div>
+        <div id="modelGroups" class="model-groups"></div>
+      </section>
 
-      <form id="dealerForm" class="dealer-form">
-        <input
-          id="dealerCodeInput"
-          class="dealer-input"
-          type="password"
-          inputmode="text"
-          autocomplete="off"
-          placeholder="輸入經銷商代碼"
-        />
-        <button class="dealer-button" type="submit">開始查看報價</button>
-        <div id="dealerError" class="dealer-error">代碼錯誤，請重新輸入。</div>
-      </form>
-    </section>
-
-    <section id="selectorCard" class="selector-card">
-      <label class="selector-label" for="modelSelect">選擇 iPhone 型號</label>
-      <div class="select-wrap">
-        <select id="modelSelect">
-          <option value="">請選擇 iPhone 型號</option>
-        </select>
-        <span class="select-arrow"></span>
+      <div class="summary">
+        <div id="resultCount">正在讀取資料...</div>
+        <div id="updatedAt">資料來源：competitor_iphone_price_matrix</div>
       </div>
-    </section>
 
-    <div class="summary">
-      <div id="resultCount">正在讀取資料...</div>
-      <div id="updatedAt">資料來源：competitor_iphone_price_matrix</div>
+      <section id="statusBox" class="status">資料載入中...</section>
+
+      <footer class="store-footer">
+        黑盒子維修中心-沙鹿站前店
+      </footer>
     </div>
 
-    <section id="statusBox" class="status">資料載入中...</section>
-
-    <section id="pricePanel" class="price-panel">
-      <div class="selected-cover">
-        <div class="selected-label">目前選擇</div>
-        <h2 id="selectedModel" class="selected-model">請選擇型號</h2>
-        <p id="selectedNote" class="selected-note"></p>
+    <div id="resultPage" class="page-view">
+      <div class="result-header">
+        <button id="backToModels" class="back-button" type="button" aria-label="返回選擇型號">
+          <span class="back-icon" aria-hidden="true">‹</span>
+          <span>返回選擇型號</span>
+        </button>
       </div>
 
-      <div id="priceList" class="price-list"></div>
-    </section>
+      <section id="pricePanel" class="price-panel">
+        <div class="selected-cover">
+          <div class="selected-label">目前選擇</div>
+          <h2 id="selectedModel" class="selected-model">請選擇型號</h2>
+          <p id="selectedNote" class="selected-note"></p>
+        </div>
 
-    <footer class="store-footer">
-      黑盒子維修中心-沙鹿站前店
-    </footer>
+        <div id="priceList" class="price-list"></div>
+      </section>
+
+      <footer class="store-footer">
+        黑盒子維修中心-沙鹿站前店
+      </footer>
+    </div>
   </main>
 
   <script>
-    const DEALER_CODE = "blk";
     const SUPABASE_URL = "https://hkygeqtxtvnslyrmfiux.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhreWdlcXR4dHZuc2x5cm1maXV4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMTY2MDUsImV4cCI6MjA5MjU5MjYwNX0.VY_XEmXpuiKaYiIH2H57gMTozaZtEDiqvaBSZ9A6kfQ";
     const TABLE_NAME = "competitor_iphone_price_matrix";
@@ -642,14 +720,14 @@
     let allRows = [];
     let repairItems = [];
     let hasLoadedData = false;
+    let selectedModelIndex = null;
 
-    const dealerGate = document.getElementById("dealerGate");
-    const dealerForm = document.getElementById("dealerForm");
-    const dealerCodeInput = document.getElementById("dealerCodeInput");
-    const dealerError = document.getElementById("dealerError");
     const selectorCard = document.getElementById("selectorCard");
+    const selectionPage = document.getElementById("selectionPage");
+    const resultPage = document.getElementById("resultPage");
+    const backToModels = document.getElementById("backToModels");
 
-    const modelSelect = document.getElementById("modelSelect");
+    const modelGroups = document.getElementById("modelGroups");
     const statusBox = document.getElementById("statusBox");
     const pricePanel = document.getElementById("pricePanel");
     const resultCount = document.getElementById("resultCount");
@@ -864,31 +942,120 @@
       return numberValue;
     }
 
-    function populateModelSelect() {
-      modelSelect.innerHTML = "";
+    function getSeriesInfo(modelName) {
+      const name = String(modelName || "").trim();
 
-      const placeholder = document.createElement("option");
-      placeholder.value = "";
-      placeholder.textContent = "請選擇 iPhone 型號";
-      placeholder.selected = true;
-      modelSelect.appendChild(placeholder);
+      // iPhone 17 / 16 / 15 / 14 ... 數字世代自動分在同一系列
+      const numericMatch = name.match(/iphone\s*(\d+)/i);
+      if (numericMatch) {
+        const generation = Number(numericMatch[1]);
+        return {
+          key: `numeric-${generation}`,
+          title: `iPhone ${generation} 系列`,
+          order: 1000 - generation
+        };
+      }
+
+      // X 世代：iPhone X / XR / XS / XS Max
+      if (/iphone\s*(x|xr|xs)/i.test(name)) {
+        return { key: "iphone-x", title: "iPhone X 系列", order: 2000 };
+      }
+
+      // SE 世代
+      if (/iphone\s*se/i.test(name)) {
+        return { key: "iphone-se", title: "iPhone SE 系列", order: 3000 };
+      }
+
+      // 其他未符合規則的型號仍會顯示
+      return { key: `other-${name}`, title: "其他型號", order: 9999 };
+    }
+
+    function getShortModelName(modelName) {
+      const name = String(modelName || "").trim();
+      return name.replace(/^iPhone\s*/i, "").trim() || name;
+    }
+
+    function buildModelGroups() {
+      modelGroups.innerHTML = "";
+      selectedModelIndex = null;
 
       if (allRows.length === 0) {
-        placeholder.textContent = "目前沒有可選擇的型號";
-        modelSelect.disabled = true;
+        modelGroups.innerHTML = `<div class="model-empty">目前沒有可選擇的型號</div>`;
         return;
       }
 
-      modelSelect.disabled = false;
+      const groupedMap = new Map();
 
       allRows.forEach((row, index) => {
-        const option = document.createElement("option");
-        option.value = String(index);
-        option.textContent = getModelName(row, index);
-        modelSelect.appendChild(option);
+        const modelName = getModelName(row, index);
+        const series = getSeriesInfo(modelName);
+
+        if (!groupedMap.has(series.key)) {
+          groupedMap.set(series.key, { ...series, models: [] });
+        }
+
+        groupedMap.get(series.key).models.push({
+          index,
+          name: modelName,
+          sort: getSortValue(row)
+        });
       });
 
-      modelSelect.value = "";
+      const groups = Array.from(groupedMap.values()).sort((a, b) => {
+        if (a.order !== b.order) return a.order - b.order;
+        return a.title.localeCompare(b.title, "zh-Hant");
+      });
+
+      modelGroups.innerHTML = groups.map((group) => {
+        group.models.sort((a, b) => {
+          if (a.sort !== b.sort) return a.sort - b.sort;
+          return a.name.localeCompare(b.name, "zh-Hant");
+        });
+
+        const buttons = group.models.map((model) => {
+          const buttonText = getShortModelName(model.name);
+          return `
+            <button
+              type="button"
+              class="model-button"
+              data-model-index="${model.index}"
+              aria-label="選擇 ${escapeHtml(model.name)}"
+            >
+              ${escapeHtml(buttonText)}
+            </button>
+          `;
+        }).join("");
+
+        return `
+          <section class="model-series">
+            <h3 class="model-series-title">${escapeHtml(group.title)}</h3>
+            <div class="model-button-grid">${buttons}</div>
+          </section>
+        `;
+      }).join("");
+    }
+
+    function showSelectionPage() {
+      resultPage.classList.remove("active");
+      selectionPage.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function showResultPage() {
+      selectionPage.classList.remove("active");
+      resultPage.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+
+    function selectModel(index, button) {
+      selectedModelIndex = Number(index);
+
+      modelGroups.querySelectorAll(".model-button").forEach((item) => {
+        item.classList.toggle("active", item === button);
+      });
+
+      renderSelectedPrice();
+      showResultPage();
     }
 
     function showStatus(message, isError = false) {
@@ -913,8 +1080,8 @@
     }
 
     function renderSelectedPrice() {
-      const selectedIndex = Number(modelSelect.value);
-      const row = allRows[selectedIndex];
+      const selectedIndex = selectedModelIndex;
+      const row = selectedIndex === null ? null : allRows[selectedIndex];
 
       if (!row || Number.isNaN(selectedIndex)) {
         pricePanel.classList.remove("show");
@@ -949,8 +1116,8 @@
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
         resultCount.textContent = "正在讀取資料...";
-        modelSelect.innerHTML = `<option value="">資料載入中...</option>`;
-        modelSelect.disabled = true;
+        modelGroups.innerHTML = `<div class="model-empty">資料載入中...</div>`;
+        selectedModelIndex = null;
 
         const { data, error } = await client
           .from(TABLE_NAME)
@@ -999,7 +1166,7 @@
 
         resultCount.innerHTML = `共讀取 <strong>${allRows.length}</strong> 筆型號資料`;
 
-        populateModelSelect();
+        buildModelGroups();
 
         if (allRows.length === 0) {
           showStatus("目前資料表沒有可顯示的報價資料。");
@@ -1013,8 +1180,8 @@
       } catch (error) {
         console.error(error);
 
-        modelSelect.innerHTML = `<option value="">讀取失敗</option>`;
-        modelSelect.disabled = true;
+        modelGroups.innerHTML = `<div class="model-empty">型號讀取失敗</div>`;
+        selectedModelIndex = null;
 
         pricePanel.classList.remove("show");
         pricePanel.style.display = "none";
@@ -1029,38 +1196,21 @@
       }
     }
 
-    function unlockDealerArea() {
-      dealerGate.style.display = "none";
-      selectorCard.classList.add("unlocked");
+    modelGroups.addEventListener("click", (event) => {
+      const button = event.target.closest(".model-button");
+      if (!button) return;
 
-      if (!hasLoadedData) {
-        loadData();
-      }
-    }
-
-    dealerForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const code = dealerCodeInput.value.trim().toLowerCase();
-
-      if (code === DEALER_CODE) {
-        dealerError.style.display = "none";
-        unlockDealerArea();
-        return;
-      }
-
-      dealerError.style.display = "block";
-      dealerCodeInput.value = "";
-      dealerCodeInput.focus();
-
-      dealerGate.classList.remove("error-shake");
-      void dealerGate.offsetWidth;
-      dealerGate.classList.add("error-shake");
+      selectModel(button.dataset.modelIndex, button);
     });
 
-    modelSelect.addEventListener("change", renderSelectedPrice);
+    backToModels.addEventListener("click", () => {
+      showSelectionPage();
+    });
 
-    dealerCodeInput.focus();
+
+    // 免驗證：進入頁面後直接載入型號與報價資料
+    selectorCard.classList.add("unlocked");
+    loadData();
   </script>
 </body>
 </html>
