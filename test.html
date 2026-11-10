@@ -1463,6 +1463,9 @@
     }
 
 
+    /* i貼卡：資料庫確認會員資格前不得顯示 */
+    #wallet .wallet-ipaste-card[hidden]{display:none!important;}
+
     /* 票券錢包：i貼卡（僅新增此區塊，尺寸對齊盒芯禮遇 Banner） */
     #wallet .wallet-ipaste-card{
       position:relative;
@@ -5257,7 +5260,7 @@
 
     <section id="wallet" class="section">
       <div class="page-head"><div class="page-title"><small>COUPON</small><h2>票券錢包</h2></div><div id="walletTicketBadge" class="wallet-ticket-badge" aria-label="可用票券張數">0 張可用票券</div></div>
-      <div class="wallet-ipaste-card" aria-label="i貼卡">
+      <div class="wallet-ipaste-card" aria-label="i貼卡" hidden>
         <span class="wallet-ipaste-card-name">i貼卡</span>
       </div>
       <div id="walletList" class="data-list"></div>
@@ -5872,6 +5875,8 @@
     });
 
     function logoutMember(){
+      const iDaCard = document.querySelector('#wallet .wallet-ipaste-card');
+      if(iDaCard) iDaCard.hidden = true;
       try{
         currentMember = null;
         currentLineProfile = null;
@@ -6400,6 +6405,8 @@
           }
         });
       }else{
+        const iDaCard = document.querySelector('#wallet .wallet-ipaste-card');
+        if(iDaCard) iDaCard.hidden = true;
         const wallet = $('#walletList'); if(wallet) wallet.innerHTML = '';
         const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
         const memberActivity = $('#memberActivityList'); if(memberActivity) memberActivity.innerHTML = '';
@@ -7075,8 +7082,34 @@
       };
     }
 
+    // i貼卡：僅顯示給 iDaCard 中有同 LINE ID 且尚未過期的會員。
+    async function updateIDaCardVisibility(){
+      const card = document.querySelector('#wallet .wallet-ipaste-card');
+      if(!card) return;
+      card.hidden = true;
+      const lineId = currentMember ? memberLineId() : '';
+      if(!lineId) return;
+
+      try{
+        const { data, error } = await supabaseClient
+          .from('iDaCard')
+          .select('line_id, valid_until')
+          .eq('line_id', lineId)
+          .maybeSingle();
+        if(error) throw error;
+        // 避免會員登出或切換帳號期間，舊查詢結果誤顯示卡片。
+        if(!currentMember || memberLineId() !== lineId) return;
+        const expiry = data?.valid_until ? Date.parse(data.valid_until) : NaN;
+        card.hidden = !(data && Number.isFinite(expiry) && expiry > Date.now());
+      }catch(err){
+        console.warn('iDaCard 資格查詢失敗', err);
+        card.hidden = true;
+      }
+    }
+
     async function renderWalletPage(){
       const box = $('#walletList'); if(!box) return;
+      updateIDaCardVisibility();
       const walletBadge = $('#walletTicketBadge');
       if(walletBadge) walletBadge.textContent = '0 張可用票券';
       if(!currentMember){ box.innerHTML = ''; return; }
