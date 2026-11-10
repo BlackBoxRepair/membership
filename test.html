@@ -5263,6 +5263,8 @@
       <div class="wallet-ipaste-card" aria-label="i貼卡" hidden>
         <span class="wallet-ipaste-card-name">i貼卡</span>
       </div>
+      <!-- iDaCard 排錯資訊：確認問題後可移除此區塊 -->
+      <div id="idacardDiagnostic" role="status" aria-live="polite" style="margin:0 0 12px;padding:10px 12px;background:#fff;border:1px solid #ddd;border-radius:12px;color:#526071;font-size:12px;line-height:1.6;overflow-wrap:anywhere;">i貼卡狀態：尚未查詢</div>
       <div id="walletList" class="data-list"></div>
     </section>
 
@@ -7082,28 +7084,52 @@
       };
     }
 
-    // i貼卡：僅顯示給 iDaCard 中有同 LINE ID 且尚未過期的會員。
+    // i貼卡：診斷版本。查詢邏輯不變，只提供畫面上的可讀診斷訊息。
+    let idacardRequestSequence = 0;
     async function updateIDaCardVisibility(){
       const card = document.querySelector('#wallet .wallet-ipaste-card');
+      const diagnostic = document.getElementById('idacardDiagnostic');
       if(!card) return;
+      const requestId = ++idacardRequestSequence;
       card.hidden = true;
-      const lineId = currentMember ? memberLineId() : '';
-      if(!lineId) return;
-
+      const lineId = currentMember ? String(memberLineId() || '').trim() : '';
+      const setStatus = message => {
+        if(diagnostic && requestId === idacardRequestSequence) {
+          diagnostic.textContent = `i貼卡狀態：${message}`;
+        }
+      };
+      if(!lineId){ setStatus('目前沒有可用的會員 LINE ID，無法比對'); return; }
+      setStatus(`查詢中（會員 ID 尾碼：${lineId.slice(-6)}）`);
       try{
         const { data, error } = await supabaseClient
           .from('iDaCard')
           .select('line_id, valid_until')
           .eq('line_id', lineId)
           .maybeSingle();
-        if(error) throw error;
-        // 避免會員登出或切換帳號期間，舊查詢結果誤顯示卡片。
-        if(!currentMember || memberLineId() !== lineId) return;
-        const expiry = data?.valid_until ? Date.parse(data.valid_until) : NaN;
-        card.hidden = !(data && Number.isFinite(expiry) && expiry > Date.now());
+        if(requestId !== idacardRequestSequence || !currentMember || String(memberLineId() || '').trim() !== lineId) return;
+        if(error){
+          console.warn('iDaCard 資格查詢失敗', error);
+          setStatus(`查詢失敗｜${error.code || '未知錯誤'}｜${error.message || '無錯誤說明'}`);
+          return;
+        }
+        if(!data){
+          setStatus(`查詢成功，但找不到這個 LINE ID 的發卡資料（ID 尾碼：${lineId.slice(-6)}）`);
+          return;
+        }
+        const expiry = data.valid_until ? Date.parse(data.valid_until) : NaN;
+        if(!Number.isFinite(expiry)){
+          setStatus(`查到發卡資料，但 valid_until 無法解析：${String(data.valid_until)}`);
+          return;
+        }
+        if(expiry <= Date.now()){
+          setStatus(`查到發卡資料，但已過期：${new Date(expiry).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'})}`);
+          return;
+        }
+        card.hidden = false;
+        setStatus(`資格有效，已顯示 i貼卡｜到期：${new Date(expiry).toLocaleString('zh-TW', {timeZone:'Asia/Taipei'})}`);
       }catch(err){
         console.warn('iDaCard 資格查詢失敗', err);
-        card.hidden = true;
+        setStatus(`程式執行錯誤｜${err?.message || String(err)}`);
       }
     }
 
