@@ -1496,6 +1496,23 @@
       color:#777;
       text-shadow:0 1px 1px rgba(255,255,255,.9),0 -1px 1px rgba(0,0,0,.22);
     }
+    /* i貼卡：點擊後右下角顯示效期，10 秒後淡出 */
+    #wallet .wallet-ipaste-card{cursor:pointer;}
+    #wallet .wallet-ipaste-expiry{
+      position:absolute;
+      right:14px;
+      bottom:12px;
+      z-index:1;
+      color:#666;
+      font-size:11px;
+      font-weight:650;
+      line-height:1.3;
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .5s ease,visibility .5s ease;
+    }
+    #wallet .wallet-ipaste-expiry.is-visible{opacity:1;visibility:visible;}
     @media (max-width:390px){
       #wallet .wallet-ipaste-card{height:120px;margin:0 0 12px;}
       #wallet .wallet-ipaste-card-name{top:20px;left:22px;}
@@ -5260,8 +5277,9 @@
 
     <section id="wallet" class="section">
       <div class="page-head"><div class="page-title"><small>COUPON</small><h2>票券錢包</h2></div><div id="walletTicketBadge" class="wallet-ticket-badge" aria-label="可用票券張數">0 張可用票券</div></div>
-      <div class="wallet-ipaste-card" aria-label="i貼卡" hidden>
+      <div class="wallet-ipaste-card" aria-label="i貼卡（點擊顯示禮遇效期）" role="button" tabindex="0" hidden>
         <span class="wallet-ipaste-card-name">i貼卡</span>
+        <span class="wallet-ipaste-expiry" aria-live="polite"></span>
       </div>
       <div id="walletList" class="data-list"></div>
     </section>
@@ -5877,6 +5895,7 @@
     function logoutMember(){
       const iDaCard = document.querySelector('#wallet .wallet-ipaste-card');
       if(iDaCard) iDaCard.hidden = true;
+      hideIDaCardExpiry();
       try{
         currentMember = null;
         currentLineProfile = null;
@@ -6407,6 +6426,7 @@
       }else{
         const iDaCard = document.querySelector('#wallet .wallet-ipaste-card');
         if(iDaCard) iDaCard.hidden = true;
+        hideIDaCardExpiry();
         const wallet = $('#walletList'); if(wallet) wallet.innerHTML = '';
         const reservation = $('#reservationList'); if(reservation) reservation.innerHTML = '';
         const memberActivity = $('#memberActivityList'); if(memberActivity) memberActivity.innerHTML = '';
@@ -7082,28 +7102,67 @@
       };
     }
 
-    // i貼卡：僅顯示給 iDaCard 中有同 LINE ID 且尚未過期的會員。
+    // i貼卡：沿用原本 LINE ID / Supabase 資格檢查；僅點擊卡面時顯示效期。
+    let idacardRequestSequence = 0;
+    let idacardExpiryTimer = null;
+    function hideIDaCardExpiry(){
+      if(idacardExpiryTimer !== null){
+        clearTimeout(idacardExpiryTimer);
+        idacardExpiryTimer = null;
+      }
+      const expiryLabel = document.querySelector('#wallet .wallet-ipaste-expiry');
+      if(expiryLabel) expiryLabel.classList.remove('is-visible');
+    }
+    function showIDaCardExpiry(){
+      const card = document.querySelector('#wallet .wallet-ipaste-card');
+      const expiryLabel = card?.querySelector('.wallet-ipaste-expiry');
+      if(!card || card.hidden || !expiryLabel || !card.dataset.expiryDate) return;
+      expiryLabel.textContent = `禮遇效期：${card.dataset.expiryDate}`;
+      hideIDaCardExpiry();
+      expiryLabel.classList.add('is-visible');
+      idacardExpiryTimer = setTimeout(() => {
+        expiryLabel.classList.remove('is-visible');
+        idacardExpiryTimer = null;
+      }, 10000);
+    }
+    document.querySelector('#wallet .wallet-ipaste-card')?.addEventListener('click', showIDaCardExpiry);
+    document.querySelector('#wallet .wallet-ipaste-card')?.addEventListener('keydown', event => {
+      if(event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+        showIDaCardExpiry();
+      }
+    });
     async function updateIDaCardVisibility(){
       const card = document.querySelector('#wallet .wallet-ipaste-card');
       if(!card) return;
+      const requestId = ++idacardRequestSequence;
       card.hidden = true;
-      const lineId = currentMember ? memberLineId() : '';
+      delete card.dataset.expiryDate;
+      hideIDaCardExpiry();
+      const lineId = currentMember ? String(memberLineId() || '').trim() : '';
       if(!lineId) return;
-
       try{
         const { data, error } = await supabaseClient
           .from('iDaCard')
           .select('line_id, valid_until')
           .eq('line_id', lineId)
           .maybeSingle();
-        if(error) throw error;
-        // 避免會員登出或切換帳號期間，舊查詢結果誤顯示卡片。
-        if(!currentMember || memberLineId() !== lineId) return;
-        const expiry = data?.valid_until ? Date.parse(data.valid_until) : NaN;
-        card.hidden = !(data && Number.isFinite(expiry) && expiry > Date.now());
+        if(requestId !== idacardRequestSequence || !currentMember || String(memberLineId() || '').trim() !== lineId) return;
+        if(error){
+          console.warn('iDaCard 資格查詢失敗', error);
+          return;
+        }
+        if(!data) return;
+        const expiry = data.valid_until ? Date.parse(data.valid_until) : NaN;
+        if(!Number.isFinite(expiry) || expiry <= Date.now()) return;
+        const twDateParts = new Intl.DateTimeFormat('zh-TW', {
+          timeZone:'Asia/Taipei', year:'numeric',month:'2-digit',day:'2-digit'
+        }).formatToParts(new Date(expiry));
+        const datePart = type => twDateParts.find(part => part.type === type)?.value || '';
+        card.dataset.expiryDate = `${datePart('year')}/${datePart('month')}/${datePart('day')}`;
+        card.hidden = false;
       }catch(err){
         console.warn('iDaCard 資格查詢失敗', err);
-        card.hidden = true;
       }
     }
 
