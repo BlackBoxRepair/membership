@@ -182,6 +182,12 @@
             .boxcore-member-point-item .value { font-size:19px; }
         }
         .boxcore-coupon-row { display:flex; align-items:center; gap:10px; border:1px solid #ece7df; border-radius:14px; padding:12px; background:#fff; }
+        /* i貼卡專屬選取樣式；不影響原本票券 */
+        .boxcore-idacard-choice { width:100%; text-align:left; cursor:pointer; font-family:inherit; }
+        .boxcore-idacard-choice.is-selected { border-color:#ca8a04; background:#fffbeb; }
+        .boxcore-idacard-choice .idacard-limit-badge { display:inline-block; padding:2px 6px; border-radius:5px; background:#fee2e2; color:#dc2626; font-size:10px; font-weight:900; }
+        .boxcore-idacard-choice .idacard-check { font-size:20px; font-weight:900; color:#d1d5db; }
+        .boxcore-idacard-choice.is-selected .idacard-check { color:#ca8a04; }
         .boxcore-coupon-main { min-width:0; flex:1; cursor:pointer; }
         .boxcore-coupon-main .name { font-size:13px; font-weight:900; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
         .boxcore-coupon-main .expiry { font-size:10px; font-weight:700; color:#9b9286; margin-top:4px; }
@@ -1273,6 +1279,7 @@
         let currentTargetCouponId = null; 
         let selectedCoupons = [];
         let boxcoreCouponQuantities = {};
+        let boxcoreIdaCardSelected = false; // 前台結帳加發 i貼卡（不屬於一般 coupons）
         let selectedModelPrefix = "";
         let selectedModelSuffix = "";
         let selectedCashCoupons = []; 
@@ -1923,6 +1930,8 @@
             setText('boxcore-total-due', '$0');
             selectedCoupons = [];
             boxcoreCouponQuantities = {};
+            boxcoreIdaCardSelected = false;
+            updateBoxcoreIdaCardChoice();
             selectedCashCoupons = [];
             calculatedPoints = 0;
             calculatedRedeem = 0;
@@ -2971,8 +2980,8 @@
                 alert(err.message);
                 return;
             }
-            if (!amount && selectedCoupons.length === 0 && !warrantyPayload) {
-                alert('請至少輸入金額、選擇一張優惠券，或填寫終身保固資料');
+            if (!amount && selectedCoupons.length === 0 && !warrantyPayload && !boxcoreIdaCardSelected) {
+                alert('請至少輸入金額、選擇一張優惠券、i貼卡，或填寫終身保固資料');
                 return;
             }
             syncBoxcoreOperationToIssueForm();
@@ -3042,7 +3051,9 @@
 
                 document.getElementById('cfm-total-due').innerText = '$' + Math.max(0, actualDue).toLocaleString();
                 document.getElementById('cfm-points').innerText = document.getElementById('preview-points').innerText;
-                document.getElementById('cfm-coupon').innerText = selectedCoupons.length > 0 ? selectedCoupons.join('、') : '無';
+                const confirmationItems = selectedCoupons.slice();
+                if (currentSystemMode === 'boxcore' && boxcoreIdaCardSelected) confirmationItems.unshift('（限時）i貼卡');
+                document.getElementById('cfm-coupon').innerText = confirmationItems.length ? confirmationItems.join('、') : '無';
                 
             } else if (currentSystemMode === 'activity') {
                 document.getElementById('cfm-title').innerText = "活動作業確認";
@@ -3283,9 +3294,23 @@
 
                 if (error) throw error;
 
+                // 原結帳 RPC 已經成功；後續 i貼卡是獨立寫入，不能把失敗當成整筆結帳回滾。
+                let idaCardIssueError = null;
+                if (currentSystemMode === 'boxcore' && boxcoreIdaCardSelected) {
+                    const { error: cardError } = await _supabase
+                        .from('iDaCard')
+                        .insert({ line_id: currentTargetLineId });
+                    // line_id 是主鍵；重複發卡時保留原有 created_at 和 valid_until。
+                    if (cardError && cardError.code !== '23505') idaCardIssueError = cardError;
+                }
+
                 closeConfirmModal();
                 hideLoading();
-                await resetScan('系統發放完成！');
+                if (idaCardIssueError) {
+                    console.error('結帳已完成，但 i貼卡發送失敗：', idaCardIssueError);
+                    alert('結帳已成功，但 i貼卡寫入失敗：' + idaCardIssueError.message + '\n請勿重複結帳，請至 Supabase 補發 i貼卡。');
+                }
+                await resetScan(idaCardIssueError ? '結帳完成，i貼卡未發送' : '系統發放完成！');
             } catch (err) {
                 hideLoading();
                 alert('整筆作業失敗，所有資料均未寫入：' + (err?.message || '未知錯誤'));
@@ -3483,13 +3508,35 @@
             document.getElementById('activity-preview-points').innerText = (calculatedActivityPoints >= 0 ? '+' : '') + calculatedActivityPoints;
         }
 
+        function updateBoxcoreIdaCardChoice() {
+            const choice = document.getElementById('boxcore-idacard-choice');
+            if (!choice) return;
+            choice.classList.toggle('is-selected', boxcoreIdaCardSelected);
+            choice.setAttribute('aria-pressed', String(boxcoreIdaCardSelected));
+            const check = choice.querySelector('.idacard-check');
+            if (check) check.textContent = boxcoreIdaCardSelected ? '✓' : '＋';
+        }
+
+        function toggleBoxcoreIdaCard() {
+            boxcoreIdaCardSelected = !boxcoreIdaCardSelected;
+            updateBoxcoreIdaCardChoice();
+        }
+
+        // 與票券清單項目相同的卡片尺寸，固定放在最上方。
+        function boxcoreIdaCardHtml() {
+            return `<button id="boxcore-idacard-choice" type="button" class="boxcore-coupon-row boxcore-idacard-choice${boxcoreIdaCardSelected ? ' is-selected' : ''}" aria-pressed="${boxcoreIdaCardSelected}" onclick="toggleBoxcoreIdaCard()"><div class="boxcore-coupon-main"><div class="name"><span class="idacard-limit-badge">限時</span> i貼卡</div><div class="expiry">效期：發卡當年度的隔年年底</div></div><span class="idacard-check" aria-hidden="true">${boxcoreIdaCardSelected ? '✓' : '＋'}</span></button>`;
+        }
+
         async function loadCoupons() {
             const container = document.getElementById('coupon-container');
             const actContainer = document.getElementById('activity-coupon-container');
             const boxContainer = document.getElementById('boxcore-coupon-container');
             const today = getTaiwanToday();
             const { data } = await _supabase.from('coupons').select('*').eq('is_active', true);
-            if (!data) return;
+            if (!data) {
+                if (boxContainer) boxContainer.innerHTML = boxcoreIdaCardHtml();
+                return;
+            }
             allCouponsData = data;
             
             const validCoupons = data.filter(c => 
@@ -3516,7 +3563,7 @@
             }).join('');
             container.innerHTML = generateHtml('issue');
             actContainer.innerHTML = generateHtml('activity');
-            if (boxContainer) boxContainer.innerHTML = generateHtml('boxcore');
+            if (boxContainer) boxContainer.innerHTML = boxcoreIdaCardHtml() + generateHtml('boxcore');
         }
         
         function toggleCoupon(el, name) {
